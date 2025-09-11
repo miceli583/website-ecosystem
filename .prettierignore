@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+
+# Environment files
+.env*
+
+# Database
+*.sqlite
+*.db
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
