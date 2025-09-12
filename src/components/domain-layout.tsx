@@ -14,17 +14,29 @@ interface DomainLayoutProps {
 function EcosystemNav({ currentHostname }: { currentHostname: string }) {
   const getEcosystemLinks = () => {
     const isLocalhost = currentHostname.includes("localhost");
-    
+
     const ecosystemDomains = [
-      { key: "matthew", domain: DOMAINS.MATTHEW_MICELI, config: getDomainConfig("matthewmiceli.com") },
-      { key: "live", domain: DOMAINS.MIRACLE_MIND_LIVE, config: getDomainConfig("miraclemind.live") },
-      { key: "dev", domain: DOMAINS.MIRACLE_MIND_DEV, config: getDomainConfig("miraclemind.dev") },
+      {
+        key: "matthew",
+        domain: DOMAINS.MATTHEW_MICELI,
+        config: getDomainConfig("matthewmiceli.com"),
+      },
+      {
+        key: "live",
+        domain: DOMAINS.MIRACLE_MIND_LIVE,
+        config: getDomainConfig("miraclemind.live"),
+      },
+      {
+        key: "dev",
+        domain: DOMAINS.MIRACLE_MIND_DEV,
+        config: getDomainConfig("miraclemind.dev"),
+      },
     ];
-    
+
     return ecosystemDomains.map((domain) => {
       let href: string;
       let isActive: boolean;
-      
+
       if (isLocalhost) {
         href = `/?domain=${domain.key}`;
         const urlParams = new URLSearchParams(window.location.search);
@@ -32,10 +44,12 @@ function EcosystemNav({ currentHostname }: { currentHostname: string }) {
         isActive = currentDomain === domain.key;
       } else {
         href = `https://${domain.domain}`;
-        const domainPrefix = domain.domain.split('.')[0];
-        isActive = domainPrefix ? currentHostname.includes(domainPrefix) : false;
+        const domainPrefix = domain.domain.split(".")[0];
+        isActive = domainPrefix
+          ? currentHostname.includes(domainPrefix)
+          : false;
       }
-      
+
       return {
         ...domain,
         href,
@@ -47,8 +61,8 @@ function EcosystemNav({ currentHostname }: { currentHostname: string }) {
   const ecosystemLinks = getEcosystemLinks();
 
   return (
-    <div className="flex items-center space-x-1 rounded-md border border-border bg-background/50 p-1">
-      <span className="px-2 text-xs font-medium text-muted-foreground">
+    <div className="border-border bg-background/50 flex items-center space-x-1 rounded-md border p-1">
+      <span className="text-muted-foreground px-2 text-xs font-medium">
         Ecosystem:
       </span>
       {ecosystemLinks.map((link) => (
@@ -61,7 +75,9 @@ function EcosystemNav({ currentHostname }: { currentHostname: string }) {
         >
           <Link href={link.href}>
             <span className="mr-1">{link.config.logo}</span>
-            <span className="hidden xl:inline">{link.config.name.split(' ')[0]}</span>
+            <span className="hidden xl:inline">
+              {link.config.name.split(" ")[0]}
+            </span>
           </Link>
         </Button>
       ))}
@@ -126,7 +142,7 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
                 </Link>
               ))}
             </nav>
-            
+
             {/* Ecosystem Navigation */}
             <div className="hidden lg:block">
               <EcosystemNav currentHostname={currentHostname} />
@@ -157,7 +173,7 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div className="flex items-center space-x-2">
               <span className="text-lg">{domainConfig.logo}</span>
