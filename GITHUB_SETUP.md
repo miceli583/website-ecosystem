@@ -43,12 +43,14 @@ Once pushed, your CI/CD pipeline will automatically run! You can:
 ### What Runs Automatically
 
 **On every push to `main` or `develop`:**
+
 - ✅ **Code linting** (ESLint)
 - ✅ **Code formatting check** (Prettier)
 - ✅ **Type checking** (TypeScript)
 - ✅ **Build verification** (Next.js production build)
 
 **On every pull request:**
+
 - ✅ Same checks as above
 - ✅ **Blocks merging** if any check fails
 - ✅ **Status checks** visible in PR
@@ -69,7 +71,7 @@ on:
 jobs:
   lint-and-typecheck:
     # Runs ESLint, Prettier, and TypeScript checks
-    
+
   build:
     # Verifies the app builds successfully
 ```
@@ -108,7 +110,7 @@ git checkout -b feature/your-feature-name
 
 # Check your code locally (optional but recommended)
 npm run lint          # Check linting
-npm run format:check  # Check formatting  
+npm run format:check  # Check formatting
 npm run typecheck     # Check types
 npm run build         # Test build
 
@@ -122,7 +124,7 @@ git push -u origin feature/your-feature-name
 
 1. Push your feature branch (command above)
 2. Go to GitHub → your repository
-3. Click "Compare & pull request" 
+3. Click "Compare & pull request"
 4. Add description of your changes
 5. Click "Create pull request"
 6. **Wait for CI checks** ✅ before merging
@@ -139,7 +141,7 @@ Your app is ready for deployment to:
 3. Add environment variables in Vercel dashboard:
    ```
    AUTH_SECRET=your-auth-secret
-   AUTH_DISCORD_ID=your-discord-id  
+   AUTH_DISCORD_ID=your-discord-id
    AUTH_DISCORD_SECRET=your-discord-secret
    DATABASE_URL=your-database-url
    ```

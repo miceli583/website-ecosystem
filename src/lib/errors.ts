@@ -13,7 +13,7 @@ export class AppError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly statusCode: number = 500,
+    public readonly statusCode: number = 500
   ) {
     super(message);
     this.name = "AppError";
@@ -116,7 +116,7 @@ export const createError = {
     new AppError(
       `${resource}${id ? ` with id "${id}"` : ""} not found`,
       ErrorCodes.NOT_FOUND,
-      404,
+      404
     ),
 
   validation: (message = "Validation failed") =>
@@ -126,7 +126,7 @@ export const createError = {
     new AppError(
       `${resource} already exists`,
       ErrorCodes.DUPLICATE_RESOURCE,
-      409,
+      409
     ),
 
   database: (message = "Database operation failed") =>

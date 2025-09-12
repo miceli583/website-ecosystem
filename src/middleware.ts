@@ -13,22 +13,24 @@ export function middleware(request: NextRequest) {
 
   // Get current domain
   const currentDomain = getDomainFromHeaders(request.headers);
-  
-  console.log(`🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain}`);
+
+  console.log(
+    `🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain}`
+  );
 
   // Handle admin routes - only accessible via miraclemind.dev
   if (isAdminPath(pathname)) {
     // Allow admin access on miraclemind.dev or localhost with domain=dev
-    const isValidAdminDomain = 
-      hostname.includes("miraclemind.dev") || 
+    const isValidAdminDomain =
+      hostname.includes("miraclemind.dev") ||
       (hostname.includes("localhost") && searchParams.get("domain") === "dev");
-    
+
     if (!isValidAdminDomain) {
       // Redirect admin attempts from other domains to miraclemind.dev
-      const adminUrl = hostname.includes("localhost") 
+      const adminUrl = hostname.includes("localhost")
         ? `${request.nextUrl.protocol}//${hostname}/admin?domain=dev`
         : `https://miraclemind.dev${pathname}`;
-      
+
       console.log(`🔒 [Middleware] Admin redirect: ${adminUrl}`);
       return NextResponse.redirect(new URL(adminUrl));
     }
@@ -38,7 +40,7 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   response.headers.set("x-domain", currentDomain);
   response.headers.set("x-hostname", hostname);
-  
+
   return response;
 }
 

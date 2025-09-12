@@ -4,7 +4,7 @@ import { type AdapterAccount } from "next-auth/adapters";
 
 /**
  * Universal schema that works with both SQLite and PostgreSQL
- * 
+ *
  * This schema uses SQLite syntax but is compatible with PostgreSQL through Drizzle ORM's
  * automatic dialect adaptation. For production PostgreSQL, run migrations to create proper types.
  */
@@ -23,7 +23,9 @@ export const posts = createTable(
       .integer("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
       .notNull(),
-    updatedAt: t.integer("updated_at", { mode: "timestamp" }).$onUpdate(() => new Date()),
+    updatedAt: t
+      .integer("updated_at", { mode: "timestamp" })
+      .$onUpdate(() => new Date()),
   }),
   (t) => [
     index("created_by_idx").on(t.createdById),
@@ -39,7 +41,9 @@ export const users = createTable("user", (t) => ({
     .$defaultFn(() => crypto.randomUUID()),
   name: t.text("name", { length: 255 }),
   email: t.text("email", { length: 255 }).notNull(),
-  emailVerified: t.integer("email_verified", { mode: "timestamp" }).default(sql`(unixepoch())`),
+  emailVerified: t
+    .integer("email_verified", { mode: "timestamp" })
+    .default(sql`(unixepoch())`),
   image: t.text("image", { length: 255 }),
 }));
 
@@ -55,7 +59,10 @@ export const accounts = createTable(
       .text("user_id", { length: 255 })
       .notNull()
       .references(() => users.id),
-    type: t.text("type", { length: 255 }).$type<AdapterAccount["type"]>().notNull(),
+    type: t
+      .text("type", { length: 255 })
+      .$type<AdapterAccount["type"]>()
+      .notNull(),
     provider: t.text("provider", { length: 255 }).notNull(),
     providerAccountId: t.text("provider_account_id", { length: 255 }).notNull(),
     refresh_token: t.text("refresh_token"),
@@ -81,7 +88,10 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   (t) => ({
-    sessionToken: t.text("session_token", { length: 255 }).notNull().primaryKey(),
+    sessionToken: t
+      .text("session_token", { length: 255 })
+      .notNull()
+      .primaryKey(),
     userId: t
       .text("user_id", { length: 255 })
       .notNull()

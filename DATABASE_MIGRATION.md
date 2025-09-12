@@ -5,6 +5,7 @@ This app is designed to work with both SQLite (development) and PostgreSQL (prod
 ## Current Setup: SQLite/LibSQL
 
 The app currently uses SQLite for simplicity and development speed:
+
 - ✅ Zero configuration
 - ✅ File-based database
 - ✅ Perfect for development
@@ -113,6 +114,7 @@ npm run db:push
 ## Benefits of Each Approach
 
 ### SQLite/LibSQL
+
 - ✅ Zero configuration
 - ✅ Single file database
 - ✅ Perfect for prototyping
@@ -120,6 +122,7 @@ npm run db:push
 - ✅ Can scale with Turso
 
 ### PostgreSQL/Supabase
+
 - ✅ Full SQL feature set
 - ✅ Better for complex queries
 - ✅ Built-in real-time subscriptions (Supabase)

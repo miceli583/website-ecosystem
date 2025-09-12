@@ -21,22 +21,22 @@ export default function HomePage() {
   if (!mounted) {
     return (
       <DomainLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-muted-foreground animate-pulse">Loading...</div>
         </div>
       </DomainLayout>
     );
   }
 
   const domainConfig = getDomainConfig(hostname);
-  
+
   // Determine which page to render based on domain
   function renderDomainPage() {
     // Handle localhost with domain parameter
     if (hostname.includes("localhost")) {
       const urlParams = new URLSearchParams(window.location.search);
       const domain = urlParams.get("domain");
-      
+
       switch (domain) {
         case "matthew":
           return <MatthewHomePage />;
@@ -62,9 +62,5 @@ export default function HomePage() {
     return <MatthewHomePage />;
   }
 
-  return (
-    <DomainLayout hostname={hostname}>
-      {renderDomainPage()}
-    </DomainLayout>
-  );
+  return <DomainLayout hostname={hostname}>{renderDomainPage()}</DomainLayout>;
 }

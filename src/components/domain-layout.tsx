@@ -36,7 +36,7 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
   const domainConfig = getDomainConfig(currentHostname);
 
   return (
-    <div 
+    <div
       className="min-h-screen transition-all duration-300"
       style={{
         backgroundColor: "var(--background)",
@@ -44,21 +44,24 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       }}
     >
       {/* Header Navigation */}
-      <header className="border-b border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+      <header className="border-border/40 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 font-bold text-xl">
+          <Link
+            href="/"
+            className="flex items-center space-x-2 text-xl font-bold"
+          >
             <span className="text-2xl">{domainConfig.logo}</span>
             <span className="hidden sm:inline">{domainConfig.name}</span>
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden items-center space-x-6 md:flex">
             {domainConfig.nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 {item.name}
               </Link>
@@ -76,20 +79,24 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 mt-auto">
+      <footer className="border-border/40 mt-auto border-t">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div className="flex items-center space-x-2">
               <span className="text-lg">{domainConfig.logo}</span>
               <span className="font-medium">{domainConfig.name}</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {domainConfig.tagline}
             </p>
-            <div className="flex space-x-4 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex space-x-4 text-sm">
               <span>© 2024</span>
-              <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
-              <Link href="/terms" className="hover:text-foreground">Terms</Link>
+              <Link href="/privacy" className="hover:text-foreground">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground">
+                Terms
+              </Link>
             </div>
           </div>
         </div>

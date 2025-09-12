@@ -5,12 +5,12 @@
 
 export const DOMAINS = {
   MATTHEW_MICELI: "matthewmiceli.com",
-  MIRACLE_MIND_LIVE: "miraclemind.live", 
+  MIRACLE_MIND_LIVE: "miraclemind.live",
   MIRACLE_MIND_DEV: "miraclemind.dev",
 } as const;
 
 export type DomainKey = keyof typeof DOMAINS;
-export type DomainValue = typeof DOMAINS[DomainKey];
+export type DomainValue = (typeof DOMAINS)[DomainKey];
 
 /**
  * Domain configuration with branding and metadata
@@ -67,9 +67,11 @@ export function getDomainConfig(hostname: string) {
   // Handle localhost development
   if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
     // Use URL parameters to simulate different domains in development
-    const searchParams = new URLSearchParams(globalThis?.location?.search || "");
+    const searchParams = new URLSearchParams(
+      globalThis?.location?.search || ""
+    );
     const domain = searchParams.get("domain");
-    
+
     switch (domain) {
       case "matthew":
         return DOMAIN_CONFIG[DOMAINS.MATTHEW_MICELI];
@@ -84,7 +86,7 @@ export function getDomainConfig(hostname: string) {
 
   // Production domain matching
   const domain = hostname.toLowerCase();
-  
+
   if (domain.includes("matthewmiceli.com")) {
     return DOMAIN_CONFIG[DOMAINS.MATTHEW_MICELI];
   } else if (domain.includes("miraclemind.live")) {
@@ -92,7 +94,7 @@ export function getDomainConfig(hostname: string) {
   } else if (domain.includes("miraclemind.dev")) {
     return DOMAIN_CONFIG[DOMAINS.MIRACLE_MIND_DEV];
   }
-  
+
   // Default fallback
   return DOMAIN_CONFIG[DOMAINS.MATTHEW_MICELI];
 }
@@ -102,11 +104,11 @@ export function getDomainConfig(hostname: string) {
  */
 export function getDomainFromHeaders(headers: Headers): DomainValue {
   const host = headers.get("host") || "";
-  
+
   if (host.includes("matthewmiceli.com")) return DOMAINS.MATTHEW_MICELI;
   if (host.includes("miraclemind.live")) return DOMAINS.MIRACLE_MIND_LIVE;
   if (host.includes("miraclemind.dev")) return DOMAINS.MIRACLE_MIND_DEV;
-  
+
   return DOMAINS.MATTHEW_MICELI; // Default
 }
 
@@ -122,7 +124,7 @@ export function isAdminPath(pathname: string): boolean {
  */
 export const DEV_URLS = {
   matthew: "http://localhost:3000?domain=matthew",
-  live: "http://localhost:3000?domain=live", 
+  live: "http://localhost:3000?domain=live",
   dev: "http://localhost:3000?domain=dev",
   admin: "http://localhost:3000/admin?domain=dev",
 } as const;

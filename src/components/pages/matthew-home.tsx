@@ -5,27 +5,27 @@ import { Github, Linkedin, Mail, MapPin, Calendar } from "lucide-react";
 
 export function MatthewHomePage() {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-background to-muted/20 overflow-hidden">
+    <div className="from-background to-muted/20 relative min-h-screen overflow-hidden bg-gradient-to-br">
       {/* Hero Section */}
-      <div className="relative flex min-h-screen flex-col items-center justify-center z-10">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          
           {/* Profile Section */}
-          <div className="text-center space-y-6">
-            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-2xl">
+          <div className="space-y-6 text-center">
+            <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-4xl font-bold text-white shadow-2xl">
               MM
             </div>
-            
+
             <div>
-              <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent sm:text-6xl">
+              <h1 className="from-foreground to-muted-foreground bg-gradient-to-br bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-6xl">
                 Matthew Miceli
               </h1>
-              <p className="mt-4 text-xl text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
-                Software Engineer & Digital Architect building the future of web experiences
+              <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-xl leading-relaxed font-light">
+                Software Engineer & Digital Architect building the future of web
+                experiences
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center justify-center gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
                 <span>New York, NY</span>
@@ -38,48 +38,51 @@ export function MatthewHomePage() {
           </div>
 
           {/* Skills Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
-            <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300">
+          <div className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
+            <Card className="border-border/50 bg-card/50 hover:bg-card/80 backdrop-blur-sm transition-all duration-300">
               <CardContent className="p-6 text-center">
-                <div className="text-2xl mb-3">⚡</div>
-                <h3 className="font-semibold mb-2">Full-Stack Development</h3>
-                <p className="text-sm text-muted-foreground">
-                  Next.js, TypeScript, React, Node.js, tRPC, and modern web technologies
+                <div className="mb-3 text-2xl">⚡</div>
+                <h3 className="mb-2 font-semibold">Full-Stack Development</h3>
+                <p className="text-muted-foreground text-sm">
+                  Next.js, TypeScript, React, Node.js, tRPC, and modern web
+                  technologies
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300">
+            <Card className="border-border/50 bg-card/50 hover:bg-card/80 backdrop-blur-sm transition-all duration-300">
               <CardContent className="p-6 text-center">
-                <div className="text-2xl mb-3">🏗️</div>
-                <h3 className="font-semibold mb-2">System Architecture</h3>
-                <p className="text-sm text-muted-foreground">
-                  Scalable applications, microservices, database design, and DevOps
+                <div className="mb-3 text-2xl">🏗️</div>
+                <h3 className="mb-2 font-semibold">System Architecture</h3>
+                <p className="text-muted-foreground text-sm">
+                  Scalable applications, microservices, database design, and
+                  DevOps
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300">
+            <Card className="border-border/50 bg-card/50 hover:bg-card/80 backdrop-blur-sm transition-all duration-300">
               <CardContent className="p-6 text-center">
-                <div className="text-2xl mb-3">🚀</div>
-                <h3 className="font-semibold mb-2">Product Development</h3>
-                <p className="text-sm text-muted-foreground">
-                  From concept to deployment, creating impactful digital experiences
+                <div className="mb-3 text-2xl">🚀</div>
+                <h3 className="mb-2 font-semibold">Product Development</h3>
+                <p className="text-muted-foreground text-sm">
+                  From concept to deployment, creating impactful digital
+                  experiences
                 </p>
               </CardContent>
             </Card>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button size="lg" className="group">
-              <Mail className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+              <Mail className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
               Get In Touch
             </Button>
-            
+
             <Button variant="outline" size="lg" asChild className="group">
               <Link href="/projects">
-                <Github className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                <Github className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
                 View Projects
               </Link>
             </Button>
@@ -87,22 +90,22 @@ export function MatthewHomePage() {
 
           {/* Social Links */}
           <div className="flex items-center gap-6">
-            <Link 
-              href="https://github.com/matthewmiceli" 
+            <Link
+              href="https://github.com/matthewmiceli"
               className="text-muted-foreground hover:text-foreground transition-colors"
               target="_blank"
             >
               <Github className="h-6 w-6" />
             </Link>
-            <Link 
-              href="https://linkedin.com/in/matthew-miceli" 
+            <Link
+              href="https://linkedin.com/in/matthew-miceli"
               className="text-muted-foreground hover:text-foreground transition-colors"
               target="_blank"
             >
               <Linkedin className="h-6 w-6" />
             </Link>
-            <Link 
-              href="mailto:hello@matthewmiceli.com" 
+            <Link
+              href="mailto:hello@matthewmiceli.com"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <Mail className="h-6 w-6" />
@@ -112,9 +115,9 @@ export function MatthewHomePage() {
       </div>
 
       {/* Background decorations */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      <div className="absolute top-1/4 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
+      <div className="bg-grid-pattern absolute inset-0 opacity-5" />
+      <div className="absolute top-1/4 left-10 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="absolute right-10 bottom-1/4 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" />
     </div>
   );
 }
