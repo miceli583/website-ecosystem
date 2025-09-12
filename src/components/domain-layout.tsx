@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getDomainConfig } from "~/lib/domains";
+import { getDomainConfig, DOMAINS } from "~/lib/domains";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -9,6 +9,64 @@ import { Button } from "./ui/button";
 interface DomainLayoutProps {
   children: React.ReactNode;
   hostname?: string;
+}
+
+function EcosystemNav({ currentHostname }: { currentHostname: string }) {
+  const getEcosystemLinks = () => {
+    const isLocalhost = currentHostname.includes("localhost");
+    
+    const ecosystemDomains = [
+      { key: "matthew", domain: DOMAINS.MATTHEW_MICELI, config: getDomainConfig("matthewmiceli.com") },
+      { key: "live", domain: DOMAINS.MIRACLE_MIND_LIVE, config: getDomainConfig("miraclemind.live") },
+      { key: "dev", domain: DOMAINS.MIRACLE_MIND_DEV, config: getDomainConfig("miraclemind.dev") },
+    ];
+    
+    return ecosystemDomains.map((domain) => {
+      let href: string;
+      let isActive: boolean;
+      
+      if (isLocalhost) {
+        href = `/?domain=${domain.key}`;
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentDomain = urlParams.get("domain") || "matthew";
+        isActive = currentDomain === domain.key;
+      } else {
+        href = `https://${domain.domain}`;
+        const domainPrefix = domain.domain.split('.')[0];
+        isActive = domainPrefix ? currentHostname.includes(domainPrefix) : false;
+      }
+      
+      return {
+        ...domain,
+        href,
+        isActive,
+      };
+    });
+  };
+
+  const ecosystemLinks = getEcosystemLinks();
+
+  return (
+    <div className="flex items-center space-x-1 rounded-md border border-border bg-background/50 p-1">
+      <span className="px-2 text-xs font-medium text-muted-foreground">
+        Ecosystem:
+      </span>
+      {ecosystemLinks.map((link) => (
+        <Button
+          key={link.key}
+          asChild
+          variant={link.isActive ? "default" : "ghost"}
+          size="sm"
+          className="h-7 px-2 text-xs"
+        >
+          <Link href={link.href}>
+            <span className="mr-1">{link.config.logo}</span>
+            <span className="hidden xl:inline">{link.config.name.split(' ')[0]}</span>
+          </Link>
+        </Button>
+      ))}
+    </div>
+  );
 }
 
 export function DomainLayout({ children, hostname }: DomainLayoutProps) {
@@ -56,17 +114,24 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden items-center space-x-6 md:flex">
-            {domainConfig.nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center space-x-6">
+            <nav className="hidden items-center space-x-6 md:flex">
+              {domainConfig.nav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+            
+            {/* Ecosystem Navigation */}
+            <div className="hidden lg:block">
+              <EcosystemNav currentHostname={currentHostname} />
+            </div>
+          </div>
 
           {/* Theme Toggle */}
           <div className="flex items-center space-x-2">
@@ -81,6 +146,18 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       {/* Footer */}
       <footer className="border-border/40 mt-auto border-t">
         <div className="container mx-auto px-4 py-8">
+          {/* Mobile Ecosystem Navigation */}
+          <div className="mb-6 block lg:hidden">
+            <div className="text-center">
+              <p className="text-muted-foreground mb-3 text-sm font-medium">
+                Explore the Ecosystem
+              </p>
+              <div className="flex justify-center">
+                <EcosystemNav currentHostname={currentHostname} />
+              </div>
+            </div>
+          </div>
+          
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div className="flex items-center space-x-2">
               <span className="text-lg">{domainConfig.logo}</span>
