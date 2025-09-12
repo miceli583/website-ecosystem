@@ -52,7 +52,6 @@ jobs:
         run: npm run build
         env:
           SKIP_ENV_VALIDATION: 1
-          AUTH_SECRET: dummy_secret_for_ci
-          AUTH_DISCORD_ID: dummy_discord_id_for_ci
-          AUTH_DISCORD_SECRET: dummy_discord_secret_for_ci
           DATABASE_URL: file:./ci_test.db
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci

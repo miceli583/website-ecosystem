@@ -1,4 +1,9 @@
-import { drizzle } from "drizzle-orm/libsql";
+// PostgreSQL imports
+import { drizzle as drizzlePg } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+
+// SQLite imports
+import { drizzle as drizzleSqlite } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 
 import { env } from "~/env";
@@ -7,27 +12,44 @@ import * as schema from "./schema";
 /**
  * Database client configuration
  *
- * Currently configured for SQLite/LibSQL. For PostgreSQL/Supabase production:
- * 1. Change import to: import { drizzle } from "drizzle-orm/postgres-js";
- * 2. Change import to: import postgres from "postgres";
- * 3. Replace createClient with: postgres(env.DATABASE_URL)
- * 4. Update schema.ts to use pgTableCreator instead of sqliteTableCreator
- * 5. Update drizzle.config.ts dialect to "postgresql"
+ * Automatically detects and uses the appropriate database driver based on DATABASE_URL:
+ * - PostgreSQL/Supabase: URLs starting with "postgresql://"
+ * - SQLite/LibSQL: URLs starting with "file:" or "libsql://"
  */
 
-/**
- * Cache the database connection in development. This avoids creating a new connection on every HMR
- * update.
- */
-const globalForDb = globalThis as unknown as {
-  conn: ReturnType<typeof createClient> | undefined;
-};
+// Detect database type from URL
+const isPostgres = env.DATABASE_URL.startsWith("postgresql://");
 
-const conn =
-  globalForDb.conn ??
-  createClient({
-    url: env.DATABASE_URL,
-  });
-if (env.NODE_ENV !== "production") globalForDb.conn = conn;
+function createDatabase() {
+  if (isPostgres) {
+    // PostgreSQL/Supabase configuration
+    const globalForDb = globalThis as unknown as {
+      conn: ReturnType<typeof postgres> | undefined;
+    };
 
-export const db = drizzle(conn, { schema });
+    const conn =
+      globalForDb.conn ??
+      postgres(env.DATABASE_URL, {
+        prepare: false,
+      });
+    if (env.NODE_ENV !== "production") globalForDb.conn = conn;
+
+    return drizzlePg(conn, { schema });
+  } else {
+    // SQLite/LibSQL configuration
+    const globalForDb = globalThis as unknown as {
+      conn: ReturnType<typeof createClient> | undefined;
+    };
+
+    const conn =
+      globalForDb.conn ??
+      createClient({
+        url: env.DATABASE_URL,
+      });
+    if (env.NODE_ENV !== "production") globalForDb.conn = conn;
+
+    return drizzleSqlite(conn, { schema });
+  }
+}
+
+export const db = createDatabase() as any;

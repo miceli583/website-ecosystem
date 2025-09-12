@@ -140,10 +140,10 @@ Your app is ready for deployment to:
 2. Import your project
 3. Add environment variables in Vercel dashboard:
    ```
-   AUTH_SECRET=your-auth-secret
-   AUTH_DISCORD_ID=your-discord-id
-   AUTH_DISCORD_SECRET=your-discord-secret
-   DATABASE_URL=your-database-url
+   DATABASE_URL=your-supabase-postgres-url
+   # Optional for Supabase features:
+   # NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   # NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    ```
 4. Deploy automatically on every push to `main`
 
@@ -185,7 +185,7 @@ A `Dockerfile` can be added for containerized deployment.
 1. **Push to GitHub** using the commands above
 2. **Set up branch protection** for code quality
 3. **Deploy to Vercel/Netlify** for live preview
-4. **Add real OAuth credentials** for authentication
+4. **Configure Supabase** when implementing user features
 5. **Set up database** (PostgreSQL for production)
 
 Your foundation is now GitHub-ready with professional CI/CD! 🎉

@@ -133,6 +133,6 @@ npm run db:push
 
 - **Schema**: ✅ Ready for both databases
 - **Client**: ✅ Currently SQLite, easy to switch
-- **Auth**: ✅ Works with both databases
+- **Auth**: ✅ Prepared for Supabase Auth integration
 - **Migrations**: ✅ Drizzle handles both dialects
 - **Type Safety**: ✅ Full TypeScript support

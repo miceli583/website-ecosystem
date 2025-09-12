@@ -1,29 +1,118 @@
-# Create T3 App
+# Website Ecosystem
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A multi-domain Next.js application supporting different sites within a single codebase.
 
-## What's next? How do I make an app with this?
+## 🌐 Supported Domains
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **matthewmiceli.com** - Personal portfolio and blog
+- **miraclemind.live** - Live projects and demos
+- **miraclemind.dev** - Development tools and resources
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## 🛠️ Tech Stack
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **[Next.js 15](https://nextjs.org)** - React framework with App Router
+- **[TypeScript](https://typescriptlang.org)** - Type safety
+- **[Tailwind CSS](https://tailwindcss.com)** - Styling with custom design system
+- **[tRPC](https://trpc.io)** - Type-safe API layer
+- **[Drizzle ORM](https://orm.drizzle.team)** - Database toolkit
+- **[Supabase](https://supabase.com)** - Database and auth (when needed)
 
-## Learn More
+## 🚀 Quick Start
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash
+# Install dependencies
+npm install
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+# Set up environment
+cp .env.example .env
+# Edit .env with your database URL
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+# Start development server
+npm run dev
+```
 
-## How do I deploy this?
+### Local Development with Domains
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Access different domains locally:
+- `http://localhost:3000?domain=matthew` - Matthew's site
+- `http://localhost:3000?domain=live` - MiracleMind Live
+- `http://localhost:3000?domain=dev` - MiracleMind Dev
+
+## 📁 Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+├── components/
+│   ├── domain-layout.tsx   # Multi-domain layout
+│   ├── pages/              # Domain-specific pages
+│   └── ui/                 # Shared UI components
+├── lib/
+│   └── domains.ts          # Domain configuration
+├── server/
+│   ├── api/                # tRPC routers
+│   └── db/                 # Database schema
+└── styles/                 # Global styles
+```
+
+## 🗄️ Database
+
+- **Development**: SQLite (file-based)
+- **Production**: PostgreSQL via Supabase
+- **ORM**: Drizzle with automatic migrations
+
+```bash
+# Generate migrations
+npm run db:generate
+
+# Apply migrations
+npm run db:migrate
+
+# View database
+npm run db:studio
+```
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Connect repository to Vercel
+2. Set environment variables:
+   ```
+   DATABASE_URL=your-production-database-url
+   ```
+3. Deploy automatically on git push
+
+### Environment Variables
+
+See [`ENV_SETUP.md`](./ENV_SETUP.md) for detailed setup instructions.
+
+## 📚 Documentation
+
+- **[Environment Setup](./ENV_SETUP.md)** - Configure env variables
+- **[GitHub Setup](./GITHUB_SETUP.md)** - CI/CD and deployment
+- **[Database Migration](./DATABASE_MIGRATION.md)** - Moving to production DB
+- **[Supabase Setup](./SUPABASE_SETUP.md)** - Production database setup
+
+## 🔧 Development Commands
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run typecheck    # Run TypeScript check
+npm run format       # Format code with Prettier
+```
+
+## 🎯 Features
+
+- ✅ Multi-domain routing
+- ✅ Type-safe API with tRPC
+- ✅ Responsive design system
+- ✅ Database migrations
+- ✅ CI/CD pipeline
+- ✅ Environment validation
+- 🚧 User authentication (planned with Supabase)
+- 🚧 Content management
+- 🚧 Analytics integration

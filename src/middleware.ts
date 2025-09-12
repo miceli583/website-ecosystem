@@ -14,9 +14,11 @@ export function middleware(request: NextRequest) {
   // Get current domain
   const currentDomain = getDomainFromHeaders(request.headers);
 
-  console.log(
-    `🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain}`
-  );
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      `🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain}`
+    );
+  }
 
   // Handle admin routes - only accessible via miraclemind.dev
   if (isAdminPath(pathname)) {
@@ -31,7 +33,9 @@ export function middleware(request: NextRequest) {
         ? `${request.nextUrl.protocol}//${hostname}/admin?domain=dev`
         : `https://miraclemind.dev${pathname}`;
 
-      console.log(`🔒 [Middleware] Admin redirect: ${adminUrl}`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🔒 [Middleware] Admin redirect: ${adminUrl}`);
+      }
       return NextResponse.redirect(new URL(adminUrl));
     }
   }
