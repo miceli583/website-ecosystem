@@ -34,6 +34,7 @@ npm run dev
 ### Local Development with Domains
 
 Access different domains locally:
+
 - `http://localhost:3000?domain=matthew` - Matthew's site
 - `http://localhost:3000?domain=live` - MiracleMind Live
 - `http://localhost:3000?domain=dev` - MiracleMind Dev

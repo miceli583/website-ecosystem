@@ -5,12 +5,15 @@ This document provides instructions for setting up and using Supabase with the w
 ## Environment Configuration
 
 ### Development (SQLite)
+
 For local development, continue using SQLite:
+
 ```bash
 DATABASE_URL="file:./db.sqlite"
 ```
 
 ### Production (Supabase)
+
 For production with your Supabase instance, update your `.env` file:
 
 ```bash
@@ -27,6 +30,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJz
 ### Option 1: Generate and Push Schema (Recommended)
 
 1. **Generate migration files:**
+
    ```bash
    npm run db:generate
    ```
@@ -56,7 +60,7 @@ CREATE TABLE IF NOT EXISTS "website-ecosystem_post" (
     "created_by_id" text NOT NULL,
     "created_at" timestamp DEFAULT now() NOT NULL,
     "updated_at" timestamp,
-    CONSTRAINT "website-ecosystem_post_created_by_id_website-ecosystem_user_id_fk" 
+    CONSTRAINT "website-ecosystem_post_created_by_id_website-ecosystem_user_id_fk"
     FOREIGN KEY ("created_by_id") REFERENCES "website-ecosystem_user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -72,9 +76,9 @@ CREATE TABLE IF NOT EXISTS "website-ecosystem_account" (
     "scope" text,
     "id_token" text,
     "session_state" text,
-    CONSTRAINT "website-ecosystem_account_user_id_website-ecosystem_user_id_fk" 
+    CONSTRAINT "website-ecosystem_account_user_id_website-ecosystem_user_id_fk"
     FOREIGN KEY ("user_id") REFERENCES "website-ecosystem_user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT "website-ecosystem_account_provider_provider_account_id_pk" 
+    CONSTRAINT "website-ecosystem_account_provider_provider_account_id_pk"
     PRIMARY KEY("provider","provider_account_id")
 );
 
@@ -82,7 +86,7 @@ CREATE TABLE IF NOT EXISTS "website-ecosystem_session" (
     "session_token" text PRIMARY KEY NOT NULL,
     "user_id" text NOT NULL,
     "expires" timestamp NOT NULL,
-    CONSTRAINT "website-ecosystem_session_user_id_website-ecosystem_user_id_fk" 
+    CONSTRAINT "website-ecosystem_session_user_id_website-ecosystem_user_id_fk"
     FOREIGN KEY ("user_id") REFERENCES "website-ecosystem_user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -90,7 +94,7 @@ CREATE TABLE IF NOT EXISTS "website-ecosystem_verification_token" (
     "identifier" text NOT NULL,
     "token" text NOT NULL,
     "expires" timestamp NOT NULL,
-    CONSTRAINT "website-ecosystem_verification_token_identifier_token_pk" 
+    CONSTRAINT "website-ecosystem_verification_token_identifier_token_pk"
     PRIMARY KEY("identifier","token")
 );
 
@@ -119,6 +123,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 ### Build Command
 
 The build should work automatically. If you encounter issues, ensure the build command is:
+
 ```bash
 npm run build
 ```
@@ -133,16 +138,19 @@ npm run build
 ## Troubleshooting
 
 ### Build Issues
+
 - Ensure all environment variables are set correctly
 - Check that the DATABASE_URL format matches exactly
 - Verify Supabase credentials are valid
 
 ### Migration Issues
+
 - If `db:push` fails, try `db:generate` first to create migration files
 - Check Supabase dashboard for connection issues
 - Verify your Supabase project is active and accessible
 
 ### Performance
+
 - Use the pooled connection URL for production: `aws-1-us-east-2.pooler.supabase.com:6543`
 - Monitor query performance in Supabase dashboard
 - Consider enabling Row Level Security (RLS) for production data protection

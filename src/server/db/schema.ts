@@ -2,11 +2,7 @@ import { sql } from "drizzle-orm";
 
 // For now, we'll use SQLite schema as the base and let PostgreSQL adapt
 // In the future, separate schema files can be created if needed
-import {
-  sqliteTableCreator,
-  text,
-  integer,
-} from "drizzle-orm/sqlite-core";
+import { sqliteTableCreator, text, integer } from "drizzle-orm/sqlite-core";
 
 /**
  * Database schema for website ecosystem

@@ -1,24 +1,28 @@
 # Environment Variables Setup Guide
 
 ## Overview
+
 This project uses strict environment variable validation to prevent runtime errors. The setup is minimal and focused on database connectivity.
 
 ## Required Environment Variables
 
 ### Database
+
 - **DATABASE_URL**: Database connection string
   - Development: `file:./db.sqlite` (SQLite)
   - Production: PostgreSQL connection string (Supabase recommended)
 
 ### Optional (Supabase Integration)
+
 - **NEXT_PUBLIC_SUPABASE_URL**: Supabase project URL
 - **NEXT_PUBLIC_SUPABASE_ANON_KEY**: Supabase anonymous key
 
-*Note: Authentication will be handled by Supabase Auth when implementing login functionality*
+_Note: Authentication will be handled by Supabase Auth when implementing login functionality_
 
 ## Setup Instructions
 
 ### 1. Local Development
+
 ```bash
 # Copy example file
 cp .env.example .env
@@ -29,13 +33,17 @@ cp .env.example .env
 ```
 
 ### 2. Supabase Setup (for production)
+
 For production deployment and authentication:
+
 1. Create project at https://supabase.com
 2. Get your project URL and anon key from Settings > API
 3. Configure authentication providers in Supabase dashboard
 
 ### 3. Production Deployment (Vercel)
+
 Add these environment variables in Vercel dashboard:
+
 ```
 DATABASE_URL=<supabase-postgres-url>
 # Optional for Supabase integration:
@@ -44,7 +52,9 @@ DATABASE_URL=<supabase-postgres-url>
 ```
 
 ### 4. CI/CD (GitHub Actions)
+
 Required for build validation:
+
 ```yaml
 env:
   SKIP_ENV_VALIDATION: "true"
@@ -65,6 +75,7 @@ Authentication will be implemented with Supabase when user login features are re
 ## Troubleshooting
 
 ### Build Errors
+
 If you see "Invalid environment variables" errors:
 
 1. **Development**: Ensure `.env` file exists with all required variables
@@ -72,12 +83,15 @@ If you see "Invalid environment variables" errors:
 3. **CI/CD**: Use `SKIP_ENV_VALIDATION=true` for build-only environments
 
 ### Missing Variables
+
 The error will show exactly which variables are missing. Common issues:
+
 - Empty strings are treated as undefined
 - DATABASE_URL required for all environments
 - Supabase credentials only needed when implementing auth or using Supabase features
 
 ### Quick Fix Commands
+
 ```bash
 # Generate auth secret
 npx auth secret
@@ -92,6 +106,7 @@ SKIP_ENV_VALIDATION=1 npm run build
 ## Environment Validation Flow
 
 The app uses `@t3-oss/env-nextjs` for runtime validation:
+
 1. Validates on app startup
 2. Ensures type safety
 3. Prevents deployment with missing variables
