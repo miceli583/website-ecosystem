@@ -12,56 +12,57 @@ export default function LiquidMorphPage() {
           <div className="absolute inset-0">
             {/* Main Liquid Blob */}
             <div
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-pink-400 to-rose-500 opacity-60"
+              className="absolute top-1/4 left-1/4 h-96 w-96 bg-gradient-to-r from-pink-400 to-rose-500 opacity-60"
               style={{
-                borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
-                filter: 'blur(20px)',
-                animation: 'blob-morph 8s ease-in-out infinite alternate',
+                borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
+                filter: "blur(20px)",
+                animation: "blob-morph 8s ease-in-out infinite alternate",
               }}
             ></div>
 
             {/* Secondary Blob */}
             <div
-              className="absolute top-1/2 right-1/4 w-80 h-80 bg-gradient-to-r from-rose-400 to-pink-500 opacity-50"
+              className="absolute top-1/2 right-1/4 h-80 w-80 bg-gradient-to-r from-rose-400 to-pink-500 opacity-50"
               style={{
-                borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%',
-                filter: 'blur(25px)',
-                animation: 'blob-morph-reverse 10s ease-in-out infinite alternate',
+                borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%",
+                filter: "blur(25px)",
+                animation:
+                  "blob-morph-reverse 10s ease-in-out infinite alternate",
               }}
             ></div>
 
             {/* Floating Small Blobs */}
             <div
-              className="absolute top-1/6 right-1/3 w-32 h-32 bg-gradient-to-r from-red-400 to-rose-500 opacity-70"
+              className="absolute top-1/6 right-1/3 h-32 w-32 bg-gradient-to-r from-red-400 to-rose-500 opacity-70"
               style={{
-                borderRadius: '70% 30% 50% 50% / 40% 50% 60% 60%',
-                filter: 'blur(15px)',
-                animation: 'blob-float 6s ease-in-out infinite',
+                borderRadius: "70% 30% 50% 50% / 40% 50% 60% 60%",
+                filter: "blur(15px)",
+                animation: "blob-float 6s ease-in-out infinite",
               }}
             ></div>
 
             <div
-              className="absolute bottom-1/4 left-1/6 w-48 h-48 bg-gradient-to-r from-pink-500 to-red-400 opacity-60"
+              className="absolute bottom-1/4 left-1/6 h-48 w-48 bg-gradient-to-r from-pink-500 to-red-400 opacity-60"
               style={{
-                borderRadius: '40% 60% 30% 70% / 60% 40% 50% 50%',
-                filter: 'blur(30px)',
-                animation: 'blob-float-reverse 12s ease-in-out infinite',
+                borderRadius: "40% 60% 30% 70% / 60% 40% 50% 50%",
+                filter: "blur(30px)",
+                animation: "blob-float-reverse 12s ease-in-out infinite",
               }}
             ></div>
 
             {/* Liquid Ripples */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div
-                className="w-20 h-20 border-4 border-pink-400/30 rounded-full"
-                style={{ animation: 'ripple 3s ease-out infinite' }}
+                className="h-20 w-20 rounded-full border-4 border-pink-400/30"
+                style={{ animation: "ripple 3s ease-out infinite" }}
               ></div>
               <div
-                className="absolute w-40 h-40 border-2 border-rose-400/20 rounded-full"
-                style={{ animation: 'ripple 3s ease-out infinite 1s' }}
+                className="absolute h-40 w-40 rounded-full border-2 border-rose-400/20"
+                style={{ animation: "ripple 3s ease-out infinite 1s" }}
               ></div>
               <div
-                className="absolute w-60 h-60 border border-red-400/10 rounded-full"
-                style={{ animation: 'ripple 3s ease-out infinite 2s' }}
+                className="absolute h-60 w-60 rounded-full border border-red-400/10"
+                style={{ animation: "ripple 3s ease-out infinite 2s" }}
               ></div>
             </div>
 
@@ -69,12 +70,12 @@ export default function LiquidMorphPage() {
             {Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}
-                className="absolute w-4 h-4 bg-gradient-to-r from-pink-400 to-rose-500 opacity-70"
+                className="absolute h-4 w-4 bg-gradient-to-r from-pink-400 to-rose-500 opacity-70"
                 style={{
                   left: `${20 + Math.random() * 60}%`,
                   top: `${20 + Math.random() * 60}%`,
-                  borderRadius: '50% 40% 60% 30%',
-                  filter: 'blur(2px)',
+                  borderRadius: "50% 40% 60% 30%",
+                  filter: "blur(2px)",
                   animation: `particle-float ${4 + Math.random() * 4}s ease-in-out infinite ${Math.random() * 2}s`,
                 }}
               ></div>
@@ -84,21 +85,22 @@ export default function LiquidMorphPage() {
           {/* Content Overlay */}
           <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-8 text-center">
             <div className="max-w-2xl space-y-6">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 bg-clip-text text-transparent">
+              <h1 className="bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 bg-clip-text text-5xl font-bold text-transparent">
                 Liquid Morph
               </h1>
               <p className="text-xl text-gray-700 dark:text-gray-300">
-                Fluid blob animations with organic morphing shapes and ripple effects
+                Fluid blob animations with organic morphing shapes and ripple
+                effects
               </p>
 
-              <div className="flex flex-wrap gap-4 justify-center pt-8">
-                <div className="px-6 py-3 bg-pink-100/80 backdrop-blur-sm rounded-full border border-pink-200 text-pink-800 dark:bg-pink-900/30 dark:border-pink-700 dark:text-pink-200">
+              <div className="flex flex-wrap justify-center gap-4 pt-8">
+                <div className="rounded-full border border-pink-200 bg-pink-100/80 px-6 py-3 text-pink-800 backdrop-blur-sm dark:border-pink-700 dark:bg-pink-900/30 dark:text-pink-200">
                   Organic Shapes
                 </div>
-                <div className="px-6 py-3 bg-rose-100/80 backdrop-blur-sm rounded-full border border-rose-200 text-rose-800 dark:bg-rose-900/30 dark:border-rose-700 dark:text-rose-200">
+                <div className="rounded-full border border-rose-200 bg-rose-100/80 px-6 py-3 text-rose-800 backdrop-blur-sm dark:border-rose-700 dark:bg-rose-900/30 dark:text-rose-200">
                   Morphing Animation
                 </div>
-                <div className="px-6 py-3 bg-red-100/80 backdrop-blur-sm rounded-full border border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-200">
+                <div className="rounded-full border border-red-200 bg-red-100/80 px-6 py-3 text-red-800 backdrop-blur-sm dark:border-red-700 dark:bg-red-900/30 dark:text-red-200">
                   Liquid Effects
                 </div>
               </div>
@@ -146,7 +148,8 @@ export default function LiquidMorphPage() {
             }
 
             @keyframes blob-float {
-              0%, 100% {
+              0%,
+              100% {
                 transform: translateY(0px) translateX(0px);
                 border-radius: 70% 30% 50% 50% / 40% 50% 60% 60%;
               }
@@ -161,7 +164,8 @@ export default function LiquidMorphPage() {
             }
 
             @keyframes blob-float-reverse {
-              0%, 100% {
+              0%,
+              100% {
                 transform: translateY(0px) translateX(0px) rotate(0deg);
                 border-radius: 40% 60% 30% 70% / 60% 40% 50% 50%;
               }
@@ -187,7 +191,8 @@ export default function LiquidMorphPage() {
             }
 
             @keyframes particle-float {
-              0%, 100% {
+              0%,
+              100% {
                 transform: translateY(0px) translateX(0px);
                 border-radius: 50% 40% 60% 30%;
               }

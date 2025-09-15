@@ -49,7 +49,7 @@ export default function DeveloperProfilePage() {
                       JD
                     </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-green-500 border-2 border-white animate-pulse"></div>
+                  <div className="absolute -right-2 -bottom-2 h-8 w-8 animate-pulse rounded-full border-2 border-white bg-green-500"></div>
                 </div>
               </div>
 
@@ -59,7 +59,7 @@ export default function DeveloperProfilePage() {
               <p className="mb-2 text-xl text-blue-100">
                 Full-Stack Developer & UI/UX Designer
               </p>
-              <p className="mb-8 text-lg text-blue-200 max-w-2xl mx-auto">
+              <p className="mx-auto mb-8 max-w-2xl text-lg text-blue-200">
                 Passionate about creating beautiful, functional web experiences.
                 Specializing in React, TypeScript, and modern web technologies.
               </p>
@@ -76,11 +76,18 @@ export default function DeveloperProfilePage() {
               </div>
 
               <div className="flex justify-center gap-4">
-                <Button size="lg" className="group bg-white text-blue-600 hover:bg-blue-50">
+                <Button
+                  size="lg"
+                  className="group bg-white text-blue-600 hover:bg-blue-50"
+                >
                   <Download className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
                   Download Resume
                 </Button>
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10"
+                >
                   <Mail className="mr-2 h-4 w-4" />
                   Get in Touch
                 </Button>
@@ -140,20 +147,42 @@ export default function DeveloperProfilePage() {
               <CardContent>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
-                    <h4 className="mb-3 font-semibold text-lg">Frontend</h4>
+                    <h4 className="mb-3 text-lg font-semibold">Frontend</h4>
                     <div className="flex flex-wrap gap-2">
-                      {['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Framer Motion', 'Vue.js'].map((skill) => (
-                        <Badge key={skill} variant="secondary" className="hover:scale-105 transition-transform">
+                      {[
+                        "React",
+                        "TypeScript",
+                        "Next.js",
+                        "Tailwind CSS",
+                        "Framer Motion",
+                        "Vue.js",
+                      ].map((skill) => (
+                        <Badge
+                          key={skill}
+                          variant="secondary"
+                          className="transition-transform hover:scale-105"
+                        >
                           {skill}
                         </Badge>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h4 className="mb-3 font-semibold text-lg">Backend</h4>
+                    <h4 className="mb-3 text-lg font-semibold">Backend</h4>
                     <div className="flex flex-wrap gap-2">
-                      {['Node.js', 'PostgreSQL', 'MongoDB', 'GraphQL', 'Docker', 'AWS'].map((skill) => (
-                        <Badge key={skill} variant="secondary" className="hover:scale-105 transition-transform">
+                      {[
+                        "Node.js",
+                        "PostgreSQL",
+                        "MongoDB",
+                        "GraphQL",
+                        "Docker",
+                        "AWS",
+                      ].map((skill) => (
+                        <Badge
+                          key={skill}
+                          variant="secondary"
+                          className="transition-transform hover:scale-105"
+                        >
                           {skill}
                         </Badge>
                       ))}
@@ -176,41 +205,55 @@ export default function DeveloperProfilePage() {
                   {[
                     {
                       title: "E-commerce Platform",
-                      description: "Full-stack e-commerce solution with React and Node.js",
+                      description:
+                        "Full-stack e-commerce solution with React and Node.js",
                       tech: ["React", "Node.js", "PostgreSQL"],
                       stars: 124,
-                      views: "2.3k"
+                      views: "2.3k",
                     },
                     {
                       title: "Task Management App",
-                      description: "Real-time collaborative task management with WebSocket",
+                      description:
+                        "Real-time collaborative task management with WebSocket",
                       tech: ["Next.js", "TypeScript", "MongoDB"],
                       stars: 89,
-                      views: "1.8k"
+                      views: "1.8k",
                     },
                     {
                       title: "Design System",
-                      description: "Component library with Storybook and design tokens",
+                      description:
+                        "Component library with Storybook and design tokens",
                       tech: ["React", "Storybook", "Figma"],
                       stars: 256,
-                      views: "4.1k"
-                    }
+                      views: "4.1k",
+                    },
                   ].map((project, index) => (
-                    <Card key={index} className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <Card
+                      key={index}
+                      className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    >
                       <CardContent className="p-6">
                         <div className="mb-3">
-                          <h4 className="font-semibold text-lg mb-2">{project.title}</h4>
-                          <p className="text-muted-foreground text-sm">{project.description}</p>
+                          <h4 className="mb-2 text-lg font-semibold">
+                            {project.title}
+                          </h4>
+                          <p className="text-muted-foreground text-sm">
+                            {project.description}
+                          </p>
                         </div>
                         <div className="mb-4 flex flex-wrap gap-1">
                           {project.tech.map((tech) => (
-                            <Badge key={tech} variant="outline" className="text-xs">
+                            <Badge
+                              key={tech}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {tech}
                             </Badge>
                           ))}
                         </div>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="text-muted-foreground flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-1">
                               <Star className="h-3 w-3" />
                               {project.stars}
@@ -240,9 +283,10 @@ export default function DeveloperProfilePage() {
               <CardContent>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
-                    <p className="mb-6 text-muted-foreground">
-                      I&apos;m always interested in new opportunities and exciting projects.
-                      Feel free to reach out if you&apos;d like to collaborate!
+                    <p className="text-muted-foreground mb-6">
+                      I&apos;m always interested in new opportunities and
+                      exciting projects. Feel free to reach out if you&apos;d
+                      like to collaborate!
                     </p>
                     <div className="flex gap-4">
                       <Button size="sm" className="group">
@@ -260,7 +304,10 @@ export default function DeveloperProfilePage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-center">
-                    <Button size="lg" className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    <Button
+                      size="lg"
+                      className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    >
                       <Mail className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
                       Send Message
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -316,7 +363,8 @@ export default function DeveloperProfilePage() {
           }
 
           @keyframes float {
-            0%, 100% {
+            0%,
+            100% {
               transform: translateY(0px) translateX(0px);
             }
             33% {

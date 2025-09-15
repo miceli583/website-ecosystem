@@ -14,33 +14,37 @@ import {
   ArrowRight,
   Check,
   Sparkles,
-  Zap
+  Zap,
 } from "lucide-react";
 
 export default function MorphingButtonsPage() {
   const [likeCount, setLikeCount] = useState(42);
   const [isLiked, setIsLiked] = useState(false);
-  const [downloadState, setDownloadState] = useState<'idle' | 'downloading' | 'complete'>('idle');
-  const [sendState, setSendState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [downloadState, setDownloadState] = useState<
+    "idle" | "downloading" | "complete"
+  >("idle");
+  const [sendState, setSendState] = useState<"idle" | "sending" | "sent">(
+    "idle"
+  );
 
   const handleLike = () => {
     setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
 
   const handleDownload = () => {
-    if (downloadState === 'idle') {
-      setDownloadState('downloading');
-      setTimeout(() => setDownloadState('complete'), 2000);
-      setTimeout(() => setDownloadState('idle'), 4000);
+    if (downloadState === "idle") {
+      setDownloadState("downloading");
+      setTimeout(() => setDownloadState("complete"), 2000);
+      setTimeout(() => setDownloadState("idle"), 4000);
     }
   };
 
   const handleSend = () => {
-    if (sendState === 'idle') {
-      setSendState('sending');
-      setTimeout(() => setSendState('sent'), 1500);
-      setTimeout(() => setSendState('idle'), 3000);
+    if (sendState === "idle") {
+      setSendState("sending");
+      setTimeout(() => setSendState("sent"), 1500);
+      setTimeout(() => setSendState("idle"), 3000);
     }
   };
 
@@ -79,20 +83,15 @@ export default function MorphingButtonsPage() {
                     {/* Like Button */}
                     <button
                       onClick={handleLike}
-                      className={`
-                        group relative overflow-hidden rounded-full px-6 py-3 font-medium transition-all duration-500
-                        ${isLiked
-                          ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/25'
-                          : 'border-2 border-pink-200 text-pink-600 hover:bg-pink-50 dark:border-pink-800 dark:text-pink-400 dark:hover:bg-pink-950/30'
-                        }
-                      `}
+                      className={`group relative overflow-hidden rounded-full px-6 py-3 font-medium transition-all duration-500 ${
+                        isLiked
+                          ? "bg-pink-500 text-white shadow-lg shadow-pink-500/25"
+                          : "border-2 border-pink-200 text-pink-600 hover:bg-pink-50 dark:border-pink-800 dark:text-pink-400 dark:hover:bg-pink-950/30"
+                      } `}
                     >
                       <div className="flex items-center gap-2">
                         <Heart
-                          className={`
-                            h-4 w-4 transition-all duration-300
-                            ${isLiked ? 'fill-white scale-110' : 'group-hover:scale-110'}
-                          `}
+                          className={`h-4 w-4 transition-all duration-300 ${isLiked ? "scale-110 fill-white" : "group-hover:scale-110"} `}
                         />
                         <span className="transition-all duration-300">
                           {likeCount}
@@ -106,27 +105,29 @@ export default function MorphingButtonsPage() {
                     {/* Download Button */}
                     <button
                       onClick={handleDownload}
-                      disabled={downloadState !== 'idle'}
-                      className={`
-                        relative overflow-hidden rounded-lg px-6 py-3 font-medium transition-all duration-500
-                        ${downloadState === 'idle'
-                          ? 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg'
-                          : downloadState === 'downloading'
-                          ? 'bg-yellow-500 text-white'
-                          : 'bg-green-500 text-white'
-                        }
-                      `}
+                      disabled={downloadState !== "idle"}
+                      className={`relative overflow-hidden rounded-lg px-6 py-3 font-medium transition-all duration-500 ${
+                        downloadState === "idle"
+                          ? "bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg"
+                          : downloadState === "downloading"
+                            ? "bg-yellow-500 text-white"
+                            : "bg-green-500 text-white"
+                      } `}
                     >
                       <div className="flex items-center gap-2">
-                        {downloadState === 'idle' && <Download className="h-4 w-4" />}
-                        {downloadState === 'downloading' && (
+                        {downloadState === "idle" && (
+                          <Download className="h-4 w-4" />
+                        )}
+                        {downloadState === "downloading" && (
                           <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                         )}
-                        {downloadState === 'complete' && <Check className="h-4 w-4" />}
+                        {downloadState === "complete" && (
+                          <Check className="h-4 w-4" />
+                        )}
                         <span>
-                          {downloadState === 'idle' && 'Download'}
-                          {downloadState === 'downloading' && 'Downloading...'}
-                          {downloadState === 'complete' && 'Complete!'}
+                          {downloadState === "idle" && "Download"}
+                          {downloadState === "downloading" && "Downloading..."}
+                          {downloadState === "complete" && "Complete!"}
                         </span>
                       </div>
                     </button>
@@ -134,25 +135,25 @@ export default function MorphingButtonsPage() {
                     {/* Send Button */}
                     <button
                       onClick={handleSend}
-                      disabled={sendState !== 'idle'}
-                      className={`
-                        relative overflow-hidden rounded-lg px-6 py-3 font-medium transition-all duration-500
-                        ${sendState === 'idle'
-                          ? 'bg-purple-500 text-white hover:bg-purple-600 hover:shadow-lg'
-                          : sendState === 'sending'
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-green-500 text-white'
-                        }
-                      `}
+                      disabled={sendState !== "idle"}
+                      className={`relative overflow-hidden rounded-lg px-6 py-3 font-medium transition-all duration-500 ${
+                        sendState === "idle"
+                          ? "bg-purple-500 text-white hover:bg-purple-600 hover:shadow-lg"
+                          : sendState === "sending"
+                            ? "bg-orange-500 text-white"
+                            : "bg-green-500 text-white"
+                      } `}
                     >
                       <div className="flex items-center gap-2">
-                        {sendState === 'idle' && <Send className="h-4 w-4" />}
-                        {sendState === 'sending' && <Zap className="h-4 w-4 animate-bounce" />}
-                        {sendState === 'sent' && <Check className="h-4 w-4" />}
+                        {sendState === "idle" && <Send className="h-4 w-4" />}
+                        {sendState === "sending" && (
+                          <Zap className="h-4 w-4 animate-bounce" />
+                        )}
+                        {sendState === "sent" && <Check className="h-4 w-4" />}
                         <span>
-                          {sendState === 'idle' && 'Send Message'}
-                          {sendState === 'sending' && 'Sending...'}
-                          {sendState === 'sent' && 'Sent!'}
+                          {sendState === "idle" && "Send Message"}
+                          {sendState === "sending" && "Sending..."}
+                          {sendState === "sent" && "Sent!"}
                         </span>
                       </div>
                     </button>
@@ -178,8 +179,12 @@ export default function MorphingButtonsPage() {
                           <Square className="absolute inset-0 h-4 w-4 scale-0 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
                         </div>
                         <span className="relative">
-                          <span className="transition-all duration-300 group-hover:opacity-0">Play</span>
-                          <span className="absolute inset-0 opacity-0 transition-all duration-300 group-hover:opacity-100">Pause</span>
+                          <span className="transition-all duration-300 group-hover:opacity-0">
+                            Play
+                          </span>
+                          <span className="absolute inset-0 opacity-0 transition-all duration-300 group-hover:opacity-100">
+                            Pause
+                          </span>
                         </span>
                       </div>
                     </button>

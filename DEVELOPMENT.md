@@ -44,6 +44,7 @@ npm run dev
 Our project enforces strict code quality standards. Here's the recommended workflow:
 
 #### Before Making Changes
+
 ```bash
 # Pull latest changes
 git pull origin main
@@ -53,6 +54,7 @@ npm install
 ```
 
 #### During Development
+
 ```bash
 # Format code as you work (optional but recommended)
 npm run format
@@ -86,6 +88,7 @@ npm run build
 ```
 
 #### One-Line Quality Check
+
 ```bash
 # Run all quality checks in sequence
 npm run format && npm run lint:fix && npm run lint && npm run typecheck && npm run build
@@ -107,17 +110,20 @@ git push origin main
 ## 📋 Code Quality Standards
 
 ### Prettier Configuration
+
 - **Automatic formatting** for consistent code style
 - **Tailwind CSS plugin** for class sorting
 - **Pre-configured** settings in `.prettierrc`
 
 ### ESLint Rules
+
 - **TypeScript-specific** linting rules
 - **Next.js best practices** enforcement
 - **React hooks** validation
 - **Import/export** organization
 
 ### TypeScript Checks
+
 - **Strict mode** enabled
 - **No implicit any** allowed
 - **Unused variables** detection
@@ -126,6 +132,7 @@ git push origin main
 ## 🛠️ Available Scripts
 
 ### Development Scripts
+
 ```bash
 npm run dev              # Start development server with Turbo
 npm run build            # Create production build
@@ -134,6 +141,7 @@ npm run preview          # Build and start production server
 ```
 
 ### Code Quality Scripts
+
 ```bash
 npm run format           # Format all files with Prettier
 npm run format:check     # Check if files are formatted correctly
@@ -143,6 +151,7 @@ npm run typecheck        # Run TypeScript compiler checks
 ```
 
 ### Database Scripts
+
 ```bash
 npm run db:generate      # Generate migrations from schema changes
 npm run db:migrate       # Apply pending migrations to database
@@ -151,6 +160,7 @@ npm run db:studio        # Open Drizzle Studio database GUI
 ```
 
 ### Environment Scripts
+
 ```bash
 npm run env:validate     # Validate all environment variables
 npm run env:setup        # Interactive environment setup wizard
@@ -159,6 +169,7 @@ npm run env:setup        # Interactive environment setup wizard
 ## 🏗️ Project Architecture
 
 ### File Structure
+
 ```
 src/
 ├── app/                 # Next.js App Router pages
@@ -181,6 +192,7 @@ src/
 ```
 
 ### Domain Configuration
+
 The project supports multiple domains through a configuration system:
 
 ```typescript
@@ -188,7 +200,7 @@ The project supports multiple domains through a configuration system:
 export const DOMAINS = {
   MATTHEW_MICELI: "matthewmiceli.com",
   MIRACLE_MIND_LIVE: "miraclemind.live",
-  MIRACLE_MIND_DEV: "miraclemind.dev"
+  MIRACLE_MIND_DEV: "miraclemind.dev",
 };
 ```
 
@@ -197,6 +209,7 @@ export const DOMAINS = {
 ### Avoid These Mistakes
 
 1. **Skipping Quality Checks**
+
    ```bash
    # ❌ DON'T: Push without running checks
    git add . && git commit -m "fix" && git push
@@ -206,6 +219,7 @@ export const DOMAINS = {
    ```
 
 2. **Ignoring TypeScript Errors**
+
    ```bash
    # ❌ DON'T: Ignore TypeScript errors
    npm run build # Has type errors but still pushes
@@ -216,6 +230,7 @@ export const DOMAINS = {
    ```
 
 3. **Inconsistent Formatting**
+
    ```bash
    # ❌ DON'T: Manual formatting
    # Manually spacing and organizing code
@@ -227,25 +242,30 @@ export const DOMAINS = {
 ## 🎯 Best Practices
 
 ### Code Organization
+
 - **Group related components** in the same directory
 - **Use TypeScript interfaces** for all props and data structures
 - **Export components** using named exports when possible
 - **Keep components small** and focused on single responsibility
 
 ### Styling Guidelines
+
 - **Use Tailwind CSS** for all styling
 - **Follow the design system** defined in `tailwind.config.ts`
 - **Use CSS variables** for theme colors
 - **Prefer Tailwind utilities** over custom CSS
 
 ### Database Best Practices
+
 - **Always generate migrations** for schema changes
 - **Test migrations** in development before production
 - **Use Drizzle Studio** to inspect database state
 - **Keep migrations atomic** and reversible
 
 ### Git Commit Messages
+
 Follow conventional commits format:
+
 ```
 feat: add new user authentication
 fix: resolve mobile navigation issue
@@ -260,6 +280,7 @@ test: add unit tests for user service
 ### Common Issues
 
 #### Build Failures
+
 ```bash
 # Check for TypeScript errors
 npm run typecheck
@@ -274,6 +295,7 @@ npm run build
 ```
 
 #### Database Issues
+
 ```bash
 # Reset local database
 rm dev.db
@@ -284,6 +306,7 @@ npm run db:studio
 ```
 
 #### Environment Problems
+
 ```bash
 # Validate environment variables
 npm run env:validate

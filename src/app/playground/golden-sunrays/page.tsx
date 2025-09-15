@@ -35,7 +35,7 @@ export default function GoldenSunraysPage() {
                     key={index}
                     className="sunray"
                     style={{
-                      left: `${(index * 8) + 4}%`,
+                      left: `${index * 8 + 4}%`,
                       animationDelay: `${index * 0.2}s`,
                       transform: `rotate(${(index - 6) * 3}deg)`,
                     }}
@@ -48,13 +48,14 @@ export default function GoldenSunraysPage() {
                   Flowing Golden Rays
                 </CardTitle>
               </CardHeader>
-              <CardContent className="relative z-10 min-h-[400px] flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <h3 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+              <CardContent className="relative z-10 flex min-h-[400px] items-center justify-center">
+                <div className="space-y-4 text-center">
+                  <h3 className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-3xl font-bold text-transparent">
                     Bask in the Golden Light
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Watch as gentle sunrays flow down from above, creating a warm and inviting atmosphere
+                    Watch as gentle sunrays flow down from above, creating a
+                    warm and inviting atmosphere
                   </p>
                 </div>
               </CardContent>
@@ -70,7 +71,7 @@ export default function GoldenSunraysPage() {
                       key={index}
                       className="sunray-gentle"
                       style={{
-                        left: `${(index * 12) + 6}%`,
+                        left: `${index * 12 + 6}%`,
                         animationDelay: `${index * 0.5}s`,
                         transform: `rotate(${(index - 4) * 2}deg)`,
                       }}
@@ -83,12 +84,12 @@ export default function GoldenSunraysPage() {
                     Gentle Rays
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="relative z-10 min-h-[200px] flex items-center justify-center">
+                <CardContent className="relative z-10 flex min-h-[200px] items-center justify-center">
                   <div className="text-center">
                     <h4 className="text-xl font-semibold text-amber-700 dark:text-amber-300">
                       Soft Golden Light
                     </h4>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       Slower, more subtle animation
                     </p>
                   </div>
@@ -103,7 +104,7 @@ export default function GoldenSunraysPage() {
                       key={index}
                       className="sunray-intense"
                       style={{
-                        left: `${(index * 6.5) + 2}%`,
+                        left: `${index * 6.5 + 2}%`,
                         animationDelay: `${index * 0.1}s`,
                         transform: `rotate(${(index - 7) * 2.5}deg)`,
                       }}
@@ -116,12 +117,12 @@ export default function GoldenSunraysPage() {
                     Intense Rays
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="relative z-10 min-h-[200px] flex items-center justify-center">
+                <CardContent className="relative z-10 flex min-h-[200px] items-center justify-center">
                   <div className="text-center">
                     <h4 className="text-xl font-semibold text-orange-700 dark:text-orange-300">
                       Brilliant Radiance
                     </h4>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       More rays, faster movement
                     </p>
                   </div>
@@ -136,7 +137,7 @@ export default function GoldenSunraysPage() {
                       key={index}
                       className="sunray-sunset"
                       style={{
-                        left: `${(index * 10) + 5}%`,
+                        left: `${index * 10 + 5}%`,
                         animationDelay: `${index * 0.3}s`,
                         transform: `rotate(${(index - 5) * 4}deg)`,
                       }}
@@ -149,12 +150,12 @@ export default function GoldenSunraysPage() {
                     Sunset Rays
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="relative z-10 min-h-[200px] flex items-center justify-center">
+                <CardContent className="relative z-10 flex min-h-[200px] items-center justify-center">
                   <div className="text-center">
                     <h4 className="text-xl font-semibold text-red-700 dark:text-red-300">
                       Warm Sunset Glow
                     </h4>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       Reddish-orange gradient rays
                     </p>
                   </div>
@@ -169,7 +170,7 @@ export default function GoldenSunraysPage() {
                       key={index}
                       className="sunray-dawn"
                       style={{
-                        left: `${(index * 11) + 5.5}%`,
+                        left: `${index * 11 + 5.5}%`,
                         animationDelay: `${index * 0.4}s`,
                         transform: `rotate(${(index - 4.5) * 3}deg)`,
                       }}
@@ -182,12 +183,12 @@ export default function GoldenSunraysPage() {
                     Dawn Rays
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="relative z-10 min-h-[200px] flex items-center justify-center">
+                <CardContent className="relative z-10 flex min-h-[200px] items-center justify-center">
                   <div className="text-center">
                     <h4 className="text-xl font-semibold text-pink-700 dark:text-pink-300">
                       Morning Light
                     </h4>
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       Soft pink and golden hues
                     </p>
                   </div>
@@ -302,7 +303,8 @@ export default function GoldenSunraysPage() {
           }
 
           @keyframes sunray-flow {
-            0%, 100% {
+            0%,
+            100% {
               opacity: 0.3;
               transform: translateY(0) scaleY(1) skewX(0deg);
             }
@@ -321,7 +323,8 @@ export default function GoldenSunraysPage() {
           }
 
           @keyframes sunray-gentle-flow {
-            0%, 100% {
+            0%,
+            100% {
               opacity: 0.2;
               transform: translateY(0) scaleY(1) skewX(0deg);
             }
@@ -332,7 +335,8 @@ export default function GoldenSunraysPage() {
           }
 
           @keyframes sunray-intense-flow {
-            0%, 100% {
+            0%,
+            100% {
               opacity: 0.4;
               transform: translateY(0) scaleY(1) skewX(0deg);
             }
@@ -347,7 +351,8 @@ export default function GoldenSunraysPage() {
           }
 
           @keyframes sunray-sunset-flow {
-            0%, 100% {
+            0%,
+            100% {
               opacity: 0.3;
               transform: translateY(0) scaleY(1) skewX(0deg);
             }
@@ -362,7 +367,8 @@ export default function GoldenSunraysPage() {
           }
 
           @keyframes sunray-dawn-flow {
-            0%, 100% {
+            0%,
+            100% {
               opacity: 0.2;
               transform: translateY(0) scaleY(1) skewX(0deg);
             }
@@ -378,7 +384,7 @@ export default function GoldenSunraysPage() {
 
           /* Add some subtle glow effects */
           .sunray::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 0;
             left: -2px;
@@ -396,7 +402,7 @@ export default function GoldenSunraysPage() {
           .sunray-intense::before,
           .sunray-sunset::before,
           .sunray-dawn::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 0;
             left: -1px;

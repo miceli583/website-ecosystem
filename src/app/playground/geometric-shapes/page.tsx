@@ -10,7 +10,7 @@ export default function GeometricShapesPage() {
         <div className="relative min-h-full overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-950 dark:via-amber-950 dark:to-yellow-950">
           {/* Animated SVG Background */}
           <svg
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 h-full w-full"
             viewBox="0 0 1000 1000"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -94,7 +94,14 @@ export default function GeometricShapesPage() {
             </circle>
 
             {/* Morphing Rectangles */}
-            <rect x="400" y="100" width="200" height="100" fill="url(#grad2)" rx="20">
+            <rect
+              x="400"
+              y="100"
+              width="200"
+              height="100"
+              fill="url(#grad2)"
+              rx="20"
+            >
               <animate
                 attributeName="width"
                 values="200;300;200"
@@ -175,21 +182,22 @@ export default function GeometricShapesPage() {
           {/* Content Overlay */}
           <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-8 text-center">
             <div className="max-w-2xl space-y-6">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+              <h1 className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-5xl font-bold text-transparent">
                 Geometric Shapes
               </h1>
               <p className="text-xl text-gray-700 dark:text-gray-300">
-                Animated SVG patterns with rotating, scaling, and morphing geometric elements
+                Animated SVG patterns with rotating, scaling, and morphing
+                geometric elements
               </p>
 
-              <div className="flex flex-wrap gap-4 justify-center pt-8">
-                <div className="px-6 py-3 bg-orange-100/80 backdrop-blur-sm rounded-full border border-orange-200 text-orange-800 dark:bg-orange-900/30 dark:border-orange-700 dark:text-orange-200">
+              <div className="flex flex-wrap justify-center gap-4 pt-8">
+                <div className="rounded-full border border-orange-200 bg-orange-100/80 px-6 py-3 text-orange-800 backdrop-blur-sm dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-200">
                   SVG Animations
                 </div>
-                <div className="px-6 py-3 bg-amber-100/80 backdrop-blur-sm rounded-full border border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-200">
+                <div className="rounded-full border border-amber-200 bg-amber-100/80 px-6 py-3 text-amber-800 backdrop-blur-sm dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
                   Geometric Patterns
                 </div>
-                <div className="px-6 py-3 bg-yellow-100/80 backdrop-blur-sm rounded-full border border-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:border-yellow-700 dark:text-yellow-200">
+                <div className="rounded-full border border-yellow-200 bg-yellow-100/80 px-6 py-3 text-yellow-800 backdrop-blur-sm dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-200">
                   Transform Effects
                 </div>
               </div>

@@ -142,7 +142,7 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
     return createPortal(
       <div
         className={`fixed inset-0 z-[50000] transition-all duration-200 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
         <div
@@ -150,16 +150,16 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
           onClick={handleMenuClose}
         />
         <div
-          className={`absolute left-4 top-16 w-80 transform transition-all duration-200 ease-out ${
+          className={`absolute top-16 left-4 w-80 transform transition-all duration-200 ease-out ${
             isOpen
-              ? "translate-y-0 opacity-100 scale-100"
-              : "-translate-y-2 opacity-0 scale-95"
+              ? "translate-y-0 scale-100 opacity-100"
+              : "-translate-y-2 scale-95 opacity-0"
           }`}
         >
-          <div className="rounded-lg border border-border bg-background p-4 shadow-xl ring-1 ring-black/5 dark:ring-white/5">
+          <div className="border-border bg-background rounded-lg border p-4 shadow-xl ring-1 ring-black/5 dark:ring-white/5">
             <div className="space-y-4">
               <div>
-                <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
                   Ecosystem Sites
                 </h3>
                 <div className="space-y-1">
@@ -174,16 +174,10 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
                           : "hover:bg-accent hover:text-accent-foreground"
                       }`}
                     >
-                      <span className="mr-3 text-base">
-                        {link.config.logo}
-                      </span>
+                      <span className="mr-3 text-base">{link.config.logo}</span>
                       <div className="flex-1 text-left">
-                        <div className="font-medium">
-                          {link.config.name}
-                        </div>
-                        <div className="text-xs opacity-70">
-                          {link.domain}
-                        </div>
+                        <div className="font-medium">{link.config.name}</div>
+                        <div className="text-xs opacity-70">{link.domain}</div>
                       </div>
                     </Link>
                   ))}
@@ -191,7 +185,7 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
               </div>
 
               <div>
-                <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
                   Development
                 </h3>
                 <div className="space-y-1">
@@ -200,12 +194,10 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
                       key={link.name}
                       href={link.href}
                       onClick={handleMenuClose}
-                      className="flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] hover:bg-accent hover:text-accent-foreground"
+                      className="hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <span className="mr-3 text-base">{link.icon}</span>
-                      <span className="font-medium">
-                        {link.name}
-                      </span>
+                      <span className="font-medium">{link.name}</span>
                     </Link>
                   ))}
                 </div>

@@ -13,8 +13,8 @@ export default function MeteorEffectPage() {
     const createMeteor = () => {
       if (!meteorContainerRef.current) return;
 
-      const meteor = document.createElement('div');
-      meteor.className = 'meteor';
+      const meteor = document.createElement("div");
+      meteor.className = "meteor";
 
       // Random starting position
       const startX = Math.random() * window.innerWidth;
@@ -53,7 +53,8 @@ export default function MeteorEffectPage() {
                 </h1>
               </div>
               <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-                Animated meteor and particle effects inspired by Svelte animations
+                Animated meteor and particle effects inspired by Svelte
+                animations
               </p>
             </div>
 
@@ -63,7 +64,7 @@ export default function MeteorEffectPage() {
               <Card className="relative overflow-hidden">
                 <div
                   ref={meteorContainerRef}
-                  className="absolute inset-0 overflow-hidden pointer-events-none"
+                  className="pointer-events-none absolute inset-0 overflow-hidden"
                 ></div>
                 <CardHeader className="relative z-10">
                   <CardTitle className="flex items-center gap-2">
@@ -71,9 +72,9 @@ export default function MeteorEffectPage() {
                     Falling Meteors
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="relative z-10 min-h-[300px] flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <CardContent className="relative z-10 flex min-h-[300px] items-center justify-center">
+                  <div className="space-y-4 text-center">
+                    <h3 className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
                       Watch the Magic
                     </h3>
                     <p className="text-muted-foreground">
@@ -92,8 +93,8 @@ export default function MeteorEffectPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="particle-burst-container relative flex items-center justify-center min-h-[200px] overflow-hidden rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-                    <button className="particle-trigger group relative px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium rounded-lg transition-all duration-300 hover:scale-105">
+                  <div className="particle-burst-container relative flex min-h-[200px] items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                    <button className="particle-trigger group relative rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-8 py-4 font-medium text-white transition-all duration-300 hover:scale-105">
                       <span className="relative z-10">Click for Burst</span>
                     </button>
                   </div>
@@ -109,10 +110,10 @@ export default function MeteorEffectPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="orbit-container relative flex items-center justify-center min-h-[200px] overflow-hidden rounded-lg bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+                  <div className="orbit-container relative flex min-h-[200px] items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
                     <div className="orbit-center">
                       <div className="relative">
-                        <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-600">
                           <Zap className="h-8 w-8 text-white" />
                         </div>
                         <div className="orbit-particle orbit-1"></div>
@@ -164,7 +165,7 @@ export default function MeteorEffectPage() {
           }
 
           .meteor::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 50%;
             left: 50%;
@@ -192,13 +193,17 @@ export default function MeteorEffectPage() {
           }
 
           .particle-trigger:active::after {
-            content: '';
+            content: "";
             position: absolute;
             top: 50%;
             left: 50%;
             width: 100px;
             height: 100px;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            background: radial-gradient(
+              circle,
+              rgba(255, 255, 255, 0.8) 0%,
+              transparent 70%
+            );
             border-radius: 50%;
             transform: translate(-50%, -50%);
             animation: particle-burst 0.6s ease-out;
@@ -301,7 +306,8 @@ export default function MeteorEffectPage() {
           }
 
           @keyframes float {
-            0%, 100% {
+            0%,
+            100% {
               transform: translateY(0px);
             }
             50% {

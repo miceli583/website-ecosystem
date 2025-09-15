@@ -43,25 +43,29 @@ export default function StartupPage() {
 
             <div className="relative z-10 mx-auto max-w-7xl">
               <div className="text-center">
-                <Badge className="mb-6 animated-badge bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                <Badge className="animated-badge mb-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
                   <Sparkles className="mr-1 h-3 w-3" />
                   Launching Soon • Join Waitlist
                 </Badge>
 
-                <h1 className="mb-6 text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white lg:text-8xl">
+                <h1 className="mb-6 text-6xl font-extrabold tracking-tight text-gray-900 lg:text-8xl dark:text-white">
                   <span className="block">The Future</span>
                   <span className="hero-gradient-text bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent">
                     Starts Here
                   </span>
                 </h1>
 
-                <p className="mx-auto mb-8 max-w-3xl text-xl text-gray-600 dark:text-gray-300 lg:text-2xl">
-                  Revolutionary AI-powered platform that transforms how startups build,
-                  scale, and succeed in the digital age. Be part of the next big thing.
+                <p className="mx-auto mb-8 max-w-3xl text-xl text-gray-600 lg:text-2xl dark:text-gray-300">
+                  Revolutionary AI-powered platform that transforms how startups
+                  build, scale, and succeed in the digital age. Be part of the
+                  next big thing.
                 </p>
 
                 <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:justify-center">
-                  <Button size="lg" className="group animated-button bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg hover:from-purple-700 hover:to-pink-700">
+                  <Button
+                    size="lg"
+                    className="group animated-button bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg hover:from-purple-700 hover:to-pink-700"
+                  >
                     <Rocket className="mr-2 h-5 w-5 transition-transform group-hover:scale-110 group-hover:rotate-12" />
                     Join the Revolution
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -69,7 +73,7 @@ export default function StartupPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="group px-8 py-4 text-lg border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300"
+                    className="group border-purple-300 px-8 py-4 text-lg text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300"
                     onClick={() => setIsVideoPlaying(!isVideoPlaying)}
                   >
                     <Play className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
@@ -95,7 +99,7 @@ export default function StartupPage() {
 
               {/* Video/Demo Section */}
               <div className="mt-20">
-                <Card className="mx-auto max-w-4xl overflow-hidden border-none bg-white/80 backdrop-blur-lg shadow-2xl dark:bg-gray-900/80">
+                <Card className="mx-auto max-w-4xl overflow-hidden border-none bg-white/80 shadow-2xl backdrop-blur-lg dark:bg-gray-900/80">
                   <CardContent className="p-0">
                     <div className="relative aspect-video bg-gradient-to-br from-purple-900 to-pink-900">
                       {!isVideoPlaying ? (
@@ -112,7 +116,9 @@ export default function StartupPage() {
                         <div className="flex h-full items-center justify-center text-white">
                           <div className="text-center">
                             <div className="mb-4 text-6xl">🚀</div>
-                            <p className="text-xl">Demo video would play here</p>
+                            <p className="text-xl">
+                              Demo video would play here
+                            </p>
                             <Button
                               className="mt-4"
                               variant="outline"
@@ -143,11 +149,13 @@ export default function StartupPage() {
                       "95% of startups fail within the first 5 years",
                       "Founders spend 60% of time on non-core activities",
                       "Limited access to mentorship and resources",
-                      "Difficulty in finding the right team and investors"
+                      "Difficulty in finding the right team and investors",
                     ].map((problem, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <X className="mt-1 h-5 w-5 text-red-500" />
-                        <p className="text-gray-600 dark:text-gray-300">{problem}</p>
+                        <p className="text-gray-600 dark:text-gray-300">
+                          {problem}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -162,11 +170,13 @@ export default function StartupPage() {
                       "AI-powered business planning and strategy",
                       "Automated workflow and task management",
                       "Global network of mentors and experts",
-                      "Smart matching with investors and co-founders"
+                      "Smart matching with investors and co-founders",
                     ].map((solution, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <Check className="mt-1 h-5 w-5 text-green-500" />
-                        <p className="text-gray-600 dark:text-gray-300">{solution}</p>
+                        <p className="text-gray-600 dark:text-gray-300">
+                          {solution}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -183,7 +193,8 @@ export default function StartupPage() {
                   Revolutionary Features
                 </h2>
                 <p className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-gray-300">
-                  Everything you need to build, launch, and scale your startup successfully
+                  Everything you need to build, launch, and scale your startup
+                  successfully
                 </p>
               </div>
 
@@ -192,44 +203,55 @@ export default function StartupPage() {
                   {
                     icon: Lightbulb,
                     title: "AI Business Planner",
-                    description: "Generate comprehensive business plans with market research and financial projections in minutes",
-                    color: "from-yellow-500 to-orange-500"
+                    description:
+                      "Generate comprehensive business plans with market research and financial projections in minutes",
+                    color: "from-yellow-500 to-orange-500",
                   },
                   {
                     icon: Users,
                     title: "Team Builder",
-                    description: "Find and connect with co-founders, employees, and advisors using our smart matching algorithm",
-                    color: "from-blue-500 to-purple-500"
+                    description:
+                      "Find and connect with co-founders, employees, and advisors using our smart matching algorithm",
+                    color: "from-blue-500 to-purple-500",
                   },
                   {
                     icon: TrendingUp,
                     title: "Growth Analytics",
-                    description: "Track your startup's progress with real-time analytics and actionable insights",
-                    color: "from-green-500 to-teal-500"
+                    description:
+                      "Track your startup's progress with real-time analytics and actionable insights",
+                    color: "from-green-500 to-teal-500",
                   },
                   {
                     icon: Target,
                     title: "Investor Network",
-                    description: "Access our curated network of angel investors and VCs actively looking for startups",
-                    color: "from-purple-500 to-pink-500"
+                    description:
+                      "Access our curated network of angel investors and VCs actively looking for startups",
+                    color: "from-purple-500 to-pink-500",
                   },
                   {
                     icon: Clock,
                     title: "Automation Engine",
-                    description: "Automate repetitive tasks and focus on what matters most - building your product",
-                    color: "from-orange-500 to-red-500"
+                    description:
+                      "Automate repetitive tasks and focus on what matters most - building your product",
+                    color: "from-orange-500 to-red-500",
                   },
                   {
                     icon: Globe,
                     title: "Global Marketplace",
-                    description: "Launch your product to a global audience with built-in marketing and distribution tools",
-                    color: "from-teal-500 to-blue-500"
-                  }
+                    description:
+                      "Launch your product to a global audience with built-in marketing and distribution tools",
+                    color: "from-teal-500 to-blue-500",
+                  },
                 ].map((feature, index) => (
-                  <Card key={index} className="group feature-card overflow-hidden border-none bg-white/80 backdrop-blur-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl dark:bg-gray-900/80">
+                  <Card
+                    key={index}
+                    className="group feature-card overflow-hidden border-none bg-white/80 backdrop-blur-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl dark:bg-gray-900/80"
+                  >
                     <CardContent className="p-8">
                       <div className="mb-6">
-                        <div className={`inline-flex rounded-lg bg-gradient-to-r ${feature.color} p-3 text-white shadow-lg`}>
+                        <div
+                          className={`inline-flex rounded-lg bg-gradient-to-r ${feature.color} p-3 text-white shadow-lg`}
+                        >
                           <feature.icon className="h-6 w-6" />
                         </div>
                       </div>
@@ -261,25 +283,31 @@ export default function StartupPage() {
                     name: "Alex Chen",
                     role: "Founder, TechVision",
                     avatar: "AC",
-                    content: "This platform gave me the clarity and direction I needed. My startup went from idea to MVP in just 3 weeks!",
-                    rating: 5
+                    content:
+                      "This platform gave me the clarity and direction I needed. My startup went from idea to MVP in just 3 weeks!",
+                    rating: 5,
                   },
                   {
                     name: "Maria Santos",
                     role: "CEO, EcoStart",
                     avatar: "MS",
-                    content: "The AI business planner created a strategy that got us our first $100K in funding. Absolutely game-changing!",
-                    rating: 5
+                    content:
+                      "The AI business planner created a strategy that got us our first $100K in funding. Absolutely game-changing!",
+                    rating: 5,
                   },
                   {
                     name: "David Kim",
                     role: "Co-founder, AppFlow",
                     avatar: "DK",
-                    content: "Found my co-founder through the platform and we're now building together. The matching algorithm is incredible.",
-                    rating: 5
-                  }
+                    content:
+                      "Found my co-founder through the platform and we're now building together. The matching algorithm is incredible.",
+                    rating: 5,
+                  },
                 ].map((testimonial, index) => (
-                  <Card key={index} className="testimonial-card overflow-hidden border-none bg-white/80 backdrop-blur-lg transition-all duration-300 hover:shadow-xl dark:bg-gray-900/80">
+                  <Card
+                    key={index}
+                    className="testimonial-card overflow-hidden border-none bg-white/80 backdrop-blur-lg transition-all duration-300 hover:shadow-xl dark:bg-gray-900/80"
+                  >
                     <CardContent className="p-8">
                       <div className="mb-4 flex text-yellow-400">
                         {[...Array(testimonial.rating)].map((_, i) => (
@@ -290,12 +318,16 @@ export default function StartupPage() {
                         &ldquo;{testimonial.content}&rdquo;
                       </blockquote>
                       <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 font-semibold text-white">
                           {testimonial.avatar}
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</div>
+                          <div className="font-semibold text-gray-900 dark:text-white">
+                            {testimonial.name}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {testimonial.role}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -313,13 +345,15 @@ export default function StartupPage() {
                   { number: "50K+", label: "Startups Launched" },
                   { number: "$2.5B", label: "Total Funding Raised" },
                   { number: "95%", label: "Success Rate" },
-                  { number: "150+", label: "Countries" }
+                  { number: "150+", label: "Countries" },
                 ].map((stat, index) => (
                   <div key={index} className="text-center">
-                    <div className="stat-number mb-2 text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    <div className="stat-number mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-4xl font-bold text-transparent">
                       {stat.number}
                     </div>
-                    <div className="text-gray-600 dark:text-gray-400">{stat.label}</div>
+                    <div className="text-gray-600 dark:text-gray-400">
+                      {stat.label}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -344,11 +378,18 @@ export default function StartupPage() {
                 Get early access and exclusive perks.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="group bg-white px-8 py-4 text-lg text-purple-600 hover:bg-gray-100">
+                <Button
+                  size="lg"
+                  className="group bg-white px-8 py-4 text-lg text-purple-600 hover:bg-gray-100"
+                >
                   <Rocket className="mr-2 h-5 w-5 transition-transform group-hover:scale-110 group-hover:rotate-12" />
                   Get Early Access
                 </Button>
-                <Button size="lg" variant="outline" className="border-white px-8 py-4 text-lg text-white hover:bg-white/10">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white px-8 py-4 text-lg text-white hover:bg-white/10"
+                >
                   <MessageSquare className="mr-2 h-5 w-5" />
                   Join Community
                 </Button>
@@ -359,7 +400,13 @@ export default function StartupPage() {
 
         <style jsx global>{`
           .hero-bg-animation {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background: linear-gradient(
+              -45deg,
+              #ee7752,
+              #e73c7e,
+              #23a6d5,
+              #23d5ab
+            );
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             opacity: 0.1;
@@ -383,7 +430,8 @@ export default function StartupPage() {
           }
 
           @keyframes shimmer {
-            0%, 100% {
+            0%,
+            100% {
               background-position: 0% 50%;
             }
             50% {
@@ -396,7 +444,8 @@ export default function StartupPage() {
           }
 
           @keyframes pulse-glow {
-            0%, 100% {
+            0%,
+            100% {
               box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
             }
             50% {
@@ -409,7 +458,8 @@ export default function StartupPage() {
           }
 
           @keyframes button-float {
-            0%, 100% {
+            0%,
+            100% {
               transform: translateY(0px);
             }
             50% {
@@ -438,7 +488,8 @@ export default function StartupPage() {
           }
 
           @keyframes float-gentle {
-            0%, 100% {
+            0%,
+            100% {
               transform: translateY(0px);
             }
             50% {
@@ -488,7 +539,8 @@ export default function StartupPage() {
           }
 
           @keyframes float-particles {
-            0%, 100% {
+            0%,
+            100% {
               transform: translateY(0px) translateX(0px);
             }
             33% {

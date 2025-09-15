@@ -95,13 +95,13 @@ export default function ParticleFieldPage() {
 
           const distance = Math.sqrt(
             Math.pow(particle.x - otherParticle.x, 2) +
-            Math.pow(particle.y - otherParticle.y, 2)
+              Math.pow(particle.y - otherParticle.y, 2)
           );
 
           if (distance < 100) {
             ctx.save();
             ctx.strokeStyle = particle.color;
-            ctx.globalAlpha = (100 - distance) / 100 * 0.2;
+            ctx.globalAlpha = ((100 - distance) / 100) * 0.2;
             ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
@@ -137,31 +137,29 @@ export default function ParticleFieldPage() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
-        <div className="relative min-h-full bg-black overflow-hidden">
+        <div className="relative min-h-full overflow-hidden bg-black">
           {/* Canvas Background */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
-          />
+          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
           {/* Content Overlay */}
           <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-8 text-center">
             <div className="max-w-2xl space-y-6">
-              <h1 className="text-5xl font-bold text-white bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-transparent">
+              <h1 className="bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-5xl font-bold text-transparent text-white">
                 Particle Field
               </h1>
               <p className="text-xl text-gray-300">
-                Interactive floating particles with dynamic connections and glow effects
+                Interactive floating particles with dynamic connections and glow
+                effects
               </p>
 
-              <div className="flex flex-wrap gap-4 justify-center pt-8">
-                <div className="px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-white">
+              <div className="flex flex-wrap justify-center gap-4 pt-8">
+                <div className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white backdrop-blur-sm">
                   Canvas Animation
                 </div>
-                <div className="px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-white">
+                <div className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white backdrop-blur-sm">
                   Particle Physics
                 </div>
-                <div className="px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-white">
+                <div className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white backdrop-blur-sm">
                   Dynamic Connections
                 </div>
               </div>

@@ -104,12 +104,7 @@ export default function TextShimmerPage() {
 
         <style jsx global>{`
           .shimmer-text {
-            background: linear-gradient(
-              90deg,
-              #000 25%,
-              #fff 50%,
-              #000 75%
-            );
+            background: linear-gradient(90deg, #000 25%, #fff 50%, #000 75%);
             background-size: 200% 100%;
             background-clip: text;
             -webkit-background-clip: text;
@@ -229,12 +224,7 @@ export default function TextShimmerPage() {
           }
 
           .dark .shimmer-text {
-            background: linear-gradient(
-              90deg,
-              #fff 25%,
-              #000 50%,
-              #fff 75%
-            );
+            background: linear-gradient(90deg, #fff 25%, #000 50%, #fff 75%);
             background-size: 200% 100%;
             background-clip: text;
             -webkit-background-clip: text;
