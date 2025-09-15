@@ -18,7 +18,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "env:validate": "node scripts/setup-env.js validate",
-    "env:setup": "node scripts/setup-env.js setup"
+    "env:setup": "node scripts/setup-env.js setup",
+    "pre-commit": "bash scripts/pre-commit.sh",
+    "quality-check": "npm run format && npm run lint:fix && npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
