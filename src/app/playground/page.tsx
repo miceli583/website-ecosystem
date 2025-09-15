@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { DomainLayout } from "~/components/domain-layout";
+import { PlaygroundLayout } from "~/components/playground/playground-layout";
+import Link from "next/link";
 import {
   Palette,
   Layers,
@@ -26,11 +29,19 @@ import {
   Plus,
   Minus,
   X,
+  Type,
+  Rocket,
+  Building,
+  User,
+  ExternalLink,
+  Sun,
 } from "lucide-react";
 
 export default function PlaygroundPage() {
   return (
-    <div className="via-background dark:via-background min-h-screen bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
+    <DomainLayout>
+      <PlaygroundLayout>
+        <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Header */}
         <div className="space-y-4 text-center">
@@ -63,6 +74,219 @@ export default function PlaygroundPage() {
             </Badge>
           </div>
         </div>
+
+        {/* Svelte-Inspired Animations */}
+        <Card className="border-gradient border-2">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-600" />
+              Svelte-Inspired Animations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Link href="/playground/text-shimmer">
+                <Card className="group cursor-pointer border-violet-200 transition-all duration-300 hover:shadow-lg hover:scale-105 dark:border-violet-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Type className="h-5 w-5 text-violet-600" />
+                      <h3 className="font-semibold">Text Shimmer</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Gradient text animations with shimmer effects
+                    </p>
+                    <ArrowRight className="h-4 w-4 mt-3 text-violet-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/morphing-buttons">
+                <Card className="group cursor-pointer border-purple-200 transition-all duration-300 hover:shadow-lg hover:scale-105 dark:border-purple-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <MousePointer className="h-5 w-5 text-purple-600" />
+                      <h3 className="font-semibold">Morphing Buttons</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Interactive buttons with state morphing
+                    </p>
+                    <ArrowRight className="h-4 w-4 mt-3 text-purple-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/meteor-effect">
+                <Card className="group cursor-pointer border-emerald-200 transition-all duration-300 hover:shadow-lg hover:scale-105 dark:border-emerald-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Star className="h-5 w-5 text-emerald-600" />
+                      <h3 className="font-semibold">Meteor Effects</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Particle systems and meteor animations
+                    </p>
+                    <ArrowRight className="h-4 w-4 mt-3 text-emerald-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Existing Animations */}
+        <Card className="border-gradient border-2">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Zap className="h-5 w-5 text-orange-600" />
+              Interactive Animations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+              <Link href="/playground/aurora-glow">
+                <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="h-4 w-4 text-violet-600" />
+                      <h4 className="font-medium text-sm">Aurora Glow</h4>
+                    </div>
+                    <ArrowRight className="h-3 w-3 text-violet-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/geometric-shapes">
+                <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Triangle className="h-4 w-4 text-emerald-600" />
+                      <h4 className="font-medium text-sm">Geometric</h4>
+                    </div>
+                    <ArrowRight className="h-3 w-3 text-emerald-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/gradient-waves">
+                <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Palette className="h-4 w-4 text-blue-600" />
+                      <h4 className="font-medium text-sm">Waves</h4>
+                    </div>
+                    <ArrowRight className="h-3 w-3 text-blue-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/liquid-morph">
+                <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Circle className="h-4 w-4 text-purple-600" />
+                      <h4 className="font-medium text-sm">Liquid</h4>
+                    </div>
+                    <ArrowRight className="h-3 w-3 text-purple-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/particle-field">
+                <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star className="h-4 w-4 text-orange-600" />
+                      <h4 className="font-medium text-sm">Particles</h4>
+                    </div>
+                    <ArrowRight className="h-3 w-3 text-orange-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+
+            <div className="mt-4">
+              <Link href="/playground/golden-sunrays">
+                <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sun className="h-4 w-4 text-yellow-600" />
+                      <h4 className="font-medium text-sm">Golden Sunrays</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">Flowing golden rays from above</p>
+                    <ArrowRight className="h-3 w-3 text-yellow-600 transition-transform group-hover:translate-x-1" />
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Template Gallery */}
+        <Card className="border-gradient border-2">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Rocket className="h-5 w-5 text-orange-600" />
+              Template Gallery
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Link href="/playground/templates/developer-profile">
+                <Card className="group cursor-pointer border-blue-200 transition-all duration-300 hover:shadow-lg hover:scale-105 dark:border-blue-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <User className="h-5 w-5 text-blue-600" />
+                      <h3 className="font-semibold">Developer Profile</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Portfolio template for developers and designers
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="h-3 w-3 text-blue-600" />
+                      <span className="text-xs text-blue-600">View Template</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/templates/saas-business">
+                <Card className="group cursor-pointer border-green-200 transition-all duration-300 hover:shadow-lg hover:scale-105 dark:border-green-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Building className="h-5 w-5 text-green-600" />
+                      <h3 className="font-semibold">SaaS Business</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Professional landing page for SaaS products
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="h-3 w-3 text-green-600" />
+                      <span className="text-xs text-green-600">View Template</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link href="/playground/templates/startup">
+                <Card className="group cursor-pointer border-purple-200 transition-all duration-300 hover:shadow-lg hover:scale-105 dark:border-purple-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Rocket className="h-5 w-5 text-purple-600" />
+                      <h3 className="font-semibold">Startup</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Modern startup landing page with animations
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="h-3 w-3 text-purple-600" />
+                      <span className="text-xs text-purple-600">View Template</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Component Sections */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -346,12 +570,84 @@ export default function PlaygroundPage() {
           </Card>
         </div>
 
+        {/* Svelte-Inspired Interactive Components */}
+        <Card className="border-gradient border-2">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-600" />
+              Interactive Svelte Components
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {/* Bouncing Ball */}
+              <div className="space-y-3">
+                <h3 className="text-center text-sm font-medium">Bouncing Ball</h3>
+                <div className="svelte-bouncing-container relative h-32 overflow-hidden rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+                  <div className="svelte-bouncing-ball"></div>
+                </div>
+              </div>
+
+              {/* Morphing Shape */}
+              <div className="space-y-3">
+                <h3 className="text-center text-sm font-medium">Morphing Shape</h3>
+                <div className="relative flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                  <div className="svelte-morph-shape"></div>
+                </div>
+              </div>
+
+              {/* Floating Hearts */}
+              <div className="space-y-3">
+                <h3 className="text-center text-sm font-medium">Floating Hearts</h3>
+                <div className="svelte-hearts-container relative h-32 overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20">
+                  <div className="svelte-heart svelte-heart-1">💖</div>
+                  <div className="svelte-heart svelte-heart-2">💕</div>
+                  <div className="svelte-heart svelte-heart-3">💝</div>
+                </div>
+              </div>
+
+              {/* Pulsing Rings */}
+              <div className="space-y-3">
+                <h3 className="text-center text-sm font-medium">Pulsing Rings</h3>
+                <div className="relative flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+                  <div className="svelte-pulse-ring svelte-pulse-ring-1"></div>
+                  <div className="svelte-pulse-ring svelte-pulse-ring-2"></div>
+                  <div className="svelte-pulse-ring svelte-pulse-ring-3"></div>
+                  <div className="svelte-pulse-center"></div>
+                </div>
+              </div>
+
+              {/* Rotating Squares */}
+              <div className="space-y-3">
+                <h3 className="text-center text-sm font-medium">Rotating Squares</h3>
+                <div className="relative flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
+                  <div className="svelte-rotating-container">
+                    <div className="svelte-rotating-square svelte-square-1"></div>
+                    <div className="svelte-rotating-square svelte-square-2"></div>
+                    <div className="svelte-rotating-square svelte-square-3"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wave Animation */}
+              <div className="space-y-3">
+                <h3 className="text-center text-sm font-medium">Wave Effect</h3>
+                <div className="relative h-32 overflow-hidden rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20">
+                  <div className="svelte-wave svelte-wave-1"></div>
+                  <div className="svelte-wave svelte-wave-2"></div>
+                  <div className="svelte-wave svelte-wave-3"></div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Experimental Section */}
         <Card className="border-gradient border-2">
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2">
               <Paintbrush className="h-5 w-5 text-violet-600" />
-              Experimental Features
+              Layout Experiments
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -360,13 +656,13 @@ export default function PlaygroundPage() {
               <div className="space-y-3">
                 <h3 className="text-center text-sm font-medium">CSS Grid</h3>
                 <div className="grid h-32 grid-cols-3 gap-2">
-                  <div className="col-span-2 flex items-center justify-center rounded bg-violet-100 dark:bg-violet-900/30">
+                  <div className="col-span-2 flex items-center justify-center rounded bg-violet-100 dark:bg-violet-900/30 transition-all duration-300 hover:scale-105">
                     <span className="text-xs">Main</span>
                   </div>
-                  <div className="flex items-center justify-center rounded bg-purple-100 dark:bg-purple-900/30">
+                  <div className="flex items-center justify-center rounded bg-purple-100 dark:bg-purple-900/30 transition-all duration-300 hover:scale-105">
                     <span className="text-xs">Side</span>
                   </div>
-                  <div className="col-span-3 flex items-center justify-center rounded bg-emerald-100 dark:bg-emerald-900/30">
+                  <div className="col-span-3 flex items-center justify-center rounded bg-emerald-100 dark:bg-emerald-900/30 transition-all duration-300 hover:scale-105">
                     <span className="text-xs">Footer</span>
                   </div>
                 </div>
@@ -377,14 +673,14 @@ export default function PlaygroundPage() {
                 <h3 className="text-center text-sm font-medium">Flexbox</h3>
                 <div className="flex h-32 flex-col gap-2">
                   <div className="flex flex-1 gap-2">
-                    <div className="flex flex-1 items-center justify-center rounded bg-orange-100 dark:bg-orange-900/30">
+                    <div className="flex flex-1 items-center justify-center rounded bg-orange-100 dark:bg-orange-900/30 transition-all duration-300 hover:scale-105">
                       <span className="text-xs">A</span>
                     </div>
-                    <div className="flex flex-1 items-center justify-center rounded bg-pink-100 dark:bg-pink-900/30">
+                    <div className="flex flex-1 items-center justify-center rounded bg-pink-100 dark:bg-pink-900/30 transition-all duration-300 hover:scale-105">
                       <span className="text-xs">B</span>
                     </div>
                   </div>
-                  <div className="flex h-8 items-center justify-center rounded bg-teal-100 dark:bg-teal-900/30">
+                  <div className="flex h-8 items-center justify-center rounded bg-teal-100 dark:bg-teal-900/30 transition-all duration-300 hover:scale-105">
                     <span className="text-xs">Full Width</span>
                   </div>
                 </div>
@@ -392,17 +688,259 @@ export default function PlaygroundPage() {
 
               {/* Animation Playground */}
               <div className="space-y-3">
-                <h3 className="text-center text-sm font-medium">Animations</h3>
+                <h3 className="text-center text-sm font-medium">Hover Effects</h3>
                 <div className="bg-muted/50 relative flex h-32 items-center justify-center overflow-hidden rounded-lg">
-                  <div className="absolute h-4 w-4 animate-bounce rounded-full bg-violet-500"></div>
-                  <div className="absolute top-4 h-4 w-4 animate-pulse rounded-full bg-purple-500"></div>
-                  <div className="absolute bottom-4 h-4 w-4 animate-spin rounded-full bg-emerald-500"></div>
+                  <div className="group cursor-pointer">
+                    <div className="h-8 w-8 rounded-full bg-violet-500 transition-all duration-500 group-hover:scale-150 group-hover:rotate-180"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
+        </div>
+      </PlaygroundLayout>
+    </DomainLayout>
   );
+}
+
+// Global styles for Svelte-inspired animations
+const globalStyles = `
+  /* Bouncing Ball */
+  .svelte-bouncing-ball {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(45deg, #8b5cf6, #ec4899);
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+    animation: svelte-bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes svelte-bounce {
+    0%, 100% {
+      top: 80%;
+      left: 20px;
+      transform: scale(1);
+    }
+    25% {
+      top: 20%;
+      left: 40%;
+      transform: scale(0.8);
+    }
+    50% {
+      top: 80%;
+      left: 60%;
+      transform: scale(1.1);
+    }
+    75% {
+      top: 20%;
+      left: 80%;
+      transform: scale(0.9);
+    }
+  }
+
+  /* Morphing Shape */
+  .svelte-morph-shape {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #10b981, #06b6d4);
+    animation: svelte-morph 3s ease-in-out infinite;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  @keyframes svelte-morph {
+    0%, 100% {
+      border-radius: 50%;
+      transform: rotate(0deg) scale(1);
+    }
+    25% {
+      border-radius: 25%;
+      transform: rotate(90deg) scale(1.2);
+    }
+    50% {
+      border-radius: 0%;
+      transform: rotate(180deg) scale(0.8);
+    }
+    75% {
+      border-radius: 25%;
+      transform: rotate(270deg) scale(1.1);
+    }
+  }
+
+  /* Floating Hearts */
+  .svelte-heart {
+    position: absolute;
+    font-size: 20px;
+    animation: svelte-float-hearts 4s ease-in-out infinite;
+  }
+
+  .svelte-heart-1 {
+    top: 20%;
+    left: 20%;
+    animation-delay: 0s;
+  }
+
+  .svelte-heart-2 {
+    top: 60%;
+    left: 60%;
+    animation-delay: 1.3s;
+  }
+
+  .svelte-heart-3 {
+    top: 40%;
+    left: 80%;
+    animation-delay: 2.6s;
+  }
+
+  @keyframes svelte-float-hearts {
+    0%, 100% {
+      transform: translateY(0px) scale(1);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-20px) scale(1.3);
+      opacity: 1;
+    }
+  }
+
+  /* Pulsing Rings */
+  .svelte-pulse-ring {
+    position: absolute;
+    border: 2px solid #f97316;
+    border-radius: 50%;
+    animation: svelte-pulse 2s ease-out infinite;
+  }
+
+  .svelte-pulse-ring-1 {
+    width: 40px;
+    height: 40px;
+    animation-delay: 0s;
+  }
+
+  .svelte-pulse-ring-2 {
+    width: 60px;
+    height: 60px;
+    animation-delay: 0.7s;
+  }
+
+  .svelte-pulse-ring-3 {
+    width: 80px;
+    height: 80px;
+    animation-delay: 1.4s;
+  }
+
+  .svelte-pulse-center {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #f97316;
+    border-radius: 50%;
+    z-index: 10;
+  }
+
+  @keyframes svelte-pulse {
+    0% {
+      transform: scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+
+  /* Rotating Squares */
+  .svelte-rotating-container {
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+
+  .svelte-rotating-square {
+    position: absolute;
+    background: linear-gradient(45deg, #8b5cf6, #6366f1);
+    animation: svelte-rotate-squares 4s linear infinite;
+  }
+
+  .svelte-square-1 {
+    width: 20px;
+    height: 20px;
+    top: 0;
+    left: 0;
+    animation-delay: 0s;
+  }
+
+  .svelte-square-2 {
+    width: 16px;
+    height: 16px;
+    top: 22px;
+    left: 22px;
+    animation-delay: 1.3s;
+  }
+
+  .svelte-square-3 {
+    width: 12px;
+    height: 12px;
+    top: 44px;
+    left: 44px;
+    animation-delay: 2.6s;
+  }
+
+  @keyframes svelte-rotate-squares {
+    0% {
+      transform: rotate(0deg) scale(1);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.5);
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+
+  /* Wave Animation */
+  .svelte-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    animation: svelte-wave-move 3s ease-in-out infinite;
+  }
+
+  .svelte-wave-1 {
+    opacity: 0.7;
+    animation-delay: 0s;
+  }
+
+  .svelte-wave-2 {
+    opacity: 0.5;
+    animation-delay: 1s;
+    height: 30px;
+  }
+
+  .svelte-wave-3 {
+    opacity: 0.3;
+    animation-delay: 2s;
+    height: 40px;
+  }
+
+  @keyframes svelte-wave-move {
+    0%, 100% {
+      clip-path: polygon(0 100%, 25% 70%, 50% 80%, 75% 60%, 100% 70%, 100% 100%);
+    }
+    50% {
+      clip-path: polygon(0 100%, 25% 80%, 50% 60%, 75% 80%, 100% 60%, 100% 100%);
+    }
+  }
+`;
+
+// Inject global styles
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = globalStyles;
+  document.head.appendChild(styleElement);
 }

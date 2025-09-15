@@ -1,18 +1,45 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { getDomainConfig, DOMAINS } from "~/lib/domains";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { Menu, X } from "lucide-react";
 
 interface DomainLayoutProps {
   children: React.ReactNode;
   hostname?: string;
 }
 
-function EcosystemNav({ currentHostname }: { currentHostname: string }) {
+function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const getEcosystemLinks = () => {
+    if (!mounted) return [];
+
     const isLocalhost = currentHostname.includes("localhost");
 
     const ecosystemDomains = [
@@ -58,29 +85,164 @@ function EcosystemNav({ currentHostname }: { currentHostname: string }) {
     });
   };
 
+  const getUtilityLinks = () => {
+    if (!mounted) return [];
+
+    const isLocalhost = currentHostname.includes("localhost");
+
+    const utilityPages = [
+      { name: "Admin", href: "/admin", icon: "⚙️" },
+      { name: "Playground", href: "/playground", icon: "🎮" },
+    ];
+
+    return utilityPages.map((page) => {
+      let href: string;
+
+      if (isLocalhost) {
+        href = `${page.href}?domain=dev`;
+      } else {
+        href = `https://${DOMAINS.MIRACLE_MIND_DEV}${page.href}`;
+      }
+
+      return {
+        ...page,
+        href,
+      };
+    });
+  };
+
   const ecosystemLinks = getEcosystemLinks();
+  const utilityLinks = getUtilityLinks();
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleMenuClose = () => {
+    setIsOpen(false);
+  };
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0 opacity-50"
+        disabled
+        aria-label="Loading menu"
+      >
+        <Menu className="h-4 w-4" />
+      </Button>
+    );
+  }
+
+  const renderMenu = () => {
+    if (!mounted) return null;
+
+    return createPortal(
+      <div
+        className={`fixed inset-0 z-[50000] transition-all duration-200 ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          onClick={handleMenuClose}
+        />
+        <div
+          className={`absolute left-4 top-16 w-80 transform transition-all duration-200 ease-out ${
+            isOpen
+              ? "translate-y-0 opacity-100 scale-100"
+              : "-translate-y-2 opacity-0 scale-95"
+          }`}
+        >
+          <div className="rounded-lg border border-border bg-background p-4 shadow-xl ring-1 ring-black/5 dark:ring-white/5">
+            <div className="space-y-4">
+              <div>
+                <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Ecosystem Sites
+                </h3>
+                <div className="space-y-1">
+                  {ecosystemLinks.map((link) => (
+                    <Link
+                      key={link.key}
+                      href={link.href}
+                      onClick={handleMenuClose}
+                      className={`flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] ${
+                        link.isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      }`}
+                    >
+                      <span className="mr-3 text-base">
+                        {link.config.logo}
+                      </span>
+                      <div className="flex-1 text-left">
+                        <div className="font-medium">
+                          {link.config.name}
+                        </div>
+                        <div className="text-xs opacity-70">
+                          {link.domain}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Development
+                </h3>
+                <div className="space-y-1">
+                  {utilityLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      onClick={handleMenuClose}
+                      className="flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <span className="mr-3 text-base">{link.icon}</span>
+                      <span className="font-medium">
+                        {link.name}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
 
   return (
-    <div className="border-border bg-background/50 flex items-center space-x-1 rounded-md border p-1">
-      <span className="text-muted-foreground px-2 text-xs font-medium">
-        Ecosystem:
-      </span>
-      {ecosystemLinks.map((link) => (
-        <Button
-          key={link.key}
-          asChild
-          variant={link.isActive ? "default" : "ghost"}
-          size="sm"
-          className="h-7 px-2 text-xs"
-        >
-          <Link href={link.href}>
-            <span className="mr-1">{link.config.logo}</span>
-            <span className="hidden xl:inline">
-              {link.config.name.split(" ")[0]}
-            </span>
-          </Link>
-        </Button>
-      ))}
+    <div className="relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0 transition-all duration-150 hover:scale-110 active:scale-95"
+        onClick={handleToggle}
+        aria-label={isOpen ? "Close ecosystem menu" : "Open ecosystem menu"}
+        aria-expanded={isOpen}
+      >
+        <div className="relative h-4 w-4">
+          <Menu
+            className={`absolute h-4 w-4 transform transition-all duration-200 ${
+              isOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
+            }`}
+          />
+          <X
+            className={`absolute h-4 w-4 transform transition-all duration-200 ${
+              isOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
+            }`}
+          />
+        </div>
+      </Button>
+
+      {renderMenu()}
     </div>
   );
 }
@@ -120,36 +282,32 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       {/* Header Navigation */}
       <header className="border-border/40 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center space-x-2 text-xl font-bold"
-          >
-            <span className="text-2xl">{domainConfig.logo}</span>
-            <span className="hidden sm:inline">{domainConfig.name}</span>
-          </Link>
-
-          {/* Navigation */}
-          <div className="flex items-center space-x-6">
-            <nav className="hidden items-center space-x-6 md:flex">
-              {domainConfig.nav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Ecosystem Navigation */}
-            <div className="hidden lg:block">
-              <EcosystemNav currentHostname={currentHostname} />
-            </div>
+          {/* Left side: Menu + Logo */}
+          <div className="flex items-center space-x-3">
+            <EcosystemMenu currentHostname={currentHostname} />
+            <Link
+              href="/"
+              className="flex items-center space-x-2 text-xl font-bold"
+            >
+              <span className="text-2xl">{domainConfig.logo}</span>
+              <span className="hidden sm:inline">{domainConfig.name}</span>
+            </Link>
           </div>
 
-          {/* Theme Toggle */}
+          {/* Center Navigation */}
+          <nav className="hidden items-center space-x-6 md:flex">
+            {domainConfig.nav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right side: Theme Toggle */}
           <div className="flex items-center space-x-2">
             <ThemeToggle />
           </div>
@@ -162,18 +320,6 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       {/* Footer */}
       <footer className="border-border/40 mt-auto border-t">
         <div className="container mx-auto px-4 py-8">
-          {/* Mobile Ecosystem Navigation */}
-          <div className="mb-6 block lg:hidden">
-            <div className="text-center">
-              <p className="text-muted-foreground mb-3 text-sm font-medium">
-                Explore the Ecosystem
-              </p>
-              <div className="flex justify-center">
-                <EcosystemNav currentHostname={currentHostname} />
-              </div>
-            </div>
-          </div>
-
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div className="flex items-center space-x-2">
               <span className="text-lg">{domainConfig.logo}</span>

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { DomainLayout } from "~/components/domain-layout";
 import {
   Users,
   Database,
@@ -17,7 +18,8 @@ import {
 
 export default function AdminDashboard() {
   return (
-    <div className="bg-background min-h-screen p-6">
+    <DomainLayout>
+      <div className="bg-background min-h-screen p-6">
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Header */}
         <div className="border-b pb-6">
@@ -251,5 +253,6 @@ export default function AdminDashboard() {
         </Card>
       </div>
     </div>
+    </DomainLayout>
   );
 }
