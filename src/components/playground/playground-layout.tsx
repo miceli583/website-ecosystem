@@ -42,7 +42,7 @@ const PLAYGROUND_ITEMS: PlaygroundItem[] = [
   },
   {
     id: "gradient-waves",
-    name: "Gradient Waves",
+    name: "Gradient Orbs",
     description: "Flowing animated gradients",
     icon: Waves,
     href: "/playground/gradient-waves",
@@ -81,15 +81,6 @@ const PLAYGROUND_ITEMS: PlaygroundItem[] = [
     href: "/playground/liquid-morph",
     badge: "Beta",
     color: "pink",
-  },
-  {
-    id: "radial-rays",
-    name: "Radial Rays",
-    description: "Rainbow sunburst with shimmer",
-    icon: Sun,
-    href: "/playground/radial-rays",
-    badge: "New",
-    color: "yellow",
   },
 ];
 

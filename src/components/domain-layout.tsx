@@ -168,15 +168,15 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
                       key={link.key}
                       href={link.href}
                       onClick={handleMenuClose}
-                      className={`flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] ${
-                        link.isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      }`}
+                      className="hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <span className="mr-3 text-base">{link.config.logo}</span>
                       <div className="flex-1 text-left">
-                        <div className="font-medium">{link.config.name}</div>
+                        <div
+                          className={`font-medium ${link.isActive ? "text-primary" : ""}`}
+                        >
+                          {link.config.name}
+                        </div>
                         <div className="text-xs opacity-70">{link.domain}</div>
                       </div>
                     </Link>

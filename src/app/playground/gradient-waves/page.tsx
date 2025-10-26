@@ -3,7 +3,7 @@
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
-export default function GradientWavesPage() {
+export default function GradientOrbsPage() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -48,11 +48,11 @@ export default function GradientWavesPage() {
           <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-8 text-center">
             <div className="max-w-2xl space-y-6">
               <h1 className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-5xl font-bold text-transparent text-white">
-                Gradient Waves
+                Gradient Orbs
               </h1>
               <p className="text-xl text-gray-300">
-                Flowing animated gradients with floating orbs creating a
-                mesmerizing background effect
+                Flowing animated gradient orbs creating a mesmerizing background
+                effect
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 pt-8">

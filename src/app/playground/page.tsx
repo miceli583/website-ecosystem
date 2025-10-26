@@ -35,6 +35,7 @@ import {
   User,
   ExternalLink,
   Sun,
+  Briefcase,
 } from "lucide-react";
 
 export default function PlaygroundPage() {
@@ -86,46 +87,46 @@ export default function PlaygroundPage() {
               <CardContent>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <Link href="/playground/text-shimmer">
-                    <Card className="group cursor-pointer border-violet-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-violet-800">
-                      <CardContent className="p-6">
+                    <Card className="group h-full cursor-pointer border-violet-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-violet-800">
+                      <CardContent className="flex h-full flex-col p-6">
                         <div className="mb-3 flex items-center gap-3">
                           <Type className="h-5 w-5 text-violet-600" />
                           <h3 className="font-semibold">Text Shimmer</h3>
                         </div>
-                        <p className="text-muted-foreground text-sm">
-                          Gradient text animations with shimmer effects
+                        <p className="text-muted-foreground mb-3 flex-1 text-sm">
+                          Gradient text animations with smooth shimmer effects
                         </p>
-                        <ArrowRight className="mt-3 h-4 w-4 text-violet-600 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-4 w-4 text-violet-600 transition-transform group-hover:translate-x-1" />
                       </CardContent>
                     </Card>
                   </Link>
 
                   <Link href="/playground/morphing-buttons">
-                    <Card className="group cursor-pointer border-purple-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-purple-800">
-                      <CardContent className="p-6">
+                    <Card className="group h-full cursor-pointer border-purple-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-purple-800">
+                      <CardContent className="flex h-full flex-col p-6">
                         <div className="mb-3 flex items-center gap-3">
                           <MousePointer className="h-5 w-5 text-purple-600" />
                           <h3 className="font-semibold">Morphing Buttons</h3>
                         </div>
-                        <p className="text-muted-foreground text-sm">
-                          Interactive buttons with state morphing
+                        <p className="text-muted-foreground mb-3 flex-1 text-sm">
+                          Interactive buttons with dynamic state morphing
                         </p>
-                        <ArrowRight className="mt-3 h-4 w-4 text-purple-600 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-4 w-4 text-purple-600 transition-transform group-hover:translate-x-1" />
                       </CardContent>
                     </Card>
                   </Link>
 
                   <Link href="/playground/meteor-effect">
-                    <Card className="group cursor-pointer border-emerald-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-emerald-800">
-                      <CardContent className="p-6">
+                    <Card className="group h-full cursor-pointer border-emerald-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-emerald-800">
+                      <CardContent className="flex h-full flex-col p-6">
                         <div className="mb-3 flex items-center gap-3">
                           <Star className="h-5 w-5 text-emerald-600" />
                           <h3 className="font-semibold">Meteor Effects</h3>
                         </div>
-                        <p className="text-muted-foreground text-sm">
-                          Particle systems and meteor animations
+                        <p className="text-muted-foreground mb-3 flex-1 text-sm">
+                          Particle systems with beautiful meteor animations
                         </p>
-                        <ArrowRight className="mt-3 h-4 w-4 text-emerald-600 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-4 w-4 text-emerald-600 transition-transform group-hover:translate-x-1" />
                       </CardContent>
                     </Card>
                   </Link>
@@ -142,7 +143,7 @@ export default function PlaygroundPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   <Link href="/playground/aurora-glow">
                     <Card className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg">
                       <CardContent className="p-4">
@@ -202,9 +203,7 @@ export default function PlaygroundPage() {
                       </CardContent>
                     </Card>
                   </Link>
-                </div>
 
-                <div className="mt-4">
                   <Link href="/playground/golden-sunrays">
                     <Card className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg">
                       <CardContent className="p-4">
@@ -214,9 +213,6 @@ export default function PlaygroundPage() {
                             Golden Sunrays
                           </h4>
                         </div>
-                        <p className="text-muted-foreground mb-2 text-xs">
-                          Flowing golden rays from above
-                        </p>
                         <ArrowRight className="h-3 w-3 text-yellow-600 transition-transform group-hover:translate-x-1" />
                       </CardContent>
                     </Card>
@@ -232,10 +228,14 @@ export default function PlaygroundPage() {
                   <Rocket className="h-5 w-5 text-orange-600" />
                   Template Gallery
                 </CardTitle>
+                <p className="text-muted-foreground text-sm">
+                  Full-page templates that open in new windows for immersive
+                  previews
+                </p>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <Link href="/playground/templates/developer-profile">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <Link href="/templates/developer-profile" target="_blank">
                     <Card className="group cursor-pointer border-blue-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-blue-800">
                       <CardContent className="p-6">
                         <div className="mb-3 flex items-center gap-3">
@@ -248,14 +248,14 @@ export default function PlaygroundPage() {
                         <div className="flex items-center gap-2">
                           <ExternalLink className="h-3 w-3 text-blue-600" />
                           <span className="text-xs text-blue-600">
-                            View Template
+                            Open Template
                           </span>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
 
-                  <Link href="/playground/templates/saas-business">
+                  <Link href="/templates/saas-business" target="_blank">
                     <Card className="group cursor-pointer border-green-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-green-800">
                       <CardContent className="p-6">
                         <div className="mb-3 flex items-center gap-3">
@@ -268,14 +268,14 @@ export default function PlaygroundPage() {
                         <div className="flex items-center gap-2">
                           <ExternalLink className="h-3 w-3 text-green-600" />
                           <span className="text-xs text-green-600">
-                            View Template
+                            Open Template
                           </span>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
 
-                  <Link href="/playground/templates/startup">
+                  <Link href="/templates/startup" target="_blank">
                     <Card className="group cursor-pointer border-purple-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-purple-800">
                       <CardContent className="p-6">
                         <div className="mb-3 flex items-center gap-3">
@@ -288,7 +288,27 @@ export default function PlaygroundPage() {
                         <div className="flex items-center gap-2">
                           <ExternalLink className="h-3 w-3 text-purple-600" />
                           <span className="text-xs text-purple-600">
-                            View Template
+                            Open Template
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+
+                  <Link href="/templates/portfolio" target="_blank">
+                    <Card className="group cursor-pointer border-orange-200 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:border-orange-800">
+                      <CardContent className="p-6">
+                        <div className="mb-3 flex items-center gap-3">
+                          <Briefcase className="h-5 w-5 text-orange-600" />
+                          <h3 className="font-semibold">Portfolio</h3>
+                        </div>
+                        <p className="text-muted-foreground mb-3 text-sm">
+                          Personal portfolio with smooth animations
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="h-3 w-3 text-orange-600" />
+                          <span className="text-xs text-orange-600">
+                            Open Template
                           </span>
                         </div>
                       </CardContent>
@@ -596,90 +616,6 @@ export default function PlaygroundPage() {
               </Card>
             </div>
 
-            {/* Svelte-Inspired Interactive Components */}
-            <Card className="border-gradient border-2">
-              <CardHeader className="text-center">
-                <CardTitle className="flex items-center justify-center gap-2">
-                  <Sparkles className="h-5 w-5 text-violet-600" />
-                  Interactive Svelte Components
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                  {/* Bouncing Ball */}
-                  <div className="space-y-3">
-                    <h3 className="text-center text-sm font-medium">
-                      Bouncing Ball
-                    </h3>
-                    <div className="svelte-bouncing-container relative h-32 overflow-hidden rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-                      <div className="svelte-bouncing-ball"></div>
-                    </div>
-                  </div>
-
-                  {/* Morphing Shape */}
-                  <div className="space-y-3">
-                    <h3 className="text-center text-sm font-medium">
-                      Morphing Shape
-                    </h3>
-                    <div className="relative flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-                      <div className="svelte-morph-shape"></div>
-                    </div>
-                  </div>
-
-                  {/* Floating Hearts */}
-                  <div className="space-y-3">
-                    <h3 className="text-center text-sm font-medium">
-                      Floating Hearts
-                    </h3>
-                    <div className="svelte-hearts-container relative h-32 overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/20 dark:to-rose-950/20">
-                      <div className="svelte-heart svelte-heart-1">💖</div>
-                      <div className="svelte-heart svelte-heart-2">💕</div>
-                      <div className="svelte-heart svelte-heart-3">💝</div>
-                    </div>
-                  </div>
-
-                  {/* Pulsing Rings */}
-                  <div className="space-y-3">
-                    <h3 className="text-center text-sm font-medium">
-                      Pulsing Rings
-                    </h3>
-                    <div className="relative flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
-                      <div className="svelte-pulse-ring svelte-pulse-ring-1"></div>
-                      <div className="svelte-pulse-ring svelte-pulse-ring-2"></div>
-                      <div className="svelte-pulse-ring svelte-pulse-ring-3"></div>
-                      <div className="svelte-pulse-center"></div>
-                    </div>
-                  </div>
-
-                  {/* Rotating Squares */}
-                  <div className="space-y-3">
-                    <h3 className="text-center text-sm font-medium">
-                      Rotating Squares
-                    </h3>
-                    <div className="relative flex h-32 items-center justify-center rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
-                      <div className="svelte-rotating-container">
-                        <div className="svelte-rotating-square svelte-square-1"></div>
-                        <div className="svelte-rotating-square svelte-square-2"></div>
-                        <div className="svelte-rotating-square svelte-square-3"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Wave Animation */}
-                  <div className="space-y-3">
-                    <h3 className="text-center text-sm font-medium">
-                      Wave Effect
-                    </h3>
-                    <div className="relative h-32 overflow-hidden rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20">
-                      <div className="svelte-wave svelte-wave-1"></div>
-                      <div className="svelte-wave svelte-wave-2"></div>
-                      <div className="svelte-wave svelte-wave-3"></div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Experimental Section */}
             <Card className="border-gradient border-2">
               <CardHeader className="text-center">
@@ -745,244 +681,4 @@ export default function PlaygroundPage() {
       </PlaygroundLayout>
     </DomainLayout>
   );
-}
-
-// Global styles for Svelte-inspired animations
-const globalStyles = `
-  /* Bouncing Ball */
-  .svelte-bouncing-ball {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    background: linear-gradient(45deg, #8b5cf6, #ec4899);
-    border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
-    animation: svelte-bounce 2s ease-in-out infinite;
-  }
-
-  @keyframes svelte-bounce {
-    0%, 100% {
-      top: 80%;
-      left: 20px;
-      transform: scale(1);
-    }
-    25% {
-      top: 20%;
-      left: 40%;
-      transform: scale(0.8);
-    }
-    50% {
-      top: 80%;
-      left: 60%;
-      transform: scale(1.1);
-    }
-    75% {
-      top: 20%;
-      left: 80%;
-      transform: scale(0.9);
-    }
-  }
-
-  /* Morphing Shape */
-  .svelte-morph-shape {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(45deg, #10b981, #06b6d4);
-    animation: svelte-morph 3s ease-in-out infinite;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  }
-
-  @keyframes svelte-morph {
-    0%, 100% {
-      border-radius: 50%;
-      transform: rotate(0deg) scale(1);
-    }
-    25% {
-      border-radius: 25%;
-      transform: rotate(90deg) scale(1.2);
-    }
-    50% {
-      border-radius: 0%;
-      transform: rotate(180deg) scale(0.8);
-    }
-    75% {
-      border-radius: 25%;
-      transform: rotate(270deg) scale(1.1);
-    }
-  }
-
-  /* Floating Hearts */
-  .svelte-heart {
-    position: absolute;
-    font-size: 20px;
-    animation: svelte-float-hearts 4s ease-in-out infinite;
-  }
-
-  .svelte-heart-1 {
-    top: 20%;
-    left: 20%;
-    animation-delay: 0s;
-  }
-
-  .svelte-heart-2 {
-    top: 60%;
-    left: 60%;
-    animation-delay: 1.3s;
-  }
-
-  .svelte-heart-3 {
-    top: 40%;
-    left: 80%;
-    animation-delay: 2.6s;
-  }
-
-  @keyframes svelte-float-hearts {
-    0%, 100% {
-      transform: translateY(0px) scale(1);
-      opacity: 0.7;
-    }
-    50% {
-      transform: translateY(-20px) scale(1.3);
-      opacity: 1;
-    }
-  }
-
-  /* Pulsing Rings */
-  .svelte-pulse-ring {
-    position: absolute;
-    border: 2px solid #f97316;
-    border-radius: 50%;
-    animation: svelte-pulse 2s ease-out infinite;
-  }
-
-  .svelte-pulse-ring-1 {
-    width: 40px;
-    height: 40px;
-    animation-delay: 0s;
-  }
-
-  .svelte-pulse-ring-2 {
-    width: 60px;
-    height: 60px;
-    animation-delay: 0.7s;
-  }
-
-  .svelte-pulse-ring-3 {
-    width: 80px;
-    height: 80px;
-    animation-delay: 1.4s;
-  }
-
-  .svelte-pulse-center {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background: #f97316;
-    border-radius: 50%;
-    z-index: 10;
-  }
-
-  @keyframes svelte-pulse {
-    0% {
-      transform: scale(0.5);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(2);
-      opacity: 0;
-    }
-  }
-
-  /* Rotating Squares */
-  .svelte-rotating-container {
-    position: relative;
-    width: 60px;
-    height: 60px;
-  }
-
-  .svelte-rotating-square {
-    position: absolute;
-    background: linear-gradient(45deg, #8b5cf6, #6366f1);
-    animation: svelte-rotate-squares 4s linear infinite;
-  }
-
-  .svelte-square-1 {
-    width: 20px;
-    height: 20px;
-    top: 0;
-    left: 0;
-    animation-delay: 0s;
-  }
-
-  .svelte-square-2 {
-    width: 16px;
-    height: 16px;
-    top: 22px;
-    left: 22px;
-    animation-delay: 1.3s;
-  }
-
-  .svelte-square-3 {
-    width: 12px;
-    height: 12px;
-    top: 44px;
-    left: 44px;
-    animation-delay: 2.6s;
-  }
-
-  @keyframes svelte-rotate-squares {
-    0% {
-      transform: rotate(0deg) scale(1);
-    }
-    50% {
-      transform: rotate(180deg) scale(1.5);
-    }
-    100% {
-      transform: rotate(360deg) scale(1);
-    }
-  }
-
-  /* Wave Animation */
-  .svelte-wave {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 20px;
-    background: linear-gradient(90deg, #06b6d4, #3b82f6);
-    animation: svelte-wave-move 3s ease-in-out infinite;
-  }
-
-  .svelte-wave-1 {
-    opacity: 0.7;
-    animation-delay: 0s;
-  }
-
-  .svelte-wave-2 {
-    opacity: 0.5;
-    animation-delay: 1s;
-    height: 30px;
-  }
-
-  .svelte-wave-3 {
-    opacity: 0.3;
-    animation-delay: 2s;
-    height: 40px;
-  }
-
-  @keyframes svelte-wave-move {
-    0%, 100% {
-      clip-path: polygon(0 100%, 25% 70%, 50% 80%, 75% 60%, 100% 70%, 100% 100%);
-    }
-    50% {
-      clip-path: polygon(0 100%, 25% 80%, 50% 60%, 75% 80%, 100% 60%, 100% 100%);
-    }
-  }
-`;
-
-// Inject global styles
-if (typeof document !== "undefined") {
-  const styleElement = document.createElement("style");
-  styleElement.textContent = globalStyles;
-  document.head.appendChild(styleElement);
 }
