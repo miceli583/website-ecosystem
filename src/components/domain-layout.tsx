@@ -85,34 +85,7 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
     });
   };
 
-  const getUtilityLinks = () => {
-    if (!mounted) return [];
-
-    const isLocalhost = currentHostname.includes("localhost");
-
-    const utilityPages = [
-      { name: "Admin", href: "/admin", icon: "⚙️" },
-      { name: "Playground", href: "/playground", icon: "🎮" },
-    ];
-
-    return utilityPages.map((page) => {
-      let href: string;
-
-      if (isLocalhost) {
-        href = `${page.href}?domain=dev`;
-      } else {
-        href = `https://${DOMAINS.MIRACLE_MIND_DEV}${page.href}`;
-      }
-
-      return {
-        ...page,
-        href,
-      };
-    });
-  };
-
   const ecosystemLinks = getEcosystemLinks();
-  const utilityLinks = getUtilityLinks();
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -179,25 +152,6 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
                         </div>
                         <div className="text-xs opacity-70">{link.domain}</div>
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
-                  Development
-                </h3>
-                <div className="space-y-1">
-                  {utilityLinks.map((link) => (
-                    <Link
-                      key={link.name}
-                      href={link.href}
-                      onClick={handleMenuClose}
-                      className="hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <span className="mr-3 text-base">{link.icon}</span>
-                      <span className="font-medium">{link.name}</span>
                     </Link>
                   ))}
                 </div>

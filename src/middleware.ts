@@ -4,7 +4,7 @@ import { getDomainFromHeaders, isAdminPath, DOMAINS } from "~/lib/domains";
 
 /**
  * Multi-domain routing middleware
- * Handles domain-specific routing and admin protection
+ * Handles domain-specific routing and admin/playground protection
  */
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
@@ -37,6 +37,28 @@ export function middleware(request: NextRequest) {
         console.log(`🔒 [Middleware] Admin redirect: ${adminUrl}`);
       }
       return NextResponse.redirect(new URL(adminUrl));
+    }
+  }
+
+  // Handle playground routes - only accessible via matthewmiceli.com (personal site)
+  if (pathname.startsWith("/playground")) {
+    // Allow playground access on matthewmiceli.com or localhost with domain=matthew
+    const isValidPlaygroundDomain =
+      hostname.includes("matthewmiceli.com") ||
+      (hostname.includes("localhost") &&
+        (searchParams.get("domain") === "matthew" ||
+          !searchParams.has("domain")));
+
+    if (!isValidPlaygroundDomain) {
+      // Redirect playground attempts from other domains to matthewmiceli.com
+      const playgroundUrl = hostname.includes("localhost")
+        ? `${request.nextUrl.protocol}//${hostname}${pathname}?domain=matthew`
+        : `https://matthewmiceli.com${pathname}`;
+
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🎮 [Middleware] Playground redirect: ${playgroundUrl}`);
+      }
+      return NextResponse.redirect(new URL(playgroundUrl));
     }
   }
 

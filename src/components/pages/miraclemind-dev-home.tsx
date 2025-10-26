@@ -81,32 +81,6 @@ export function MiracleMindDevHomePage() {
             </Card>
           </div>
 
-          {/* UI/UX Playground Link */}
-          <div className="mx-auto grid w-full max-w-2xl grid-cols-1 gap-6">
-            <Link href="/playground">
-              <Card className="group cursor-pointer border-purple-200 bg-gradient-to-r from-purple-50/50 to-pink-50/50 transition-all duration-300 hover:from-purple-100/50 hover:to-pink-100/50 dark:border-purple-800 dark:from-purple-950/20 dark:to-pink-950/20 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30">
-                <CardContent className="p-8">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 transition-transform group-hover:scale-110">
-                      <Code className="h-8 w-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="mb-2 text-xl font-semibold transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400">
-                        UI/UX Playground
-                      </h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        Experiment with advanced components, animations, and
-                        design patterns. Interactive testing ground for new UI
-                        ideas.
-                      </p>
-                    </div>
-                    <ExternalLink className="h-5 w-5 text-purple-500 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-
           {/* Main Content Cards */}
           <div className="grid w-full max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
             <Card className="bg-card/80 hover:bg-card border-violet-200 backdrop-blur-sm transition-all duration-300 dark:border-violet-800">

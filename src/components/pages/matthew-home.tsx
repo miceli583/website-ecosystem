@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import { Github, Linkedin, Mail, MapPin, Calendar } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Mail,
+  MapPin,
+  Calendar,
+  Sparkles,
+} from "lucide-react";
 
 export function MatthewHomePage() {
   return (
@@ -84,6 +91,18 @@ export function MatthewHomePage() {
               <Link href="/projects">
                 <Github className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
                 View Projects
+              </Link>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="group border-purple-500/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20"
+            >
+              <Link href="/playground">
+                <Sparkles className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                Playground
               </Link>
             </Button>
           </div>
