@@ -14,9 +14,22 @@ import {
   CheckCircle,
   Clock,
   TrendingUp,
+  LogOut,
+  User,
 } from "lucide-react";
+import { createClient } from "~/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { SignOutButton } from "~/components/auth/signout-button";
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/admin/login");
+  }
   return (
     <DomainLayout>
       <div className="bg-background min-h-screen p-6">
@@ -30,9 +43,14 @@ export default function AdminDashboard() {
                   MiracleMind Development Environment
                 </p>
               </div>
-              <div className="flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-                <CheckCircle className="h-4 w-4" />
-                System Healthy
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-sm dark:bg-violet-900/20">
+                  <User className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  <span className="text-violet-700 dark:text-violet-300">
+                    {user.email}
+                  </span>
+                </div>
+                <SignOutButton />
               </div>
             </div>
           </div>
