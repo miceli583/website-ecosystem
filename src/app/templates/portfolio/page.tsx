@@ -37,7 +37,7 @@ export default function PortfolioPage() {
             <div className="flex-1 space-y-6">
               <div className="animate-fade-in">
                 <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl dark:text-white">
-                  Hi, I'm Alex Chen 👋
+                  Hi, I&apos;m Alex Chen 👋
                 </h1>
               </div>
               <div className="animate-fade-in-delay-1 max-w-2xl">
@@ -175,7 +175,7 @@ export default function PortfolioPage() {
                       University of Technology
                     </p>
                     <p className="mt-2 text-gray-600 dark:text-gray-300">
-                      Bachelor's degree with focus on software engineering and
+                      Bachelor&apos;s degree with focus on software engineering and
                       web development
                     </p>
                   </div>
@@ -234,7 +234,7 @@ export default function PortfolioPage() {
                 Check out my latest work
               </h2>
               <p className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-gray-300">
-                I've worked on a variety of projects, from simple websites to
+                I&apos;ve worked on a variety of projects, from simple websites to
                 complex web applications. Here are a few of my favorites.
               </p>
             </div>
@@ -400,7 +400,7 @@ export default function PortfolioPage() {
                 <a href="#" className="text-blue-500 hover:underline">
                   with a direct question on twitter
                 </a>{" "}
-                and I'll respond whenever I can. I will ignore all soliciting.
+                and I&apos;ll respond whenever I can. I will ignore all soliciting.
               </p>
               <div className="flex justify-center gap-4">
                 <Button size="lg" className="group">
