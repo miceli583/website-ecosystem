@@ -71,14 +71,14 @@ export default function PortfolioPage() {
               <p>
                 I&apos;m a passionate software developer with over 5 years of
                 experience building scalable web applications. I specialize in
-                React, TypeScript, and Node.js, and I&apos;m always excited to learn
-                new technologies and tackle challenging problems.
+                React, TypeScript, and Node.js, and I&apos;m always excited to
+                learn new technologies and tackle challenging problems.
               </p>
               <p>
-                When I&apos;m not coding, you can find me contributing to open source
-                projects, writing technical blog posts, or exploring the latest
-                trends in web development. I believe in building software that
-                makes a positive impact on people&apos;s lives.
+                When I&apos;m not coding, you can find me contributing to open
+                source projects, writing technical blog posts, or exploring the
+                latest trends in web development. I believe in building software
+                that makes a positive impact on people&apos;s lives.
               </p>
             </div>
           </div>
@@ -175,8 +175,8 @@ export default function PortfolioPage() {
                       University of Technology
                     </p>
                     <p className="mt-2 text-gray-600 dark:text-gray-300">
-                      Bachelor&apos;s degree with focus on software engineering and
-                      web development
+                      Bachelor&apos;s degree with focus on software engineering
+                      and web development
                     </p>
                   </div>
                 </div>
@@ -234,8 +234,8 @@ export default function PortfolioPage() {
                 Check out my latest work
               </h2>
               <p className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-gray-300">
-                I&apos;ve worked on a variety of projects, from simple websites to
-                complex web applications. Here are a few of my favorites.
+                I&apos;ve worked on a variety of projects, from simple websites
+                to complex web applications. Here are a few of my favorites.
               </p>
             </div>
 
@@ -400,7 +400,8 @@ export default function PortfolioPage() {
                 <a href="#" className="text-blue-500 hover:underline">
                   with a direct question on twitter
                 </a>{" "}
-                and I&apos;ll respond whenever I can. I will ignore all soliciting.
+                and I&apos;ll respond whenever I can. I will ignore all
+                soliciting.
               </p>
               <div className="flex justify-center gap-4">
                 <Button size="lg" className="group">
