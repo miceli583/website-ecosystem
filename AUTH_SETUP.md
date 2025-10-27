@@ -85,11 +85,13 @@ Replace `your-email@example.com` and `your-password` with your desired credentia
 ### Accessing Admin
 
 **Development:**
+
 ```
 http://localhost:3000/admin?domain=dev
 ```
 
 **Production:**
+
 ```
 https://miraclemind.dev/admin
 ```
@@ -97,11 +99,13 @@ https://miraclemind.dev/admin
 ### Login Methods
 
 #### Method 1: Email & Password
+
 1. Navigate to login page
 2. Enter your email and password
 3. Click "Sign In"
 
 #### Method 2: Magic Link (Passwordless)
+
 1. Navigate to login page
 2. Enter your email only
 3. Click "Send Magic Link"
@@ -109,6 +113,7 @@ https://miraclemind.dev/admin
 5. Click the link to log in automatically
 
 ### Sign Out
+
 - Click the "Sign Out" button in the admin dashboard header
 
 ## 🔒 Security Features
@@ -162,6 +167,7 @@ if (pathname.startsWith("/protected-route")) {
 ### Customizing Login Page
 
 Edit `src/app/admin/login/page.tsx` to:
+
 - Change styling
 - Add social login providers
 - Customize error messages
@@ -178,7 +184,7 @@ Edit `src/app/admin/login/page.tsx` to:
 const handleGoogleLogin = async () => {
   const supabase = createClient();
   await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider: "google",
     options: {
       redirectTo: `${window.location.origin}/admin`,
     },
@@ -191,11 +197,13 @@ const handleGoogleLogin = async () => {
 ### Can't Log In
 
 **Check Supabase Dashboard:**
+
 1. Verify user exists in **Authentication** → **Users**
 2. Check if email is confirmed
 3. Verify password is set correctly
 
 **Check Environment Variables:**
+
 ```bash
 # Make sure these are set in .env
 echo $NEXT_PUBLIC_SUPABASE_URL
@@ -203,6 +211,7 @@ echo $NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
 
 **Check Browser Console:**
+
 - Look for Supabase auth errors
 - Check network tab for failed requests
 
@@ -223,10 +232,12 @@ echo $NEXT_PUBLIC_SUPABASE_ANON_KEY
 ### Development vs Production
 
 **Development:**
+
 - Uses localhost with `?domain=dev` parameter
 - Login at: `http://localhost:3000/admin/login?domain=dev`
 
 **Production:**
+
 - Uses actual domain
 - Login at: `https://miraclemind.dev/admin/login`
 
