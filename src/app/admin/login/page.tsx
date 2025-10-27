@@ -38,35 +38,6 @@ export default function AdminLoginPage() {
     }
   };
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      setError("Please enter your email address");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-
-    const supabase = createClient();
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/admin`,
-      },
-    });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      setMessage("Check your email for the magic link!");
-    }
-
-    setLoading(false);
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50 via-white to-purple-50 p-4 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950">
       <Card className="w-full max-w-md border-violet-200 shadow-xl dark:border-violet-800">
@@ -87,7 +58,6 @@ export default function AdminLoginPage() {
 
           {message && (
             <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-600 dark:bg-green-950/20 dark:text-green-400">
-              <Mail className="h-4 w-4" />
               <span>{message}</span>
             </div>
           )}
@@ -150,27 +120,6 @@ export default function AdminLoginPage() {
               )}
             </Button>
           </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background text-muted-foreground px-2">
-                Or
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleMagicLink}
-            disabled={loading || !email}
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Send Magic Link
-          </Button>
 
           <p className="text-muted-foreground text-center text-xs">
             Authorized personnel only. All access is logged and monitored.

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const domain = searchParams.get("domain"); // Get domain from callback URL
   const next = searchParams.get("next") ?? "/admin";
 
   if (code) {
@@ -12,14 +13,22 @@ export async function GET(request: Request) {
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
-      if (isLocalEnv) {
-        // We can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`);
+
+      // Build redirect URL with proper domain parameter for localhost
+      let redirectUrl: string;
+
+      if (isLocalEnv && domain) {
+        // Local development - preserve domain parameter
+        redirectUrl = `${origin}${next}?domain=${domain}`;
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+        // Production with forwarded host
+        redirectUrl = `https://${forwardedHost}${next}`;
       } else {
-        return NextResponse.redirect(`${origin}${next}`);
+        // Fallback to origin
+        redirectUrl = `${origin}${next}`;
       }
+
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
