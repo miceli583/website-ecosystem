@@ -248,7 +248,8 @@ export default function IcosahedronPage() {
               Icosahedron
             </h1>
             <p className="text-xl text-white/80">
-              Floating 3D Platonic solid with 20 triangular faces, rotating in space
+              Floating 3D Platonic solid with 20 triangular faces, rotating in
+              space
             </p>
           </div>
         </div>

@@ -78,21 +78,29 @@ export default function FractalNoisePage() {
     `;
 
     // Compile shaders
-    function compileShader(source: string, type: number) {
-      const shader = gl.createShader(type);
+    function compileShader(
+      glContext: WebGLRenderingContext,
+      source: string,
+      type: number,
+    ) {
+      const shader = glContext.createShader(type);
       if (!shader) return null;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error("Shader compile error:", gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
+      glContext.shaderSource(shader, source);
+      glContext.compileShader(shader);
+      if (!glContext.getShaderParameter(shader, glContext.COMPILE_STATUS)) {
+        console.error(
+          "Shader compile error:",
+          glContext.getShaderInfoLog(shader),
+        );
+        glContext.deleteShader(shader);
         return null;
       }
       return shader;
     }
 
-    const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+    const vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
     const fragmentShader = compileShader(
+      gl,
       fragmentShaderSource,
       gl.FRAGMENT_SHADER,
     );
@@ -129,10 +137,11 @@ export default function FractalNoisePage() {
     // Animation loop
     let startTime = Date.now();
     function render() {
+      if (!gl || !canvas) return;
       const time = (Date.now() - startTime) / 1000;
 
       gl.uniform1f(timeLocation, time);
-      gl.uniform2f(resolutionLocation, canvas!.width, canvas!.height);
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -142,9 +151,10 @@ export default function FractalNoisePage() {
 
     // Handle resize
     const handleResize = () => {
-      canvas!.width = window.innerWidth;
-      canvas!.height = window.innerHeight;
-      gl.viewport(0, 0, canvas!.width, canvas!.height);
+      if (!gl || !canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
     };
     window.addEventListener("resize", handleResize);
 

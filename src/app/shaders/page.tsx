@@ -24,21 +24,24 @@ const SHADERS = [
   {
     id: "the-way",
     title: "The Way",
-    description: "A journey through flowing light, spiraling paths, and infinite consciousness",
+    description:
+      "A journey through flowing light, spiraling paths, and infinite consciousness",
     color: "blue",
     href: "/shaders/the-way",
   },
   {
     id: "metatrons-cube",
     title: "Metatron's Cube",
-    description: "Sacred geometry containing all five Platonic solids and the blueprint of creation",
+    description:
+      "Sacred geometry containing all five Platonic solids and the blueprint of creation",
     color: "emerald",
     href: "/shaders/metatrons-cube",
   },
   {
     id: "icosahedron",
     title: "Icosahedron",
-    description: "Floating 3D Platonic solid with 20 triangular faces, rotating in space",
+    description:
+      "Floating 3D Platonic solid with 20 triangular faces, rotating in space",
     color: "orange",
     href: "/shaders/icosahedron",
   },
@@ -60,7 +63,8 @@ export default function ShadersPage() {
               </h1>
             </div>
             <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
-              Explore beautiful WebGL shader animations powered by GLSL in Shadertoy format
+              Explore beautiful WebGL shader animations powered by GLSL in
+              Shadertoy format
             </p>
           </div>
 
@@ -76,8 +80,14 @@ export default function ShadersPage() {
                   dark: "#8b5cf6",
                   gradient: "from-purple-500 to-purple-600",
                 },
-                blue: { dark: "#3b82f6", gradient: "from-blue-500 to-blue-600" },
-                pink: { dark: "#ec4899", gradient: "from-pink-500 to-pink-600" },
+                blue: {
+                  dark: "#3b82f6",
+                  gradient: "from-blue-500 to-blue-600",
+                },
+                pink: {
+                  dark: "#ec4899",
+                  gradient: "from-pink-500 to-pink-600",
+                },
                 emerald: {
                   dark: "#10b981",
                   gradient: "from-emerald-500 to-emerald-600",
@@ -88,7 +98,7 @@ export default function ShadersPage() {
                 },
               };
 
-              const colors = colorMap[shader.color] || colorMap.purple;
+              const colors = colorMap[shader.color] ?? colorMap.purple!;
 
               return (
                 <Link key={shader.id} href={shader.href}>
@@ -106,7 +116,9 @@ export default function ShadersPage() {
                         >
                           <Sparkles className="h-5 w-5 text-white" />
                         </div>
-                        <h3 className="text-lg font-semibold">{shader.title}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {shader.title}
+                        </h3>
                       </div>
                       <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
                         {shader.description}

@@ -201,10 +201,11 @@ export default function MetatronsCubePage() {
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="max-w-2xl space-y-6 p-8 text-center">
             <h1 className="bg-gradient-to-r from-violet-400 via-indigo-400 to-blue-400 bg-clip-text text-5xl font-bold text-transparent">
-              Metatron's Cube
+              Metatron&apos;s Cube
             </h1>
             <p className="text-xl text-white/80">
-              Sacred geometry containing all five Platonic solids and the blueprint of creation
+              Sacred geometry containing all five Platonic solids and the
+              blueprint of creation
             </p>
           </div>
         </div>

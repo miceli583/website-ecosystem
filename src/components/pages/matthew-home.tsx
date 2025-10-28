@@ -8,6 +8,8 @@ import {
   MapPin,
   Calendar,
   Sparkles,
+  Rocket,
+  Zap,
 } from "lucide-react";
 
 export function MatthewHomePage() {
@@ -102,7 +104,31 @@ export function MatthewHomePage() {
             >
               <Link href="/playground">
                 <Sparkles className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                Playground
+                UI Playground
+              </Link>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="group border-blue-500/50 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20"
+            >
+              <Link href="/templates">
+                <Rocket className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                Template Gallery
+              </Link>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="group border-violet-500/50 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
+            >
+              <Link href="/shaders">
+                <Zap className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                Animation Showcase
               </Link>
             </Button>
           </div>

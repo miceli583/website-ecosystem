@@ -36,7 +36,7 @@ export default function GoldenSunraysPage() {
                     className="sunray"
                     style={{
                       left: `${index * 8 + 4}%`,
-                      animationDelay: `${index * 0.2}s`,
+                      animationDelay: `${index * -0.333}s`,
                       transform: `rotate(${(index - 6) * 3}deg)`,
                     }}
                   ></div>
@@ -72,7 +72,7 @@ export default function GoldenSunraysPage() {
                       className="sunray-gentle"
                       style={{
                         left: `${index * 12 + 6}%`,
-                        animationDelay: `${index * 0.5}s`,
+                        animationDelay: `${index * -0.75}s`,
                         transform: `rotate(${(index - 4) * 2}deg)`,
                       }}
                     ></div>
@@ -105,7 +105,7 @@ export default function GoldenSunraysPage() {
                       className="sunray-intense"
                       style={{
                         left: `${index * 6.5 + 2}%`,
-                        animationDelay: `${index * 0.1}s`,
+                        animationDelay: `${index * -0.133}s`,
                         transform: `rotate(${(index - 7) * 2.5}deg)`,
                       }}
                     ></div>
@@ -138,7 +138,7 @@ export default function GoldenSunraysPage() {
                       className="sunray-sunset"
                       style={{
                         left: `${index * 10 + 5}%`,
-                        animationDelay: `${index * 0.3}s`,
+                        animationDelay: `${index * -0.5}s`,
                         transform: `rotate(${(index - 5) * 4}deg)`,
                       }}
                     ></div>
@@ -171,7 +171,7 @@ export default function GoldenSunraysPage() {
                       className="sunray-dawn"
                       style={{
                         left: `${index * 11 + 5.5}%`,
-                        animationDelay: `${index * 0.4}s`,
+                        animationDelay: `${index * -0.778}s`,
                         transform: `rotate(${(index - 4.5) * 3}deg)`,
                       }}
                     ></div>

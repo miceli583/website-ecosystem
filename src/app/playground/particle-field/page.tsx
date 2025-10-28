@@ -1,170 +1,178 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useMemo } from "react";
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  opacity: number;
-  color: string;
-}
-
 export default function ParticleFieldPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const animationRef = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resizeCanvas = () => {
-      canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
-      canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
-    };
-
-    const createParticles = () => {
-      const particles: Particle[] = [];
-      const colors = [
-        "#8b5cf6", // violet
-        "#a855f7", // purple
-        "#ec4899", // pink
-        "#06b6d4", // cyan
-        "#10b981", // emerald
-        "#f59e0b", // amber
-      ];
-
-      for (let i = 0; i < 100; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: Math.random() * 3 + 1,
-          opacity: Math.random() * 0.8 + 0.2,
-          color: colors[Math.floor(Math.random() * colors.length)]!,
-        });
-      }
-      return particles;
-    };
-
-    const animate = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      particlesRef.current.forEach((particle, index) => {
-        // Update position
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        // Bounce off edges
-        if (particle.x <= 0 || particle.x >= canvas.width) particle.vx *= -1;
-        if (particle.y <= 0 || particle.y >= canvas.height) particle.vy *= -1;
-
-        // Keep particles in bounds
-        particle.x = Math.max(0, Math.min(canvas.width, particle.x));
-        particle.y = Math.max(0, Math.min(canvas.height, particle.y));
-
-        // Draw particle
-        ctx.save();
-        ctx.globalAlpha = particle.opacity;
-        ctx.fillStyle = particle.color;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Add glow effect
-        ctx.shadowColor = particle.color;
-        ctx.shadowBlur = 10;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Draw connections to nearby particles
-        particlesRef.current.forEach((otherParticle, otherIndex) => {
-          if (index === otherIndex) return;
-
-          const distance = Math.sqrt(
-            Math.pow(particle.x - otherParticle.x, 2) +
-              Math.pow(particle.y - otherParticle.y, 2)
-          );
-
-          if (distance < 100) {
-            ctx.save();
-            ctx.strokeStyle = particle.color;
-            ctx.globalAlpha = ((100 - distance) / 100) * 0.2;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.stroke();
-            ctx.restore();
-          }
-        });
-      });
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    resizeCanvas();
-    particlesRef.current = createParticles();
-    animate();
-
-    const handleResize = () => {
-      resizeCanvas();
-      particlesRef.current = createParticles();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  // Generate random particles (memoized to prevent regeneration on re-render)
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        size: Math.random() * 3 + 2,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: Math.random() * 20 + 15,
+        delay: Math.random() * -20,
+        color: [
+          "#8b5cf6", // violet
+          "#a855f7", // purple
+          "#ec4899", // pink
+          "#06b6d4", // cyan
+          "#10b981", // emerald
+          "#f59e0b", // amber
+        ][Math.floor(Math.random() * 6)],
+      })),
+    []
+  );
 
   return (
     <DomainLayout>
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-black">
-          {/* Canvas Background */}
-          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+          {/* Particle Field */}
+          <div className="absolute inset-0">
+            {particles.map((particle) => (
+              <div
+                key={particle.id}
+                className="absolute"
+                style={{
+                  left: `${particle.left}%`,
+                  top: `${particle.top}%`,
+                  animation: `particle-float ${particle.duration}s ease-in-out ${particle.delay}s infinite`,
+                  filter: `blur(0.5px)`,
+                }}
+              >
+                {/* Core particle */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    backgroundColor: particle.color,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                />
+                {/* Glow layer 1 */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: `${particle.size * 8}px`,
+                    height: `${particle.size * 8}px`,
+                    background: `radial-gradient(circle, ${particle.color} 0%, transparent 70%)`,
+                    transform: "translate(-50%, -50%)",
+                    opacity: 0.6,
+                    animation: `particle-glow ${particle.duration * 0.7}s ease-in-out ${particle.delay}s infinite alternate`,
+                  }}
+                />
+                {/* Glow layer 2 */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: `${particle.size * 16}px`,
+                    height: `${particle.size * 16}px`,
+                    background: `radial-gradient(circle, ${particle.color} 0%, transparent 60%)`,
+                    transform: "translate(-50%, -50%)",
+                    opacity: 0.4,
+                    animation: `particle-glow ${particle.duration * 0.8}s ease-in-out ${particle.delay * 0.5}s infinite alternate`,
+                  }}
+                />
+                {/* Glow layer 3 - largest aura */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: `${particle.size * 24}px`,
+                    height: `${particle.size * 24}px`,
+                    background: `radial-gradient(circle, ${particle.color} 0%, transparent 50%)`,
+                    transform: "translate(-50%, -50%)",
+                    opacity: 0.3,
+                    animation: `particle-glow ${particle.duration}s ease-in-out ${particle.delay * 0.3}s infinite alternate`,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Connecting Lines Effect - CSS Grid Pattern */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(90deg, rgba(139, 92, 246, 0.15) 1px, transparent 1px),
+                linear-gradient(rgba(139, 92, 246, 0.15) 1px, transparent 1px)
+              `,
+              backgroundSize: "100px 100px",
+              animation: "grid-drift 40s linear infinite",
+            }}
+          />
 
           {/* Content Overlay */}
           <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-8 text-center">
             <div className="max-w-2xl space-y-6">
-              <h1 className="bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-5xl font-bold text-transparent text-white">
+              <h1 className="bg-gradient-to-r from-white via-purple-100 to-pink-100 bg-clip-text text-5xl font-bold text-transparent">
                 Particle Field
               </h1>
               <p className="text-xl text-gray-300">
-                Interactive floating particles with dynamic connections and glow
-                effects
+                Floating particles with mesmerizing glow effects
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 pt-8">
                 <div className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white backdrop-blur-sm">
-                  Canvas Animation
+                  CSS Animation
                 </div>
                 <div className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white backdrop-blur-sm">
                   Particle Physics
                 </div>
                 <div className="rounded-full border border-white/20 bg-white/10 px-6 py-3 text-white backdrop-blur-sm">
-                  Dynamic Connections
+                  Glow Effects
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Custom Animations */}
+          <style jsx>{`
+            @keyframes particle-float {
+              0%,
+              100% {
+                transform: translate(0, 0);
+              }
+              25% {
+                transform: translate(30px, -40px);
+              }
+              50% {
+                transform: translate(-20px, 30px);
+              }
+              75% {
+                transform: translate(35px, 15px);
+              }
+            }
+
+            @keyframes particle-glow {
+              0% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(0.9);
+              }
+              50% {
+                opacity: 0.7;
+                transform: translate(-50%, -50%) scale(1.1);
+              }
+              100% {
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(0.9);
+              }
+            }
+
+            @keyframes grid-drift {
+              0% {
+                transform: translate(0, 0);
+              }
+              100% {
+                transform: translate(100px, 100px);
+              }
+            }
+          `}</style>
         </div>
       </PlaygroundLayout>
     </DomainLayout>

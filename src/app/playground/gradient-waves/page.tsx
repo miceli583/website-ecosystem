@@ -51,8 +51,7 @@ export default function GradientOrbsPage() {
                 Gradient Orbs
               </h1>
               <p className="text-xl text-gray-300">
-                Flowing animated gradient orbs creating a mesmerizing background
-                effect
+                Layered gradient waves with floating orbs and smooth animations
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 pt-8">
