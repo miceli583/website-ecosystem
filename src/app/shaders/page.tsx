@@ -8,6 +8,20 @@ import { ArrowRight, Sparkles, Waves, Zap, Eye } from "lucide-react";
 // GLSL Shader showcase items
 const SHADERS = [
   {
+    id: "north-star",
+    title: "North Star",
+    description: "Golden guiding beacon with radiant rays and pulsing energy",
+    color: "amber",
+    href: "/shaders/north-star",
+  },
+  {
+    id: "neural-net",
+    title: "Neural Network",
+    description: "Mesmerizing interconnected nodes pulsing with consciousness",
+    color: "cyan",
+    href: "/shaders/neural-net",
+  },
+  {
     id: "flower-of-life",
     title: "Flower of Life",
     description: "Sacred geometry with glowing circles and mystical energy",
@@ -76,6 +90,14 @@ export default function ShadersPage() {
                 string,
                 { dark: string; gradient: string }
               > = {
+                amber: {
+                  dark: "#f59e0b",
+                  gradient: "from-amber-500 to-amber-600",
+                },
+                cyan: {
+                  dark: "#06b6d4",
+                  gradient: "from-cyan-500 to-cyan-600",
+                },
                 purple: {
                   dark: "#8b5cf6",
                   gradient: "from-purple-500 to-purple-600",

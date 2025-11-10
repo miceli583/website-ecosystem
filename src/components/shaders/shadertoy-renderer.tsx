@@ -66,7 +66,7 @@ export function ShadertoyRenderer({
     function compileShader(
       glContext: WebGLRenderingContext,
       source: string,
-      type: number,
+      type: number
     ) {
       const shader = glContext.createShader(type);
       if (!shader) return null;
@@ -75,7 +75,7 @@ export function ShadertoyRenderer({
       if (!glContext.getShaderParameter(shader, glContext.COMPILE_STATUS)) {
         console.error(
           "Shader compile error:",
-          glContext.getShaderInfoLog(shader),
+          glContext.getShaderInfoLog(shader)
         );
         glContext.deleteShader(shader);
         return null;
@@ -83,11 +83,15 @@ export function ShadertoyRenderer({
       return shader;
     }
 
-    const vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
+    const vertexShader = compileShader(
+      gl,
+      vertexShaderSource,
+      gl.VERTEX_SHADER
+    );
     const fragShader = compileShader(
       gl,
       wrappedFragmentShader,
-      gl.FRAGMENT_SHADER,
+      gl.FRAGMENT_SHADER
     );
 
     if (!vertexShader || !fragShader) {

@@ -81,7 +81,7 @@ export default function FractalNoisePage() {
     function compileShader(
       glContext: WebGLRenderingContext,
       source: string,
-      type: number,
+      type: number
     ) {
       const shader = glContext.createShader(type);
       if (!shader) return null;
@@ -90,7 +90,7 @@ export default function FractalNoisePage() {
       if (!glContext.getShaderParameter(shader, glContext.COMPILE_STATUS)) {
         console.error(
           "Shader compile error:",
-          glContext.getShaderInfoLog(shader),
+          glContext.getShaderInfoLog(shader)
         );
         glContext.deleteShader(shader);
         return null;
@@ -98,11 +98,15 @@ export default function FractalNoisePage() {
       return shader;
     }
 
-    const vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
+    const vertexShader = compileShader(
+      gl,
+      vertexShaderSource,
+      gl.VERTEX_SHADER
+    );
     const fragmentShader = compileShader(
       gl,
       fragmentShaderSource,
-      gl.FRAGMENT_SHADER,
+      gl.FRAGMENT_SHADER
     );
     if (!vertexShader || !fragmentShader) return;
 
