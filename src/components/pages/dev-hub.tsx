@@ -22,7 +22,7 @@ import {
   Star,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function DevHub() {
   const router = useRouter();
@@ -30,9 +30,16 @@ export function DevHub() {
   const domain = searchParams.get("domain");
   const domainParam = domain ? `?domain=${domain}` : "";
 
-  // Check if we're in localhost/development
-  const isLocalhost = typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+  // State for localhost detection (client-side only to avoid hydration issues)
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  // Detect localhost on client side only
+  useEffect(() => {
+    setIsLocalhost(
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    );
+  }, []);
 
   // Helper to get the correct URL for live sites
   const getLiveSiteUrl = (domainName: string) => {

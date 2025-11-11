@@ -14,13 +14,15 @@ import {
 
 interface MatthewHomePageProps {
   isDevPreview?: boolean;
+  domainParam?: string;
 }
 
-export function MatthewHomePage({ isDevPreview = false }: MatthewHomePageProps = {}) {
+export function MatthewHomePage({ isDevPreview = false, domainParam = "" }: MatthewHomePageProps = {}) {
   // Use admin routes if in dev preview, otherwise use public routes
-  const playgroundUrl = isDevPreview ? "/admin/playground" : "/playground";
-  const templatesUrl = isDevPreview ? "/admin/templates" : "/templates";
-  const shadersUrl = isDevPreview ? "/admin/shaders" : "/shaders";
+  // Include domain parameter for localhost routing
+  const playgroundUrl = isDevPreview ? `/admin/playground${domainParam}` : "/playground";
+  const templatesUrl = isDevPreview ? `/admin/templates${domainParam}` : "/templates";
+  const shadersUrl = isDevPreview ? `/admin/shaders${domainParam}` : "/shaders";
 
   return (
     <div className="from-background to-muted/20 relative min-h-screen overflow-hidden bg-gradient-to-br">
