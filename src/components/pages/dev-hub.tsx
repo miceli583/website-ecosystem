@@ -19,6 +19,7 @@ import {
   Sparkles,
   ChevronDown,
   BarChart3,
+  Star,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -287,6 +288,127 @@ export function DevHub() {
             Sites Under Development
           </h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Dev Version: Matthew Miceli */}
+            <Card className="group flex h-full flex-col border-2 border-blue-500/30 bg-blue-500/5 transition-all duration-300 hover:shadow-2xl dark:border-blue-500/40 dark:bg-blue-500/10">
+              <CardContent className="flex flex-1 flex-col p-6">
+                <div className="mb-4 flex flex-none items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                    <Star className="h-7 w-7 fill-yellow-400 text-yellow-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "Airwaves, sans-serif",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Matthew Miceli
+                    </h3>
+                    <Badge className="mt-1 bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                      DEV VERSION
+                    </Badge>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Development preview of matthewmiceli.com homepage
+                </p>
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-blue-500/10 text-blue-500 dark:bg-blue-500/20">
+                    Live Site Preview
+                  </Badge>
+                  <button
+                    onClick={() => router.push(`/admin/sites-dev/matthew${domainParam}`)}
+                    className="flex items-center gap-2 text-sm font-medium text-blue-500 transition-colors hover:opacity-80"
+                  >
+                    <span>View Demo</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Dev Version: MiracleMind Live */}
+            <Card className="group flex h-full flex-col border-2 border-emerald-500/30 bg-emerald-500/5 transition-all duration-300 hover:shadow-2xl dark:border-emerald-500/40 dark:bg-emerald-500/10">
+              <CardContent className="flex flex-1 flex-col p-6">
+                <div className="mb-4 flex flex-none items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg">
+                    <Star className="h-7 w-7 fill-yellow-400 text-yellow-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "Airwaves, sans-serif",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      MiracleMind Live
+                    </h3>
+                    <Badge className="mt-1 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      DEV VERSION
+                    </Badge>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Development preview of miraclemind.live homepage
+                </p>
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20">
+                    Live Site Preview
+                  </Badge>
+                  <button
+                    onClick={() => router.push(`/admin/sites-dev/miraclemind-live${domainParam}`)}
+                    className="flex items-center gap-2 text-sm font-medium text-emerald-500 transition-colors hover:opacity-80"
+                  >
+                    <span>View Demo</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Dev Version: MiracleMind Dev */}
+            <Card className="group flex h-full flex-col border-2 border-violet-500/30 bg-violet-500/5 transition-all duration-300 hover:shadow-2xl dark:border-violet-500/40 dark:bg-violet-500/10">
+              <CardContent className="flex flex-1 flex-col p-6">
+                <div className="mb-4 flex flex-none items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg">
+                    <Star className="h-7 w-7 fill-yellow-400 text-yellow-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "Airwaves, sans-serif",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      MiracleMind Dev
+                    </h3>
+                    <Badge className="mt-1 bg-violet-500/20 text-violet-600 dark:text-violet-400">
+                      DEV VERSION
+                    </Badge>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Development preview of miraclemind.dev homepage
+                </p>
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-violet-500/10 text-violet-500 dark:bg-violet-500/20">
+                    Live Site Preview
+                  </Badge>
+                  <button
+                    onClick={() => router.push(`/admin/sites-dev/miraclemind-dev${domainParam}`)}
+                    className="flex items-center gap-2 text-sm font-medium text-violet-500 transition-colors hover:opacity-80"
+                  >
+                    <span>View Demo</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Original landing page cards below */}
             {/* Dope Ass Landing Page with Dropdown */}
             <Card className="group flex h-full flex-col border-2 border-[#facf39]/20 transition-all duration-300 hover:shadow-2xl dark:border-[#facf39]/30">
               <CardContent className="flex flex-1 flex-col p-6">
