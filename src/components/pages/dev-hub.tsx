@@ -30,6 +30,24 @@ export function DevHub() {
   const domain = searchParams.get("domain");
   const domainParam = domain ? `?domain=${domain}` : "";
 
+  // Check if we're in localhost/development
+  const isLocalhost = typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+  // Helper to get the correct URL for live sites
+  const getLiveSiteUrl = (domainName: string) => {
+    if (isLocalhost) {
+      return `/?domain=${domainName}`;
+    }
+    // Production URLs
+    const urls: Record<string, string> = {
+      matthew: "https://matthewmiceli.com",
+      live: "https://miraclemind.live",
+      dev: "https://miraclemind.dev",
+    };
+    return urls[domainName] || "/";
+  };
+
   const [selectedVariation, setSelectedVariation] =
     useState("/admin/dope-ass-landing");
   const [selectedJoinCommunity, setSelectedJoinCommunity] =
@@ -171,7 +189,7 @@ export function DevHub() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Matthew Miceli */}
             <a
-              href="https://matthewmiceli.com"
+              href={getLiveSiteUrl("matthew")}
               target="_blank"
               rel="noopener noreferrer"
               className="group"
@@ -207,7 +225,7 @@ export function DevHub() {
 
             {/* MiracleMind Live */}
             <a
-              href="https://miraclemind.live"
+              href={getLiveSiteUrl("live")}
               target="_blank"
               rel="noopener noreferrer"
               className="group"
@@ -243,7 +261,7 @@ export function DevHub() {
 
             {/* MiracleMind Dev */}
             <a
-              href="https://miraclemind.dev"
+              href={getLiveSiteUrl("dev")}
               target="_blank"
               rel="noopener noreferrer"
               className="group"
