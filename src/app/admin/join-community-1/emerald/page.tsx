@@ -14,7 +14,7 @@ export default function EmeraldJoinCommunity1Page() {
       <div className="relative min-h-screen overflow-hidden bg-[#059669]">
         <div className="absolute inset-0 opacity-15">
           <iframe
-            src="/admin/shaders/flower-of-life/embed"
+            src="/shaders/flower-of-life/embed"
             className="h-full w-full border-0"
             style={{ pointerEvents: "none" }}
           />

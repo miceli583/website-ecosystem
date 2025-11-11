@@ -51,7 +51,7 @@ export default function BlueCyanLandingPage() {
         {/* Flower of Life Shader Background - Subtle & Non-Distracting */}
         <div className="absolute inset-0 opacity-20">
           <iframe
-            src="/admin/shaders/flower-of-life/embed"
+            src="/shaders/flower-of-life/embed"
             className="h-full w-full border-0"
             style={{ pointerEvents: "none" }}
           />

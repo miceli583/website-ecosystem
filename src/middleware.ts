@@ -35,6 +35,11 @@ export async function middleware(request: NextRequest) {
     );
   }
 
+  // Allow public shader embed routes (used in iframes on landing pages)
+  if (pathname.startsWith("/shaders/") && pathname.includes("/embed")) {
+    return supabaseResponse;
+  }
+
   // Handle admin routes - only accessible via miraclemind.dev
   if (isAdminPath(pathname)) {
     // Skip auth check for login page
