@@ -7,12 +7,17 @@ import { MatthewHomePage } from "~/components/pages/matthew-home";
  *
  * This is a development preview of matthewmiceli.com
  * Use this to test changes before deploying to production
+ *
+ * Links point to admin routes for:
+ * - UI Playground (/admin/playground)
+ * - Template Gallery (/admin/templates)
+ * - Animation Showcase (/admin/shaders)
  */
 export default function MatthewDevPage() {
   return (
     <DomainLayout>
       <BackButton href="/admin" label="Back to Hub" />
-      <MatthewHomePage />
+      <MatthewHomePage isDevPreview={true} />
     </DomainLayout>
   );
 }

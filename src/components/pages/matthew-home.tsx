@@ -12,7 +12,16 @@ import {
   Zap,
 } from "lucide-react";
 
-export function MatthewHomePage() {
+interface MatthewHomePageProps {
+  isDevPreview?: boolean;
+}
+
+export function MatthewHomePage({ isDevPreview = false }: MatthewHomePageProps = {}) {
+  // Use admin routes if in dev preview, otherwise use public routes
+  const playgroundUrl = isDevPreview ? "/admin/playground" : "/playground";
+  const templatesUrl = isDevPreview ? "/admin/templates" : "/templates";
+  const shadersUrl = isDevPreview ? "/admin/shaders" : "/shaders";
+
   return (
     <div className="from-background to-muted/20 relative min-h-screen overflow-hidden bg-gradient-to-br">
       {/* Hero Section */}
@@ -102,7 +111,7 @@ export function MatthewHomePage() {
               asChild
               className="group border-purple-500/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20"
             >
-              <Link href="/playground">
+              <Link href={playgroundUrl}>
                 <Sparkles className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
                 UI Playground
               </Link>
@@ -114,7 +123,7 @@ export function MatthewHomePage() {
               asChild
               className="group border-blue-500/50 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20"
             >
-              <Link href="/templates">
+              <Link href={templatesUrl}>
                 <Rocket className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
                 Template Gallery
               </Link>
@@ -126,7 +135,7 @@ export function MatthewHomePage() {
               asChild
               className="group border-violet-500/50 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
             >
-              <Link href="/shaders">
+              <Link href={shadersUrl}>
                 <Zap className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
                 Animation Showcase
               </Link>
