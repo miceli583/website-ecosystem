@@ -336,7 +336,7 @@ export function DevHub() {
                     Live Site Preview
                   </Badge>
                   <button
-                    onClick={() => router.push(`/admin/sites-dev/matthew${domainParam}`)}
+                    onClick={() => router.push(`/admin/matthewmiceli${domainParam}`)}
                     className="flex items-center gap-2 text-sm font-medium text-blue-500 transition-colors hover:opacity-80"
                   >
                     <span>View Demo</span>
@@ -376,7 +376,7 @@ export function DevHub() {
                     Live Site Preview
                   </Badge>
                   <button
-                    onClick={() => router.push(`/admin/sites-dev/miraclemind-live${domainParam}`)}
+                    onClick={() => router.push(`/admin/miraclemind-live${domainParam}`)}
                     className="flex items-center gap-2 text-sm font-medium text-emerald-500 transition-colors hover:opacity-80"
                   >
                     <span>View Demo</span>
@@ -416,7 +416,7 @@ export function DevHub() {
                     Live Site Preview
                   </Badge>
                   <button
-                    onClick={() => router.push(`/admin/sites-dev/miraclemind-dev${domainParam}`)}
+                    onClick={() => router.push(`/admin/miraclemind-dev${domainParam}`)}
                     className="flex items-center gap-2 text-sm font-medium text-violet-500 transition-colors hover:opacity-80"
                   >
                     <span>View Demo</span>
