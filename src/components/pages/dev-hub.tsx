@@ -159,13 +159,132 @@ export function DevHub() {
           </div>
         </section>
 
-        {/* Sites Section */}
+        {/* Live Sites Section */}
         <section className="mb-20">
           <h2
             className="mb-8 text-center text-4xl font-bold"
             style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
           >
-            Sites
+            Live Sites
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Matthew Miceli */}
+            <a
+              href="https://matthewmiceli.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+            >
+              <Card className="flex h-full flex-col border-2 border-blue-500/20 transition-all duration-300 hover:shadow-2xl dark:border-blue-500/30">
+                <CardContent className="flex flex-1 flex-col p-6">
+                  <div className="mb-4 flex flex-none items-center gap-3">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                      <Sparkles className="h-7 w-7 text-white" />
+                    </div>
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "Airwaves, sans-serif",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Matthew Miceli
+                    </h3>
+                  </div>
+                  <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    Personal portfolio and professional presence
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-blue-500/10 text-blue-500 dark:bg-blue-500/20">
+                      matthewmiceli.com
+                    </Badge>
+                    <ArrowRight className="h-4 w-4 text-blue-500 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+
+            {/* MiracleMind Live */}
+            <a
+              href="https://miraclemind.live"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+            >
+              <Card className="flex h-full flex-col border-2 border-emerald-500/20 transition-all duration-300 hover:shadow-2xl dark:border-emerald-500/30">
+                <CardContent className="flex flex-1 flex-col p-6">
+                  <div className="mb-4 flex flex-none items-center gap-3">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg">
+                      <Sparkles className="h-7 w-7 text-white" />
+                    </div>
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "Airwaves, sans-serif",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      MiracleMind Live
+                    </h3>
+                  </div>
+                  <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    Main product and brand site
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20">
+                      miraclemind.live
+                    </Badge>
+                    <ArrowRight className="h-4 w-4 text-emerald-500 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+
+            {/* MiracleMind Dev */}
+            <a
+              href="https://miraclemind.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group"
+            >
+              <Card className="flex h-full flex-col border-2 border-violet-500/20 transition-all duration-300 hover:shadow-2xl dark:border-violet-500/30">
+                <CardContent className="flex flex-1 flex-col p-6">
+                  <div className="mb-4 flex flex-none items-center gap-3">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg">
+                      <Sparkles className="h-7 w-7 text-white" />
+                    </div>
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "Airwaves, sans-serif",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      MiracleMind Dev
+                    </h3>
+                  </div>
+                  <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    Technical documentation and resources
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-violet-500/10 text-violet-500 dark:bg-violet-500/20">
+                      miraclemind.dev
+                    </Badge>
+                    <ArrowRight className="h-4 w-4 text-violet-500 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          </div>
+        </section>
+
+        {/* Sites Under Development Section */}
+        <section className="mb-20">
+          <h2
+            className="mb-8 text-center text-4xl font-bold"
+            style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
+          >
+            Sites Under Development
           </h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Dope Ass Landing Page with Dropdown */}
