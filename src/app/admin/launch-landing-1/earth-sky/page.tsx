@@ -41,7 +41,7 @@ export default function EarthSkyLaunchLanding1Page() {
       <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#065f46] to-[#0284c7]">
         <div className="absolute inset-0 opacity-15">
           <iframe
-            src="/shaders/flower-of-life/embed"
+            src="/admin/shaders/flower-of-life/embed"
             className="h-full w-full border-0"
             style={{ pointerEvents: "none" }}
           />

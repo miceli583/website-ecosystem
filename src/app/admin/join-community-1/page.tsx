@@ -12,7 +12,7 @@ export default function JoinCommunity1Page() {
         {/* Flower of Life Shader Background - Subtle & Non-Distracting */}
         <div className="absolute inset-0 opacity-15">
           <iframe
-            src="/shaders/flower-of-life/embed"
+            src="/admin/shaders/flower-of-life/embed"
             className="h-full w-full border-0"
             style={{ pointerEvents: "none" }}
           />
