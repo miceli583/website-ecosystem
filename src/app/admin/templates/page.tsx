@@ -19,7 +19,7 @@ const TEMPLATES = [
     description: "Portfolio template for developers and designers",
     icon: User,
     color: "blue",
-    href: "/templates/developer-profile",
+    href: "/admin/templates/developer-profile",
     tags: ["Portfolio", "Personal"],
   },
   {
@@ -28,7 +28,7 @@ const TEMPLATES = [
     description: "Professional landing page for SaaS products",
     icon: Building,
     color: "green",
-    href: "/templates/saas-business",
+    href: "/admin/templates/saas-business",
     tags: ["Business", "SaaS"],
   },
   {
@@ -37,7 +37,7 @@ const TEMPLATES = [
     description: "Modern startup landing page with animations",
     icon: Rocket,
     color: "purple",
-    href: "/templates/startup",
+    href: "/admin/templates/startup",
     tags: ["Startup", "Landing"],
   },
   {
@@ -46,12 +46,24 @@ const TEMPLATES = [
     description: "Personal portfolio with smooth animations",
     icon: Briefcase,
     color: "orange",
-    href: "/templates/portfolio",
+    href: "/admin/templates/portfolio",
     tags: ["Portfolio", "Creative"],
   },
 ];
 
-export default function TemplatesPage() {
+/**
+ * Template Gallery - Full-Page Template Showcase
+ *
+ * Authentication is handled by middleware (src/middleware.ts)
+ * This route was moved from /templates to /admin/templates to restrict access
+ */
+export default async function TemplatesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ domain?: string }>;
+}) {
+  const params = await searchParams;
+  const domainParam = params.domain ? `?domain=${params.domain}` : "";
   return (
     <DomainLayout>
       <div className="via-background dark:via-background min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6 dark:from-blue-950/20 dark:to-indigo-950/20">
@@ -93,7 +105,7 @@ export default function TemplatesPage() {
             {TEMPLATES.map((template) => {
               const Icon = template.icon;
               return (
-                <Link key={template.id} href={template.href} target="_blank">
+                <Link key={template.id} href={`${template.href}${domainParam}`} target="_blank">
                   <Card
                     className={`group h-full cursor-pointer border-${template.color}-200 transition-all duration-300 hover:scale-105 hover:shadow-xl dark:border-${template.color}-800/50`}
                   >

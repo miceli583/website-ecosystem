@@ -3,12 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
+import { Suspense } from "react";
 import { Sun, Sparkles, Eye, Settings } from "lucide-react";
 
 export default function GoldenSunraysPage() {
   return (
     <DomainLayout>
-      <PlaygroundLayout>
+      <Suspense fallback={<div>Loading...</div>}>
+        <PlaygroundLayout>
         <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-amber-50 to-orange-50 p-6 dark:from-amber-950/20 dark:to-orange-950/20">
           <div className="mx-auto max-w-4xl space-y-8">
             {/* Header */}
@@ -444,6 +446,7 @@ export default function GoldenSunraysPage() {
           }
         `}</style>
       </PlaygroundLayout>
+      </Suspense>
     </DomainLayout>
   );
 }

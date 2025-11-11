@@ -1,6 +1,15 @@
 /**
  * Multi-domain configuration for the website ecosystem
- * Handles domain-specific routing, branding, and content
+ *
+ * Domain Structure:
+ * - matthewmiceli.com: Personal portfolio and professional presence
+ * - miraclemind.live: Main product/brand site for MiracleMind
+ * - miraclemind.dev: Development environment and admin dashboard
+ *
+ * Routing Strategy:
+ * - Public routes (/) render different content based on domain
+ * - Admin routes (/admin/*) are restricted to miraclemind.dev
+ * - Middleware enforces domain restrictions and authentication
  */
 
 export const DOMAINS = {

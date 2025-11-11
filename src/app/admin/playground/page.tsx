@@ -3,6 +3,7 @@ import { Badge } from "~/components/ui/badge";
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   Sparkles,
   Code,
@@ -25,7 +26,7 @@ const ANIMATIONS = [
     description: "Radial ray burst effects with golden glow",
     icon: Sun,
     color: "amber",
-    href: "/playground/golden-sunrays",
+    href: "/admin/playground/golden-sunrays",
   },
   {
     id: "meteor-effect",
@@ -33,7 +34,7 @@ const ANIMATIONS = [
     description: "Particle systems with beautiful meteor animations",
     icon: Star,
     color: "emerald",
-    href: "/playground/meteor-effect",
+    href: "/admin/playground/meteor-effect",
   },
   {
     id: "quantum-orbital",
@@ -41,7 +42,7 @@ const ANIMATIONS = [
     description: "Atomic orbital visualization with particle physics",
     icon: Zap,
     color: "orange",
-    href: "/playground/quantum-orbital",
+    href: "/admin/playground/quantum-orbital",
   },
   {
     id: "gradient-waves",
@@ -49,7 +50,7 @@ const ANIMATIONS = [
     description: "Layered waves with floating orbs and smooth animations",
     icon: Waves,
     color: "blue",
-    href: "/playground/gradient-waves",
+    href: "/admin/playground/gradient-waves",
   },
   {
     id: "particle-field",
@@ -57,7 +58,7 @@ const ANIMATIONS = [
     description: "Floating particles with mesmerizing glow effects",
     icon: Sparkles,
     color: "purple",
-    href: "/playground/particle-field",
+    href: "/admin/playground/particle-field",
   },
   {
     id: "morphing-buttons",
@@ -65,7 +66,7 @@ const ANIMATIONS = [
     description: "Interactive buttons with dynamic state morphing",
     icon: MousePointer,
     color: "indigo",
-    href: "/playground/morphing-buttons",
+    href: "/admin/playground/morphing-buttons",
   },
   {
     id: "text-shimmer",
@@ -73,7 +74,7 @@ const ANIMATIONS = [
     description: "Gradient text animations with shimmer effects",
     icon: Type,
     color: "violet",
-    href: "/playground/text-shimmer",
+    href: "/admin/playground/text-shimmer",
   },
   {
     id: "liquid-morph",
@@ -81,7 +82,7 @@ const ANIMATIONS = [
     description: "Smooth blob morphing and liquid animations",
     icon: Heart,
     color: "pink",
-    href: "/playground/liquid-morph",
+    href: "/admin/playground/liquid-morph",
   },
   {
     id: "geometric-shapes",
@@ -89,14 +90,28 @@ const ANIMATIONS = [
     description: "Animated SVG patterns and shape morphing",
     icon: Star,
     color: "orange",
-    href: "/playground/geometric-shapes",
+    href: "/admin/playground/geometric-shapes",
   },
 ];
 
-export default function PlaygroundPage() {
+/**
+ * Playground Index - UI Component Showcase
+ *
+ * Authentication is handled by middleware (src/middleware.ts)
+ * This route was moved from /playground to /admin/playground to restrict access
+ */
+export default async function PlaygroundPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ domain?: string }>;
+}) {
+  const params = await searchParams;
+  const domainParam = params.domain ? `?domain=${params.domain}` : "";
+
   return (
     <DomainLayout>
-      <PlaygroundLayout>
+      <Suspense fallback={<div>Loading...</div>}>
+        <PlaygroundLayout>
         <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
           <div className="mx-auto max-w-7xl space-y-12">
             {/* Header */}
@@ -186,7 +201,7 @@ export default function PlaygroundPage() {
                 const colors = colorMap[animation.color] ?? colorMap.violet!;
 
                 return (
-                  <Link key={animation.id} href={animation.href}>
+                  <Link key={animation.id} href={`${animation.href}${domainParam}`}>
                     <Card
                       className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
                       style={{
@@ -229,6 +244,7 @@ export default function PlaygroundPage() {
           </div>
         </div>
       </PlaygroundLayout>
+      </Suspense>
     </DomainLayout>
   );
 }

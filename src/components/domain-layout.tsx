@@ -11,6 +11,8 @@ import { Menu, X } from "lucide-react";
 interface DomainLayoutProps {
   children: React.ReactNode;
   hostname?: string;
+  headerClassName?: string;
+  footerClassName?: string;
 }
 
 function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
@@ -193,7 +195,12 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
   );
 }
 
-export function DomainLayout({ children, hostname }: DomainLayoutProps) {
+export function DomainLayout({
+  children,
+  hostname,
+  headerClassName,
+  footerClassName,
+}: DomainLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [currentHostname, setCurrentHostname] = useState(hostname || "");
 
@@ -226,7 +233,9 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       }}
     >
       {/* Header Navigation */}
-      <header className="border-border/40 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
+      <header
+        className={`border-border/40 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur ${headerClassName || ""}`}
+      >
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* Left side: Menu + Logo */}
           <div className="flex items-center space-x-3">
@@ -264,7 +273,9 @@ export function DomainLayout({ children, hostname }: DomainLayoutProps) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="border-border/40 mt-auto border-t">
+      <footer
+        className={`border-border/40 mt-auto border-t ${footerClassName || ""}`}
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div className="flex items-center space-x-2">

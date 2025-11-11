@@ -20,52 +20,56 @@ import {
   ChevronDown,
   BarChart3,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export function DevHub() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const domain = searchParams.get("domain");
+  const domainParam = domain ? `?domain=${domain}` : "";
+
   const [selectedVariation, setSelectedVariation] =
-    useState("/dope-ass-landing");
+    useState("/admin/dope-ass-landing");
   const [selectedJoinCommunity, setSelectedJoinCommunity] =
-    useState("/join-community-1");
+    useState("/admin/join-community-1");
   const [selectedLaunchLanding, setSelectedLaunchLanding] =
-    useState("/launch-landing-1");
+    useState("/admin/launch-landing-1");
 
   const landingPageVariations = [
-    { name: "Original (Golden)", path: "/dope-ass-landing" },
-    { name: "Earth to Sky Gradient", path: "/dope-ass-landing/earth-sky" },
-    { name: "Deep Ocean Gradient", path: "/dope-ass-landing/deep-ocean" },
-    { name: "Emerald-Teal Gradient", path: "/dope-ass-landing/emerald-teal" },
-    { name: "Blue-Cyan Gradient", path: "/dope-ass-landing/blue-cyan" },
-    { name: "Emerald", path: "/dope-ass-landing/emerald" },
-    { name: "Cosmic Blue", path: "/dope-ass-landing/cosmic-blue" },
-    { name: "Teal", path: "/dope-ass-landing/teal" },
-    { name: "Forest Green", path: "/dope-ass-landing/forest-green" },
+    { name: "Original (Golden)", path: "/admin/dope-ass-landing" },
+    { name: "Earth to Sky Gradient", path: "/admin/dope-ass-landing/earth-sky" },
+    { name: "Deep Ocean Gradient", path: "/admin/dope-ass-landing/deep-ocean" },
+    { name: "Emerald-Teal Gradient", path: "/admin/dope-ass-landing/emerald-teal" },
+    { name: "Blue-Cyan Gradient", path: "/admin/dope-ass-landing/blue-cyan" },
+    { name: "Emerald", path: "/admin/dope-ass-landing/emerald" },
+    { name: "Cosmic Blue", path: "/admin/dope-ass-landing/cosmic-blue" },
+    { name: "Teal", path: "/admin/dope-ass-landing/teal" },
+    { name: "Forest Green", path: "/admin/dope-ass-landing/forest-green" },
   ];
 
   const joinCommunityVariations = [
-    { name: "Original (Golden)", path: "/join-community-1" },
-    { name: "Earth to Sky Gradient", path: "/join-community-1/earth-sky" },
-    { name: "Deep Ocean Gradient", path: "/join-community-1/deep-ocean" },
-    { name: "Emerald-Teal Gradient", path: "/join-community-1/emerald-teal" },
-    { name: "Blue-Cyan Gradient", path: "/join-community-1/blue-cyan" },
-    { name: "Emerald", path: "/join-community-1/emerald" },
-    { name: "Cosmic Blue", path: "/join-community-1/cosmic-blue" },
-    { name: "Teal", path: "/join-community-1/teal" },
-    { name: "Forest Green", path: "/join-community-1/forest-green" },
+    { name: "Original (Golden)", path: "/admin/join-community-1" },
+    { name: "Earth to Sky Gradient", path: "/admin/join-community-1/earth-sky" },
+    { name: "Deep Ocean Gradient", path: "/admin/join-community-1/deep-ocean" },
+    { name: "Emerald-Teal Gradient", path: "/admin/join-community-1/emerald-teal" },
+    { name: "Blue-Cyan Gradient", path: "/admin/join-community-1/blue-cyan" },
+    { name: "Emerald", path: "/admin/join-community-1/emerald" },
+    { name: "Cosmic Blue", path: "/admin/join-community-1/cosmic-blue" },
+    { name: "Teal", path: "/admin/join-community-1/teal" },
+    { name: "Forest Green", path: "/admin/join-community-1/forest-green" },
   ];
 
   const launchLandingVariations = [
-    { name: "Original (Golden)", path: "/launch-landing-1" },
-    { name: "Earth to Sky Gradient", path: "/launch-landing-1/earth-sky" },
-    { name: "Deep Ocean Gradient", path: "/launch-landing-1/deep-ocean" },
-    { name: "Emerald-Teal Gradient", path: "/launch-landing-1/emerald-teal" },
-    { name: "Blue-Cyan Gradient", path: "/launch-landing-1/blue-cyan" },
-    { name: "Emerald", path: "/launch-landing-1/emerald" },
-    { name: "Cosmic Blue", path: "/launch-landing-1/cosmic-blue" },
-    { name: "Teal", path: "/launch-landing-1/teal" },
-    { name: "Forest Green", path: "/launch-landing-1/forest-green" },
+    { name: "Original (Golden)", path: "/admin/launch-landing-1" },
+    { name: "Earth to Sky Gradient", path: "/admin/launch-landing-1/earth-sky" },
+    { name: "Deep Ocean Gradient", path: "/admin/launch-landing-1/deep-ocean" },
+    { name: "Emerald-Teal Gradient", path: "/admin/launch-landing-1/emerald-teal" },
+    { name: "Blue-Cyan Gradient", path: "/admin/launch-landing-1/blue-cyan" },
+    { name: "Emerald", path: "/admin/launch-landing-1/emerald" },
+    { name: "Cosmic Blue", path: "/admin/launch-landing-1/cosmic-blue" },
+    { name: "Teal", path: "/admin/launch-landing-1/teal" },
+    { name: "Forest Green", path: "/admin/launch-landing-1/forest-green" },
   ];
 
   const features = [
@@ -74,7 +78,7 @@ export function DevHub() {
       description: "Visual identity & brand guidelines",
       details:
         "Complete brand asset library including logos, colors, favicons in multiple formats (SVG, PNG, PDF).",
-      href: "/brand",
+      href: `/admin/brand${domainParam}`,
       icon: Palette,
       color: "golden",
       count: "Brand Kit",
@@ -84,7 +88,7 @@ export function DevHub() {
       description: "Full-page template collection",
       details:
         "Pre-built templates for portfolios, SaaS products, startups, and developer profiles.",
-      href: "/templates",
+      href: `/admin/templates${domainParam}`,
       icon: Rocket,
       color: "emerald",
       count: "4 templates",
@@ -94,7 +98,7 @@ export function DevHub() {
       description: "WebGL shader animations",
       details:
         "8 interactive shader demonstrations including sacred geometry, fractals, neural networks, and generative art.",
-      href: "/shaders",
+      href: `/admin/shaders${domainParam}`,
       icon: Zap,
       color: "cosmic-purple",
       count: "8 shaders",
@@ -104,7 +108,7 @@ export function DevHub() {
       description: "Interactive UI component demos",
       details:
         "Test and explore animation effects, particle systems, and interactive components in development.",
-      href: "/playground",
+      href: `/admin/playground${domainParam}`,
       icon: Code2,
       color: "cosmic-blue",
       count: "9 demos",
@@ -114,7 +118,7 @@ export function DevHub() {
       description: "System metrics and analytics",
       details:
         "Monitor users, sessions, database stats, system status, and multi-domain deployment information.",
-      href: "/admin/statistics",
+      href: `/admin/statistics${domainParam}`,
       icon: BarChart3,
       color: "sunset-orange",
       count: "Live Stats",
@@ -216,7 +220,7 @@ export function DevHub() {
                     9 Variations
                   </Badge>
                   <button
-                    onClick={() => router.push(selectedVariation)}
+                    onClick={() => router.push(`${selectedVariation}${domainParam}`)}
                     className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
                     style={{ color: "#facf39" }}
                   >
@@ -279,7 +283,7 @@ export function DevHub() {
                     9 Variations
                   </Badge>
                   <button
-                    onClick={() => router.push(selectedJoinCommunity)}
+                    onClick={() => router.push(`${selectedJoinCommunity}${domainParam}`)}
                     className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
                     style={{ color: "#facf39" }}
                   >
@@ -342,7 +346,7 @@ export function DevHub() {
                     9 Variations
                   </Badge>
                   <button
-                    onClick={() => router.push(selectedLaunchLanding)}
+                    onClick={() => router.push(`${selectedLaunchLanding}${domainParam}`)}
                     className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
                     style={{ color: "#facf39" }}
                   >
@@ -414,7 +418,11 @@ export function DevHub() {
               const colors = colorMap[feature.color] ?? colorMap.golden!;
 
               return (
-                <Link key={feature.title} href={feature.href}>
+                <Link
+                  key={feature.title}
+                  href={feature.href}
+                  onClick={() => console.log('Navigating to:', feature.href)}
+                >
                   <Card
                     className={`group flex h-full cursor-pointer flex-col border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${colors.border}`}
                   >

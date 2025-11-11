@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { Card, CardContent } from "~/components/ui/card";
 import { DomainLayout } from "~/components/domain-layout";
-import { ArrowRight, Sparkles, Waves, Zap, Eye } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowRight, Sparkles, Zap } from "lucide-react";
+
+/**
+ * GLSL Shaders Gallery - WebGL Shader Showcase
+ *
+ * Authentication is handled by middleware (src/middleware.ts)
+ * This route was moved from /shaders to /admin/shaders to restrict access
+ */
 
 // GLSL Shader showcase items
 const SHADERS = [
@@ -12,28 +20,28 @@ const SHADERS = [
     title: "North Star",
     description: "Golden guiding beacon with radiant rays and pulsing energy",
     color: "amber",
-    href: "/shaders/north-star",
+    href: "/admin/shaders/north-star",
   },
   {
     id: "neural-net",
     title: "Neural Network",
     description: "Mesmerizing interconnected nodes pulsing with consciousness",
     color: "cyan",
-    href: "/shaders/neural-net",
+    href: "/admin/shaders/neural-net",
   },
   {
     id: "flower-of-life",
     title: "Flower of Life",
     description: "Sacred geometry with glowing circles and mystical energy",
     color: "pink",
-    href: "/shaders/flower-of-life",
+    href: "/admin/shaders/flower-of-life",
   },
   {
     id: "fractal-pyramid",
     title: "Fractal Pyramid",
     description: "Raymarched fractal geometry with rotating transformations",
     color: "purple",
-    href: "/shaders/fractal-pyramid",
+    href: "/admin/shaders/fractal-pyramid",
   },
   {
     id: "the-way",
@@ -41,7 +49,7 @@ const SHADERS = [
     description:
       "A journey through flowing light, spiraling paths, and infinite consciousness",
     color: "blue",
-    href: "/shaders/the-way",
+    href: "/admin/shaders/the-way",
   },
   {
     id: "metatrons-cube",
@@ -49,7 +57,7 @@ const SHADERS = [
     description:
       "Sacred geometry containing all five Platonic solids and the blueprint of creation",
     color: "emerald",
-    href: "/shaders/metatrons-cube",
+    href: "/admin/shaders/metatrons-cube",
   },
   {
     id: "icosahedron",
@@ -57,11 +65,15 @@ const SHADERS = [
     description:
       "Floating 3D Platonic solid with 20 triangular faces, rotating in space",
     color: "orange",
-    href: "/shaders/icosahedron",
+    href: "/admin/shaders/icosahedron",
   },
 ];
 
 export default function ShadersPage() {
+  const searchParams = useSearchParams();
+  const domain = searchParams.get("domain");
+  const domainParam = domain ? `?domain=${domain}` : "";
+
   return (
     <DomainLayout>
       <div className="via-background dark:via-background min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-950 dark:to-gray-900">
@@ -123,7 +135,7 @@ export default function ShadersPage() {
               const colors = colorMap[shader.color] ?? colorMap.purple!;
 
               return (
-                <Link key={shader.id} href={shader.href}>
+                <Link key={shader.id} href={`${shader.href}${domainParam}`}>
                   <Card
                     className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
                     style={{

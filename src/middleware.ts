@@ -5,7 +5,18 @@ import { updateSession } from "~/lib/supabase/middleware";
 
 /**
  * Multi-domain routing middleware
- * Handles domain-specific routing, admin/playground protection, and authentication
+ *
+ * Responsibilities:
+ * 1. Authentication: Protects all /admin/* routes (except /admin/login)
+ * 2. Domain enforcement:
+ *    - /admin/* routes → miraclemind.dev only
+ *    - /playground/* routes → matthewmiceli.com only
+ * 3. Session management: Updates Supabase auth sessions
+ *
+ * Route Migration History:
+ * - /playground → /admin/playground (now requires auth)
+ * - /shaders → /admin/shaders (now requires auth)
+ * - /templates → /admin/templates (now requires auth)
  */
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
