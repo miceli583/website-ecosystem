@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { DomainLayout } from "~/components/domain-layout";
+import { BackButton } from "~/components/back-button";
 import {
   Users,
   Database,
@@ -32,6 +33,7 @@ export default async function AdminDashboard() {
   }
   return (
     <DomainLayout>
+      <BackButton href="/admin" label="Back to Hub" />
       <div className="bg-background min-h-screen p-6">
         <div className="mx-auto max-w-7xl space-y-8">
           {/* Header */}

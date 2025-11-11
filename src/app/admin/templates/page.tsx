@@ -1,6 +1,7 @@
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { DomainLayout } from "~/components/domain-layout";
+import { BackButton } from "~/components/back-button";
 import Link from "next/link";
 import {
   Rocket,
@@ -66,6 +67,7 @@ export default async function TemplatesPage({
   const domainParam = params.domain ? `?domain=${params.domain}` : "";
   return (
     <DomainLayout>
+      <BackButton href="/admin" label="Back to Hub" />
       <div className="via-background dark:via-background min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6 dark:from-blue-950/20 dark:to-indigo-950/20">
         <div className="mx-auto max-w-7xl space-y-8">
           {/* Header */}

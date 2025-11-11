@@ -2,6 +2,7 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
+import { BackButton } from "~/components/back-button";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -110,6 +111,7 @@ export default async function PlaygroundPage({
 
   return (
     <DomainLayout>
+      <BackButton href="/admin" label="Back to Hub" />
       <Suspense fallback={<div>Loading...</div>}>
         <PlaygroundLayout>
         <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
