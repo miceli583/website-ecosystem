@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
     const image2Blob = base64ToBlob(images.page2);
     const image3Blob = base64ToBlob(images.page3);
 
-    // Initialize Supabase client
+    // Initialize Supabase client with service role key (bypasses RLS for server-side uploads)
     const supabase = createClient(
       env.NEXT_PUBLIC_SUPABASE_URL,
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      env.SUPABASE_SERVICE_ROLE_KEY
     );
 
     console.log("📤 Uploading images to Supabase Storage...");
