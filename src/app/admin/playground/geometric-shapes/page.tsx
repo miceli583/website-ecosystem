@@ -3,6 +3,8 @@
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
+export const dynamic = "force-dynamic";
+
 export default function GeometricShapesPage() {
   return (
     <DomainLayout>

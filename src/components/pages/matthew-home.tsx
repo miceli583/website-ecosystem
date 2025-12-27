@@ -17,11 +17,18 @@ interface MatthewHomePageProps {
   domainParam?: string;
 }
 
-export function MatthewHomePage({ isDevPreview = false, domainParam = "" }: MatthewHomePageProps = {}) {
+export function MatthewHomePage({
+  isDevPreview = false,
+  domainParam = "",
+}: MatthewHomePageProps = {}) {
   // Use admin routes if in dev preview, otherwise use public routes
   // Include domain parameter for localhost routing
-  const playgroundUrl = isDevPreview ? `/admin/playground${domainParam}` : "/playground";
-  const templatesUrl = isDevPreview ? `/admin/templates${domainParam}` : "/templates";
+  const playgroundUrl = isDevPreview
+    ? `/admin/playground${domainParam}`
+    : "/playground";
+  const templatesUrl = isDevPreview
+    ? `/admin/templates${domainParam}`
+    : "/templates";
   const shadersUrl = isDevPreview ? `/admin/shaders${domainParam}` : "/shaders";
 
   return (
@@ -100,11 +107,9 @@ export function MatthewHomePage({ isDevPreview = false, domainParam = "" }: Matt
               Get In Touch
             </Button>
 
-            <Button variant="outline" size="lg" asChild className="group">
-              <Link href="/projects">
-                <Github className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                View Projects
-              </Link>
+            <Button variant="outline" size="lg" className="group">
+              <Github className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+              View Projects
             </Button>
 
             <Button
@@ -146,26 +151,15 @@ export function MatthewHomePage({ isDevPreview = false, domainParam = "" }: Matt
 
           {/* Social Links */}
           <div className="flex items-center gap-6">
-            <Link
-              href="https://github.com/matthewmiceli"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              target="_blank"
-            >
+            <button className="text-muted-foreground hover:text-foreground transition-colors">
               <Github className="h-6 w-6" />
-            </Link>
-            <Link
-              href="https://linkedin.com/in/matthew-miceli"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              target="_blank"
-            >
+            </button>
+            <button className="text-muted-foreground hover:text-foreground transition-colors">
               <Linkedin className="h-6 w-6" />
-            </Link>
-            <Link
-              href="mailto:hello@matthewmiceli.com"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
+            </button>
+            <button className="text-muted-foreground hover:text-foreground transition-colors">
               <Mail className="h-6 w-6" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Miracle Mind orbit star">
+  <title>Miracle Mind Orbit Star</title>
+  <defs>
+    <linearGradient id="orbit-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6E6C1" />
+      <stop offset="50%" stop-color="#D8AD54" />
+      <stop offset="100%" stop-color="#8C5C26" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(100 100)">
+    <!-- Thin outer ring -->
+    <circle r="74" fill="none" stroke="url(#orbit-stroke)" stroke-width="3" />
+
+    <!-- Four flowing arcs inspired by intersecting circles -->
+    <g fill="none" stroke="url(#orbit-stroke)" stroke-width="6" stroke-linecap="round">
+      <path d="M 0 -74 C 18 -62 58 -42 74 0" />
+      <path d="M 74 0 C 62 18 42 58 0 74" />
+      <path d="M 0 74 C -18 62 -58 42 -74 0" />
+      <path d="M -74 0 C -62 -18 -42 -58 0 -74" />
+    </g>
+
+    <!-- Core dot -->
+    <circle r="5" fill="#8C5C26" />
+  </g>
+</svg>

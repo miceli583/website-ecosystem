@@ -17,7 +17,6 @@ export default function EarthSkyLandingPage() {
     seconds: 0,
   });
 
-
   useEffect(() => {
     // Set target date - 30 days from now
     const targetDate = new Date();

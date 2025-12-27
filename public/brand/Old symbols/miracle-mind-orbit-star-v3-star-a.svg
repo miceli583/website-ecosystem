@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Orbit star variant 3 with rounded north star">
+  <title>Miracle Mind Orbit Star V3 — Rounded Four-Point</title>
+  <defs>
+    <linearGradient id="orbit-gold-3a" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6E6C1" />
+      <stop offset="50%" stop-color="#D8AD54" />
+      <stop offset="100%" stop-color="#8C5C26" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(100 100)">
+    <circle r="72" fill="none" stroke="url(#orbit-gold-3a)" stroke-width="4" />
+    <circle r="58" fill="none" stroke="#EBD9B9" stroke-width="2" opacity="0.55" />
+    <g fill="none" stroke="url(#orbit-gold-3a)" stroke-width="5.5" stroke-linecap="round">
+      <path d="M 0 -72 C 16 -62 52 -42 72 0" />
+      <path d="M 72 0 C 62 16 42 52 0 72" />
+      <path d="M 0 72 C -16 62 -52 42 -72 0" />
+      <path d="M -72 0 C -62 -16 -42 -52 0 -72" />
+    </g>
+
+    <!-- Rounded four-point star -->
+    <g id="rounded-petal" fill="url(#orbit-gold-3a)">
+      <path d="M 0 -18 C 7 -18 12 -12.5 12 -7.5 C 12 -2.5 7 2 0 2 C -7 2 -12 -2.5 -12 -7.5 C -12 -12.5 -7 -18 0 -18 Z" />
+    </g>
+    <use href="#rounded-petal" transform="rotate(90)" />
+    <use href="#rounded-petal" transform="rotate(180)" />
+    <use href="#rounded-petal" transform="rotate(270)" />
+
+    <circle r="4" fill="url(#orbit-gold-3a)" />
+  </g>
+</svg>

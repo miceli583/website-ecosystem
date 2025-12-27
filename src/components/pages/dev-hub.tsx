@@ -378,14 +378,15 @@ function DevHubContent() {
                   </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  Epic countdown timer with bold typography and animated backgrounds
+                  Epic countdown timer with bold typography and animated
+                  backgrounds
                 </p>
                 <div className="relative">
                   <select
                     onChange={(e) => {
                       if (e.target.value) router.push(e.target.value);
                     }}
-                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-amber-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-amber-700 shadow-sm transition-all hover:border-amber-500/50 hover:shadow-md focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:bg-neutral-900 dark:text-amber-400"
+                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-amber-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-amber-700 shadow-sm transition-all hover:border-amber-500/50 hover:shadow-md focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none dark:bg-neutral-900 dark:text-amber-400"
                     defaultValue=""
                   >
                     <option value="" disabled>
@@ -435,7 +436,7 @@ function DevHubContent() {
                       🌍 Earth Sky
                     </option>
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-amber-500" />
                 </div>
               </CardContent>
             </Card>
@@ -470,7 +471,7 @@ function DevHubContent() {
                     onChange={(e) => {
                       if (e.target.value) router.push(e.target.value);
                     }}
-                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-rose-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-rose-700 shadow-sm transition-all hover:border-rose-500/50 hover:shadow-md focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:bg-neutral-900 dark:text-rose-400"
+                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-rose-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-rose-700 shadow-sm transition-all hover:border-rose-500/50 hover:shadow-md focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:outline-none dark:bg-neutral-900 dark:text-rose-400"
                     defaultValue=""
                   >
                     <option value="" disabled>
@@ -520,7 +521,7 @@ function DevHubContent() {
                       🌍 Earth Sky
                     </option>
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-rose-500" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-rose-500" />
                 </div>
               </CardContent>
             </Card>
@@ -555,7 +556,7 @@ function DevHubContent() {
                     onChange={(e) => {
                       if (e.target.value) router.push(e.target.value);
                     }}
-                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-cyan-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-cyan-700 shadow-sm transition-all hover:border-cyan-500/50 hover:shadow-md focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 dark:bg-neutral-900 dark:text-cyan-400"
+                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-cyan-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-cyan-700 shadow-sm transition-all hover:border-cyan-500/50 hover:shadow-md focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none dark:bg-neutral-900 dark:text-cyan-400"
                     defaultValue=""
                   >
                     <option value="" disabled>
@@ -605,7 +606,7 @@ function DevHubContent() {
                       🌍 Earth Sky
                     </option>
                   </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-500" />
+                  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-cyan-500" />
                 </div>
               </CardContent>
             </Card>
@@ -639,15 +640,19 @@ function DevHubContent() {
                       Daily Value Post Automation
                     </h3>
                     <Badge className="mt-1 border-indigo-500/30 bg-indigo-500/20 text-indigo-700 shadow-sm dark:text-indigo-300">
-                      {dailyValuesStats?.coreValues ?? 0} VALUES • {dailyValuesStats?.quotes ?? 0} QUOTES
+                      {dailyValuesStats?.coreValues ?? 0} VALUES •{" "}
+                      {dailyValuesStats?.quotes ?? 0} QUOTES
                     </Badge>
                   </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  Create and automate daily inspirational posts with values and quotes
+                  Create and automate daily inspirational posts with values and
+                  quotes
                 </p>
                 <button
-                  onClick={() => router.push(`/admin/daily-values${domainParam}`)}
+                  onClick={() =>
+                    router.push(`/admin/daily-values${domainParam}`)
+                  }
                   className="flex items-center justify-between rounded-lg border-2 border-indigo-500/30 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm transition-all hover:border-indigo-500/50 hover:shadow-md dark:bg-neutral-900 dark:text-indigo-400"
                 >
                   <span>Open Dashboard</span>
@@ -805,7 +810,13 @@ function DevHubContent() {
 
 export function DevHub() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <DevHubContent />
     </Suspense>
   );

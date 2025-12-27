@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
+export const dynamic = "force-dynamic";
+
 export default function ParticleFieldPage() {
   // Generate random particles (memoized to prevent regeneration on re-render)
   const particles = useMemo(

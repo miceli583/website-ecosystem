@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Minimal hybrid helm north star">
+  <title>Minimal Helm North Star — Variant 1</title>
+  <defs>
+    <radialGradient id="star-core-1" cx="50%" cy="48%" r="60%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="55%" stop-color="#F5C758" />
+      <stop offset="100%" stop-color="#C07C28" />
+    </radialGradient>
+    <linearGradient id="rim-1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F1E6D6" />
+      <stop offset="100%" stop-color="#8D6B3F" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Slim helm ring -->
+    <circle r="60" fill="none" stroke="url(#rim-1)" stroke-width="6" />
+    <circle r="52" fill="none" stroke="#EAD9B9" stroke-width="1.5" opacity="0.8" />
+
+    <!-- Four abstract grips -->
+    <g fill="url(#rim-1)">
+      <rect x="-3" y="-82" width="6" height="12" rx="2" />
+      <rect x="-3" y="70" width="6" height="12" rx="2" />
+      <rect x="-82" y="-3" width="12" height="6" rx="2" />
+      <rect x="70" y="-3" width="12" height="6" rx="2" />
+    </g>
+
+    <!-- Subtle spokes -->
+    <g stroke="#CFA565" stroke-width="4" stroke-linecap="round" opacity="0.65">
+      <line x1="0" y1="-54" x2="0" y2="-10" />
+      <line x1="0" y1="10" x2="0" y2="54" />
+      <line x1="-54" y1="0" x2="-10" y2="0" />
+      <line x1="10" y1="0" x2="54" y2="0" />
+    </g>
+
+    <!-- North star -->
+    <path d="M 0,-30 L -2.2,-7 L -15,-15 L -7,-2.2 L -30,0 L -7,2.2 L -15,15 L -2.2,7 L 0,40 L 2.2,7 L 15,15 L 7,2.2 L 30,0 L 7,-2.2 L 15,-15 L 2.2,-7 Z"
+          fill="url(#star-core-1)" />
+  </g>
+</svg>

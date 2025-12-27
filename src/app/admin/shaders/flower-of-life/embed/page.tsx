@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { ShadertoyRenderer } from "~/components/shaders/shadertoy-renderer";
 
 const SHADER_CODE = `// Flower of Life - Sacred Geometry Shader

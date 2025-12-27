@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
@@ -119,7 +119,7 @@ interface PlaygroundLayoutProps {
   description?: string;
 }
 
-export function PlaygroundLayout({
+function PlaygroundLayoutContent({
   children,
   title,
   description,
@@ -128,13 +128,25 @@ export function PlaygroundLayout({
   const searchParams = useSearchParams();
   const domain = searchParams.get("domain");
   const domainParam = domain ? `?domain=${domain}` : "";
-  const isOverview = pathname === "/admin/playground";
+
+  // Detect if we're in admin or public playground
+  const isAdminPlayground = pathname.startsWith("/admin/playground");
+  const basePath = isAdminPlayground ? "/admin/playground" : "/playground";
+  const backPath = isAdminPlayground ? "/admin" : "/?domain=matthew";
+
+  const isOverview = pathname === basePath;
   const [sidebarOpen, setSidebarOpen] = useState(!isOverview);
+
+  // Generate items with correct base path
+  const playgroundItems = PLAYGROUND_ITEMS.map((item) => ({
+    ...item,
+    href: item.href.replace("/admin/playground", basePath),
+  }));
 
   const getCurrentItem = () => {
     return (
-      PLAYGROUND_ITEMS.find((item) => item.href === pathname) ||
-      PLAYGROUND_ITEMS[0]!
+      playgroundItems.find((item) => item.href === pathname) ||
+      playgroundItems[0]!
     );
   };
 
@@ -172,7 +184,7 @@ export function PlaygroundLayout({
 
             {/* Navigation Items */}
             <nav className="space-y-2">
-              {PLAYGROUND_ITEMS.map((item) => {
+              {playgroundItems.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
 
@@ -252,17 +264,31 @@ export function PlaygroundLayout({
 
       {/* Floating back button at bottom left - only show on overview */}
       {isOverview && (
-        <Link href={`/admin${domainParam}`}>
+        <Link href={`${backPath}${domainParam}`}>
           <Button
             size="lg"
             className="fixed bottom-6 left-6 z-50 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl"
           >
             <Home className="mr-2 h-5 w-5" />
-            Back to Hub
+            {isAdminPlayground ? "Back to Hub" : "Back to Home"}
           </Button>
         </Link>
       )}
     </div>
+  );
+}
+
+export function PlaygroundLayout(props: PlaygroundLayoutProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <PlaygroundLayoutContent {...props} />
+    </Suspense>
   );
 }
 

@@ -107,7 +107,11 @@ export default async function TemplatesPage({
             {TEMPLATES.map((template) => {
               const Icon = template.icon;
               return (
-                <Link key={template.id} href={`${template.href}${domainParam}`} target="_blank">
+                <Link
+                  key={template.id}
+                  href={`${template.href}${domainParam}`}
+                  target="_blank"
+                >
                   <Card
                     className={`group h-full cursor-pointer border-${template.color}-200 transition-all duration-300 hover:scale-105 hover:shadow-xl dark:border-${template.color}-800/50`}
                   >

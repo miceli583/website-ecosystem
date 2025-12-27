@@ -42,8 +42,7 @@ const TEMPLATES = [
   {
     id: "saas-business",
     title: "SaaS Business",
-    description:
-      "Professional SaaS landing page with pricing and testimonials",
+    description: "Professional SaaS landing page with pricing and testimonials",
     icon: Building,
     color: "emerald",
     href: "/templates/saas-business",
@@ -90,10 +89,22 @@ export default async function TemplatesPage({
             {TEMPLATES.map((template) => {
               const Icon = template.icon;
               const colorMap: Record<string, { bg: string; text: string }> = {
-                blue: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-600 dark:text-blue-400" },
-                purple: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-600 dark:text-purple-400" },
-                emerald: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-600 dark:text-emerald-400" },
-                orange: { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-600 dark:text-orange-400" },
+                blue: {
+                  bg: "bg-blue-100 dark:bg-blue-900/30",
+                  text: "text-blue-600 dark:text-blue-400",
+                },
+                purple: {
+                  bg: "bg-purple-100 dark:bg-purple-900/30",
+                  text: "text-purple-600 dark:text-purple-400",
+                },
+                emerald: {
+                  bg: "bg-emerald-100 dark:bg-emerald-900/30",
+                  text: "text-emerald-600 dark:text-emerald-400",
+                },
+                orange: {
+                  bg: "bg-orange-100 dark:bg-orange-900/30",
+                  text: "text-orange-600 dark:text-orange-400",
+                },
               };
 
               const colors = colorMap[template.color] ?? colorMap.blue!;
@@ -131,7 +142,9 @@ export default async function TemplatesPage({
                           </Badge>
                         ))}
                       </div>
-                      <div className={`flex items-center gap-2 text-sm font-medium ${colors.text}`}>
+                      <div
+                        className={`flex items-center gap-2 text-sm font-medium ${colors.text}`}
+                      >
                         <span>View Template</span>
                         <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </div>

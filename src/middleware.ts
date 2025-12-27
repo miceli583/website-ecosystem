@@ -20,8 +20,41 @@ import { updateSession } from "~/lib/supabase/middleware";
  */
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
-  const pathname = request.nextUrl.pathname;
-  const searchParams = request.nextUrl.searchParams;
+  let pathname = request.nextUrl.pathname;
+  let searchParams = request.nextUrl.searchParams;
+
+  // Subdomain routing - handle admin.* subdomains
+  // admin.miraclemind.dev/templates → /admin/templates?domain=dev
+  const hostParts = hostname.split(".");
+  let shouldRewrite = false;
+  let rewriteUrl: URL | null = null;
+
+  if (hostParts[0] === "admin") {
+    shouldRewrite = true;
+    const baseDomain = hostParts.slice(1).join(".");
+    let domainParam = "dev"; // default to dev
+
+    if (baseDomain.includes("miraclemind.live")) {
+      domainParam = "live";
+    } else if (baseDomain.includes("matthewmiceli")) {
+      domainParam = "matthew";
+    }
+
+    // Build the rewrite URL
+    rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = `/admin${pathname === "/" ? "" : pathname}`;
+    rewriteUrl.searchParams.set("domain", domainParam);
+
+    // Update pathname and searchParams for middleware checks
+    pathname = rewriteUrl.pathname;
+    searchParams = rewriteUrl.searchParams;
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `🔀 [Middleware] Subdomain rewrite: ${hostname}${request.nextUrl.pathname} → ${pathname}?domain=${domainParam}`
+      );
+    }
+  }
 
   // Update Supabase session
   const { supabaseResponse, user } = await updateSession(request);
@@ -69,9 +102,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(loginUrl));
     }
 
-    // Allow admin access on miraclemind.dev or localhost with domain=dev
+    // Allow admin access on miraclemind.dev, admin.* subdomains, or localhost with domain=dev
     const isValidAdminDomain =
       hostname.includes("miraclemind.dev") ||
+      hostParts[0] === "admin" ||
       (hostname.includes("localhost") && searchParams.get("domain") === "dev");
 
     if (!isValidAdminDomain) {
@@ -112,6 +146,18 @@ export async function middleware(request: NextRequest) {
   // Add domain information to headers for server components
   supabaseResponse.headers.set("x-domain", currentDomain);
   supabaseResponse.headers.set("x-hostname", hostname);
+
+  // Apply subdomain rewrite if needed
+  if (shouldRewrite && rewriteUrl) {
+    const rewriteResponse = NextResponse.rewrite(rewriteUrl);
+
+    // Copy all headers from supabase response (including auth cookies)
+    supabaseResponse.headers.forEach((value, key) => {
+      rewriteResponse.headers.set(key, value);
+    });
+
+    return rewriteResponse;
+  }
 
   return supabaseResponse;
 }

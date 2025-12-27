@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Miracle Mind hybrid north star helm">
+  <title>Miracle Mind Hybrid North Star Helm</title>
+  <defs>
+    <radialGradient id="helm-star-glow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="40%" stop-color="#FFD466" />
+      <stop offset="80%" stop-color="#E3A832" />
+      <stop offset="100%" stop-color="#B0701D" />
+    </radialGradient>
+    <linearGradient id="helm-rim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F1E6D6" />
+      <stop offset="50%" stop-color="#C7A679" />
+      <stop offset="100%" stop-color="#8D6B3F" />
+    </linearGradient>
+    <linearGradient id="helm-spoke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3D9A1" />
+      <stop offset="100%" stop-color="#9A6A2E" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Outer helm ring -->
+    <circle r="62" fill="none" stroke="url(#helm-rim)" stroke-width="8" />
+    <circle r="52" fill="none" stroke="#F9E9C7" stroke-width="2" opacity="0.8" />
+
+    <!-- Helm handles -->
+    <g fill="url(#helm-rim)" stroke="#4C3015" stroke-width="1.5" stroke-linejoin="round">
+      <g id="handle">
+        <circle cy="-78" r="5.5" />
+        <rect x="-4" y="-74" width="8" height="16" rx="2" />
+      </g>
+      <use href="#handle" transform="rotate(45)" />
+      <use href="#handle" transform="rotate(90)" />
+      <use href="#handle" transform="rotate(135)" />
+      <use href="#handle" transform="rotate(180)" />
+      <use href="#handle" transform="rotate(225)" />
+      <use href="#handle" transform="rotate(270)" />
+      <use href="#handle" transform="rotate(315)" />
+    </g>
+
+    <!-- Spokes -->
+    <g stroke="url(#helm-spoke)" stroke-width="6" stroke-linecap="round">
+      <line x1="0" y1="-62" x2="0" y2="0" />
+      <line x1="43.8" y1="-43.8" x2="0" y2="0" />
+      <line x1="62" y1="0" x2="0" y2="0" />
+      <line x1="43.8" y1="43.8" x2="0" y2="0" />
+      <line x1="0" y1="62" x2="0" y2="0" />
+      <line x1="-43.8" y1="43.8" x2="0" y2="0" />
+      <line x1="-62" y1="0" x2="0" y2="0" />
+      <line x1="-43.8" y1="-43.8" x2="0" y2="0" />
+    </g>
+
+    <!-- North star at the core -->
+    <g>
+      <path d="M 0,-36 L -3,-9 L -20,-20 L -9,-3 L -36,0 L -9,3 L -20,20 L -3,9 L 0,48 L 3,9 L 20,20 L 9,3 L 36,0 L 9,-3 L 20,-20 L 3,-9 Z"
+            fill="url(#helm-star-glow)" />
+      <circle r="8" fill="#2C1A0E" opacity="0.2" />
+    </g>
+
+    <!-- Inner compass ring -->
+    <circle r="24" fill="none" stroke="#F4D8A5" stroke-width="2" opacity="0.7" />
+  </g>
+</svg>

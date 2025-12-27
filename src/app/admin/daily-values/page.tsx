@@ -1,9 +1,15 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "~/components/ui/card";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -40,8 +46,15 @@ import {
 } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { api } from "~/trpc/react";
-import { generateCarousel, type CarouselContent } from "~/lib/carousel-generator";
-import { DEFAULT_THEME, BRAND_THEMES, type BrandTheme } from "~/lib/brand-themes";
+import {
+  generateCarousel,
+  type CarouselContent,
+} from "~/lib/carousel-generator";
+import {
+  DEFAULT_THEME,
+  BRAND_THEMES,
+  type BrandTheme,
+} from "~/lib/brand-themes";
 import Image from "next/image";
 import type { Author, CoreValue, SupportingValue } from "~/server/db/schema";
 
@@ -167,7 +180,11 @@ function DailyValuesContent() {
   const [selectedCoreValueId, setSelectedCoreValueId] = useState<string>("");
   const [selectedQuoteId, setSelectedQuoteId] = useState<string>("");
   const [selectedTheme, setSelectedTheme] = useState<BrandTheme>(DEFAULT_THEME);
-  const [generatedImages, setGeneratedImages] = useState<{ page1: string; page2: string; page3: string } | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<{
+    page1: string;
+    page2: string;
+    page3: string;
+  } | null>(null);
   const [generatedCaption, setGeneratedCaption] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -176,84 +193,95 @@ function DailyValuesContent() {
   // ==========================================================================
   const utils = api.useUtils();
   const { data: stats } = api.dailyValues.getStats.useQuery();
-  const { data: coreValues, isLoading: coreValuesLoading } = api.dailyValues.getAllCoreValues.useQuery();
-  const { data: supportingValues, isLoading: supportingValuesLoading } = api.dailyValues.getAllSupportingValues.useQuery();
-  const { data: availableSupportingValues } = api.dailyValues.getAvailableSupportingValues.useQuery();
-  const { data: quotes, isLoading: quotesLoading } = api.dailyValues.getAllQuotes.useQuery();
+  const { data: coreValues, isLoading: coreValuesLoading } =
+    api.dailyValues.getAllCoreValues.useQuery();
+  const { data: supportingValues, isLoading: supportingValuesLoading } =
+    api.dailyValues.getAllSupportingValues.useQuery();
+  const { data: availableSupportingValues } =
+    api.dailyValues.getAvailableSupportingValues.useQuery();
+  const { data: quotes, isLoading: quotesLoading } =
+    api.dailyValues.getAllQuotes.useQuery();
   const { data: authors } = api.dailyValues.getAllAuthors.useQuery();
-  const { data: authorsWithCounts } = api.dailyValues.getAuthorsWithQuoteCounts.useQuery();
-  const { data: postQueue, isLoading: queueLoading } = api.dailyValues.getPostQueue.useQuery();
+  const { data: authorsWithCounts } =
+    api.dailyValues.getAuthorsWithQuoteCounts.useQuery();
+  const { data: postQueue, isLoading: queueLoading } =
+    api.dailyValues.getPostQueue.useQuery();
 
   // Fetch Core Values for selected quote (when editing)
-  const { data: quoteCoreValues } = api.dailyValues.getCoreValuesByQuote.useQuery(
-    { quoteId: quoteDialog.id ?? "" },
-    { enabled: quoteDialog.mode === "edit" && !!quoteDialog.id }
-  );
+  const { data: quoteCoreValues } =
+    api.dailyValues.getCoreValuesByQuote.useQuery(
+      { quoteId: quoteDialog.id ?? "" },
+      { enabled: quoteDialog.mode === "edit" && !!quoteDialog.id }
+    );
 
   // ==========================================================================
   // MUTATIONS
   // ==========================================================================
 
   // Supporting Values
-  const createSupportingValue = api.dailyValues.createSupportingValue.useMutation({
-    onSuccess: () => {
-      void utils.dailyValues.getAllSupportingValues.invalidate();
-      void utils.dailyValues.getAvailableSupportingValues.invalidate();
-      void utils.dailyValues.getStats.invalidate();
-      setSupportingValueDialog({ open: false, mode: "add" });
-      setSupportingValueForm({ value: "" });
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
-
-  const updateSupportingValue = api.dailyValues.updateSupportingValue.useMutation({
-    onSuccess: () => {
-      void utils.dailyValues.getAllSupportingValues.invalidate();
-      setSupportingValueDialog({ open: false, mode: "add" });
-      setSupportingValueForm({ value: "" });
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
-
-  const deleteSupportingValue = api.dailyValues.deleteSupportingValue.useMutation({
-    onSuccess: (data) => {
-      if (data.requiresConfirmation) {
-        setDeleteConfirmDialog({
-          open: true,
-          type: "supporting",
-          id: deleteConfirmDialog.id,
-          requiresConfirmation: true,
-          coreValueId: data.coreValueId,
-          message: data.message,
-        });
-      } else {
+  const createSupportingValue =
+    api.dailyValues.createSupportingValue.useMutation({
+      onSuccess: () => {
         void utils.dailyValues.getAllSupportingValues.invalidate();
         void utils.dailyValues.getAvailableSupportingValues.invalidate();
         void utils.dailyValues.getStats.invalidate();
-        setDeleteConfirmDialog({ open: false, type: "supporting" });
-      }
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
+        setSupportingValueDialog({ open: false, mode: "add" });
+        setSupportingValueForm({ value: "" });
+      },
+      onError: (error) => {
+        alert(`Error: ${error.message}`);
+      },
+    });
 
-  const confirmDeleteSupportingValue = api.dailyValues.confirmDeleteSupportingValue.useMutation({
-    onSuccess: () => {
-      void utils.dailyValues.getAllSupportingValues.invalidate();
-      void utils.dailyValues.getAllCoreValues.invalidate();
-      void utils.dailyValues.getAvailableSupportingValues.invalidate();
-      void utils.dailyValues.getStats.invalidate();
-      setDeleteConfirmDialog({ open: false, type: "supporting" });
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
+  const updateSupportingValue =
+    api.dailyValues.updateSupportingValue.useMutation({
+      onSuccess: () => {
+        void utils.dailyValues.getAllSupportingValues.invalidate();
+        setSupportingValueDialog({ open: false, mode: "add" });
+        setSupportingValueForm({ value: "" });
+      },
+      onError: (error) => {
+        alert(`Error: ${error.message}`);
+      },
+    });
+
+  const deleteSupportingValue =
+    api.dailyValues.deleteSupportingValue.useMutation({
+      onSuccess: (data) => {
+        if (data.requiresConfirmation) {
+          setDeleteConfirmDialog({
+            open: true,
+            type: "supporting",
+            id: deleteConfirmDialog.id,
+            requiresConfirmation: true,
+            coreValueId: data.coreValueId,
+            message: data.message,
+          });
+        } else {
+          void utils.dailyValues.getAllSupportingValues.invalidate();
+          void utils.dailyValues.getAvailableSupportingValues.invalidate();
+          void utils.dailyValues.getStats.invalidate();
+          setDeleteConfirmDialog({ open: false, type: "supporting" });
+        }
+      },
+      onError: (error) => {
+        alert(`Error: ${error.message}`);
+      },
+    });
+
+  const confirmDeleteSupportingValue =
+    api.dailyValues.confirmDeleteSupportingValue.useMutation({
+      onSuccess: () => {
+        void utils.dailyValues.getAllSupportingValues.invalidate();
+        void utils.dailyValues.getAllCoreValues.invalidate();
+        void utils.dailyValues.getAvailableSupportingValues.invalidate();
+        void utils.dailyValues.getStats.invalidate();
+        setDeleteConfirmDialog({ open: false, type: "supporting" });
+      },
+      onError: (error) => {
+        alert(`Error: ${error.message}`);
+      },
+    });
 
   // Core Values
   const createCoreValue = api.dailyValues.createCoreValue.useMutation({
@@ -262,7 +290,12 @@ function DailyValuesContent() {
       void utils.dailyValues.getAvailableSupportingValues.invalidate();
       void utils.dailyValues.getStats.invalidate();
       setCoreValueDialog({ open: false, mode: "add" });
-      setCoreValueForm({ inputMode: "dropdown", supportingValueId: "", manualValue: "", description: "" });
+      setCoreValueForm({
+        inputMode: "dropdown",
+        supportingValueId: "",
+        manualValue: "",
+        description: "",
+      });
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
@@ -273,7 +306,12 @@ function DailyValuesContent() {
     onSuccess: () => {
       void utils.dailyValues.getAllCoreValues.invalidate();
       setCoreValueDialog({ open: false, mode: "add" });
-      setCoreValueForm({ inputMode: "dropdown", supportingValueId: "", manualValue: "", description: "" });
+      setCoreValueForm({
+        inputMode: "dropdown",
+        supportingValueId: "",
+        manualValue: "",
+        description: "",
+      });
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
@@ -335,7 +373,16 @@ function DailyValuesContent() {
       void utils.dailyValues.getAuthorsWithQuoteCounts.invalidate();
       void utils.dailyValues.getStats.invalidate();
       setQuoteDialog({ open: false, mode: "add" });
-      setQuoteForm({ text: "", authorId: "", newAuthorName: "", source: "", category: "", tags: "", coreValueIds: [], coreValuesExpanded: false });
+      setQuoteForm({
+        text: "",
+        authorId: "",
+        newAuthorName: "",
+        source: "",
+        category: "",
+        tags: "",
+        coreValueIds: [],
+        coreValuesExpanded: false,
+      });
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
@@ -347,21 +394,31 @@ function DailyValuesContent() {
       void utils.dailyValues.getAllQuotes.invalidate();
       void utils.dailyValues.getAuthorsWithQuoteCounts.invalidate();
       setQuoteDialog({ open: false, mode: "add" });
-      setQuoteForm({ text: "", authorId: "", newAuthorName: "", source: "", category: "", tags: "", coreValueIds: [], coreValuesExpanded: false });
+      setQuoteForm({
+        text: "",
+        authorId: "",
+        newAuthorName: "",
+        source: "",
+        category: "",
+        tags: "",
+        coreValueIds: [],
+        coreValuesExpanded: false,
+      });
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
     },
   });
 
-  const updateQuoteCoreValues = api.dailyValues.updateQuoteCoreValues.useMutation({
-    onSuccess: () => {
-      void utils.dailyValues.getCoreValuesByQuote.invalidate();
-    },
-    onError: (error) => {
-      alert(`Error: ${error.message}`);
-    },
-  });
+  const updateQuoteCoreValues =
+    api.dailyValues.updateQuoteCoreValues.useMutation({
+      onSuccess: () => {
+        void utils.dailyValues.getCoreValuesByQuote.invalidate();
+      },
+      onError: (error) => {
+        alert(`Error: ${error.message}`);
+      },
+    });
 
   const deleteQuote = api.dailyValues.deleteQuote.useMutation({
     onSuccess: () => {
@@ -397,19 +454,36 @@ function DailyValuesContent() {
     if (supportingValueDialog.mode === "add") {
       createSupportingValue.mutate({ value: supportingValueForm.value });
     } else if (supportingValueDialog.id) {
-      updateSupportingValue.mutate({ id: supportingValueDialog.id, value: supportingValueForm.value });
+      updateSupportingValue.mutate({
+        id: supportingValueDialog.id,
+        value: supportingValueForm.value,
+      });
     }
   };
 
   // Core Values Handlers
   const handleAddCoreValue = () => {
     setCoreValueDialog({ open: true, mode: "add" });
-    setCoreValueForm({ inputMode: "dropdown", supportingValueId: "", manualValue: "", description: "" });
+    setCoreValueForm({
+      inputMode: "dropdown",
+      supportingValueId: "",
+      manualValue: "",
+      description: "",
+    });
   };
 
-  const handleEditCoreValue = (id: string, value: string, description: string) => {
+  const handleEditCoreValue = (
+    id: string,
+    value: string,
+    description: string
+  ) => {
     setCoreValueDialog({ open: true, mode: "edit", id });
-    setCoreValueForm({ inputMode: "manual", supportingValueId: "", manualValue: value, description });
+    setCoreValueForm({
+      inputMode: "manual",
+      supportingValueId: "",
+      manualValue: value,
+      description,
+    });
   };
 
   const handleDeleteCoreValue = (id: string, name: string) => {
@@ -418,14 +492,20 @@ function DailyValuesContent() {
 
   const handleCoreValueSubmit = () => {
     if (coreValueDialog.mode === "add") {
-      const value = coreValueForm.inputMode === "dropdown"
-        ? availableSupportingValues?.find((sv: any) => sv.id === coreValueForm.supportingValueId)?.value ?? ""
-        : coreValueForm.manualValue;
+      const value =
+        coreValueForm.inputMode === "dropdown"
+          ? (availableSupportingValues?.find(
+              (sv: any) => sv.id === coreValueForm.supportingValueId
+            )?.value ?? "")
+          : coreValueForm.manualValue;
 
       createCoreValue.mutate({
         value,
         description: coreValueForm.description,
-        fromSupportingValueId: coreValueForm.inputMode === "dropdown" ? coreValueForm.supportingValueId : undefined,
+        fromSupportingValueId:
+          coreValueForm.inputMode === "dropdown"
+            ? coreValueForm.supportingValueId
+            : undefined,
       });
     } else if (coreValueDialog.id) {
       updateCoreValue.mutate({
@@ -461,7 +541,16 @@ function DailyValuesContent() {
   // Quotes Handlers
   const handleAddQuote = () => {
     setQuoteDialog({ open: true, mode: "add" });
-    setQuoteForm({ text: "", authorId: "", newAuthorName: "", source: "", category: "", tags: "", coreValueIds: [], coreValuesExpanded: false });
+    setQuoteForm({
+      text: "",
+      authorId: "",
+      newAuthorName: "",
+      source: "",
+      category: "",
+      tags: "",
+      coreValueIds: [],
+      coreValuesExpanded: false,
+    });
   };
 
   const handleEditQuote = (quote: any) => {
@@ -479,28 +568,41 @@ function DailyValuesContent() {
   };
 
   const handleDeleteQuote = (id: string, text: string) => {
-    setDeleteConfirmDialog({ open: true, type: "quote", id, name: text.substring(0, 50) + "..." });
+    setDeleteConfirmDialog({
+      open: true,
+      type: "quote",
+      id,
+      name: text.substring(0, 50) + "...",
+    });
   };
 
   const handleQuoteSubmit = async () => {
-    const tags = quoteForm.tags.split(",").map(t => t.trim()).filter(t => t);
+    const tags = quoteForm.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t);
     let finalAuthorId = quoteForm.authorId;
 
     // If user selected "Add New Author", create the author first
     if (quoteForm.authorId === "NEW_AUTHOR" && quoteForm.newAuthorName.trim()) {
       // Check for duplicate author name
       const isDuplicate = authors?.some(
-        (a: Author) => a.name.toLowerCase() === quoteForm.newAuthorName.trim().toLowerCase()
+        (a: Author) =>
+          a.name.toLowerCase() === quoteForm.newAuthorName.trim().toLowerCase()
       );
 
       if (isDuplicate) {
-        alert(`Author "${quoteForm.newAuthorName}" already exists. Please select them from the dropdown.`);
+        alert(
+          `Author "${quoteForm.newAuthorName}" already exists. Please select them from the dropdown.`
+        );
         return;
       }
 
       // Create new author
       try {
-        const newAuthor = await createAuthor.mutateAsync({ name: quoteForm.newAuthorName });
+        const newAuthor = await createAuthor.mutateAsync({
+          name: quoteForm.newAuthorName,
+        });
         finalAuthorId = newAuthor.id;
       } catch (error) {
         alert("Failed to create new author. Please try again.");
@@ -511,18 +613,24 @@ function DailyValuesContent() {
     if (quoteDialog.mode === "add") {
       createQuote.mutate({
         text: quoteForm.text,
-        authorId: finalAuthorId !== "NEW_AUTHOR" ? finalAuthorId || undefined : undefined,
+        authorId:
+          finalAuthorId !== "NEW_AUTHOR"
+            ? finalAuthorId || undefined
+            : undefined,
         source: quoteForm.source || undefined,
         category: quoteForm.category || undefined,
         tags: tags.length > 0 ? tags : undefined,
-        coreValueIds: quoteForm.coreValueIds.length > 0 ? quoteForm.coreValueIds : undefined,
+        coreValueIds:
+          quoteForm.coreValueIds.length > 0
+            ? quoteForm.coreValueIds
+            : undefined,
       });
     } else if (quoteDialog.id) {
       // Update quote
       updateQuote.mutate({
         id: quoteDialog.id,
         text: quoteForm.text,
-        authorId: finalAuthorId !== "NEW_AUTHOR" ? (finalAuthorId || null) : null,
+        authorId: finalAuthorId !== "NEW_AUTHOR" ? finalAuthorId || null : null,
         source: quoteForm.source || null,
         category: quoteForm.category || null,
         tags: tags.length > 0 ? tags : null,
@@ -539,7 +647,7 @@ function DailyValuesContent() {
   // Populate Core Values when editing a quote
   useEffect(() => {
     if (quoteDialog.mode === "edit" && quoteCoreValues) {
-      setQuoteForm(prev => ({
+      setQuoteForm((prev) => ({
         ...prev,
         coreValueIds: quoteCoreValues.map((cv: CoreValueInfo) => cv.id),
       }));
@@ -549,7 +657,10 @@ function DailyValuesContent() {
   // Delete Confirmation Handler
   const handleConfirmDelete = () => {
     if (deleteConfirmDialog.type === "supporting" && deleteConfirmDialog.id) {
-      if (deleteConfirmDialog.requiresConfirmation && deleteConfirmDialog.coreValueId) {
+      if (
+        deleteConfirmDialog.requiresConfirmation &&
+        deleteConfirmDialog.coreValueId
+      ) {
         confirmDeleteSupportingValue.mutate({
           id: deleteConfirmDialog.id,
           coreValueId: deleteConfirmDialog.coreValueId,
@@ -559,7 +670,10 @@ function DailyValuesContent() {
       }
     } else if (deleteConfirmDialog.type === "core" && deleteConfirmDialog.id) {
       deleteCoreValue.mutate({ id: deleteConfirmDialog.id });
-    } else if (deleteConfirmDialog.type === "author" && deleteConfirmDialog.id) {
+    } else if (
+      deleteConfirmDialog.type === "author" &&
+      deleteConfirmDialog.id
+    ) {
       deleteAuthor.mutate({ id: deleteConfirmDialog.id });
     } else if (deleteConfirmDialog.type === "quote" && deleteConfirmDialog.id) {
       deleteQuote.mutate({ id: deleteConfirmDialog.id });
@@ -574,9 +688,10 @@ function DailyValuesContent() {
   };
 
   // Random combination query
-  const { refetch: fetchRandomCombination, isFetching: isLoadingRandom } = api.dailyValues.getRandomCombination.useQuery(undefined, {
-    enabled: false,
-  });
+  const { refetch: fetchRandomCombination, isFetching: isLoadingRandom } =
+    api.dailyValues.getRandomCombination.useQuery(undefined, {
+      enabled: false,
+    });
 
   const handleRandomize = async () => {
     const result = await fetchRandomCombination();
@@ -587,9 +702,17 @@ function DailyValuesContent() {
   };
 
   // Generate Instagram caption
-  const generateCaption = (valueName: string, valueDescription: string, quoteText: string, authorName: string): string => {
+  const generateCaption = (
+    valueName: string,
+    valueDescription: string,
+    quoteText: string,
+    authorName: string
+  ): string => {
     // Only show author if it exists, has content, and is not "Unknown"
-    const authorLine = authorName && authorName.trim() && authorName.toLowerCase() !== "unknown" ? `— ${authorName}\n\n` : '\n';
+    const authorLine =
+      authorName && authorName.trim() && authorName.toLowerCase() !== "unknown"
+        ? `— ${authorName}\n\n`
+        : "\n";
     const caption = `Welcome to your Daily Anchor ⚓
 
 "${quoteText}"
@@ -602,7 +725,7 @@ Living with an embodied value system means letting principles like ${valueName} 
 
 📌 Be sure to Save and Share with likeminded friends!
 
-#DailyAnchor #${valueName.replace(/\s+/g, '')} #PersonalGrowth #Mindfulness #SelfDevelopment #EmbodiedValues #Purpose #Wisdom #MiracleMind`;
+#DailyAnchor #${valueName.replace(/\s+/g, "")} #PersonalGrowth #Mindfulness #SelfDevelopment #EmbodiedValues #Purpose #Wisdom #MiracleMind`;
 
     return caption;
   };
@@ -616,8 +739,12 @@ Living with an embodied value system means letting principles like ${valueName} 
 
     setIsGenerating(true);
     try {
-      const coreValue = coreValues?.find((cv: CoreValue) => cv.id === selectedCoreValueId);
-      const quote = quotes?.find((q: QuoteWithAuthor) => q.id === selectedQuoteId);
+      const coreValue = coreValues?.find(
+        (cv: CoreValue) => cv.id === selectedCoreValueId
+      );
+      const quote = quotes?.find(
+        (q: QuoteWithAuthor) => q.id === selectedQuoteId
+      );
 
       if (!coreValue || !quote) {
         throw new Error("Could not find selected items");
@@ -664,8 +791,12 @@ Living with an embodied value system means letting principles like ${valueName} 
     if (generatedImages && selectedCoreValueId && selectedQuoteId) {
       setIsGenerating(true);
       try {
-        const coreValue = coreValues?.find((cv: CoreValue) => cv.id === selectedCoreValueId);
-        const quote = quotes?.find((q: QuoteWithAuthor) => q.id === selectedQuoteId);
+        const coreValue = coreValues?.find(
+          (cv: CoreValue) => cv.id === selectedCoreValueId
+        );
+        const quote = quotes?.find(
+          (q: QuoteWithAuthor) => q.id === selectedQuoteId
+        );
 
         if (!coreValue || !quote) return;
 
@@ -685,7 +816,11 @@ Living with an embodied value system means letting principles like ${valueName} 
         const page2Url = URL.createObjectURL(carousel.page2);
         const page3Url = URL.createObjectURL(carousel.page3);
 
-        setGeneratedImages({ page1: page1Url, page2: page2Url, page3: page3Url });
+        setGeneratedImages({
+          page1: page1Url,
+          page2: page2Url,
+          page3: page3Url,
+        });
       } catch (error) {
         console.error("Error regenerating with new theme:", error);
         alert("Failed to apply theme. Please try again.");
@@ -699,14 +834,18 @@ Living with an embodied value system means letting principles like ${valueName} 
   const handlePost = async () => {
     if (!generatedImages) return;
 
-    const coreValue = coreValues?.find((cv: CoreValue) => cv.id === selectedCoreValueId);
-    const quote = quotes?.find((q: QuoteWithAuthor) => q.id === selectedQuoteId);
+    const coreValue = coreValues?.find(
+      (cv: CoreValue) => cv.id === selectedCoreValueId
+    );
+    const quote = quotes?.find(
+      (q: QuoteWithAuthor) => q.id === selectedQuoteId
+    );
 
     if (!coreValue || !quote) return;
 
     try {
       // Use our API route to avoid CORS issues
-      const apiUrl = '/api/post-to-instagram';
+      const apiUrl = "/api/post-to-instagram";
 
       const content: CarouselContent = {
         quote: {
@@ -738,12 +877,14 @@ Living with an embodied value system means letting principles like ${valueName} 
       const page2Base64 = await blobToBase64(carousel.page2);
       const page3Base64 = await blobToBase64(carousel.page3);
 
-      const caption = generatedCaption || generateCaption(
-        coreValue.value,
-        coreValue.description,
-        quote.text,
-        quote.authorName ?? "Unknown"
-      );
+      const caption =
+        generatedCaption ||
+        generateCaption(
+          coreValue.value,
+          coreValue.description,
+          quote.text,
+          quote.authorName ?? "Unknown"
+        );
 
       const payload = {
         images: {
@@ -762,19 +903,22 @@ Living with an embodied value system means letting principles like ${valueName} 
       };
 
       const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error(`Webhook failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Webhook failed: ${response.status} ${response.statusText}`
+        );
       }
 
-      alert('✅ Post sent to Zapier successfully!');
+      alert("✅ Post sent to Zapier successfully!");
     } catch (error) {
-      console.error('Error posting to Zapier:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error posting to Zapier:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Failed to post to Zapier\n\n${errorMessage}`);
     }
   };
@@ -787,7 +931,7 @@ Living with an embodied value system means letting principles like ${valueName} 
           <div>
             <BackButton href={`/admin${domainParam}`} />
             <h1
-              className="mb-2 mt-4 text-4xl font-bold text-black dark:text-white"
+              className="mt-4 mb-2 text-4xl font-bold text-black dark:text-white"
               style={{
                 fontFamily: "var(--font-cinzel)",
                 letterSpacing: "0.05em",
@@ -813,13 +957,23 @@ Living with an embodied value system means letting principles like ${valueName} 
         </div>
 
         {/* Tabs */}
-        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+        <Tabs
+          value={currentTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="core-values" className="flex items-center gap-2">
+            <TabsTrigger
+              value="core-values"
+              className="flex items-center gap-2"
+            >
               <Heart className="h-4 w-4" />
               Core Values
             </TabsTrigger>
-            <TabsTrigger value="supporting-values" className="flex items-center gap-2">
+            <TabsTrigger
+              value="supporting-values"
+              className="flex items-center gap-2"
+            >
               <Lightbulb className="h-4 w-4" />
               Supporting Values
             </TabsTrigger>
@@ -848,7 +1002,10 @@ Living with an embodied value system means letting principles like ${valueName} 
                       Selected values with rich descriptions for Instagram posts
                     </CardDescription>
                   </div>
-                  <Button onClick={handleAddCoreValue} className="flex items-center gap-2">
+                  <Button
+                    onClick={handleAddCoreValue}
+                    className="flex items-center gap-2"
+                  >
                     <Plus className="h-4 w-4" />
                     Add Core Value
                   </Button>
@@ -865,7 +1022,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                       <div key={cv.id} className="rounded-lg border p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h3 className="mb-1 text-lg font-semibold">{cv.value}</h3>
+                            <h3 className="mb-1 text-lg font-semibold">
+                              {cv.value}
+                            </h3>
                             <p className="text-sm text-neutral-600 dark:text-neutral-400">
                               {cv.description}
                             </p>
@@ -874,14 +1033,22 @@ Living with an embodied value system means letting principles like ${valueName} 
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleEditCoreValue(cv.id, cv.value, cv.description)}
+                              onClick={() =>
+                                handleEditCoreValue(
+                                  cv.id,
+                                  cv.value,
+                                  cv.description
+                                )
+                              }
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteCoreValue(cv.id, cv.value)}
+                              onClick={() =>
+                                handleDeleteCoreValue(cv.id, cv.value)
+                              }
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -911,7 +1078,10 @@ Living with an embodied value system means letting principles like ${valueName} 
                       Database of all possible values (Core Values are a subset)
                     </CardDescription>
                   </div>
-                  <Button onClick={handleAddSupportingValue} className="flex items-center gap-2">
+                  <Button
+                    onClick={handleAddSupportingValue}
+                    className="flex items-center gap-2"
+                  >
                     <Plus className="h-4 w-4" />
                     Add Supporting Value
                   </Button>
@@ -925,14 +1095,19 @@ Living with an embodied value system means letting principles like ${valueName} 
                 ) : (
                   <div className="space-y-4">
                     {supportingValues?.map((sv: SupportingValue) => {
-                      const isCore = coreValues?.some((cv: CoreValue) => cv.value === sv.value);
+                      const isCore = coreValues?.some(
+                        (cv: CoreValue) => cv.value === sv.value
+                      );
                       return (
                         <div key={sv.id} className="rounded-lg border p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h3 className="mb-1 font-semibold">{sv.value}</h3>
                               {isCore && (
-                                <Badge variant="outline" className="mt-1 text-xs bg-indigo-500/10 border-indigo-500/30">
+                                <Badge
+                                  variant="outline"
+                                  className="mt-1 border-indigo-500/30 bg-indigo-500/10 text-xs"
+                                >
                                   Used as Core Value
                                 </Badge>
                               )}
@@ -941,14 +1116,18 @@ Living with an embodied value system means letting principles like ${valueName} 
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleEditSupportingValue(sv.id, sv.value)}
+                                onClick={() =>
+                                  handleEditSupportingValue(sv.id, sv.value)
+                                }
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleDeleteSupportingValue(sv.id, sv.value)}
+                                onClick={() =>
+                                  handleDeleteSupportingValue(sv.id, sv.value)
+                                }
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -977,10 +1156,14 @@ Living with an embodied value system means letting principles like ${valueName} 
                   <div>
                     <CardTitle>Quotes</CardTitle>
                     <CardDescription>
-                      Manage inspirational quotes with author attribution and Core Value associations
+                      Manage inspirational quotes with author attribution and
+                      Core Value associations
                     </CardDescription>
                   </div>
-                  <Button onClick={handleAddQuote} className="flex items-center gap-2">
+                  <Button
+                    onClick={handleAddQuote}
+                    className="flex items-center gap-2"
+                  >
                     <Plus className="h-4 w-4" />
                     Add Quote
                   </Button>
@@ -997,7 +1180,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                       <div key={quote.id} className="rounded-lg border p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="mb-2 text-sm italic text-neutral-700 dark:text-neutral-300">
+                            <p className="mb-2 text-sm text-neutral-700 italic dark:text-neutral-300">
                               &ldquo;{quote.text}&rdquo;
                             </p>
                             <p className="text-xs text-neutral-600 dark:text-neutral-400">
@@ -1015,7 +1198,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteQuote(quote.id, quote.text)}
+                              onClick={() =>
+                                handleDeleteQuote(quote.id, quote.text)
+                              }
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
@@ -1049,15 +1234,19 @@ Living with an embodied value system means letting principles like ${valueName} 
                         key={author.id}
                         className="rounded-lg border bg-neutral-50 p-3 dark:bg-neutral-900"
                       >
-                        <p className="text-sm font-medium truncate">{author.name}</p>
+                        <p className="truncate text-sm font-medium">
+                          {author.name}
+                        </p>
                         <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                          {author.quoteCount} {author.quoteCount === 1 ? 'quote' : 'quotes'}
+                          {author.quoteCount}{" "}
+                          {author.quoteCount === 1 ? "quote" : "quotes"}
                         </p>
                       </div>
                     ))}
                     {authorsWithCounts?.length === 0 && (
                       <div className="col-span-full py-4 text-center text-sm text-neutral-500">
-                        No authors yet. Add a quote with an author to get started!
+                        No authors yet. Add a quote with an author to get
+                        started!
                       </div>
                     )}
                   </div>
@@ -1074,7 +1263,8 @@ Living with an embodied value system means letting principles like ${valueName} 
                   <div>
                     <CardTitle>Generate Daily Value Post</CardTitle>
                     <CardDescription>
-                      Create a 2-page carousel with a core value and inspiring quote
+                      Create a 2-page carousel with a core value and inspiring
+                      quote
                     </CardDescription>
                   </div>
                   <Button
@@ -1126,7 +1316,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                             </p>
                           </div>
                           {selectedTheme.id === theme.id && (
-                            <div className="absolute right-2 top-2 rounded-full bg-[#D4AF37] p-1">
+                            <div className="absolute top-2 right-2 rounded-full bg-[#D4AF37] p-1">
                               <Check className="h-3 w-3 text-white" />
                             </div>
                           )}
@@ -1238,7 +1428,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                             className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
                             rows={10}
                             value={generatedCaption}
-                            onChange={(e) => setGeneratedCaption(e.target.value)}
+                            onChange={(e) =>
+                              setGeneratedCaption(e.target.value)
+                            }
                             placeholder="Caption will appear here..."
                           />
                         </div>
@@ -1248,7 +1440,8 @@ Living with an embodied value system means letting principles like ${valueName} 
                     <div className="rounded-lg border-2 border-dashed p-8 text-center">
                       <Sparkles className="mx-auto mb-4 h-12 w-12 text-neutral-400" />
                       <p className="text-neutral-600 dark:text-neutral-400">
-                        Select a value and quote, then click Generate to preview the carousel
+                        Select a value and quote, then click Generate to preview
+                        the carousel
                       </p>
                     </div>
                   )}
@@ -1259,7 +1452,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                       variant="outline"
                       className="flex items-center gap-2"
                       onClick={handleGenerate}
-                      disabled={!selectedCoreValueId || !selectedQuoteId || isGenerating}
+                      disabled={
+                        !selectedCoreValueId || !selectedQuoteId || isGenerating
+                      }
                     >
                       {isGenerating ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1332,7 +1527,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                               {post.scheduledFor && (
                                 <Badge variant="outline" className="text-xs">
                                   Scheduled:{" "}
-                                  {new Date(post.scheduledFor).toLocaleDateString()}
+                                  {new Date(
+                                    post.scheduledFor
+                                  ).toLocaleDateString()}
                                 </Badge>
                               )}
                               {post.isPublished === "true" && (
@@ -1348,7 +1545,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                               Post ID: {post.id.substring(0, 8)}...
                             </p>
                             {post.caption && (
-                              <p className="text-sm italic text-neutral-600 dark:text-neutral-400">
+                              <p className="text-sm text-neutral-600 italic dark:text-neutral-400">
                                 {post.caption.substring(0, 100)}
                                 {post.caption.length > 100 ? "..." : ""}
                               </p>
@@ -1367,7 +1564,8 @@ Living with an embodied value system means letting principles like ${valueName} 
                     ))}
                     {postQueue?.length === 0 && (
                       <div className="py-8 text-center text-neutral-500">
-                        No posts in queue. Click &ldquo;Fill Queue&rdquo; to generate posts.
+                        No posts in queue. Click &ldquo;Fill Queue&rdquo; to
+                        generate posts.
                       </div>
                     )}
                   </div>
@@ -1379,12 +1577,25 @@ Living with an embodied value system means letting principles like ${valueName} 
       </div>
 
       {/* Supporting Value Dialog */}
-      <Dialog open={supportingValueDialog.open} onOpenChange={(open) => setSupportingValueDialog({ ...supportingValueDialog, open })}>
+      <Dialog
+        open={supportingValueDialog.open}
+        onOpenChange={(open) =>
+          setSupportingValueDialog({ ...supportingValueDialog, open })
+        }
+      >
         <DialogContent>
-          <DialogClose onClick={() => setSupportingValueDialog({ ...supportingValueDialog, open: false })} />
+          <DialogClose
+            onClick={() =>
+              setSupportingValueDialog({
+                ...supportingValueDialog,
+                open: false,
+              })
+            }
+          />
           <DialogHeader>
             <DialogTitle>
-              {supportingValueDialog.mode === "add" ? "Add" : "Edit"} Supporting Value
+              {supportingValueDialog.mode === "add" ? "Add" : "Edit"} Supporting
+              Value
             </DialogTitle>
             <DialogDescription>
               {supportingValueDialog.mode === "add"
@@ -1398,7 +1609,9 @@ Living with an embodied value system means letting principles like ${valueName} 
               <Input
                 id="sv-value"
                 value={supportingValueForm.value}
-                onChange={(e) => setSupportingValueForm({ value: e.target.value })}
+                onChange={(e) =>
+                  setSupportingValueForm({ value: e.target.value })
+                }
                 placeholder="e.g., Gratitude, Courage, Compassion"
               />
             </div>
@@ -1406,15 +1619,25 @@ Living with an embodied value system means letting principles like ${valueName} 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setSupportingValueDialog({ ...supportingValueDialog, open: false })}
+              onClick={() =>
+                setSupportingValueDialog({
+                  ...supportingValueDialog,
+                  open: false,
+                })
+              }
             >
               Cancel
             </Button>
             <Button
               onClick={handleSupportingValueSubmit}
-              disabled={!supportingValueForm.value.trim() || createSupportingValue.isPending || updateSupportingValue.isPending}
+              disabled={
+                !supportingValueForm.value.trim() ||
+                createSupportingValue.isPending ||
+                updateSupportingValue.isPending
+              }
             >
-              {createSupportingValue.isPending || updateSupportingValue.isPending ? (
+              {createSupportingValue.isPending ||
+              updateSupportingValue.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : supportingValueDialog.mode === "add" ? (
                 "Add"
@@ -1427,9 +1650,18 @@ Living with an embodied value system means letting principles like ${valueName} 
       </Dialog>
 
       {/* Core Value Dialog */}
-      <Dialog open={coreValueDialog.open} onOpenChange={(open) => setCoreValueDialog({ ...coreValueDialog, open })}>
+      <Dialog
+        open={coreValueDialog.open}
+        onOpenChange={(open) =>
+          setCoreValueDialog({ ...coreValueDialog, open })
+        }
+      >
         <DialogContent className="max-w-2xl">
-          <DialogClose onClick={() => setCoreValueDialog({ ...coreValueDialog, open: false })} />
+          <DialogClose
+            onClick={() =>
+              setCoreValueDialog({ ...coreValueDialog, open: false })
+            }
+          />
           <DialogHeader>
             <DialogTitle>
               {coreValueDialog.mode === "add" ? "Add" : "Edit"} Core Value
@@ -1445,14 +1677,32 @@ Living with an embodied value system means letting principles like ${valueName} 
               <>
                 <div className="flex gap-4">
                   <Button
-                    variant={coreValueForm.inputMode === "dropdown" ? "default" : "outline"}
-                    onClick={() => setCoreValueForm({ ...coreValueForm, inputMode: "dropdown" })}
+                    variant={
+                      coreValueForm.inputMode === "dropdown"
+                        ? "default"
+                        : "outline"
+                    }
+                    onClick={() =>
+                      setCoreValueForm({
+                        ...coreValueForm,
+                        inputMode: "dropdown",
+                      })
+                    }
                   >
                     Select from List
                   </Button>
                   <Button
-                    variant={coreValueForm.inputMode === "manual" ? "default" : "outline"}
-                    onClick={() => setCoreValueForm({ ...coreValueForm, inputMode: "manual" })}
+                    variant={
+                      coreValueForm.inputMode === "manual"
+                        ? "default"
+                        : "outline"
+                    }
+                    onClick={() =>
+                      setCoreValueForm({
+                        ...coreValueForm,
+                        inputMode: "manual",
+                      })
+                    }
                   >
                     Create New
                   </Button>
@@ -1465,7 +1715,12 @@ Living with an embodied value system means letting principles like ${valueName} 
                       id="cv-dropdown"
                       className="w-full rounded-md border px-3 py-2"
                       value={coreValueForm.supportingValueId}
-                      onChange={(e) => setCoreValueForm({ ...coreValueForm, supportingValueId: e.target.value })}
+                      onChange={(e) =>
+                        setCoreValueForm({
+                          ...coreValueForm,
+                          supportingValueId: e.target.value,
+                        })
+                      }
                     >
                       <option value="">Choose a value...</option>
                       {availableSupportingValues?.map((sv: SupportingValue) => (
@@ -1481,7 +1736,12 @@ Living with an embodied value system means letting principles like ${valueName} 
                     <Input
                       id="cv-manual"
                       value={coreValueForm.manualValue}
-                      onChange={(e) => setCoreValueForm({ ...coreValueForm, manualValue: e.target.value })}
+                      onChange={(e) =>
+                        setCoreValueForm({
+                          ...coreValueForm,
+                          manualValue: e.target.value,
+                        })
+                      }
                       placeholder="e.g., Authenticity"
                     />
                   </div>
@@ -1492,7 +1752,9 @@ Living with an embodied value system means letting principles like ${valueName} 
             {coreValueDialog.mode === "edit" && (
               <div>
                 <Label>Value Name</Label>
-                <p className="mt-1 text-sm text-neutral-600">{coreValueForm.manualValue}</p>
+                <p className="mt-1 text-sm text-neutral-600">
+                  {coreValueForm.manualValue}
+                </p>
                 <p className="mt-1 text-xs text-neutral-500">
                   Value names cannot be edited. Create a new Core Value instead.
                 </p>
@@ -1504,19 +1766,27 @@ Living with an embodied value system means letting principles like ${valueName} 
               <Textarea
                 id="cv-description"
                 value={coreValueForm.description}
-                onChange={(e) => setCoreValueForm({ ...coreValueForm, description: e.target.value })}
+                onChange={(e) =>
+                  setCoreValueForm({
+                    ...coreValueForm,
+                    description: e.target.value,
+                  })
+                }
                 placeholder="Write a compelling description that will inspire and resonate with your audience..."
                 rows={5}
               />
               <p className="mt-1 text-xs text-neutral-500">
-                This description will appear on your Instagram post. Make it impactful!
+                This description will appear on your Instagram post. Make it
+                impactful!
               </p>
             </div>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setCoreValueDialog({ ...coreValueDialog, open: false })}
+              onClick={() =>
+                setCoreValueDialog({ ...coreValueDialog, open: false })
+              }
             >
               Cancel
             </Button>
@@ -1524,8 +1794,12 @@ Living with an embodied value system means letting principles like ${valueName} 
               onClick={handleCoreValueSubmit}
               disabled={
                 !coreValueForm.description.trim() ||
-                (coreValueDialog.mode === "add" && coreValueForm.inputMode === "dropdown" && !coreValueForm.supportingValueId) ||
-                (coreValueDialog.mode === "add" && coreValueForm.inputMode === "manual" && !coreValueForm.manualValue.trim()) ||
+                (coreValueDialog.mode === "add" &&
+                  coreValueForm.inputMode === "dropdown" &&
+                  !coreValueForm.supportingValueId) ||
+                (coreValueDialog.mode === "add" &&
+                  coreValueForm.inputMode === "manual" &&
+                  !coreValueForm.manualValue.trim()) ||
                 createCoreValue.isPending ||
                 updateCoreValue.isPending
               }
@@ -1543,15 +1817,22 @@ Living with an embodied value system means letting principles like ${valueName} 
       </Dialog>
 
       {/* Author Dialog */}
-      <Dialog open={authorDialog.open} onOpenChange={(open) => setAuthorDialog({ ...authorDialog, open })}>
+      <Dialog
+        open={authorDialog.open}
+        onOpenChange={(open) => setAuthorDialog({ ...authorDialog, open })}
+      >
         <DialogContent>
-          <DialogClose onClick={() => setAuthorDialog({ ...authorDialog, open: false })} />
+          <DialogClose
+            onClick={() => setAuthorDialog({ ...authorDialog, open: false })}
+          />
           <DialogHeader>
             <DialogTitle>
               {authorDialog.mode === "add" ? "Add" : "Edit"} Author
             </DialogTitle>
             <DialogDescription>
-              {authorDialog.mode === "add" ? "Add a new author." : "Update the author name."}
+              {authorDialog.mode === "add"
+                ? "Add a new author."
+                : "Update the author name."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -1574,7 +1855,11 @@ Living with an embodied value system means letting principles like ${valueName} 
             </Button>
             <Button
               onClick={handleAuthorSubmit}
-              disabled={!authorForm.name.trim() || createAuthor.isPending || updateAuthor.isPending}
+              disabled={
+                !authorForm.name.trim() ||
+                createAuthor.isPending ||
+                updateAuthor.isPending
+              }
             >
               {createAuthor.isPending || updateAuthor.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1589,15 +1874,22 @@ Living with an embodied value system means letting principles like ${valueName} 
       </Dialog>
 
       {/* Quote Dialog */}
-      <Dialog open={quoteDialog.open} onOpenChange={(open) => setQuoteDialog({ ...quoteDialog, open })}>
+      <Dialog
+        open={quoteDialog.open}
+        onOpenChange={(open) => setQuoteDialog({ ...quoteDialog, open })}
+      >
         <DialogContent className="max-w-2xl">
-          <DialogClose onClick={() => setQuoteDialog({ ...quoteDialog, open: false })} />
+          <DialogClose
+            onClick={() => setQuoteDialog({ ...quoteDialog, open: false })}
+          />
           <DialogHeader>
             <DialogTitle>
               {quoteDialog.mode === "add" ? "Add" : "Edit"} Quote
             </DialogTitle>
             <DialogDescription>
-              {quoteDialog.mode === "add" ? "Add a new inspirational quote." : "Update the quote details."}
+              {quoteDialog.mode === "add"
+                ? "Add a new inspirational quote."
+                : "Update the quote details."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -1606,7 +1898,9 @@ Living with an embodied value system means letting principles like ${valueName} 
               <Textarea
                 id="quote-text"
                 value={quoteForm.text}
-                onChange={(e) => setQuoteForm({ ...quoteForm, text: e.target.value })}
+                onChange={(e) =>
+                  setQuoteForm({ ...quoteForm, text: e.target.value })
+                }
                 placeholder="Enter the quote..."
                 rows={4}
               />
@@ -1618,7 +1912,13 @@ Living with an embodied value system means letting principles like ${valueName} 
                 id="quote-author"
                 className="w-full rounded-md border px-3 py-2"
                 value={quoteForm.authorId}
-                onChange={(e) => setQuoteForm({ ...quoteForm, authorId: e.target.value, newAuthorName: "" })}
+                onChange={(e) =>
+                  setQuoteForm({
+                    ...quoteForm,
+                    authorId: e.target.value,
+                    newAuthorName: "",
+                  })
+                }
               >
                 <option value="NEW_AUTHOR">➕ Add New Author</option>
                 <option value="">-- or Select Existing --</option>
@@ -1635,20 +1935,33 @@ Living with an embodied value system means letting principles like ${valueName} 
                   <div className="relative">
                     <Input
                       value={quoteForm.newAuthorName}
-                      onChange={(e) => setQuoteForm({ ...quoteForm, newAuthorName: e.target.value })}
+                      onChange={(e) =>
+                        setQuoteForm({
+                          ...quoteForm,
+                          newAuthorName: e.target.value,
+                        })
+                      }
                       placeholder="Enter new author name..."
                       className={
                         quoteForm.newAuthorName.trim() &&
-                        authors?.some((a: Author) => a.name.toLowerCase() === quoteForm.newAuthorName.trim().toLowerCase())
+                        authors?.some(
+                          (a: Author) =>
+                            a.name.toLowerCase() ===
+                            quoteForm.newAuthorName.trim().toLowerCase()
+                        )
                           ? "border-red-500 pr-8"
                           : quoteForm.newAuthorName.trim()
-                          ? "border-green-500 pr-8"
-                          : "pr-8"
+                            ? "border-green-500 pr-8"
+                            : "pr-8"
                       }
                     />
                     {quoteForm.newAuthorName.trim() && (
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                        {authors?.some((a: Author) => a.name.toLowerCase() === quoteForm.newAuthorName.trim().toLowerCase()) ? (
+                      <div className="absolute top-1/2 right-2 -translate-y-1/2">
+                        {authors?.some(
+                          (a: Author) =>
+                            a.name.toLowerCase() ===
+                            quoteForm.newAuthorName.trim().toLowerCase()
+                        ) ? (
                           <XIcon className="h-4 w-4 text-red-500" />
                         ) : (
                           <Check className="h-4 w-4 text-green-500" />
@@ -1657,11 +1970,16 @@ Living with an embodied value system means letting principles like ${valueName} 
                     )}
                   </div>
                   {quoteForm.newAuthorName.trim() &&
-                   authors?.some((a: Author) => a.name.toLowerCase() === quoteForm.newAuthorName.trim().toLowerCase()) && (
-                    <p className="text-xs text-red-600">
-                      This author already exists. Please select them from the dropdown.
-                    </p>
-                  )}
+                    authors?.some(
+                      (a: Author) =>
+                        a.name.toLowerCase() ===
+                        quoteForm.newAuthorName.trim().toLowerCase()
+                    ) && (
+                      <p className="text-xs text-red-600">
+                        This author already exists. Please select them from the
+                        dropdown.
+                      </p>
+                    )}
                 </div>
               )}
             </div>
@@ -1672,7 +1990,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                 <Input
                   id="quote-source"
                   value={quoteForm.source}
-                  onChange={(e) => setQuoteForm({ ...quoteForm, source: e.target.value })}
+                  onChange={(e) =>
+                    setQuoteForm({ ...quoteForm, source: e.target.value })
+                  }
                   placeholder="e.g., Meditations"
                 />
               </div>
@@ -1681,17 +2001,23 @@ Living with an embodied value system means letting principles like ${valueName} 
                 <Input
                   id="quote-category"
                   value={quoteForm.category}
-                  onChange={(e) => setQuoteForm({ ...quoteForm, category: e.target.value })}
+                  onChange={(e) =>
+                    setQuoteForm({ ...quoteForm, category: e.target.value })
+                  }
                   placeholder="e.g., Philosophy"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="quote-tags">Tags (Optional, comma-separated)</Label>
+              <Label htmlFor="quote-tags">
+                Tags (Optional, comma-separated)
+              </Label>
               <Input
                 id="quote-tags"
                 value={quoteForm.tags}
-                onChange={(e) => setQuoteForm({ ...quoteForm, tags: e.target.value })}
+                onChange={(e) =>
+                  setQuoteForm({ ...quoteForm, tags: e.target.value })
+                }
                 placeholder="e.g., wisdom, stoicism, mindfulness"
               />
             </div>
@@ -1700,12 +2026,17 @@ Living with an embodied value system means letting principles like ${valueName} 
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => setQuoteForm({ ...quoteForm, coreValuesExpanded: !quoteForm.coreValuesExpanded })}
+                onClick={() =>
+                  setQuoteForm({
+                    ...quoteForm,
+                    coreValuesExpanded: !quoteForm.coreValuesExpanded,
+                  })
+                }
                 className="flex w-full items-center justify-between rounded-md border p-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-900"
               >
                 <div className="flex items-center gap-2">
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform ${quoteForm.coreValuesExpanded ? 'rotate-180' : ''}`}
+                    className={`h-4 w-4 transition-transform ${quoteForm.coreValuesExpanded ? "rotate-180" : ""}`}
                   />
                   <span className="text-sm font-medium">Core Values</span>
                   <Badge variant="outline" className="text-xs">
@@ -1713,7 +2044,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                   </Badge>
                 </div>
                 <span className="text-xs text-neutral-500">
-                  {quoteForm.coreValuesExpanded ? 'Click to collapse' : 'Click to expand'}
+                  {quoteForm.coreValuesExpanded
+                    ? "Click to collapse"
+                    : "Click to expand"}
                 </span>
               </button>
 
@@ -1724,7 +2057,10 @@ Living with an embodied value system means letting principles like ${valueName} 
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     {coreValues?.map((cv: CoreValue) => (
-                      <label key={cv.id} className="flex items-center gap-2 cursor-pointer">
+                      <label
+                        key={cv.id}
+                        className="flex cursor-pointer items-center gap-2"
+                      >
                         <input
                           type="checkbox"
                           checked={quoteForm.coreValueIds.includes(cv.id)}
@@ -1732,12 +2068,17 @@ Living with an embodied value system means letting principles like ${valueName} 
                             if (e.target.checked) {
                               setQuoteForm({
                                 ...quoteForm,
-                                coreValueIds: [...quoteForm.coreValueIds, cv.id],
+                                coreValueIds: [
+                                  ...quoteForm.coreValueIds,
+                                  cv.id,
+                                ],
                               });
                             } else {
                               setQuoteForm({
                                 ...quoteForm,
-                                coreValueIds: quoteForm.coreValueIds.filter(id => id !== cv.id),
+                                coreValueIds: quoteForm.coreValueIds.filter(
+                                  (id) => id !== cv.id
+                                ),
                               });
                             }
                           }}
@@ -1767,8 +2108,14 @@ Living with an embodied value system means letting principles like ${valueName} 
               onClick={handleQuoteSubmit}
               disabled={
                 !quoteForm.text.trim() ||
-                (quoteForm.authorId === "NEW_AUTHOR" && !quoteForm.newAuthorName.trim()) ||
-                (quoteForm.authorId === "NEW_AUTHOR" && authors?.some((a: Author) => a.name.toLowerCase() === quoteForm.newAuthorName.trim().toLowerCase())) ||
+                (quoteForm.authorId === "NEW_AUTHOR" &&
+                  !quoteForm.newAuthorName.trim()) ||
+                (quoteForm.authorId === "NEW_AUTHOR" &&
+                  authors?.some(
+                    (a: Author) =>
+                      a.name.toLowerCase() ===
+                      quoteForm.newAuthorName.trim().toLowerCase()
+                  )) ||
                 createQuote.isPending ||
                 updateQuote.isPending ||
                 updateQuoteCoreValues.isPending
@@ -1787,16 +2134,26 @@ Living with an embodied value system means letting principles like ${valueName} 
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmDialog.open} onOpenChange={(open) => setDeleteConfirmDialog({ ...deleteConfirmDialog, open })}>
+      <Dialog
+        open={deleteConfirmDialog.open}
+        onOpenChange={(open) =>
+          setDeleteConfirmDialog({ ...deleteConfirmDialog, open })
+        }
+      >
         <DialogContent>
-          <DialogClose onClick={() => setDeleteConfirmDialog({ ...deleteConfirmDialog, open: false })} />
+          <DialogClose
+            onClick={() =>
+              setDeleteConfirmDialog({ ...deleteConfirmDialog, open: false })
+            }
+          />
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-500" />
               Confirm Delete
             </DialogTitle>
             <DialogDescription>
-              {deleteConfirmDialog.requiresConfirmation && deleteConfirmDialog.message ? (
+              {deleteConfirmDialog.requiresConfirmation &&
+              deleteConfirmDialog.message ? (
                 <div className="space-y-2">
                   <p>{deleteConfirmDialog.message}</p>
                   <p className="text-xs text-red-600 dark:text-red-400">
@@ -1805,8 +2162,9 @@ Living with an embodied value system means letting principles like ${valueName} 
                 </div>
               ) : (
                 <>
-                  Are you sure you want to delete <strong>{deleteConfirmDialog.name}</strong>?
-                  This action cannot be undone.
+                  Are you sure you want to delete{" "}
+                  <strong>{deleteConfirmDialog.name}</strong>? This action
+                  cannot be undone.
                 </>
               )}
             </DialogDescription>
@@ -1814,7 +2172,9 @@ Living with an embodied value system means letting principles like ${valueName} 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setDeleteConfirmDialog({ ...deleteConfirmDialog, open: false })}
+              onClick={() =>
+                setDeleteConfirmDialog({ ...deleteConfirmDialog, open: false })
+              }
             >
               Cancel
             </Button>
@@ -1848,7 +2208,13 @@ Living with an embodied value system means letting principles like ${valueName} 
 
 export default function DailyValuesPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <DailyValuesContent />
     </Suspense>
   );

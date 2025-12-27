@@ -8,15 +8,16 @@
 
 ## Supported Domains
 
-| Domain | Purpose | Target Audience |
-|--------|---------|-----------------|
-| **matthewmiceli.com** | Personal portfolio and blog | Potential clients, employers, collaborators |
-| **miraclemind.live** | Live projects and demos | Users, clients, showcase visitors |
-| **miraclemind.dev** | Development tools and resources | Developers, technical audience |
+| Domain                | Purpose                         | Target Audience                             |
+| --------------------- | ------------------------------- | ------------------------------------------- |
+| **matthewmiceli.com** | Personal portfolio and blog     | Potential clients, employers, collaborators |
+| **miraclemind.live**  | Live projects and demos         | Users, clients, showcase visitors           |
+| **miraclemind.dev**   | Development tools and resources | Developers, technical audience              |
 
 ## Tech Stack
 
 ### Frontend Layer
+
 - **Framework:** Next.js 15 with App Router
 - **Language:** TypeScript 5.8 (strict mode enabled)
 - **UI Library:** React 19
@@ -25,6 +26,7 @@
 - **Theming:** next-themes (dark mode support)
 
 ### Backend & Data Layer
+
 - **API Layer:** tRPC (type-safe APIs)
 - **ORM:** Drizzle ORM
 - **Database (Development):** SQLite/LibSQL (file-based)
@@ -33,6 +35,7 @@
 - **Data Fetching:** TanStack Query
 
 ### Development Tools
+
 - **Linting:** ESLint with TypeScript rules
 - **Formatting:** Prettier with Tailwind CSS plugin
 - **Type Checking:** TypeScript compiler
@@ -47,6 +50,7 @@
 The codebase implements a **Workshop + Showcase** architecture with two distinct content strategies:
 
 #### 1. Living Asset Libraries
+
 Permanent public AND private versions of creative assets:
 
 ```
@@ -57,12 +61,14 @@ PUBLIC (Showcase)          PRIVATE (Workshop)
 ```
 
 **Benefits:**
+
 - Safe experimentation without affecting public portfolio
 - Continuous improvement in private workspace
 - Professional presentation of polished work
 - Assets serve dual function as tools AND demonstrations
 
 #### 2. Dev Preview Pages
+
 Temporary private testing for domain homepages:
 
 ```
@@ -73,6 +79,7 @@ PUBLIC (Live)              PRIVATE (Dev Preview)
 ```
 
 **Benefits:**
+
 - Risk-free testing before deployment
 - Component reusability across contexts
 - Quick iteration cycle
@@ -142,6 +149,7 @@ website-ecosystem/
 ## Key Features
 
 ### Implemented ✅
+
 - Multi-domain routing with middleware
 - Type-safe API layer with tRPC
 - Responsive design system with Tailwind CSS
@@ -159,6 +167,7 @@ website-ecosystem/
 - Dark mode support
 
 ### Planned 🚧
+
 - User authentication with Supabase
 - Content management system
 - Analytics integration
@@ -168,6 +177,7 @@ website-ecosystem/
 ## Development Workflow
 
 ### Daily Commands
+
 ```bash
 npm run dev          # Start development server with Turbo
 npm run build        # Build for production
@@ -175,6 +185,7 @@ npm run start        # Start production server
 ```
 
 ### Code Quality
+
 ```bash
 npm run format       # Format code with Prettier
 npm run lint         # Check for lint errors
@@ -183,6 +194,7 @@ npm run typecheck    # Run TypeScript checks
 ```
 
 ### Database
+
 ```bash
 npm run db:generate  # Generate migrations from schema
 npm run db:migrate   # Apply pending migrations
@@ -191,6 +203,7 @@ npm run db:studio    # Open Drizzle Studio GUI
 ```
 
 ### Quality Pipeline
+
 ```bash
 npm run pre-commit   # Full quality check before commit
 npm run quality-check # Silent quality check
@@ -199,6 +212,7 @@ npm run quality-check # Silent quality check
 ## Local Development
 
 ### Accessing Different Domains
+
 ```bash
 # Matthew's site
 http://localhost:3000?domain=matthew
@@ -211,6 +225,7 @@ http://localhost:3000?domain=dev
 ```
 
 ### Admin/Dev Routes
+
 ```bash
 # Admin dashboard
 http://localhost:3000/admin
@@ -229,6 +244,7 @@ http://localhost:3000/admin/playground
 ## Environment Configuration
 
 ### Required Variables
+
 ```env
 # Supabase (Required for auth)
 NEXT_PUBLIC_SUPABASE_URL="your-project-url"
@@ -246,11 +262,13 @@ See [`docs/ENV_SETUP.md`](./ENV_SETUP.md) for detailed setup instructions.
 ## Deployment
 
 ### Vercel (Recommended)
+
 1. Connect repository to Vercel
 2. Configure environment variables
 3. Deploy automatically on git push
 
 ### Environment Variables for Production
+
 - `DATABASE_URL` - Production PostgreSQL connection string
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
@@ -258,22 +276,26 @@ See [`docs/ENV_SETUP.md`](./ENV_SETUP.md) for detailed setup instructions.
 ## Brand Assets
 
 Brand files are located in `public/brand/`:
+
 - **Logos:** `miracle-mind-logo-{black,white,color}.svg`
 - **Icons:** `miracle-mind-orbit-star-v3*.svg`
 - **Metadata:** `metadata.md` (colors, fonts)
 - **Archive:** `Old symbols/` (previous iterations)
 
 ### Brand Colors
+
 - Primary: `#facf39` (Golden)
 - Secondary: `#393e46` (Dark Gray)
 
 ### Brand Fonts
+
 - Wordmark: Airwaves Regular
 - Slogan: Bourton Bold
 
 ## Documentation
 
 For detailed information, see the [`docs/`](./docs/) directory:
+
 - [ARCHITECTURE_NOTES.md](./docs/ARCHITECTURE_NOTES.md) - In-depth architecture documentation
 - [DEVELOPMENT.md](./docs/DEVELOPMENT.md) - Complete development guide
 - [ENV_SETUP.md](./docs/ENV_SETUP.md) - Environment setup
@@ -286,6 +308,7 @@ For detailed information, see the [`docs/`](./docs/) directory:
 ## Contributing
 
 Before pushing code:
+
 1. Run `npm run format` to format code
 2. Run `npm run lint:fix` to fix lint errors
 3. Run `npm run lint` to check for remaining errors

@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { Suspense } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "~/components/ui/card";
 import { DomainLayout } from "~/components/domain-layout";
@@ -69,7 +72,7 @@ const SHADERS = [
   },
 ];
 
-export default function ShadersPage() {
+function ShadersPageContent() {
   const searchParams = useSearchParams();
   const domain = searchParams.get("domain");
   const domainParam = domain ? `?domain=${domain}` : "";
@@ -175,5 +178,19 @@ export default function ShadersPage() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function ShadersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <ShadersPageContent />
+    </Suspense>
   );
 }

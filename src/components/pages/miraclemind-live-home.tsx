@@ -89,10 +89,9 @@ export function MiracleMindLiveHomePage() {
               <Button
                 variant="outline"
                 size="lg"
-                asChild
                 className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950"
               >
-                <Link href="/features">Explore Features</Link>
+                Explore Features
               </Button>
             </div>
 

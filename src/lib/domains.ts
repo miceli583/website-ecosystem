@@ -40,12 +40,12 @@ export const DOMAIN_CONFIG = {
     ],
   },
   [DOMAINS.MIRACLE_MIND_LIVE]: {
-    name: "MiracleMind",
+    name: "Miracle Mind",
     description: "Transform Your Mind, Transform Your Life",
     theme: "brand",
-    primaryColor: "#10b981", // emerald
-    logo: "🧠✨",
-    tagline: "AI-Powered Personal Development Platform",
+    primaryColor: "#D4AF37", // metallic gold
+    logo: "/brand/miracle-mind-orbit-star-v3.svg",
+    tagline: "Guidance, Clarity, and the Miraculous Potential of the Mind",
     nav: [
       { name: "Features", href: "/features" },
       { name: "Pricing", href: "/pricing" },
@@ -54,20 +54,30 @@ export const DOMAIN_CONFIG = {
     ],
   },
   [DOMAINS.MIRACLE_MIND_DEV]: {
-    name: "MiracleMind Dev",
+    name: "Miracle Mind",
     description: "Technical Documentation & Development Resources",
     theme: "tech",
-    primaryColor: "#8b5cf6", // violet
-    logo: "</MM>",
+    primaryColor: "#D4AF37", // metallic gold
+    logo: "/brand/miracle-mind-orbit-star-v3.svg",
     tagline: "Building the Future of Personal Development Tech",
     nav: [
+      { name: "Home", href: "/" },
       { name: "Docs", href: "/docs" },
-      { name: "API", href: "/api" },
-      { name: "Blog", href: "/blog" },
-      { name: "Admin", href: "/admin" },
+      { name: "API", href: "/api-docs" },
     ],
   },
 } as const;
+
+/**
+ * Admin-specific navigation (shown only on /admin/* routes)
+ */
+export const ADMIN_NAV = [
+  { name: "Dashboard", href: "/admin" },
+  { name: "Brand", href: "/admin/brand" },
+  { name: "Templates", href: "/admin/templates" },
+  { name: "Shaders", href: "/admin/shaders" },
+  { name: "Playground", href: "/admin/playground" },
+] as const;
 
 /**
  * Get domain configuration from hostname

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" role="img" aria-label="Miracle Mind Logo">
+  <title>Miracle Mind - Golden Logo</title>
+  <defs>
+    <!-- North Star Glow Gradient -->
+    <radialGradient id="northStarGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFEB99;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="80%" style="stop-color:#DAA520;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    </radialGradient>
+
+    <!-- Enhanced Text Gradient (Brand Colors) -->
+    <linearGradient id="textGradient" x1="170" y1="85" x2="600" y2="85" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" style="stop-color:#F6E6C1;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#704828;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Center Dot Gradient -->
+    <radialGradient id="centerDotGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFEB99;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#DAA520;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#704828;stop-opacity:0.6" />
+    </radialGradient>
+
+    <!-- Ring gradient -->
+    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DAA520;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Subtle glow filter -->
+    <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feFlood flood-color="#FFD700" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Orbit Star Symbol -->
+  <defs>
+    <linearGradient id="orbit-gold-logo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6E6C1" />
+      <stop offset="50%" stop-color="#D8AD54" />
+      <stop offset="100%" stop-color="#8C5C26" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(100, 80) scale(0.42)">
+    <circle r="72" fill="none" stroke="url(#orbit-gold-logo)" stroke-width="4" />
+    <circle r="58" fill="none" stroke="#EBD9B9" stroke-width="2" opacity="0.55" />
+    <g fill="none" stroke="url(#orbit-gold-logo)" stroke-width="5.5" stroke-linecap="round">
+      <path d="M 0 -72 C 16 -62 52 -42 72 0" />
+      <path d="M 72 0 C 62 16 42 52 0 72" />
+      <path d="M 0 72 C -16 62 -52 42 -72 0" />
+      <path d="M -72 0 C -62 -16 -42 -52 0 -72" />
+    </g>
+    <circle r="6" fill="url(#orbit-gold-logo)" />
+  </g>
+
+  <!-- Text: MIRACLE MIND (inline) -->
+  <text x="170" y="85"
+        font-family="'Quattrocento Sans', sans-serif"
+        font-size="52"
+        font-weight="300"
+        fill="#D4AF37"
+        filter="url(#textGlow)"
+        letter-spacing="0">MIRACLE</text>
+
+  <text x="405" y="85"
+        font-family="'Quattrocento Sans', sans-serif"
+        font-size="52"
+        font-weight="700"
+        fill="#D4AF37"
+        filter="url(#textGlow)"
+        letter-spacing="0.15em">MIND</text>
+
+  <!-- Slogan -->
+  <text x="172" y="115"
+        font-family="'Barlow', sans-serif"
+        font-size="18"
+        font-weight="300"
+        fill="#D4AF37"
+        textLength="388"
+        lengthAdjust="spacing">Home of the Modern Polymath</text>
+</svg>

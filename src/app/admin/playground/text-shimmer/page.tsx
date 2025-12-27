@@ -5,6 +5,8 @@ import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import { Sparkles, Type, Palette } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function TextShimmerPage() {
   return (
     <DomainLayout>

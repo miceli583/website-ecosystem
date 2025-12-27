@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Orbit star variant 1">
+  <title>Miracle Mind Orbit Star V1</title>
+  <defs>
+    <linearGradient id="orbit-gold-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6E6C1" />
+      <stop offset="50%" stop-color="#D8AD54" />
+      <stop offset="100%" stop-color="#8C5C26" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(100 100)">
+    <circle r="74" fill="none" stroke="url(#orbit-gold-1)" stroke-width="3" />
+    <g fill="none" stroke="url(#orbit-gold-1)" stroke-width="7" stroke-linecap="round">
+      <path d="M 0 -74 C 20 -62 54 -42 74 0" />
+      <path d="M 74 0 C 62 20 42 54 0 74" />
+      <path d="M 0 74 C -20 62 -54 42 -74 0" />
+      <path d="M -74 0 C -62 -20 -42 -54 0 -74" />
+    </g>
+    <circle r="6" fill="url(#orbit-gold-1)" />
+  </g>
+</svg>

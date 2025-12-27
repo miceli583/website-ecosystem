@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { Card, CardContent } from "~/components/ui/card";
@@ -101,39 +101,37 @@ function ShadersContent() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {SHADERS.map((shader) => {
             // Color mappings for borders
-            const colorMap: Record<
-              string,
-              { dark: string; gradient: string }
-            > = {
-              amber: {
-                dark: "#f59e0b",
-                gradient: "from-amber-500 to-amber-600",
-              },
-              cyan: {
-                dark: "#06b6d4",
-                gradient: "from-cyan-500 to-cyan-600",
-              },
-              purple: {
-                dark: "#8b5cf6",
-                gradient: "from-purple-500 to-purple-600",
-              },
-              blue: {
-                dark: "#3b82f6",
-                gradient: "from-blue-500 to-blue-600",
-              },
-              pink: {
-                dark: "#ec4899",
-                gradient: "from-pink-500 to-pink-600",
-              },
-              emerald: {
-                dark: "#10b981",
-                gradient: "from-emerald-500 to-emerald-600",
-              },
-              orange: {
-                dark: "#f97316",
-                gradient: "from-orange-500 to-orange-600",
-              },
-            };
+            const colorMap: Record<string, { dark: string; gradient: string }> =
+              {
+                amber: {
+                  dark: "#f59e0b",
+                  gradient: "from-amber-500 to-amber-600",
+                },
+                cyan: {
+                  dark: "#06b6d4",
+                  gradient: "from-cyan-500 to-cyan-600",
+                },
+                purple: {
+                  dark: "#8b5cf6",
+                  gradient: "from-purple-500 to-purple-600",
+                },
+                blue: {
+                  dark: "#3b82f6",
+                  gradient: "from-blue-500 to-blue-600",
+                },
+                pink: {
+                  dark: "#ec4899",
+                  gradient: "from-pink-500 to-pink-600",
+                },
+                emerald: {
+                  dark: "#10b981",
+                  gradient: "from-emerald-500 to-emerald-600",
+                },
+                orange: {
+                  dark: "#f97316",
+                  gradient: "from-orange-500 to-orange-600",
+                },
+              };
 
             const colors = colorMap[shader.color] ?? colorMap.purple!;
 
@@ -153,9 +151,7 @@ function ShadersContent() {
                       >
                         <Sparkles className="h-5 w-5 text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold">
-                        {shader.title}
-                      </h3>
+                      <h3 className="text-lg font-semibold">{shader.title}</h3>
                     </div>
                     <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
                       {shader.description}
@@ -184,7 +180,13 @@ export default function ShadersPage() {
   return (
     <DomainLayout>
       <BackButton href="/admin" label="Back to Hub" />
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center">
+            Loading...
+          </div>
+        }
+      >
         <ShadersContent />
       </Suspense>
     </DomainLayout>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Geometric helm arc with star burst">
+  <title>Helm North Star — Geometric 2</title>
+  <defs>
+    <radialGradient id="geo2-star" cx="50%" cy="45%" r="58%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="50%" stop-color="#F2BE55" />
+      <stop offset="100%" stop-color="#A66521" />
+    </radialGradient>
+    <linearGradient id="geo2-ring" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F1E6D6" />
+      <stop offset="100%" stop-color="#92642D" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Split ring -->
+    <path d="M -62 -6 A 62 62 0 0 1 62 -6" fill="none" stroke="url(#geo2-ring)" stroke-width="6" stroke-linecap="round" />
+    <path d="M -56 12 A 56 56 0 0 0 56 12" fill="none" stroke="#D9BC85" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+
+    <!-- Tiny posts -->
+    <g fill="#B7823B">
+      <circle cx="0" cy="-66" r="3.5" />
+      <circle cx="66" cy="0" r="3.5" />
+      <circle cx="0" cy="66" r="3.5" />
+      <circle cx="-66" cy="0" r="3.5" />
+    </g>
+
+    <!-- Radiating ticks -->
+    <g stroke="#CFA565" stroke-width="2.8" stroke-linecap="round" opacity="0.65">
+      <line x1="0" y1="-52" x2="0" y2="-20" />
+      <line x1="0" y1="20" x2="0" y2="52" />
+      <line x1="-52" y1="0" x2="-20" y2="0" />
+      <line x1="20" y1="0" x2="52" y2="0" />
+      <line x1="36" y1="-36" x2="24" y2="-24" />
+      <line x1="36" y1="36" x2="24" y2="24" />
+      <line x1="-36" y1="-36" x2="-24" y2="-24" />
+      <line x1="-36" y1="36" x2="-24" y2="24" />
+    </g>
+
+    <!-- Star burst -->
+    <path d="M 0,-26 L -2,-6 L -12,-12 L -6,-2 L -26,0 L -6,2 L -12,12 L -2,6 L 0,34 L 2,6 L 12,12 L 6,2 L 26,0 L 6,-2 L 12,-12 L 2,-6 Z"
+          fill="url(#geo2-star)" />
+  </g>
+</svg>

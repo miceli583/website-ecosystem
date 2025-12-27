@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Sleek ring with cardinal ticks and north star">
+  <title>Miracle Mind Helm — Clean Ring</title>
+  <defs>
+    <radialGradient id="clean-star" cx="50%" cy="46%" r="62%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="52%" stop-color="#F3C35A" />
+      <stop offset="100%" stop-color="#A96827" />
+    </radialGradient>
+    <linearGradient id="clean-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAD9B9" />
+      <stop offset="50%" stop-color="#C08A3A" />
+      <stop offset="100%" stop-color="#8B5A24" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Sleek outer ring -->
+    <circle r="62" fill="none" stroke="url(#clean-ring)" stroke-width="6" />
+
+    <!-- Cardinal ticks -->
+    <g fill="#B7823B">
+      <rect x="-2.5" y="-78" width="5" height="10" rx="2" />
+      <rect x="-2.5" y="68" width="5" height="10" rx="2" />
+      <rect x="-78" y="-2.5" width="10" height="5" rx="2" />
+      <rect x="68" y="-2.5" width="10" height="5" rx="2" />
+    </g>
+
+    <!-- North star -->
+    <path d="M 0,-30 L -2.4,-7 L -16,-16 L -7,-2.4 L -30,0 L -7,2.4 L -16,16 L -2.4,7 L 0,40 L 2.4,7 L 16,16 L 7,2.4 L 30,0 L 7,-2.4 L 16,-16 L 2.4,-7 Z"
+          fill="url(#clean-star)" />
+  </g>
+</svg>

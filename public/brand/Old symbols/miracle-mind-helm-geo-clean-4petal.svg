@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Thin ring with rounded four-point north star">
+  <title>Miracle Mind Helm — Thin Ring Four-Point Star</title>
+  <defs>
+    <radialGradient id="petal-fill" cx="50%" cy="46%" r="62%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="55%" stop-color="#F3C35A" />
+      <stop offset="100%" stop-color="#A96827" />
+    </radialGradient>
+    <linearGradient id="ring-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAD9B9" />
+      <stop offset="50%" stop-color="#C08A3A" />
+      <stop offset="100%" stop-color="#8B5A24" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Thin outer ring -->
+    <circle r="64" fill="none" stroke="url(#ring-stroke)" stroke-width="2.5" />
+
+    <!-- Subtle cardinal ticks -->
+    <g fill="#B7823B">
+      <rect x="-2" y="-77" width="4" height="8" rx="1.5" />
+      <rect x="-2" y="69" width="4" height="8" rx="1.5" />
+      <rect x="-77" y="-2" width="8" height="4" rx="1.5" />
+      <rect x="69" y="-2" width="8" height="4" rx="1.5" />
+    </g>
+
+    <!-- Rounded four-point star -->
+    <g id="petal" fill="url(#petal-fill)">
+      <path d="M 0 -24 C 8 -24 14 -18 14 -10 C 14 -2 8 4 0 4 C -8 4 -14 -2 -14 -10 C -14 -18 -8 -24 0 -24 Z" />
+    </g>
+    <use href="#petal" transform="rotate(90)" />
+    <use href="#petal" transform="rotate(180)" />
+    <use href="#petal" transform="rotate(270)" />
+
+    <!-- Small core -->
+    <circle r="5" fill="#8B5A24" opacity="0.7" />
+  </g>
+</svg>

@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
+
+export const dynamic = "force-dynamic";
+
 import {
   MousePointer,
   Heart,

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
@@ -9,7 +10,7 @@ interface BackButtonProps {
   label?: string;
 }
 
-export function BackButton({
+function BackButtonContent({
   href = "/",
   label = "Back to Hub",
 }: BackButtonProps) {
@@ -36,5 +37,24 @@ export function BackButton({
       <Home className="mr-2 h-5 w-5" />
       {label}
     </Button>
+  );
+}
+
+export function BackButton(props: BackButtonProps) {
+  return (
+    <Suspense
+      fallback={
+        <Button
+          size="lg"
+          className="fixed bottom-6 left-6 z-50 shadow-xl"
+          disabled
+        >
+          <Home className="mr-2 h-5 w-5" />
+          {props.label || "Back to Hub"}
+        </Button>
+      }
+    >
+      <BackButtonContent {...props} />
+    </Suspense>
   );
 }

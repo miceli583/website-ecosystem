@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 import "./fonts.css";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Montserrat, Quattrocento_Sans, Barlow } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 
 import { TRPCReactProvider } from "~/trpc/react";
@@ -18,11 +18,33 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-montserrat",
+});
+
+const quattrocentoSans = Quattrocento_Sans({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-quattrocento-sans",
+});
+
+const barlow = Barlow({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-muli",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${geist.variable} ${montserrat.variable} ${quattrocentoSans.variable} ${barlow.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <ThemeProvider
           attribute="class"

@@ -171,25 +171,10 @@ export function MiracleMindDevHomePage() {
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button
               size="lg"
-              asChild
               className="bg-violet-600 px-8 hover:bg-violet-700"
             >
-              <Link href="/docs">
-                <BookOpen className="mr-2 h-5 w-5" />
-                Get Started
-              </Link>
-            </Button>
-
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className="border-violet-300 text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950"
-            >
-              <Link href="/admin">
-                <Terminal className="mr-2 h-5 w-5" />
-                Admin Panel
-              </Link>
+              <BookOpen className="mr-2 h-5 w-5" />
+              Get Started
             </Button>
           </div>
         </div>

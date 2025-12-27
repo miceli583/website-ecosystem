@@ -4,6 +4,8 @@ import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import { Zap, Atom, Orbit, Sparkles } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function QuantumOrbitalPage() {
   return (
     <DomainLayout>

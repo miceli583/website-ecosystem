@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Geometric helm halo with north star">
+  <title>Minimal Helm North Star — Variant 3</title>
+  <defs>
+    <radialGradient id="star-core-3" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="60%" stop-color="#F4C65C" />
+      <stop offset="100%" stop-color="#B36E23" />
+    </radialGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Halo ring with cutouts -->
+    <circle r="58" fill="none" stroke="#CFA565" stroke-width="8" stroke-dasharray="36 14" stroke-linecap="round" />
+    <circle r="48" fill="none" stroke="#EAD9B9" stroke-width="2" opacity="0.8" />
+
+    <!-- Diagonal grips -->
+    <g fill="#A87334">
+      <rect x="-4" y="-78" width="8" height="12" rx="2" />
+      <rect x="-4" y="66" width="8" height="12" rx="2" />
+    </g>
+    <g fill="#A87334" transform="rotate(90)">
+      <rect x="-4" y="-78" width="8" height="12" rx="2" />
+      <rect x="-4" y="66" width="8" height="12" rx="2" />
+    </g>
+    <g fill="#A87334" transform="rotate(45)">
+      <rect x="-4" y="-78" width="8" height="12" rx="2" />
+      <rect x="-4" y="66" width="8" height="12" rx="2" />
+    </g>
+    <g fill="#A87334" transform="rotate(-45)">
+      <rect x="-4" y="-78" width="8" height="12" rx="2" />
+      <rect x="-4" y="66" width="8" height="12" rx="2" />
+    </g>
+
+    <!-- Minimal spokes -->
+    <g stroke="#D9B47B" stroke-width="3" stroke-linecap="round" opacity="0.7">
+      <line x1="-42" y1="-42" x2="-12" y2="-12" />
+      <line x1="42" y1="-42" x2="12" y2="-12" />
+      <line x1="-42" y1="42" x2="-12" y2="12" />
+      <line x1="42" y1="42" x2="12" y2="12" />
+    </g>
+
+    <!-- North star -->
+    <path d="M 0,-24 L -1.8,-6 L -12,-12 L -6,-1.8 L -24,0 L -6,1.8 L -12,12 L -1.8,6 L 0,30 L 1.8,6 L 12,12 L 6,1.8 L 24,0 L 6,-1.8 L 12,-12 L 1.8,-6 Z"
+          fill="url(#star-core-3)" />
+  </g>
+</svg>

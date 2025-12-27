@@ -18,800 +18,310 @@ import { useState } from "react";
 const BRAND_ASSETS = {
   logos: {
     svg: [
-      // CLASSIC: Black & White
+      // CORE COLORS: Brand Identity Foundation
+
+      // Pure Black (#000000)
       {
         name: "Brand Symbol on Black",
-        file: "symbol.svg",
+        file: "miracle-mind-orbit-star-v3.svg",
         bg: "black",
-        description: "Interconnected unity icon",
+        description: "Orbit star symbol on pure black background",
         bgColors: ["#000000"],
       },
       {
         name: "Golden Logo on Black",
-        file: "Logo Files/svg/Color logo - no background.svg",
+        file: "miracle-mind-logo-color.svg",
         bg: "black",
-        description: "Primary golden logo",
+        description: "Primary gold logo on pure black",
         bgColors: ["#000000"],
       },
       {
         name: "White Logo on Black",
-        file: "Logo Files/svg/White logo - no background.svg",
+        file: "miracle-mind-logo-white.svg",
         bg: "black",
-        description: "White version for dark backgrounds",
+        description: "White logo on pure black",
         bgColors: ["#000000"],
       },
       {
-        name: "Black Logo on White Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
+        name: "Black Logo on Light Gray",
+        file: "miracle-mind-logo-black.svg",
         bg: "light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#FFFFFF", "#F5F5F5"],
+        description: "Black logo on light gray gradient",
+        bgColors: ["#FFFFFF", "#f9fafb", "#fafafa"],
       },
 
-      // EARTH TONES: Grounded & Natural
+      // Light Gray Gradient
       {
-        name: "Brand Symbol on Sage",
-        file: "symbol.svg",
-        bg: "sage",
-        description: "Interconnected unity icon",
-        bgColors: ["#7a9b8e"],
+        name: "Brand Symbol on Light Gray",
+        file: "miracle-mind-orbit-star-v3.svg",
+        bg: "light",
+        description: "Orbit star symbol on light gray gradient",
+        bgColors: ["#FFFFFF", "#f9fafb", "#fafafa"],
       },
       {
-        name: "Golden Logo on Sage",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "sage",
-        description: "Primary golden logo",
-        bgColors: ["#7a9b8e"],
+        name: "Golden Logo on Light Gray",
+        file: "miracle-mind-logo-color.svg",
+        bg: "light",
+        description: "Primary gold logo on light gray gradient",
+        bgColors: ["#FFFFFF", "#f9fafb", "#fafafa"],
       },
       {
-        name: "White Logo on Sage",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "sage",
-        description: "White version for dark backgrounds",
-        bgColors: ["#7a9b8e"],
+        name: "White Logo on Black",
+        file: "miracle-mind-logo-white.svg",
+        bg: "black",
+        description: "White logo on pure black",
+        bgColors: ["#000000"],
       },
       {
-        name: "Black Logo on Light Sage",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-sage",
-        description: "Black version for light backgrounds",
-        bgColors: ["#e8ede8"],
-      },
-      {
-        name: "Brand Symbol on Terracotta",
-        file: "symbol.svg",
-        bg: "terracotta",
-        description: "Interconnected unity icon",
-        bgColors: ["#c1654a"],
-      },
-      {
-        name: "Golden Logo on Terracotta",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "terracotta",
-        description: "Primary golden logo",
-        bgColors: ["#c1654a"],
-      },
-      {
-        name: "White Logo on Terracotta",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "terracotta",
-        description: "White version for dark backgrounds",
-        bgColors: ["#c1654a"],
-      },
-      {
-        name: "Black Logo on Light Peach",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-peach",
-        description: "Black version for light backgrounds",
-        bgColors: ["#fdf0e6"],
-      },
-      {
-        name: "Brand Symbol on Earth Brown",
-        file: "symbol.svg",
-        bg: "earth-brown",
-        description: "Interconnected unity icon",
-        bgColors: ["#5d4e37"],
-      },
-      {
-        name: "Golden Logo on Earth Brown",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "earth-brown",
-        description: "Primary golden logo",
-        bgColors: ["#5d4e37"],
-      },
-      {
-        name: "White Logo on Earth Brown",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "earth-brown",
-        description: "White version for dark backgrounds",
-        bgColors: ["#5d4e37"],
-      },
-      {
-        name: "Black Logo on Warm Sand",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "warm-sand",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f5e6d3"],
-      },
-      {
-        name: "Brand Symbol on Deep Olive",
-        file: "symbol.svg",
-        bg: "olive",
-        description: "Interconnected unity icon",
-        bgColors: ["#556b2f"],
-      },
-      {
-        name: "Golden Logo on Deep Olive",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "olive",
-        description: "Primary golden logo",
-        bgColors: ["#556b2f"],
-      },
-      {
-        name: "White Logo on Deep Olive",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "olive",
-        description: "White version for dark backgrounds",
-        bgColors: ["#556b2f"],
-      },
-      {
-        name: "Black Logo on Light Olive",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-olive",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f0f2e8"],
+        name: "Black Logo on Light Gray",
+        file: "miracle-mind-logo-black.svg",
+        bg: "light",
+        description: "Black logo on light gray gradient",
+        bgColors: ["#FFFFFF", "#f9fafb", "#fafafa"],
       },
 
-      // SOPHISTICATED NEUTRALS: Elegant Simplicity
+      // Primary Gold on Deep Blue
       {
-        name: "Brand Symbol on Charcoal",
-        file: "symbol.svg",
-        bg: "charcoal",
-        description: "Interconnected unity icon",
-        bgColors: ["#36454f"],
+        name: "Brand Symbol on Deep Blue",
+        file: "miracle-mind-orbit-star-v3.svg",
+        bg: "deep-blue",
+        description: "Orbit star symbol on deep blue",
+        bgColors: ["#121827"],
       },
       {
-        name: "Golden Logo on Charcoal",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "charcoal",
-        description: "Primary golden logo",
-        bgColors: ["#36454f"],
+        name: "Golden Logo on Deep Blue",
+        file: "miracle-mind-logo-color.svg",
+        bg: "deep-blue",
+        description: "Primary gold logo on deep blue",
+        bgColors: ["#121827"],
       },
       {
-        name: "White Logo on Charcoal",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "charcoal",
-        description: "White version for dark backgrounds",
-        bgColors: ["#36454f"],
-      },
-      {
-        name: "Black Logo on Soft Cream",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "soft-cream",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f9f6f0"],
-      },
-      {
-        name: "Brand Symbol on Slate",
-        file: "symbol.svg",
-        bg: "slate",
-        description: "Interconnected unity icon",
-        bgColors: ["#4a5568"],
-      },
-      {
-        name: "Golden Logo on Slate",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "slate",
-        description: "Primary golden logo",
-        bgColors: ["#4a5568"],
-      },
-      {
-        name: "White Logo on Slate",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "slate",
-        description: "White version for dark backgrounds",
-        bgColors: ["#4a5568"],
-      },
-      {
-        name: "Black Logo on Pale Gray",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "pale-gray",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f7f8f9"],
-      },
-
-      // JEWEL TONES: Rich & Prestigious
-      {
-        name: "Brand Symbol on Forest Green",
-        file: "symbol.svg",
-        bg: "green",
-        description: "Interconnected unity icon",
-        bgColors: ["#1a4d2e"],
-      },
-      {
-        name: "Golden Logo on Forest Green",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "green",
-        description: "Primary golden logo",
-        bgColors: ["#1a4d2e"],
-      },
-      {
-        name: "White Logo on Forest Green",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "green",
-        description: "White version for dark backgrounds",
-        bgColors: ["#1a4d2e"],
-      },
-      {
-        name: "Black Logo on Light Green",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-green",
-        description: "Black version for light backgrounds",
-        bgColors: ["#d4edda"],
-      },
-      {
-        name: "Brand Symbol on Teal",
-        file: "symbol.svg",
-        bg: "teal",
-        description: "Interconnected unity icon",
-        bgColors: ["#00695c"],
-      },
-      {
-        name: "Golden Logo on Teal",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "teal",
-        description: "Primary golden logo",
-        bgColors: ["#00695c"],
-      },
-      {
-        name: "White Logo on Teal",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "teal",
-        description: "White version for dark backgrounds",
-        bgColors: ["#00695c"],
-      },
-      {
-        name: "Black Logo on Light Teal",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-teal",
-        description: "Black version for light backgrounds",
-        bgColors: ["#e0f2f1"],
-      },
-      {
-        name: "Brand Symbol on Navy Blue",
-        file: "symbol.svg",
-        bg: "navy",
-        description: "Interconnected unity icon",
-        bgColors: ["#1e3a5f"],
-      },
-      {
-        name: "Golden Logo on Navy Blue",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "navy",
-        description: "Primary golden logo",
-        bgColors: ["#1e3a5f"],
-      },
-      {
-        name: "White Logo on Navy Blue",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "navy",
-        description: "White version for dark backgrounds",
-        bgColors: ["#1e3a5f"],
+        name: "White Logo on Deep Blue",
+        file: "miracle-mind-logo-white.svg",
+        bg: "deep-blue",
+        description: "White logo on deep blue",
+        bgColors: ["#121827"],
       },
       {
         name: "Black Logo on Light Blue",
-        file: "Logo Files/svg/Black logo - no background.svg",
+        file: "miracle-mind-logo-black.svg",
         bg: "light-blue",
-        description: "Black version for light backgrounds",
+        description: "Black logo on light blue",
         bgColors: ["#e3f2fd"],
       },
-      {
-        name: "Brand Symbol on Deep Purple",
-        file: "symbol.svg",
-        bg: "purple",
-        description: "Interconnected unity icon",
-        bgColors: ["#4a148c"],
-      },
-      {
-        name: "Golden Logo on Deep Purple",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "purple",
-        description: "Primary golden logo",
-        bgColors: ["#4a148c"],
-      },
-      {
-        name: "White Logo on Deep Purple",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "purple",
-        description: "White version for dark backgrounds",
-        bgColors: ["#4a148c"],
-      },
-      {
-        name: "Black Logo on Light Purple",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-purple",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f3e5f5"],
-      },
+
+      // SECONDARY COLORS: Brand Accent Palette
+
+      // Burgundy (#6b1d36)
       {
         name: "Brand Symbol on Burgundy",
-        file: "symbol.svg",
+        file: "miracle-mind-orbit-star-v3.svg",
         bg: "burgundy",
-        description: "Interconnected unity icon",
+        description: "Orbit star symbol on burgundy",
         bgColors: ["#6b1d36"],
       },
       {
         name: "Golden Logo on Burgundy",
-        file: "Logo Files/svg/Color logo - no background.svg",
+        file: "miracle-mind-logo-color.svg",
         bg: "burgundy",
-        description: "Primary golden logo",
+        description: "Primary gold logo on burgundy",
         bgColors: ["#6b1d36"],
       },
       {
         name: "White Logo on Burgundy",
-        file: "Logo Files/svg/White logo - no background.svg",
+        file: "miracle-mind-logo-white.svg",
         bg: "burgundy",
-        description: "White version for dark backgrounds",
+        description: "White logo on burgundy",
         bgColors: ["#6b1d36"],
       },
       {
         name: "Black Logo on Light Rose",
-        file: "Logo Files/svg/Black logo - no background.svg",
+        file: "miracle-mind-logo-black.svg",
         bg: "light-rose",
-        description: "Black version for light backgrounds",
+        description: "Black logo on light rose",
         bgColors: ["#fce4ec"],
       },
 
-      // COSMIC VIBRANT: Modern Energy
+      // Neutral Brown (#6B5640)
       {
-        name: "Brand Symbol on Cosmic Purple",
-        file: "symbol.svg",
-        bg: "cosmic-purple",
-        description: "Interconnected unity icon",
-        bgColors: ["#6d28d9"],
+        name: "Brand Symbol on Neutral Brown",
+        file: "miracle-mind-orbit-star-v3.svg",
+        bg: "neutral-brown",
+        description: "Orbit star symbol on neutral brown",
+        bgColors: ["#6B5640"],
       },
       {
-        name: "Golden Logo on Cosmic Purple",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "cosmic-purple",
-        description: "Primary golden logo",
-        bgColors: ["#6d28d9"],
+        name: "Golden Logo on Neutral Brown",
+        file: "miracle-mind-logo-color.svg",
+        bg: "neutral-brown",
+        description: "Primary gold logo on neutral brown",
+        bgColors: ["#6B5640"],
       },
       {
-        name: "White Logo on Cosmic Purple",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "cosmic-purple",
-        description: "White version for dark backgrounds",
-        bgColors: ["#6d28d9"],
+        name: "White Logo on Neutral Brown",
+        file: "miracle-mind-logo-white.svg",
+        bg: "neutral-brown",
+        description: "White logo on neutral brown",
+        bgColors: ["#6B5640"],
       },
       {
-        name: "Black Logo on Soft Violet",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "soft-violet",
-        description: "Black version for light backgrounds",
-        bgColors: ["#ede9fe"],
-      },
-      {
-        name: "Brand Symbol on Deep Indigo",
-        file: "symbol.svg",
-        bg: "deep-indigo",
-        description: "Interconnected unity icon",
-        bgColors: ["#4338ca"],
-      },
-      {
-        name: "Golden Logo on Deep Indigo",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "deep-indigo",
-        description: "Primary golden logo",
-        bgColors: ["#4338ca"],
-      },
-      {
-        name: "White Logo on Deep Indigo",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "deep-indigo",
-        description: "White version for dark backgrounds",
-        bgColors: ["#4338ca"],
-      },
-      {
-        name: "Black Logo on Light Indigo",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-indigo",
-        description: "Black version for light backgrounds",
-        bgColors: ["#e0e7ff"],
-      },
-      {
-        name: "Brand Symbol on Cosmic Blue",
-        file: "symbol.svg",
-        bg: "cosmic-blue",
-        description: "Interconnected unity icon",
-        bgColors: ["#0891b2"],
-      },
-      {
-        name: "Golden Logo on Cosmic Blue",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "cosmic-blue",
-        description: "Primary golden logo",
-        bgColors: ["#0891b2"],
-      },
-      {
-        name: "White Logo on Cosmic Blue",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "cosmic-blue",
-        description: "White version for dark backgrounds",
-        bgColors: ["#0891b2"],
-      },
-      {
-        name: "Black Logo on Light Cyan",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-cyan",
-        description: "Black version for light backgrounds",
-        bgColors: ["#ecfeff"],
-      },
-      {
-        name: "Brand Symbol on Emerald",
-        file: "symbol.svg",
-        bg: "emerald",
-        description: "Interconnected unity icon",
-        bgColors: ["#059669"],
-      },
-      {
-        name: "Golden Logo on Emerald",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "emerald",
-        description: "Primary golden logo",
-        bgColors: ["#059669"],
-      },
-      {
-        name: "White Logo on Emerald",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "emerald",
-        description: "White version for dark backgrounds",
-        bgColors: ["#059669"],
-      },
-      {
-        name: "Black Logo on Light Emerald",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-emerald",
-        description: "Black version for light backgrounds",
-        bgColors: ["#d1fae5"],
-      },
-      {
-        name: "Brand Symbol on Cosmic Pink",
-        file: "symbol.svg",
-        bg: "cosmic-pink",
-        description: "Interconnected unity icon",
-        bgColors: ["#db2777"],
-      },
-      {
-        name: "Golden Logo on Cosmic Pink",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "cosmic-pink",
-        description: "Primary golden logo",
-        bgColors: ["#db2777"],
-      },
-      {
-        name: "White Logo on Cosmic Pink",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "cosmic-pink",
-        description: "White version for dark backgrounds",
-        bgColors: ["#db2777"],
-      },
-      {
-        name: "Black Logo on Soft Pink",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "soft-pink",
-        description: "Black version for light backgrounds",
-        bgColors: ["#fce7f3"],
-      },
-      {
-        name: "Brand Symbol on Sunset Orange",
-        file: "symbol.svg",
-        bg: "sunset-orange",
-        description: "Interconnected unity icon",
-        bgColors: ["#ea580c"],
-      },
-      {
-        name: "Golden Logo on Sunset Orange",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "sunset-orange",
-        description: "Primary golden logo",
-        bgColors: ["#ea580c"],
-      },
-      {
-        name: "White Logo on Sunset Orange",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "sunset-orange",
-        description: "White version for dark backgrounds",
-        bgColors: ["#ea580c"],
-      },
-      {
-        name: "Black Logo on Light Amber",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "light-amber",
-        description: "Black version for light backgrounds",
-        bgColors: ["#fef3c7"],
+        name: "Black Logo on Light Peach",
+        file: "miracle-mind-logo-black.svg",
+        bg: "light-peach",
+        description: "Black logo on light peach",
+        bgColors: ["#fdf0e6"],
       },
 
-      // GRADIENTS: Dynamic & Transformative
+      // Deep Teal (#2C7873)
       {
-        name: "Brand Symbol on Violet-Purple Gradient",
-        file: "symbol.svg",
-        bg: "gradient-violet-purple",
-        description: "Interconnected unity icon",
-        bgColors: ["#8b5cf6", "#a855f7"],
+        name: "Brand Symbol on Deep Teal",
+        file: "miracle-mind-orbit-star-v3.svg",
+        bg: "deep-teal",
+        description: "Orbit star symbol on deep teal",
+        bgColors: ["#2C7873"],
       },
       {
-        name: "Golden Logo on Violet-Purple Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-violet-purple",
-        description: "Primary golden logo",
-        bgColors: ["#8b5cf6", "#a855f7"],
+        name: "Golden Logo on Deep Teal",
+        file: "miracle-mind-logo-color.svg",
+        bg: "deep-teal",
+        description: "Primary gold logo on deep teal",
+        bgColors: ["#2C7873"],
       },
       {
-        name: "White Logo on Violet-Purple Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-violet-purple",
-        description: "White version for dark backgrounds",
-        bgColors: ["#8b5cf6", "#a855f7"],
+        name: "White Logo on Deep Teal",
+        file: "miracle-mind-logo-white.svg",
+        bg: "deep-teal",
+        description: "White logo on deep teal",
+        bgColors: ["#2C7873"],
       },
       {
-        name: "Black Logo on Violet-Purple Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-violet-purple-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f5f3ff", "#faf5ff"],
+        name: "Black Logo on Light Teal",
+        file: "miracle-mind-logo-black.svg",
+        bg: "light-teal",
+        description: "Black logo on light teal",
+        bgColors: ["#e0f2f1"],
       },
+
+      // BRAND GRADIENTS: Dynamic Expressions
+
+      // Ember Glow (Light Gold → Burgundy)
       {
-        name: "Brand Symbol on Blue-Cyan Gradient",
-        file: "symbol.svg",
-        bg: "gradient-blue-cyan",
-        description: "Interconnected unity icon",
-        bgColors: ["#3b82f6", "#06b6d4"],
-      },
-      {
-        name: "Golden Logo on Blue-Cyan Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-blue-cyan",
-        description: "Primary golden logo",
-        bgColors: ["#3b82f6", "#06b6d4"],
-      },
-      {
-        name: "White Logo on Blue-Cyan Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-blue-cyan",
-        description: "White version for dark backgrounds",
-        bgColors: ["#3b82f6", "#06b6d4"],
-      },
-      {
-        name: "Black Logo on Blue-Cyan Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-blue-cyan-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#dbeafe", "#cffafe"],
-      },
-      {
-        name: "Brand Symbol on Amber-Orange Gradient",
-        file: "symbol.svg",
-        bg: "gradient-amber-orange",
-        description: "Interconnected unity icon",
-        bgColors: ["#f59e0b", "#f97316"],
-      },
-      {
-        name: "Golden Logo on Amber-Orange Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-amber-orange",
-        description: "Primary golden logo",
-        bgColors: ["#f59e0b", "#f97316"],
-      },
-      {
-        name: "White Logo on Amber-Orange Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-amber-orange",
-        description: "White version for dark backgrounds",
-        bgColors: ["#f59e0b", "#f97316"],
-      },
-      {
-        name: "Black Logo on Amber-Orange Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-amber-orange-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#fef3c7", "#fed7aa"],
-      },
-      {
-        name: "Brand Symbol on Purple-Pink Gradient",
-        file: "symbol.svg",
-        bg: "gradient-purple-pink",
-        description: "Interconnected unity icon",
-        bgColors: ["#a855f7", "#ec4899"],
-      },
-      {
-        name: "Golden Logo on Purple-Pink Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-purple-pink",
-        description: "Primary golden logo",
-        bgColors: ["#a855f7", "#ec4899"],
-      },
-      {
-        name: "White Logo on Purple-Pink Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-purple-pink",
-        description: "White version for dark backgrounds",
-        bgColors: ["#a855f7", "#ec4899"],
-      },
-      {
-        name: "Black Logo on Purple-Pink Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-purple-pink-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#faf5ff", "#fce7f3"],
-      },
-      {
-        name: "Brand Symbol on Emerald-Teal Gradient",
-        file: "symbol.svg",
-        bg: "gradient-emerald-teal",
-        description: "Interconnected unity icon",
-        bgColors: ["#10b981", "#14b8a6"],
-      },
-      {
-        name: "Golden Logo on Emerald-Teal Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-emerald-teal",
-        description: "Primary golden logo",
-        bgColors: ["#10b981", "#14b8a6"],
-      },
-      {
-        name: "White Logo on Emerald-Teal Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-emerald-teal",
-        description: "White version for dark backgrounds",
-        bgColors: ["#10b981", "#14b8a6"],
-      },
-      {
-        name: "Black Logo on Emerald-Teal Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-emerald-teal-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#d1fae5", "#ccfbf1"],
-      },
-      {
-        name: "Brand Symbol on Golden Sunrise Gradient",
-        file: "symbol.svg",
-        bg: "gradient-golden-sunrise",
-        description: "Interconnected unity icon",
-        bgColors: ["#fbbf24", "#fb923c"],
-      },
-      {
-        name: "Golden Logo on Golden Sunrise Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-golden-sunrise",
-        description: "Primary golden logo",
-        bgColors: ["#fbbf24", "#fb923c"],
-      },
-      {
-        name: "White Logo on Golden Sunrise Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-golden-sunrise",
-        description: "White version for dark backgrounds",
-        bgColors: ["#fbbf24", "#fb923c"],
-      },
-      {
-        name: "Black Logo on Golden Sunrise Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-golden-sunrise-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#fef3c7", "#ffedd5"],
-      },
-      {
-        name: "Brand Symbol on Rose Gold Gradient",
-        file: "symbol.svg",
+        name: "White Symbol on Ember Glow",
+        file: "miracle-mind-orbit-star-v3-white.svg",
         bg: "gradient-rose-gold",
-        description: "Interconnected unity icon",
-        bgColors: ["#e8a87c", "#d4af37"],
+        description: "White orbit star symbol on ember glow gradient",
+        bgColors: ["#F6E6C1", "#6b1d36"],
       },
       {
-        name: "Golden Logo on Rose Gold Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
+        name: "Black Logo on Ember Glow",
+        file: "miracle-mind-logo-black.svg",
         bg: "gradient-rose-gold",
-        description: "Primary golden logo",
-        bgColors: ["#e8a87c", "#d4af37"],
+        description: "Black logo on ember glow gradient",
+        bgColors: ["#F6E6C1", "#6b1d36"],
       },
       {
-        name: "White Logo on Rose Gold Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
+        name: "White Logo on Ember Glow",
+        file: "miracle-mind-logo-white.svg",
         bg: "gradient-rose-gold",
-        description: "White version for dark backgrounds",
-        bgColors: ["#e8a87c", "#d4af37"],
+        description: "White logo on ember glow gradient",
+        bgColors: ["#F6E6C1", "#6b1d36"],
       },
       {
-        name: "Black Logo on Rose Gold Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
+        name: "Black Logo on Ember Glow Light",
+        file: "miracle-mind-logo-black.svg",
         bg: "gradient-rose-gold-light",
-        description: "Black version for light backgrounds",
+        description: "Black logo on light ember gradient",
         bgColors: ["#fef6ee", "#fef9f3"],
       },
+
+      // North Star Glow (Golden Gradient)
       {
-        name: "Brand Symbol on Deep Ocean Gradient",
-        file: "symbol.svg",
-        bg: "gradient-ocean",
-        description: "Interconnected unity icon",
-        bgColors: ["#1e3a8a", "#0f766e"],
+        name: "White Symbol on North Star Glow",
+        file: "miracle-mind-orbit-star-v3-white.svg",
+        bg: "gradient-golden-sunrise",
+        description: "White orbit star symbol on north star glow",
+        bgColors: ["#F6E6C1", "#D4AF37"],
       },
       {
-        name: "Golden Logo on Deep Ocean Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-ocean",
-        description: "Primary golden logo",
-        bgColors: ["#1e3a8a", "#0f766e"],
+        name: "Black Logo on North Star Glow",
+        file: "miracle-mind-logo-black.svg",
+        bg: "gradient-golden-sunrise",
+        description: "Black logo on north star glow",
+        bgColors: ["#F6E6C1", "#D4AF37"],
       },
       {
-        name: "White Logo on Deep Ocean Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-ocean",
-        description: "White version for dark backgrounds",
-        bgColors: ["#1e3a8a", "#0f766e"],
+        name: "White Logo on North Star Glow",
+        file: "miracle-mind-logo-white.svg",
+        bg: "gradient-golden-sunrise",
+        description: "White logo on north star glow",
+        bgColors: ["#F6E6C1", "#D4AF37"],
       },
       {
-        name: "Black Logo on Deep Ocean Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-ocean-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#dbeafe", "#ccfbf1"],
+        name: "Black Logo on North Star Glow Light",
+        file: "miracle-mind-logo-black.svg",
+        bg: "gradient-golden-sunrise-light",
+        description: "Black logo on light golden gradient",
+        bgColors: ["#fef3c7", "#ffedd5"],
+      },
+
+      // Golden Tide (Light Gold → Deep Teal)
+      {
+        name: "White Symbol on Golden Tide",
+        file: "miracle-mind-orbit-star-v3-white.svg",
+        bg: "gradient-gold-teal",
+        description: "White orbit star symbol on golden tide gradient",
+        bgColors: ["#F6E6C1", "#2C7873"],
       },
       {
-        name: "Brand Symbol on Sunset Dusk Gradient",
-        file: "symbol.svg",
-        bg: "gradient-sunset-dusk",
-        description: "Interconnected unity icon",
-        bgColors: ["#7c3aed", "#f97316"],
+        name: "Black Logo on Golden Tide",
+        file: "miracle-mind-logo-black.svg",
+        bg: "gradient-gold-teal",
+        description: "Black logo on golden tide gradient",
+        bgColors: ["#F6E6C1", "#2C7873"],
       },
       {
-        name: "Golden Logo on Sunset Dusk Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-sunset-dusk",
-        description: "Primary golden logo",
-        bgColors: ["#7c3aed", "#f97316"],
+        name: "White Logo on Golden Tide",
+        file: "miracle-mind-logo-white.svg",
+        bg: "gradient-gold-teal",
+        description: "White logo on golden tide gradient",
+        bgColors: ["#F6E6C1", "#2C7873"],
       },
       {
-        name: "White Logo on Sunset Dusk Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-sunset-dusk",
-        description: "White version for dark backgrounds",
-        bgColors: ["#7c3aed", "#f97316"],
+        name: "Black Logo on Golden Tide Light",
+        file: "miracle-mind-logo-black.svg",
+        bg: "gradient-gold-teal-light",
+        description: "Black logo on light teal gradient",
+        bgColors: ["#f0fdf4", "#e0f2f1"],
+      },
+
+      // Midnight Gold (Light Gold → Deep Blue)
+      {
+        name: "White Symbol on Midnight Gold",
+        file: "miracle-mind-orbit-star-v3-white.svg",
+        bg: "gradient-gold-midnight",
+        description: "White orbit star symbol on midnight gold gradient",
+        bgColors: ["#F6E6C1", "#121827"],
       },
       {
-        name: "Black Logo on Sunset Dusk Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-sunset-dusk-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#f5f3ff", "#ffedd5"],
+        name: "Black Logo on Midnight Gold",
+        file: "miracle-mind-logo-black.svg",
+        bg: "gradient-gold-midnight",
+        description: "Black logo on midnight gold gradient",
+        bgColors: ["#F6E6C1", "#121827"],
       },
       {
-        name: "Brand Symbol on Earth to Sky Gradient",
-        file: "symbol.svg",
-        bg: "gradient-earth-sky",
-        description: "Interconnected unity icon",
-        bgColors: ["#065f46", "#0284c7"],
+        name: "White Logo on Midnight Gold",
+        file: "miracle-mind-logo-white.svg",
+        bg: "gradient-gold-midnight",
+        description: "White logo on midnight gold gradient",
+        bgColors: ["#F6E6C1", "#121827"],
       },
       {
-        name: "Golden Logo on Earth to Sky Gradient",
-        file: "Logo Files/svg/Color logo - no background.svg",
-        bg: "gradient-earth-sky",
-        description: "Primary golden logo",
-        bgColors: ["#065f46", "#0284c7"],
-      },
-      {
-        name: "White Logo on Earth to Sky Gradient",
-        file: "Logo Files/svg/White logo - no background.svg",
-        bg: "gradient-earth-sky",
-        description: "White version for dark backgrounds",
-        bgColors: ["#065f46", "#0284c7"],
-      },
-      {
-        name: "Black Logo on Earth to Sky Gradient",
-        file: "Logo Files/svg/Black logo - no background.svg",
-        bg: "gradient-earth-sky-light",
-        description: "Black version for light backgrounds",
-        bgColors: ["#d1fae5", "#e0f2fe"],
+        name: "Black Logo on Midnight Gold Light",
+        file: "miracle-mind-logo-black.svg",
+        bg: "gradient-gold-midnight-light",
+        description: "Black logo on light blue gradient",
+        bgColors: ["#eff6ff", "#dbeafe"],
       },
     ],
     png: [
@@ -854,43 +364,47 @@ const BRAND_ASSETS = {
     { name: "iPhone", file: "Logo Files/Favicons/iPhone.png", size: "180x180" },
     { name: "Browser", file: "Logo Files/Favicons/browser.png", size: "32x32" },
   ],
+  symbolDescription: {
+    name: "Miracle Mind North Star",
+    description:
+      "A radiant golden north star representing guidance, clarity, and the miraculous potential of the mind",
+  },
 };
 
 const FEATURED_LOGOS = [
   {
-    name: "Color logo - no background",
-    description: "Primary luminescent mark",
-    preview: "Logo Files/png/Color logo - no background.png",
+    name: "Miracle Mind - Golden",
+    description: "Primary logo in brand Primary Gold (#D4AF37)",
+    preview: "miracle-mind-logo-color.svg",
     backgroundClass: "bg-black",
     formats: {
-      svg: "Logo Files/svg/Color logo - no background.svg",
-      png: "Logo Files/png/Color logo - no background.png",
+      svg: "miracle-mind-logo-color.svg",
     },
   },
   {
-    name: "White logo - no background",
-    description: "Inverted mark for dark canvases",
-    preview: "Logo Files/png/White logo - no background.png",
+    name: "Miracle Mind - White",
+    description: "Warm Golden White (#FFF8E7) for dark backgrounds",
+    preview: "miracle-mind-logo-white.svg",
     backgroundClass: "bg-black",
     formats: {
-      svg: "Logo Files/svg/White logo - no background.svg",
-      png: "Logo Files/png/White logo - no background.png",
+      svg: "miracle-mind-logo-white.svg",
     },
   },
   {
-    name: "Black logo - no background",
-    description: "Solid mark for bright surfaces",
-    preview: "Logo Files/png/Black logo - no background.png",
-    backgroundClass: "bg-white",
+    name: "Miracle Mind - Black",
+    description: "Warm Black (#0D0A08) for light backgrounds",
+    preview: "miracle-mind-logo-black.svg",
+    backgroundClass: "bg-gradient-to-br from-white via-gray-50 to-neutral-50",
     formats: {
-      svg: "Logo Files/svg/Black logo - no background.svg",
-      png: "Logo Files/png/Black logo - no background.png",
+      svg: "miracle-mind-logo-black.svg",
     },
   },
 ];
 
 const getBackgroundClass = (bg: string) => {
   switch (bg) {
+    case "deep-blue":
+      return "bg-[#121827]";
     case "dark":
       return "bg-gradient-to-br from-neutral-200 via-neutral-100 to-neutral-200 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-900";
     case "black":
@@ -905,6 +419,8 @@ const getBackgroundClass = (bg: string) => {
       return "bg-[#1e3a5f]";
     case "light-blue":
       return "bg-[#e3f2fd]";
+    case "warm-crimson":
+      return "bg-[#8B2518]";
     case "burgundy":
       return "bg-[#6b1d36]";
     case "light-rose":
@@ -913,6 +429,8 @@ const getBackgroundClass = (bg: string) => {
       return "bg-[#4a148c]";
     case "light-purple":
       return "bg-[#f3e5f5]";
+    case "deep-teal":
+      return "bg-[#2C7873]";
     case "teal":
       return "bg-[#00695c]";
     case "light-teal":
@@ -929,10 +447,20 @@ const getBackgroundClass = (bg: string) => {
       return "bg-[#36454f]";
     case "soft-cream":
       return "bg-[#f9f6f0]";
+    case "golden-mahogany":
+      return "bg-[#704828]";
+    case "neutral-brown":
+      return "bg-[#6B5640]";
+    case "sepia":
+      return "bg-[#704214]";
+    case "warm-brown":
+      return "bg-[#6A4C32]";
     case "earth-brown":
       return "bg-[#5d4e37]";
     case "warm-sand":
       return "bg-[#f5e6d3]";
+    case "dark-slate":
+      return "bg-[#475569]";
     case "slate":
       return "bg-[#4a5568]";
     case "pale-gray":
@@ -986,11 +514,19 @@ const getBackgroundClass = (bg: string) => {
     case "gradient-emerald-teal-light":
       return "bg-gradient-to-br from-[#d1fae5] to-[#ccfbf1]";
     case "gradient-golden-sunrise":
-      return "bg-gradient-to-br from-[#fbbf24] to-[#fb923c]";
+      return "bg-gradient-to-br from-[#F6E6C1] to-[#D4AF37]";
     case "gradient-golden-sunrise-light":
       return "bg-gradient-to-br from-[#fef3c7] to-[#ffedd5]";
+    case "gradient-gold-midnight":
+      return "bg-gradient-to-br from-[#F6E6C1] to-[#121827]";
+    case "gradient-gold-midnight-light":
+      return "bg-gradient-to-br from-[#eff6ff] to-[#dbeafe]";
+    case "gradient-gold-teal":
+      return "bg-gradient-to-br from-[#F6E6C1] to-[#2C7873]";
+    case "gradient-gold-teal-light":
+      return "bg-gradient-to-br from-[#f0fdf4] to-[#e0f2f1]";
     case "gradient-rose-gold":
-      return "bg-gradient-to-br from-[#e8a87c] to-[#d4af37]";
+      return "bg-gradient-to-br from-[#F6E6C1] to-[#6b1d36]";
     case "gradient-rose-gold-light":
       return "bg-gradient-to-br from-[#fef6ee] to-[#fef9f3]";
     case "gradient-ocean":
@@ -1136,27 +672,30 @@ export default function BrandPage() {
             <div className="mb-8 inline-flex items-center justify-center">
               <div className="relative h-20 w-20">
                 <Image
-                  src="/brand/symbol.svg"
-                  alt="New Earth Collective"
+                  src="/brand/miracle-mind-orbit-star-v3.svg"
+                  alt="Miracle Mind Orbit Star"
                   fill
                   className="object-contain drop-shadow-lg"
                 />
               </div>
             </div>
             <h1
-              className="mb-4 text-7xl font-bold text-black dark:text-white"
+              className="mb-4 text-7xl font-bold text-black uppercase dark:text-white"
               style={{
-                fontFamily: "Airwaves, sans-serif",
-                letterSpacing: "0.1em",
+                fontFamily: "var(--font-quattrocento-sans)",
+                letterSpacing: "0.02em",
               }}
             >
               Brand Assets
             </h1>
-            <p className="mx-auto mb-8 max-w-2xl text-xl text-neutral-600 dark:text-neutral-400">
-              Visual identity system for New Earth Collective
+            <p
+              className="mx-auto mb-8 max-w-2xl text-xl text-neutral-600 dark:text-neutral-400"
+              style={{ fontFamily: "var(--font-muli)" }}
+            >
+              Visual identity system for Miracle Mind
             </p>
             <div className="flex items-center justify-center gap-3">
-              <Badge className="border-[#facf39]/40 bg-[#facf39]/10 text-[#facf39] dark:border-[#facf39]/30">
+              <Badge className="border-[#D4AF37]/40 bg-[#D4AF37]/10 text-[#D4AF37] dark:border-[#D4AF37]/30">
                 <FileType className="mr-1.5 h-3.5 w-3.5" />
                 SVG · PNG
               </Badge>
@@ -1172,11 +711,18 @@ export default function BrandPage() {
             <div className="mb-8 text-center">
               <h2
                 className="mb-3 text-5xl font-bold"
-                style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
+                style={{
+                  fontFamily: "var(--font-muli)",
+                  color: "#D4AF37",
+                  letterSpacing: "0.02em",
+                }}
               >
                 Brand Identity
               </h2>
-              <p className="text-lg text-neutral-600 dark:text-neutral-400">
+              <p
+                className="text-lg text-neutral-600 dark:text-neutral-400"
+                style={{ fontFamily: "var(--font-muli)" }}
+              >
                 Core visual elements and color palette
               </p>
             </div>
@@ -1184,47 +730,50 @@ export default function BrandPage() {
             <div className="grid gap-6 md:grid-cols-2">
               {/* Symbol */}
               <Card className="overflow-hidden border border-neutral-800 bg-black text-white shadow-lg dark:border-neutral-700 dark:bg-black">
-                <CardContent className="p-0">
-                  <div className="flex items-center justify-center bg-gradient-to-br from-black via-neutral-900 to-black p-8">
-                    <div className="relative h-64 w-64">
+                <CardContent className="p-8">
+                  <div className="mb-6">
+                    <h3
+                      className="mb-2 text-2xl font-semibold text-white"
+                      style={{ fontFamily: "var(--font-muli)" }}
+                    >
+                      Brand Symbol
+                    </h3>
+                    <p className="text-sm text-neutral-400">
+                      Primary visual identity mark
+                    </p>
+                  </div>
+
+                  <div className="mb-6 flex items-center justify-center rounded-xl bg-gradient-to-br from-black via-neutral-900 to-black p-12">
+                    <div className="relative h-48 w-48">
                       <Image
-                        src="/brand/symbol.svg"
-                        alt="New Earth Collective Symbol"
+                        src="/brand/miracle-mind-orbit-star-v3.svg"
+                        alt="Miracle Mind Orbit Star"
                         fill
                         className="object-contain drop-shadow-2xl"
                       />
                     </div>
                   </div>
-                  <div className="space-y-4 border-t border-neutral-800 bg-neutral-950/60 p-5">
+
+                  <div className="space-y-4">
                     <div>
-                      <h3 className="mb-1 font-semibold text-white">
-                        Brand Symbol
-                      </h3>
+                      <p className="mb-1 text-sm font-semibold text-white">
+                        Miracle Mind Orbit Star
+                      </p>
                       <p className="text-xs text-neutral-400">
-                        Interconnected unity icon
+                        Cosmic symbol with orbital rings and flowing spiral arms
+                        in golden gradient
                       </p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2">
-                        <a href="/brand/symbol.svg" download>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-[#facf39]/40 text-[#facf39] hover:border-[#ffe067] hover:text-white"
-                          >
-                            SVG
-                          </Button>
-                        </a>
-                        <a href="/brand/symbol.png" download>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-[#facf39]/40 text-[#facf39] hover:border-[#ffe067] hover:text-white"
-                          >
-                            PNG
-                          </Button>
-                        </a>
-                      </div>
+                    <div>
+                      <a href="/brand/miracle-mind-orbit-star-v3.svg" download>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-[#D4AF37]/40 text-[#D4AF37] hover:border-[#DAA520] hover:text-white"
+                        >
+                          Download SVG
+                        </Button>
+                      </a>
                     </div>
                   </div>
                 </CardContent>
@@ -1234,7 +783,10 @@ export default function BrandPage() {
               <Card className="overflow-hidden border border-neutral-800 bg-black text-white shadow-lg dark:border-neutral-700 dark:bg-black">
                 <CardContent className="p-8">
                   <div className="mb-6">
-                    <h3 className="mb-2 text-2xl font-semibold text-white">
+                    <h3
+                      className="mb-2 text-2xl font-semibold text-white"
+                      style={{ fontFamily: "var(--font-muli)" }}
+                    >
                       Brand Colors
                     </h3>
                     <p className="text-sm text-neutral-400">
@@ -1242,80 +794,249 @@ export default function BrandPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-4">
-                    {/* Primary Golden */}
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="h-16 w-16 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
-                        style={{ backgroundColor: "#facf39" }}
-                      />
-                      <div>
-                        <p className="font-mono text-sm font-semibold text-white">
-                          #FACF39
+                  {/* Two Column Layout for Colors */}
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Core Colors Column */}
+                    <div className="space-y-4">
+                      <div className="mb-2">
+                        <p className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                          Core Colors
                         </p>
-                        <p className="text-xs text-neutral-400">
-                          Primary Golden
-                        </p>
+                      </div>
+
+                      {/* Gold */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{ backgroundColor: "#D4AF37" }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            #D4AF37
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Primary Gold
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Pure Black */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{ backgroundColor: "#000000" }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            #000000
+                          </p>
+                          <p className="text-xs text-neutral-400">Pure Black</p>
+                        </div>
+                      </div>
+
+                      {/* Light Gray Gradient */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{
+                            background:
+                              "linear-gradient(to bottom right, #FFFFFF, #f9fafb, #fafafa)",
+                          }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            Light Gray
+                          </p>
+                          <p className="text-xs text-neutral-400">Gradient</p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Secondary Black */}
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="h-16 w-16 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
-                        style={{ backgroundColor: "#000000" }}
-                      />
-                      <div>
-                        <p className="font-mono text-sm font-semibold text-white">
-                          #000000
-                        </p>
-                        <p className="text-xs text-neutral-400">
-                          Secondary Black
+                    {/* Secondary Colors Column */}
+                    <div className="space-y-4">
+                      <div className="mb-2">
+                        <p className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                          Secondary Colors
                         </p>
                       </div>
+
+                      {/* Burgundy */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{ backgroundColor: "#6b1d36" }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            #6b1d36
+                          </p>
+                          <p className="text-xs text-neutral-400">Burgundy</p>
+                        </div>
+                      </div>
+
+                      {/* Neutral Brown */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{ backgroundColor: "#6B5640" }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            #6B5640
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Neutral Brown
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Deep Teal */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{ backgroundColor: "#2C7873" }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            #2C7873
+                          </p>
+                          <p className="text-xs text-neutral-400">Deep Teal</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gradients Section */}
+                  <div className="mt-8">
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                        Brand Gradients
+                      </p>
                     </div>
 
-                    {/* Tertiary White */}
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="h-16 w-16 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)",
-                        }}
-                      />
-                      <div>
-                        <p className="font-mono text-sm font-semibold text-white">
-                          #FFFFFF → #F5F5F5
-                        </p>
-                        <p className="text-xs text-neutral-400">
-                          Tertiary White Gradient
-                        </p>
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Ember Glow */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #F6E6C1 0%, #6b1d36 100%)",
+                          }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            Ember Glow
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Light Gold → Burgundy
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* North Star Glow */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                          }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            North Star Glow
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Light Gold → Gold
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Golden Tide */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #F6E6C1 0%, #2C7873 100%)",
+                          }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            Golden Tide
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Light Gold → Teal
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Midnight Gold */}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-12 w-12 shrink-0 rounded-xl shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #F6E6C1 0%, #121827 100%)",
+                          }}
+                        />
+                        <div>
+                          <p className="font-mono text-xs font-semibold text-white">
+                            Midnight Gold
+                          </p>
+                          <p className="text-xs text-neutral-400">
+                            Light Gold → Deep Blue
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-6 border-t border-neutral-800 pt-6 dark:border-neutral-700">
-                    <h4 className="mb-3 text-sm font-semibold text-white">
+                    <h4
+                      className="mb-3 text-sm font-semibold text-white"
+                      style={{ fontFamily: "var(--font-muli)" }}
+                    >
                       Typography
                     </h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-neutral-400">Wordmark:</span>
+                        <span className="text-neutral-400">
+                          Primary (Titles):
+                        </span>
                         <span
                           className="font-medium text-white"
-                          style={{ fontFamily: "Airwaves, sans-serif" }}
+                          style={{
+                            fontFamily: "var(--font-quattrocento-sans)",
+                          }}
                         >
-                          Airwaves Regular
+                          Quattrocento Sans
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-neutral-400">Slogan:</span>
+                        <span className="text-neutral-400">
+                          Secondary (Subtitles):
+                        </span>
+                        <span
+                          className="text-white"
+                          style={{
+                            fontFamily: "var(--font-muli)",
+                            fontWeight: 300,
+                          }}
+                        >
+                          Barlow Light
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">
+                          Body (Paragraphs):
+                        </span>
                         <span
                           className="font-medium text-white"
-                          style={{ fontFamily: "Bourton, sans-serif" }}
+                          style={{ fontFamily: "var(--font-geist-sans)" }}
                         >
-                          Bourton Bold
+                          Geist
                         </span>
                       </div>
                     </div>
@@ -1329,13 +1050,17 @@ export default function BrandPage() {
                 <h3
                   className="text-3xl font-semibold"
                   style={{
-                    fontFamily: "Bourton, sans-serif",
-                    color: "#facf39",
+                    fontFamily: "var(--font-quattrocento-sans)",
+                    color: "#D4AF37",
+                    letterSpacing: "0.02em",
                   }}
                 >
                   Signature Logos
                 </h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                <p
+                  className="text-sm text-neutral-600 dark:text-neutral-400"
+                  style={{ fontFamily: "var(--font-muli)" }}
+                >
                   Available for download in SVG and PNG
                 </p>
               </div>
@@ -1349,12 +1074,16 @@ export default function BrandPage() {
                       <div
                         className={`flex h-64 items-center justify-center p-10 ${logo.backgroundClass}`}
                       >
-                        <div className="relative h-full w-full">
+                        <div
+                          className="relative w-full"
+                          style={{ height: "100%", maxWidth: "100%" }}
+                        >
                           <Image
                             src={`/brand/${logo.preview}`}
                             alt={logo.name}
                             fill
                             className="object-contain drop-shadow-2xl"
+                            style={{ objectPosition: "center center" }}
                           />
                         </div>
                       </div>
@@ -1374,7 +1103,7 @@ export default function BrandPage() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="border-[#facf39]/40 text-[#facf39] hover:border-[#ffe067] hover:text-white"
+                                  className="border-[#D4AF37]/40 text-[#D4AF37] hover:border-[#DAA520] hover:text-white"
                                 >
                                   {format.toUpperCase()}
                                 </Button>
@@ -1395,11 +1124,18 @@ export default function BrandPage() {
             <div className="mb-8 text-center">
               <h2
                 className="mb-3 text-5xl font-bold"
-                style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
+                style={{
+                  fontFamily: "var(--font-quattrocento-sans)",
+                  color: "#D4AF37",
+                  letterSpacing: "0.02em",
+                }}
               >
                 Logo Variations
               </h2>
-              <p className="text-lg text-neutral-600 dark:text-neutral-400">
+              <p
+                className="text-lg text-neutral-600 dark:text-neutral-400"
+                style={{ fontFamily: "var(--font-muli)" }}
+              >
                 Explore our complete color palette collection
               </p>
             </div>
@@ -1416,12 +1152,16 @@ export default function BrandPage() {
                     <div
                       className={`relative flex h-56 items-center justify-center p-8 ${getBackgroundClass(logo.bg)}`}
                     >
-                      <div className="relative h-full w-full">
+                      <div
+                        className="relative w-full"
+                        style={{ height: "100%", maxWidth: "100%" }}
+                      >
                         <Image
                           src={`/brand/${logo.file}`}
                           alt={logo.name}
                           fill
                           className="object-contain drop-shadow-lg transition-transform duration-300 group-hover:scale-110"
+                          style={{ objectPosition: "center center" }}
                         />
                       </div>
                     </div>
@@ -1437,25 +1177,47 @@ export default function BrandPage() {
                         </p>
                       </div>
 
-                      {/* Background Colors */}
-                      <div className="flex items-center gap-2">
-                        {/* eslint-disable-next-line */}
-                        {(logo as any).bgColors?.map(
-                          (color: string, idx: number) => (
-                            <div
-                              key={idx}
-                              className="flex items-center gap-1.5"
-                            >
+                      {/* Background Colors and Download */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          {/* eslint-disable-next-line */}
+                          {(logo as any).bgColors
+                            ?.filter(
+                              (color: string, idx: number, arr: string[]) =>
+                                arr.length !== 3 || idx !== 1
+                            )
+                            .map((color: string, idx: number) => (
                               <div
-                                className="h-4 w-4 rounded border border-neutral-600"
-                                style={{ backgroundColor: color }}
-                              />
-                              <span className="font-mono text-xs text-neutral-400">
-                                {color}
-                              </span>
-                            </div>
-                          )
-                        )}
+                                key={idx}
+                                className="flex items-center gap-1.5"
+                              >
+                                <div
+                                  className="h-4 w-4 rounded border border-neutral-600"
+                                  style={{ backgroundColor: color }}
+                                />
+                                <span className="font-mono text-xs text-neutral-400">
+                                  {color}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 w-8 border-[#D4AF37]/40 p-0 text-[#D4AF37] hover:border-[#DAA520] hover:bg-[#D4AF37]/10 hover:text-white"
+                          onClick={() => {
+                            // Determine if this is a symbol or logo
+                            const isSymbol = logo.file.includes("orbit-star");
+                            downloadLogoWithBackground(
+                              logo.file,
+                              logo.name,
+                              logo.bgColors || ["#000000"],
+                              isSymbol
+                            );
+                          }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -1471,8 +1233,8 @@ export default function BrandPage() {
                 <div className="flex items-start gap-6">
                   <div className="relative h-16 w-16 shrink-0">
                     <Image
-                      src="/brand/symbol.svg"
-                      alt="New Earth Collective"
+                      src="/brand/miracle-mind-orbit-star-v3.svg"
+                      alt="Miracle Mind"
                       fill
                       className="object-contain drop-shadow-lg"
                     />
@@ -1481,19 +1243,19 @@ export default function BrandPage() {
                     <h3
                       className="mb-3 text-3xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
-                        letterSpacing: "0.1em",
+                        fontFamily: "var(--font-quattrocento-sans)",
+                        letterSpacing: "0.02em",
                       }}
                     >
                       Brand Guidelines
                     </h3>
                     <div className="space-y-3 text-neutral-700 dark:text-neutral-300">
                       <p>
-                        These brand assets are the visual foundation of New
-                        Earth Collective. Please maintain proper spacing and
-                        avoid altering logo colors or proportions.
+                        These brand assets are the visual foundation of Miracle
+                        Mind. Please maintain proper spacing and avoid altering
+                        logo colors or proportions.
                       </p>
-                      <p className="font-semibold" style={{ color: "#facf39" }}>
+                      <p className="font-semibold" style={{ color: "#D4AF37" }}>
                         Best Practices: Use SVG for web applications and PNG for
                         presentations and social media.
                       </p>

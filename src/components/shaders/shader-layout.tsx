@@ -1,18 +1,24 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 
 interface ShaderLayoutProps {
   children: React.ReactNode;
 }
 
-export function ShaderLayout({ children }: ShaderLayoutProps) {
+function ShaderLayoutContent({ children }: ShaderLayoutProps) {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const domain = searchParams.get("domain");
   const domainParam = domain ? `?domain=${domain}` : "";
+
+  // Detect if we're in admin or public shaders
+  const isAdminShaders = pathname.startsWith("/admin/shaders");
+  const backPath = isAdminShaders ? "/admin/shaders" : "/shaders";
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -20,7 +26,10 @@ export function ShaderLayout({ children }: ShaderLayoutProps) {
       {children}
 
       {/* Floating back button at bottom left */}
-      <Link href={`/admin/shaders${domainParam}`} className="fixed bottom-8 left-8 z-50">
+      <Link
+        href={`${backPath}${domainParam}`}
+        className="fixed bottom-8 left-8 z-50"
+      >
         <Button
           variant="secondary"
           size="lg"
@@ -31,5 +40,19 @@ export function ShaderLayout({ children }: ShaderLayoutProps) {
         </Button>
       </Link>
     </div>
+  );
+}
+
+export function ShaderLayout(props: ShaderLayoutProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <ShaderLayoutContent {...props} />
+    </Suspense>
   );
 }

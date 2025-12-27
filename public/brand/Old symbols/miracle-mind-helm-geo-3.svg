@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Geometric halo and compass star">
+  <title>Helm North Star — Geometric 3</title>
+  <defs>
+    <radialGradient id="geo3-star" cx="50%" cy="46%" r="62%">
+      <stop offset="0%" stop-color="#FFF6CF" />
+      <stop offset="52%" stop-color="#F3C35A" />
+      <stop offset="100%" stop-color="#A96827" />
+    </radialGradient>
+    <linearGradient id="geo3-ring" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E6C994" />
+      <stop offset="100%" stop-color="#8A5A26" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(80 80)">
+    <!-- Halo with geometric gaps -->
+    <circle r="60" fill="none" stroke="url(#geo3-ring)" stroke-width="7" stroke-dasharray="26 10" stroke-linecap="round" />
+    <circle r="48" fill="none" stroke="#EAD9B9" stroke-width="2" opacity="0.75" stroke-dasharray="4 6" />
+
+    <!-- Compass nibs -->
+    <g fill="#B7823B">
+      <polygon points="0,-72 3,-62 -3,-62" />
+      <polygon points="0,72 3,62 -3,62" />
+      <polygon points="72,0 62,3 62,-3" />
+      <polygon points="-72,0 -62,3 -62,-3" />
+    </g>
+
+    <!-- Inner diagonals -->
+    <g stroke="#D5B277" stroke-width="3" stroke-linecap="round" opacity="0.7">
+      <line x1="-40" y1="-12" x2="-12" y2="-40" />
+      <line x1="40" y1="-12" x2="12" y2="-40" />
+      <line x1="-40" y1="12" x2="-12" y2="40" />
+      <line x1="40" y1="12" x2="12" y2="40" />
+    </g>
+
+    <!-- Tight star -->
+    <path d="M 0,-24 L -1.8,-6 L -12,-12 L -6,-1.8 L -24,0 L -6,1.8 L -12,12 L -1.8,6 L 0,30 L 1.8,6 L 12,12 L 6,1.8 L 24,0 L 6,-1.8 L 12,-12 L 1.8,-6 Z"
+          fill="url(#geo3-star)" />
+  </g>
+</svg>

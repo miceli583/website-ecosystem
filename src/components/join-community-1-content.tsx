@@ -14,7 +14,7 @@ export function JoinCommunity1Content() {
         <div className="mb-8 inline-flex items-center justify-center">
           <div className="relative h-20 w-20 drop-shadow-2xl">
             <Image
-              src="/brand/symbol.svg"
+              src="/brand/miracle-mind-orbit-star-v3.svg"
               alt="New Earth Collective"
               fill
               className="object-contain"

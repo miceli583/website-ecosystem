@@ -1,4 +1,5 @@
 import { DevHub } from "~/components/pages/dev-hub";
+import { DomainLayout } from "~/components/domain-layout";
 
 /**
  * Admin Dashboard - Development Hub
@@ -7,5 +8,9 @@ import { DevHub } from "~/components/pages/dev-hub";
  * All /admin/* routes are protected and redirect to /admin/login if not authenticated
  */
 export default function AdminPage() {
-  return <DevHub />;
+  return (
+    <DomainLayout>
+      <DevHub />
+    </DomainLayout>
+  );
 }

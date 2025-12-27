@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { getDomainConfig, DOMAINS } from "~/lib/domains";
+import {
+  getDomainConfig,
+  DOMAINS,
+  ADMIN_NAV,
+  isAdminPath,
+} from "~/lib/domains";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface DomainLayoutProps {
   children: React.ReactNode;
@@ -145,7 +152,20 @@ function EcosystemMenu({ currentHostname }: { currentHostname: string }) {
                       onClick={handleMenuClose}
                       className="hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-start rounded-md p-3 text-sm transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
                     >
-                      <span className="mr-3 text-base">{link.config.logo}</span>
+                      <div className="mr-3">
+                        {link.config.logo.startsWith("/") ? (
+                          <div className="relative h-6 w-6">
+                            <Image
+                              src={link.config.logo}
+                              alt={link.config.name}
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-base">{link.config.logo}</span>
+                        )}
+                      </div>
                       <div className="flex-1 text-left">
                         <div
                           className={`font-medium ${link.isActive ? "text-primary" : ""}`}
@@ -203,6 +223,7 @@ export function DomainLayout({
 }: DomainLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [currentHostname, setCurrentHostname] = useState(hostname || "");
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -223,6 +244,22 @@ export function DomainLayout({
   }
 
   const domainConfig = getDomainConfig(currentHostname);
+  const isAdmin = isAdminPath(pathname);
+  const navItems = isAdmin ? ADMIN_NAV : domainConfig.nav;
+
+  // Determine display name based on current route
+  let displayName: string = domainConfig.name;
+  if (isAdmin) {
+    if (pathname.startsWith("/admin/matthewmiceli")) {
+      displayName = "Matthew Miceli";
+    } else if (pathname.startsWith("/admin/miraclemind-live")) {
+      displayName = "Miracle Mind";
+    } else if (pathname.startsWith("/admin/miraclemind-dev")) {
+      displayName = "Miracle Mind";
+    } else {
+      displayName = `${domainConfig.name} Admin`;
+    }
+  }
 
   return (
     <div
@@ -236,34 +273,45 @@ export function DomainLayout({
       <header
         className={`border-border/40 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur ${headerClassName || ""}`}
       >
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          {/* Left side: Menu + Logo */}
-          <div className="flex items-center space-x-3">
-            <EcosystemMenu currentHostname={currentHostname} />
+        <div className="container mx-auto grid h-14 grid-cols-3 items-center px-4">
+          {/* Left side: Logo */}
+          <div className="flex items-center">
             <Link
               href="/"
               className="flex items-center space-x-2 text-xl font-bold"
             >
-              <span className="text-2xl">{domainConfig.logo}</span>
-              <span className="hidden sm:inline">{domainConfig.name}</span>
+              {domainConfig.logo.startsWith("/") ? (
+                <div className="relative h-8 w-8">
+                  <Image
+                    src={domainConfig.logo}
+                    alt={domainConfig.name}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <span className="text-2xl">{domainConfig.logo}</span>
+              )}
+              <span className="hidden font-semibold sm:inline">
+                {displayName}
+              </span>
             </Link>
           </div>
 
           {/* Center Navigation */}
-          <nav className="hidden items-center space-x-6 md:flex">
-            {domainConfig.nav.map((item) => (
-              <Link
+          <nav className="hidden items-center justify-center space-x-6 md:flex">
+            {navItems.map((item) => (
+              <button
                 key={item.href}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+                className="text-muted-foreground hover:text-foreground text-xs font-semibold tracking-wider uppercase transition-colors"
               >
                 {item.name}
-              </Link>
+              </button>
             ))}
           </nav>
 
           {/* Right side: Theme Toggle */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-end space-x-2">
             <ThemeToggle />
           </div>
         </div>
@@ -279,8 +327,19 @@ export function DomainLayout({
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div className="flex items-center space-x-2">
-              <span className="text-lg">{domainConfig.logo}</span>
-              <span className="font-medium">{domainConfig.name}</span>
+              {domainConfig.logo.startsWith("/") ? (
+                <div className="relative h-6 w-6">
+                  <Image
+                    src={domainConfig.logo}
+                    alt={domainConfig.name}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <span className="text-lg">{domainConfig.logo}</span>
+              )}
+              <span className="font-semibold">{domainConfig.name}</span>
             </div>
             <p className="text-muted-foreground text-sm">
               {domainConfig.tagline}
