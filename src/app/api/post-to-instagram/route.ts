@@ -48,6 +48,63 @@ export async function POST(request: NextRequest) {
       image3: `${baseUrl}/dailyanchorautomation/image3`,
     };
 
+    // ========================================================================
+    // CRITICAL: Verify images are accessible before sending to Zapier
+    // In serverless, in-memory storage can be unreliable across function instances
+    // ========================================================================
+
+    const verifyImageAccessible = async (
+      url: string,
+      maxRetries = 3
+    ): Promise<boolean> => {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const response = await fetch(url, { method: "HEAD" });
+          if (response.ok) return true;
+          // If not found, wait a bit and retry (serverless cold start)
+          await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)));
+        } catch (error) {
+          console.error(
+            `Verification attempt ${i + 1} failed for ${url}:`,
+            error
+          );
+          if (i < maxRetries - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)));
+          }
+        }
+      }
+      return false;
+    };
+
+    console.log("📸 Verifying images are accessible...");
+    const [image1Ok, image2Ok, image3Ok] = await Promise.all([
+      verifyImageAccessible(imageUrls.image1),
+      verifyImageAccessible(imageUrls.image2),
+      verifyImageAccessible(imageUrls.image3),
+    ]);
+
+    if (!image1Ok || !image2Ok || !image3Ok) {
+      const missing = [];
+      if (!image1Ok) missing.push("image1");
+      if (!image2Ok) missing.push("image2");
+      if (!image3Ok) missing.push("image3");
+
+      console.error("❌ Images not accessible:", missing);
+      return NextResponse.json(
+        {
+          error: "Images not accessible",
+          details: `Failed to verify images: ${missing.join(", ")}`,
+          hint: "This is likely due to serverless function instance mismatch. Consider using persistent storage (Supabase Storage).",
+        },
+        { status: 500 }
+      );
+    }
+
+    console.log("✅ All images verified accessible");
+
+    // Add a small buffer to ensure images are fully ready
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Send URLs to Zapier instead of base64 data
     const zapierPayload = {
       image1: imageUrls.image1,
@@ -57,6 +114,7 @@ export async function POST(request: NextRequest) {
       metadata,
     };
 
+    console.log("📤 Sending to Zapier...");
     const response = await fetch(ZAPIER_WEBHOOK_URL, {
       method: "POST",
       headers: {
