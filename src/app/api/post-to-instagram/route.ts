@@ -1,13 +1,16 @@
 /**
  * API Route to post daily value carousel to Instagram via Zapier
- * Stores images at public URLs and sends URLs to Zapier
+ * Uploads images to Supabase Storage and sends public URLs to Zapier
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { storeImages } from "~/lib/image-store";
+import { createClient } from "@supabase/supabase-js";
+import { env } from "~/env";
 
 const ZAPIER_WEBHOOK_URL =
   "https://hooks.zapier.com/hooks/catch/25829205/ua7aaz9/";
+
+const STORAGE_BUCKET = "daily-anchors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,79 +36,75 @@ export async function POST(request: NextRequest) {
     const image2Blob = base64ToBlob(images.page2);
     const image3Blob = base64ToBlob(images.page3);
 
-    // Store images in memory
-    storeImages(image1Blob, image2Blob, image3Blob);
+    // Initialize Supabase client
+    const supabase = createClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
 
-    // Always use production domain for Zapier (even in dev)
-    // Zapier can't access localhost, so we need publicly accessible URLs
-    const productionDomain = "miraclemind.dev";
-    const baseUrl = `https://${productionDomain}`;
+    console.log("📤 Uploading images to Supabase Storage...");
 
-    // Create public URLs for the images
-    const imageUrls = {
-      image1: `${baseUrl}/dailyanchorautomation/image1`,
-      image2: `${baseUrl}/dailyanchorautomation/image2`,
-      image3: `${baseUrl}/dailyanchorautomation/image3`,
-    };
-
-    // ========================================================================
-    // CRITICAL: Verify images are accessible before sending to Zapier
-    // In serverless, in-memory storage can be unreliable across function instances
-    // ========================================================================
-
-    const verifyImageAccessible = async (
-      url: string,
-      maxRetries = 3
-    ): Promise<boolean> => {
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          const response = await fetch(url, { method: "HEAD" });
-          if (response.ok) return true;
-          // If not found, wait a bit and retry (serverless cold start)
-          await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)));
-        } catch (error) {
-          console.error(
-            `Verification attempt ${i + 1} failed for ${url}:`,
-            error
-          );
-          if (i < maxRetries - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 500 * (i + 1)));
-          }
-        }
-      }
-      return false;
-    };
-
-    console.log("📸 Verifying images are accessible...");
-    const [image1Ok, image2Ok, image3Ok] = await Promise.all([
-      verifyImageAccessible(imageUrls.image1),
-      verifyImageAccessible(imageUrls.image2),
-      verifyImageAccessible(imageUrls.image3),
+    // Upload images to Supabase Storage with fixed filenames
+    // Using upsert: true to overwrite existing files (keeps URLs constant)
+    const [upload1, upload2, upload3] = await Promise.all([
+      supabase.storage.from(STORAGE_BUCKET).upload("image1.jpg", image1Blob, {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: true, // Overwrite existing file
+      }),
+      supabase.storage.from(STORAGE_BUCKET).upload("image2.jpg", image2Blob, {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: true,
+      }),
+      supabase.storage.from(STORAGE_BUCKET).upload("image3.jpg", image3Blob, {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: true,
+      }),
     ]);
 
-    if (!image1Ok || !image2Ok || !image3Ok) {
-      const missing = [];
-      if (!image1Ok) missing.push("image1");
-      if (!image2Ok) missing.push("image2");
-      if (!image3Ok) missing.push("image3");
-
-      console.error("❌ Images not accessible:", missing);
+    // Check for upload errors
+    if (upload1.error || upload2.error || upload3.error) {
+      const errors = [upload1.error, upload2.error, upload3.error].filter(
+        Boolean
+      );
+      console.error("❌ Upload errors:", errors);
       return NextResponse.json(
         {
-          error: "Images not accessible",
-          details: `Failed to verify images: ${missing.join(", ")}`,
-          hint: "This is likely due to serverless function instance mismatch. Consider using persistent storage (Supabase Storage).",
+          error: "Failed to upload images to Supabase Storage",
+          details: errors.map((e) => e?.message).join(", "),
         },
         { status: 500 }
       );
     }
 
-    console.log("✅ All images verified accessible");
+    console.log("✅ Images uploaded successfully");
 
-    // Add a small buffer to ensure images are fully ready
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Get public URLs (these never change since we use fixed filenames)
+    const {
+      data: { publicUrl: url1 },
+    } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image1.jpg");
 
-    // Send URLs to Zapier instead of base64 data
+    const {
+      data: { publicUrl: url2 },
+    } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image2.jpg");
+
+    const {
+      data: { publicUrl: url3 },
+    } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image3.jpg");
+
+    // Add cache-busting timestamp to ensure Zapier gets fresh images
+    const timestamp = Date.now();
+    const imageUrls = {
+      image1: `${url1}?t=${timestamp}`,
+      image2: `${url2}?t=${timestamp}`,
+      image3: `${url3}?t=${timestamp}`,
+    };
+
+    console.log("📸 Image URLs generated:", imageUrls);
+
+    // Send URLs to Zapier
     const zapierPayload = {
       image1: imageUrls.image1,
       image2: imageUrls.image2,
