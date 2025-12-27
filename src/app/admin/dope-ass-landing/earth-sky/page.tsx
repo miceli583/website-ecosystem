@@ -17,11 +17,12 @@ export default function EarthSkyLandingPage() {
     seconds: 0,
   });
 
-  // Set target date - 30 days from now
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + 30);
 
   useEffect(() => {
+    // Set target date - 30 days from now
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 30);
+
     const calculateTimeLeft = () => {
       const difference = targetDate.getTime() - new Date().getTime();
 

@@ -17,11 +17,12 @@ export default function EmeraldTealLandingPage() {
     seconds: 0,
   });
 
-  // Set target date - 30 days from now
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + 30);
 
   useEffect(() => {
+    // Set target date - 30 days from now
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 30);
+
     const calculateTimeLeft = () => {
       const difference = targetDate.getTime() - new Date().getTime();
 
@@ -66,7 +67,7 @@ export default function EmeraldTealLandingPage() {
           <div className="mb-8">
             <div className="relative h-24 w-24 drop-shadow-2xl">
               <Image
-                src="/brand/symbol.svg"
+                src="/brand/miracle-mind-orbit-star-v3.svg"
                 alt="New Earth Collective"
                 fill
                 className="object-contain"

@@ -17,36 +17,26 @@ import {
   ArrowRight,
   Palette,
   Sparkles,
-  ChevronDown,
-  BarChart3,
   Star,
+  Megaphone,
+  ChevronDown,
+  CalendarClock,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { api } from "~/trpc/react";
+import { Suspense } from "react";
 
-export function DevHub() {
+function DevHubContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const domain = searchParams.get("domain");
   const domainParam = domain ? `?domain=${domain}` : "";
 
-  // State for localhost detection (client-side only to avoid hydration issues)
-  const [isLocalhost, setIsLocalhost] = useState(false);
+  // Fetch daily values stats
+  const { data: dailyValuesStats } = api.dailyValues.getStats.useQuery();
 
-  // Detect localhost on client side only
-  useEffect(() => {
-    setIsLocalhost(
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
-    );
-  }, []);
-
-  // Helper to get the correct URL for live sites
+  // Helper to get the actual live site URLs (always production, never localhost)
   const getLiveSiteUrl = (domainName: string) => {
-    if (isLocalhost) {
-      return `/?domain=${domainName}`;
-    }
-    // Production URLs
     const urls: Record<string, string> = {
       matthew: "https://matthewmiceli.com",
       live: "https://miraclemind.live",
@@ -54,49 +44,6 @@ export function DevHub() {
     };
     return urls[domainName] || "/";
   };
-
-  const [selectedVariation, setSelectedVariation] =
-    useState("/admin/dope-ass-landing");
-  const [selectedJoinCommunity, setSelectedJoinCommunity] =
-    useState("/admin/join-community-1");
-  const [selectedLaunchLanding, setSelectedLaunchLanding] =
-    useState("/admin/launch-landing-1");
-
-  const landingPageVariations = [
-    { name: "Original (Golden)", path: "/admin/dope-ass-landing" },
-    { name: "Earth to Sky Gradient", path: "/admin/dope-ass-landing/earth-sky" },
-    { name: "Deep Ocean Gradient", path: "/admin/dope-ass-landing/deep-ocean" },
-    { name: "Emerald-Teal Gradient", path: "/admin/dope-ass-landing/emerald-teal" },
-    { name: "Blue-Cyan Gradient", path: "/admin/dope-ass-landing/blue-cyan" },
-    { name: "Emerald", path: "/admin/dope-ass-landing/emerald" },
-    { name: "Cosmic Blue", path: "/admin/dope-ass-landing/cosmic-blue" },
-    { name: "Teal", path: "/admin/dope-ass-landing/teal" },
-    { name: "Forest Green", path: "/admin/dope-ass-landing/forest-green" },
-  ];
-
-  const joinCommunityVariations = [
-    { name: "Original (Golden)", path: "/admin/join-community-1" },
-    { name: "Earth to Sky Gradient", path: "/admin/join-community-1/earth-sky" },
-    { name: "Deep Ocean Gradient", path: "/admin/join-community-1/deep-ocean" },
-    { name: "Emerald-Teal Gradient", path: "/admin/join-community-1/emerald-teal" },
-    { name: "Blue-Cyan Gradient", path: "/admin/join-community-1/blue-cyan" },
-    { name: "Emerald", path: "/admin/join-community-1/emerald" },
-    { name: "Cosmic Blue", path: "/admin/join-community-1/cosmic-blue" },
-    { name: "Teal", path: "/admin/join-community-1/teal" },
-    { name: "Forest Green", path: "/admin/join-community-1/forest-green" },
-  ];
-
-  const launchLandingVariations = [
-    { name: "Original (Golden)", path: "/admin/launch-landing-1" },
-    { name: "Earth to Sky Gradient", path: "/admin/launch-landing-1/earth-sky" },
-    { name: "Deep Ocean Gradient", path: "/admin/launch-landing-1/deep-ocean" },
-    { name: "Emerald-Teal Gradient", path: "/admin/launch-landing-1/emerald-teal" },
-    { name: "Blue-Cyan Gradient", path: "/admin/launch-landing-1/blue-cyan" },
-    { name: "Emerald", path: "/admin/launch-landing-1/emerald" },
-    { name: "Cosmic Blue", path: "/admin/launch-landing-1/cosmic-blue" },
-    { name: "Teal", path: "/admin/launch-landing-1/teal" },
-    { name: "Forest Green", path: "/admin/launch-landing-1/forest-green" },
-  ];
 
   const features = [
     {
@@ -139,16 +86,6 @@ export function DevHub() {
       color: "cosmic-blue",
       count: "9 demos",
     },
-    {
-      title: "Statistics Dashboard",
-      description: "System metrics and analytics",
-      details:
-        "Monitor users, sessions, database stats, system status, and multi-domain deployment information.",
-      href: `/admin/statistics${domainParam}`,
-      icon: BarChart3,
-      color: "sunset-orange",
-      count: "Live Stats",
-    },
   ];
 
   return (
@@ -159,8 +96,8 @@ export function DevHub() {
           <div className="mb-8 inline-flex items-center justify-center">
             <div className="relative h-20 w-20">
               <Image
-                src="/brand/symbol.svg"
-                alt="New Earth Collective"
+                src="/brand/miracle-mind-orbit-star-v3.svg"
+                alt="Miracle Mind"
                 fill
                 className="object-contain drop-shadow-lg"
               />
@@ -169,18 +106,18 @@ export function DevHub() {
           <h1
             className="mb-4 text-6xl font-bold text-black dark:text-white"
             style={{
-              fontFamily: "Airwaves, sans-serif",
+              fontFamily: "var(--font-cinzel)",
               letterSpacing: "0.1em",
             }}
           >
             Development Hub
           </h1>
           <p className="mx-auto mb-6 max-w-2xl text-xl text-neutral-600 dark:text-neutral-400">
-            New Earth Collective - Under Development
+            Miracle Mind - Under Development
           </p>
           <div className="flex items-center justify-center gap-2">
-            <Badge className="border-[#facf39]/40 bg-[#facf39]/10 text-[#facf39]">
-              test.joinnewearthcollective.com
+            <Badge className="border-[#D4AF37]/40 bg-[#D4AF37]/10 text-[#D4AF37]">
+              admin.miraclemind.dev
             </Badge>
           </div>
         </section>
@@ -189,7 +126,7 @@ export function DevHub() {
         <section className="mb-20">
           <h2
             className="mb-8 text-center text-4xl font-bold"
-            style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
+            style={{ fontFamily: "var(--font-lato)", color: "#D4AF37" }}
           >
             Live Sites
           </h2>
@@ -210,7 +147,7 @@ export function DevHub() {
                     <h3
                       className="text-xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
+                        fontFamily: "var(--font-cinzel)",
                         letterSpacing: "0.05em",
                       }}
                     >
@@ -246,7 +183,7 @@ export function DevHub() {
                     <h3
                       className="text-xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
+                        fontFamily: "var(--font-cinzel)",
                         letterSpacing: "0.05em",
                       }}
                     >
@@ -282,7 +219,7 @@ export function DevHub() {
                     <h3
                       className="text-xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
+                        fontFamily: "var(--font-cinzel)",
                         letterSpacing: "0.05em",
                       }}
                     >
@@ -308,7 +245,7 @@ export function DevHub() {
         <section className="mb-20">
           <h2
             className="mb-8 text-center text-4xl font-bold"
-            style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
+            style={{ fontFamily: "var(--font-lato)", color: "#D4AF37" }}
           >
             Sites Under Development
           </h2>
@@ -324,7 +261,7 @@ export function DevHub() {
                     <h3
                       className="text-xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
+                        fontFamily: "var(--font-cinzel)",
                         letterSpacing: "0.05em",
                       }}
                     >
@@ -338,18 +275,13 @@ export function DevHub() {
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                   Development preview of matthewmiceli.com homepage
                 </p>
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-blue-500/10 text-blue-500 dark:bg-blue-500/20">
-                    Live Site Preview
-                  </Badge>
-                  <button
-                    onClick={() => router.push(`/admin/matthewmiceli${domainParam}`)}
-                    className="flex items-center gap-2 text-sm font-medium text-blue-500 transition-colors hover:opacity-80"
-                  >
-                    <span>View Demo</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => router.push(`/?domain=matthew`)}
+                  className="flex items-center justify-between rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-2 text-sm font-medium text-blue-500 transition-all hover:border-blue-500/40 hover:bg-blue-500/10"
+                >
+                  <span>Preview</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </CardContent>
             </Card>
 
@@ -364,7 +296,7 @@ export function DevHub() {
                     <h3
                       className="text-xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
+                        fontFamily: "var(--font-cinzel)",
                         letterSpacing: "0.05em",
                       }}
                     >
@@ -378,18 +310,13 @@ export function DevHub() {
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                   Development preview of miraclemind.live homepage
                 </p>
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20">
-                    Live Site Preview
-                  </Badge>
-                  <button
-                    onClick={() => router.push(`/admin/miraclemind-live${domainParam}`)}
-                    className="flex items-center gap-2 text-sm font-medium text-emerald-500 transition-colors hover:opacity-80"
-                  >
-                    <span>View Demo</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => router.push(`/?domain=live`)}
+                  className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-sm font-medium text-emerald-500 transition-all hover:border-emerald-500/40 hover:bg-emerald-500/10"
+                >
+                  <span>Preview</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </CardContent>
             </Card>
 
@@ -404,7 +331,7 @@ export function DevHub() {
                     <h3
                       className="text-xl font-bold text-black dark:text-white"
                       style={{
-                        fontFamily: "Airwaves, sans-serif",
+                        fontFamily: "var(--font-cinzel)",
                         letterSpacing: "0.05em",
                       }}
                     >
@@ -418,208 +345,314 @@ export function DevHub() {
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                   Development preview of miraclemind.dev homepage
                 </p>
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-violet-500/10 text-violet-500 dark:bg-violet-500/20">
-                    Live Site Preview
-                  </Badge>
-                  <button
-                    onClick={() => router.push(`/admin/miraclemind-dev${domainParam}`)}
-                    className="flex items-center gap-2 text-sm font-medium text-violet-500 transition-colors hover:opacity-80"
-                  >
-                    <span>View Demo</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => router.push(`/?domain=dev`)}
+                  className="flex items-center justify-between rounded-lg border border-violet-500/20 bg-violet-500/5 px-4 py-2 text-sm font-medium text-violet-500 transition-all hover:border-violet-500/40 hover:bg-violet-500/10"
+                >
+                  <span>Preview</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </CardContent>
             </Card>
 
-            {/* Original landing page cards below */}
-            {/* Dope Ass Landing Page with Dropdown */}
-            <Card className="group flex h-full flex-col border-2 border-[#facf39]/20 transition-all duration-300 hover:shadow-2xl dark:border-[#facf39]/30">
+            {/* Landing Page: Countdown Landing */}
+            <Card className="group flex h-full flex-col border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-amber-500/10 transition-all duration-300 hover:shadow-2xl dark:border-amber-500/40 dark:from-amber-500/10 dark:to-amber-500/5">
               <CardContent className="flex flex-1 flex-col p-6">
                 <div className="mb-4 flex flex-none items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#facf39] to-[#f59e0b] shadow-lg">
-                    <Sparkles className="h-7 w-7 text-black" />
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg transition-transform group-hover:scale-110">
+                    <Megaphone className="h-7 w-7 text-white" />
                   </div>
-                  <h3
-                    className="text-xl font-bold text-black dark:text-white"
-                    style={{
-                      fontFamily: "Airwaves, sans-serif",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    Dope Ass Landing
-                  </h3>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "var(--font-cinzel)",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Countdown Landing
+                    </h3>
+                    <Badge className="mt-1 border-amber-500/30 bg-amber-500/20 text-amber-700 shadow-sm dark:text-amber-300">
+                      9 THEMES
+                    </Badge>
+                  </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  Epic landing page with countdown timer and sacred geometry
-                  vibes - now in 9 color variations!
+                  Epic countdown timer with bold typography and animated backgrounds
                 </p>
-
-                {/* Dropdown to select variation */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="variation-select"
-                    className="mb-2 block text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400"
+                <div className="relative">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) router.push(e.target.value);
+                    }}
+                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-amber-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-amber-700 shadow-sm transition-all hover:border-amber-500/50 hover:shadow-md focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:bg-neutral-900 dark:text-amber-400"
+                    defaultValue=""
                   >
-                    Select Color Variation
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="variation-select"
-                      value={selectedVariation}
-                      onChange={(e) => setSelectedVariation(e.target.value)}
-                      className="w-full appearance-none rounded-lg border-2 border-[#facf39]/20 bg-white px-4 py-2.5 pr-10 text-sm font-medium text-black transition-colors hover:border-[#facf39]/40 focus:border-[#facf39] focus:outline-none dark:border-[#facf39]/30 dark:bg-neutral-900 dark:text-white dark:hover:border-[#facf39]/50"
+                    <option value="" disabled>
+                      Choose a theme...
+                    </option>
+                    <option value={`/admin/dope-ass-landing${domainParam}`}>
+                      🌟 Golden
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/emerald${domainParam}`}
                     >
-                      {landingPageVariations.map((variation) => (
-                        <option key={variation.path} value={variation.path}>
-                          {variation.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-[#facf39]" />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-[#facf39]/10 text-[#facf39] dark:bg-[#facf39]/20">
-                    9 Variations
-                  </Badge>
-                  <button
-                    onClick={() => router.push(`${selectedVariation}${domainParam}`)}
-                    className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
-                    style={{ color: "#facf39" }}
-                  >
-                    <span>View Demo</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
+                      💚 Emerald
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/cosmic-blue${domainParam}`}
+                    >
+                      🌌 Cosmic Blue
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/blue-cyan${domainParam}`}
+                    >
+                      💎 Blue Cyan
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/deep-ocean${domainParam}`}
+                    >
+                      🌊 Deep Ocean
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/emerald-teal${domainParam}`}
+                    >
+                      🍃 Emerald Teal
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/forest-green${domainParam}`}
+                    >
+                      🌲 Forest Green
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/teal${domainParam}`}
+                    >
+                      🐚 Teal
+                    </option>
+                    <option
+                      value={`/admin/dope-ass-landing/earth-sky${domainParam}`}
+                    >
+                      🌍 Earth Sky
+                    </option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
                 </div>
               </CardContent>
             </Card>
 
-            {/* JoinCommunity 1 with Dropdown */}
-            <Card className="group flex h-full flex-col border-2 border-[#facf39]/20 transition-all duration-300 hover:shadow-2xl dark:border-[#facf39]/30">
+            {/* Landing Page: Community Waitlist */}
+            <Card className="group flex h-full flex-col border-2 border-rose-500/30 bg-gradient-to-br from-rose-500/5 to-rose-500/10 transition-all duration-300 hover:shadow-2xl dark:border-rose-500/40 dark:from-rose-500/10 dark:to-rose-500/5">
               <CardContent className="flex flex-1 flex-col p-6">
                 <div className="mb-4 flex flex-none items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#059669] to-[#14b8a6] shadow-lg">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-lg transition-transform group-hover:scale-110">
                     <Sparkles className="h-7 w-7 text-white" />
                   </div>
-                  <h3
-                    className="text-xl font-bold text-black dark:text-white"
-                    style={{
-                      fontFamily: "Airwaves, sans-serif",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    Join Community 1
-                  </h3>
-                </div>
-                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  Full community landing page with waitlist CTA - now in 9 color
-                  variations!
-                </p>
-
-                {/* Dropdown to select variation */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="join-community-select"
-                    className="mb-2 block text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400"
-                  >
-                    Select Color Variation
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="join-community-select"
-                      value={selectedJoinCommunity}
-                      onChange={(e) => setSelectedJoinCommunity(e.target.value)}
-                      className="w-full appearance-none rounded-lg border-2 border-[#facf39]/20 bg-white px-4 py-2.5 pr-10 text-sm font-medium text-black transition-colors hover:border-[#facf39]/40 focus:border-[#facf39] focus:outline-none dark:border-[#facf39]/30 dark:bg-neutral-900 dark:text-white dark:hover:border-[#facf39]/50"
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "var(--font-cinzel)",
+                        letterSpacing: "0.05em",
+                      }}
                     >
-                      {joinCommunityVariations.map((variation) => (
-                        <option key={variation.path} value={variation.path}>
-                          {variation.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-[#facf39]" />
+                      Community Waitlist
+                    </h3>
+                    <Badge className="mt-1 border-rose-500/30 bg-rose-500/20 text-rose-700 shadow-sm dark:text-rose-300">
+                      9 THEMES
+                    </Badge>
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-[#facf39]/10 text-[#facf39] dark:bg-[#facf39]/20">
-                    9 Variations
-                  </Badge>
-                  <button
-                    onClick={() => router.push(`${selectedJoinCommunity}${domainParam}`)}
-                    className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
-                    style={{ color: "#facf39" }}
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Capture early adopters with elegant waitlist signup forms
+                </p>
+                <div className="relative">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) router.push(e.target.value);
+                    }}
+                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-rose-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-rose-700 shadow-sm transition-all hover:border-rose-500/50 hover:shadow-md focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:bg-neutral-900 dark:text-rose-400"
+                    defaultValue=""
                   >
-                    <span>View Demo</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
+                    <option value="" disabled>
+                      Choose a theme...
+                    </option>
+                    <option value={`/admin/join-community-1${domainParam}`}>
+                      🌟 Golden
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/emerald${domainParam}`}
+                    >
+                      💚 Emerald
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/cosmic-blue${domainParam}`}
+                    >
+                      🌌 Cosmic Blue
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/blue-cyan${domainParam}`}
+                    >
+                      💎 Blue Cyan
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/deep-ocean${domainParam}`}
+                    >
+                      🌊 Deep Ocean
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/emerald-teal${domainParam}`}
+                    >
+                      🍃 Emerald Teal
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/forest-green${domainParam}`}
+                    >
+                      🌲 Forest Green
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/teal${domainParam}`}
+                    >
+                      🐚 Teal
+                    </option>
+                    <option
+                      value={`/admin/join-community-1/earth-sky${domainParam}`}
+                    >
+                      🌍 Earth Sky
+                    </option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-rose-500" />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Launch Landing 1 with Dropdown */}
-            <Card className="group flex h-full flex-col border-2 border-[#facf39]/20 transition-all duration-300 hover:shadow-2xl dark:border-[#facf39]/30">
+            {/* Landing Page: Launch Event */}
+            <Card className="group flex h-full flex-col border-2 border-cyan-500/30 bg-gradient-to-br from-cyan-500/5 to-cyan-500/10 transition-all duration-300 hover:shadow-2xl dark:border-cyan-500/40 dark:from-cyan-500/10 dark:to-cyan-500/5">
               <CardContent className="flex flex-1 flex-col p-6">
                 <div className="mb-4 flex flex-none items-center gap-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#facf39] to-[#f59e0b] shadow-lg">
-                    <Sparkles className="h-7 w-7 text-black" />
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg transition-transform group-hover:scale-110">
+                    <Rocket className="h-7 w-7 text-white" />
                   </div>
-                  <h3
-                    className="text-xl font-bold text-black dark:text-white"
-                    style={{
-                      fontFamily: "Airwaves, sans-serif",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    Launch Landing 1
-                  </h3>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "var(--font-cinzel)",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Launch Event
+                    </h3>
+                    <Badge className="mt-1 border-cyan-500/30 bg-cyan-500/20 text-cyan-700 shadow-sm dark:text-cyan-300">
+                      9 THEMES
+                    </Badge>
+                  </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  Event landing page with countdown timer for Dec 20th launch
-                  party - 9 color variations!
+                  Announce product launches with high-impact hero sections
                 </p>
-
-                {/* Dropdown to select variation */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="launch-landing-select"
-                    className="mb-2 block text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400"
+                <div className="relative">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) router.push(e.target.value);
+                    }}
+                    className="w-full cursor-pointer appearance-none rounded-lg border-2 border-cyan-500/30 bg-white px-4 py-3 pr-10 text-sm font-semibold text-cyan-700 shadow-sm transition-all hover:border-cyan-500/50 hover:shadow-md focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 dark:bg-neutral-900 dark:text-cyan-400"
+                    defaultValue=""
                   >
-                    Select Color Variation
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="launch-landing-select"
-                      value={selectedLaunchLanding}
-                      onChange={(e) => setSelectedLaunchLanding(e.target.value)}
-                      className="w-full appearance-none rounded-lg border-2 border-[#facf39]/20 bg-white px-4 py-2.5 pr-10 text-sm font-medium text-black transition-colors hover:border-[#facf39]/40 focus:border-[#facf39] focus:outline-none dark:border-[#facf39]/30 dark:bg-neutral-900 dark:text-white dark:hover:border-[#facf39]/50"
+                    <option value="" disabled>
+                      Choose a theme...
+                    </option>
+                    <option value={`/admin/launch-landing-1${domainParam}`}>
+                      🌟 Golden
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/emerald${domainParam}`}
                     >
-                      {launchLandingVariations.map((variation) => (
-                        <option key={variation.path} value={variation.path}>
-                          {variation.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-[#facf39]" />
+                      💚 Emerald
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/cosmic-blue${domainParam}`}
+                    >
+                      🌌 Cosmic Blue
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/blue-cyan${domainParam}`}
+                    >
+                      💎 Blue Cyan
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/deep-ocean${domainParam}`}
+                    >
+                      🌊 Deep Ocean
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/emerald-teal${domainParam}`}
+                    >
+                      🍃 Emerald Teal
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/forest-green${domainParam}`}
+                    >
+                      🌲 Forest Green
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/teal${domainParam}`}
+                    >
+                      🐚 Teal
+                    </option>
+                    <option
+                      value={`/admin/launch-landing-1/earth-sky${domainParam}`}
+                    >
+                      🌍 Earth Sky
+                    </option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Tooling Section */}
+        <section className="mb-20">
+          <h2
+            className="mb-8 text-center text-4xl font-bold"
+            style={{ fontFamily: "var(--font-lato)", color: "#D4AF37" }}
+          >
+            Tooling
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Daily Value Post Automation */}
+            <Card className="group flex h-full flex-col border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-500/5 to-indigo-500/10 transition-all duration-300 hover:shadow-2xl dark:border-indigo-500/40 dark:from-indigo-500/10 dark:to-indigo-500/5">
+              <CardContent className="flex flex-1 flex-col p-6">
+                <div className="mb-4 flex flex-none items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg transition-transform group-hover:scale-110">
+                    <CalendarClock className="h-7 w-7 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "var(--font-cinzel)",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Daily Value Post Automation
+                    </h3>
+                    <Badge className="mt-1 border-indigo-500/30 bg-indigo-500/20 text-indigo-700 shadow-sm dark:text-indigo-300">
+                      {dailyValuesStats?.coreValues ?? 0} VALUES • {dailyValuesStats?.quotes ?? 0} QUOTES
+                    </Badge>
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-[#facf39]/10 text-[#facf39] dark:bg-[#facf39]/20">
-                    9 Variations
-                  </Badge>
-                  <button
-                    onClick={() => router.push(`${selectedLaunchLanding}${domainParam}`)}
-                    className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
-                    style={{ color: "#facf39" }}
-                  >
-                    <span>View Demo</span>
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </div>
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Create and automate daily inspirational posts with values and quotes
+                </p>
+                <button
+                  onClick={() => router.push(`/admin/daily-values${domainParam}`)}
+                  className="flex items-center justify-between rounded-lg border-2 border-indigo-500/30 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm transition-all hover:border-indigo-500/50 hover:shadow-md dark:bg-neutral-900 dark:text-indigo-400"
+                >
+                  <span>Open Dashboard</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </CardContent>
             </Card>
           </div>
@@ -629,7 +662,7 @@ export function DevHub() {
         <section className="mb-16">
           <h2
             className="mb-8 text-center text-4xl font-bold"
-            style={{ fontFamily: "Bourton, sans-serif", color: "#facf39" }}
+            style={{ fontFamily: "var(--font-lato)", color: "#D4AF37" }}
           >
             Assets
           </h2>
@@ -667,11 +700,11 @@ export function DevHub() {
                   text: "#059669",
                 },
                 golden: {
-                  gradient: "from-[#facf39] to-[#f59e0b]",
-                  border: "border-[#facf39]/20 dark:border-[#facf39]/30",
+                  gradient: "from-[#D4AF37] to-[#f59e0b]",
+                  border: "border-[#D4AF37]/20 dark:border-[#D4AF37]/30",
                   badge:
-                    "bg-[#facf39]/10 text-[#facf39] dark:bg-[#facf39]/20 dark:text-[#facf39]",
-                  text: "#facf39",
+                    "bg-[#D4AF37]/10 text-[#D4AF37] dark:bg-[#D4AF37]/20 dark:text-[#D4AF37]",
+                  text: "#D4AF37",
                 },
                 "sunset-orange": {
                   gradient: "from-[#f97316] to-[#fb923c]",
@@ -687,7 +720,7 @@ export function DevHub() {
                 <Link
                   key={feature.title}
                   href={feature.href}
-                  onClick={() => console.log('Navigating to:', feature.href)}
+                  onClick={() => console.log("Navigating to:", feature.href)}
                 >
                   <Card
                     className={`group flex h-full cursor-pointer flex-col border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${colors.border}`}
@@ -701,7 +734,7 @@ export function DevHub() {
                       <CardTitle
                         className="text-xl font-bold text-black dark:text-white"
                         style={{
-                          fontFamily: "Airwaves, sans-serif",
+                          fontFamily: "var(--font-cinzel)",
                           letterSpacing: "0.05em",
                         }}
                       >
@@ -735,13 +768,13 @@ export function DevHub() {
 
         {/* Footer Note */}
         <section className="text-center">
-          <Card className="mx-auto max-w-3xl border-2 border-[#facf39]/20 bg-gradient-to-br from-white to-neutral-50 shadow-lg dark:from-neutral-900 dark:to-black">
+          <Card className="mx-auto max-w-3xl border-2 border-[#D4AF37]/20 bg-gradient-to-br from-white to-neutral-50 shadow-lg dark:from-neutral-900 dark:to-black">
             <CardContent className="p-8">
               <div className="flex items-start gap-6">
                 <div className="relative h-12 w-12 shrink-0">
                   <Image
-                    src="/brand/symbol.svg"
-                    alt="New Earth Collective"
+                    src="/brand/miracle-mind-orbit-star-v3.svg"
+                    alt="Miracle Mind"
                     fill
                     className="object-contain drop-shadow-lg"
                   />
@@ -750,15 +783,15 @@ export function DevHub() {
                   <h3
                     className="mb-2 text-xl font-bold text-black dark:text-white"
                     style={{
-                      fontFamily: "Airwaves, sans-serif",
+                      fontFamily: "var(--font-cinzel)",
                       letterSpacing: "0.05em",
                     }}
                   >
                     Development Environment
                   </h3>
                   <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    This is the development environment for New Earth
-                    Collective. Features are under active development.
+                    This is the development environment for Miracle Mind.
+                    Features are under active development.
                   </p>
                 </div>
               </div>
@@ -767,5 +800,13 @@ export function DevHub() {
         </section>
       </div>
     </div>
+  );
+}
+
+export function DevHub() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <DevHubContent />
+    </Suspense>
   );
 }

@@ -86,15 +86,18 @@ npm run db:studio
 
 ### Environment Variables
 
-See [`ENV_SETUP.md`](./ENV_SETUP.md) for detailed setup instructions.
+See [`ENV_SETUP.md`](./docs/ENV_SETUP.md) for detailed setup instructions.
 
 ## 📚 Documentation
 
-- **[Development Guide](./DEVELOPMENT.md)** - Complete development workflow and best practices
-- **[Environment Setup](./ENV_SETUP.md)** - Configure env variables
-- **[GitHub Setup](./GITHUB_SETUP.md)** - CI/CD and deployment
-- **[Database Migration](./DATABASE_MIGRATION.md)** - Moving to production DB
-- **[Supabase Setup](./SUPABASE_SETUP.md)** - Production database setup
+- **[Development Guide](./docs/DEVELOPMENT.md)** - Complete development workflow and best practices
+- **[Architecture Notes](./docs/ARCHITECTURE_NOTES.md)** - Dual-purpose architecture patterns
+- **[Environment Setup](./docs/ENV_SETUP.md)** - Configure env variables
+- **[GitHub Setup](./docs/GITHUB_SETUP.md)** - CI/CD and deployment
+- **[Database Migration](./docs/DATABASE_MIGRATION.md)** - Moving to production DB
+- **[Supabase Setup](./docs/SUPABASE_SETUP.md)** - Production database setup
+- **[Auth Setup](./docs/AUTH_SETUP.md)** - Authentication configuration
+- **[Domain Email Routing](./docs/DOMAIN_EMAIL_ROUTING.md)** - Multi-domain email setup
 
 ## 🔧 Development Workflow
 

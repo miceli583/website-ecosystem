@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" role="img" aria-label="Miracle Mind Orbit Star - Black">
+  <title>Miracle Mind Orbit Star - Black</title>
+
+  <!-- Outer orbit ring -->
+  <circle r="72" fill="none" stroke="#0D0A08" stroke-width="4" />
+
+  <!-- Inner orbit ring -->
+  <circle r="58" fill="none" stroke="#0D0A08" stroke-width="2" opacity="0.55" />
+
+  <!-- Spiral arms -->
+  <g fill="none" stroke="#0D0A08" stroke-width="5.5" stroke-linecap="round">
+    <path d="M 0 -72 C 16 -62 52 -42 72 0" />
+    <path d="M 72 0 C 62 16 42 52 0 72" />
+    <path d="M 0 72 C -16 62 -52 42 -72 0" />
+    <path d="M -72 0 C -62 -16 -42 -52 0 -72" />
+  </g>
+
+  <!-- Center point -->
+  <circle r="6" fill="#0D0A08" />
+</svg>

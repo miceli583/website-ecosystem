@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Miracle Mind Orbit Star - White">
+  <title>Miracle Mind Orbit Star - White</title>
+  <g transform="translate(100 100)">
+    <circle r="72" fill="none" stroke="#FFF8E7" stroke-width="4" />
+    <circle r="58" fill="none" stroke="#FFF8E7" stroke-width="2" opacity="0.55" />
+    <g fill="none" stroke="#FFF8E7" stroke-width="5.5" stroke-linecap="round">
+      <path d="M 0 -72 C 16 -62 52 -42 72 0" />
+      <path d="M 72 0 C 62 16 42 52 0 72" />
+      <path d="M 0 72 C -16 62 -52 42 -72 0" />
+      <path d="M -72 0 C -62 -16 -42 -52 0 -72" />
+    </g>
+    <circle r="6" fill="#FFF8E7" />
+  </g>
+</svg>

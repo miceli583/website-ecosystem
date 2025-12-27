@@ -13,10 +13,10 @@ export default function LaunchLanding1Page() {
     seconds: 0,
   });
 
-  // Set target date - December 20th, 2025 at 12 PM
-  const targetDate = new Date("2025-12-20T12:00:00");
-
   useEffect(() => {
+    // Set target date - December 20th, 2025 at 12 PM
+    const targetDate = new Date("2025-12-20T12:00:00");
+
     const calculateTimeLeft = () => {
       const difference = targetDate.getTime() - new Date().getTime();
 

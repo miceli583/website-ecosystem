@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" role="img" aria-label="Miracle Mind Logo">
+  <title>Miracle Mind - White Logo</title>
+  <defs>
+    <!-- Orbit Star Gradient (White) -->
+    <linearGradient id="orbit-white" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#F5F5F5" />
+      <stop offset="100%" stop-color="#E0E0E0" />
+    </linearGradient>
+
+    <!-- Subtle glow filter -->
+    <filter id="textGlowWhite" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feFlood flood-color="#FFFFFF" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Orbit Star Symbol -->
+  <g transform="translate(100, 79) scale(0.42)">
+    <circle r="72" fill="none" stroke="#FFF8E7" stroke-width="4" />
+    <circle r="58" fill="none" stroke="#FFF8E7" stroke-width="2" opacity="0.55" />
+    <g fill="none" stroke="#FFF8E7" stroke-width="5.5" stroke-linecap="round">
+      <path d="M 0 -72 C 16 -62 52 -42 72 0" />
+      <path d="M 72 0 C 62 16 42 52 0 72" />
+      <path d="M 0 72 C -16 62 -52 42 -72 0" />
+      <path d="M -72 0 C -62 -16 -42 -52 0 -72" />
+    </g>
+    <circle r="6" fill="#FFF8E7" />
+  </g>
+
+  <!-- Text: MIRACLE MIND (inline) -->
+  <text x="148" y="85"
+        font-family="'Quattrocento Sans', sans-serif"
+        font-size="52"
+        font-weight="200"
+        fill="#FFF8E7"
+        filter="url(#textGlowWhite)"
+        letter-spacing="0">MIRACLE</text>
+
+  <text x="383" y="85"
+        font-family="'Quattrocento Sans', sans-serif"
+        font-size="52"
+        font-weight="700"
+        fill="#FFF8E7"
+        filter="url(#textGlowWhite)"
+        letter-spacing="0.15em">MIND</text>
+
+  <!-- Slogan -->
+  <text x="150" y="108"
+        font-family="'Barlow', sans-serif"
+        font-size="18"
+        font-weight="300"
+        fill="#FFF8E7"
+        opacity="0.8"
+        textLength="385"
+        lengthAdjust="spacing">Home of the Modern Polymath</text>
+</svg>

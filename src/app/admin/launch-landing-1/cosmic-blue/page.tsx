@@ -13,9 +13,10 @@ export default function CosmicBlueLaunchLanding1Page() {
     seconds: 0,
   });
 
-  const targetDate = new Date("2025-12-20T12:00:00");
 
   useEffect(() => {
+    const targetDate = new Date("2025-12-20T12:00:00");
+
     const calculateTimeLeft = () => {
       const difference = targetDate.getTime() - new Date().getTime();
       if (difference > 0) {
