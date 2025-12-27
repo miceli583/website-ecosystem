@@ -13,6 +13,28 @@ import { eq, desc, asc, count, sql, and } from "drizzle-orm";
 
 export const dailyValuesRouter = createTRPCRouter({
   // ============================================================================
+  // HEALTH CHECK - Test database connectivity
+  // ============================================================================
+
+  healthCheck: publicProcedure.query(async () => {
+    try {
+      // Simple query to test database connection
+      const result = await db.select().from(supportingValues).limit(1);
+      return {
+        status: "ok",
+        database: "connected",
+        recordCount: result.length,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error("Health check failed:", error);
+      throw new Error(
+        `Database health check failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  }),
+
+  // ============================================================================
   // SUPPORTING VALUES - Full CRUD
   // ============================================================================
 
