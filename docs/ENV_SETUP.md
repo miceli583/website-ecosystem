@@ -42,14 +42,46 @@ For production deployment and authentication:
 
 ### 3. Production Deployment (Vercel)
 
-Add these environment variables in Vercel dashboard:
+**CRITICAL**: The production database MUST use PostgreSQL, not SQLite.
 
-```
-DATABASE_URL=<supabase-postgres-url>
-# Optional for Supabase integration:
-# NEXT_PUBLIC_SUPABASE_URL=<supabase-project-url>
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
-```
+#### Step-by-Step Vercel Setup:
+
+1. **Go to Vercel Dashboard** → Your Project → Settings → Environment Variables
+
+2. **Add DATABASE_URL** (REQUIRED):
+
+   ```
+   Variable Name: DATABASE_URL
+   Value: postgresql://postgres.wuxmtvdfzpjonzupmgsd:[YOUR-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:6543/postgres
+   ```
+
+   ⚠️ **Get your actual DATABASE_URL from Supabase**:
+   - Go to https://supabase.com/dashboard
+   - Select your project
+   - Go to Settings > Database
+   - Under "Connection String" section, copy the "URI" (Connection Pooling)
+   - Replace `[YOUR-PASSWORD]` with your actual database password
+
+3. **Add Supabase credentials** (for authentication features):
+
+   ```
+   Variable Name: NEXT_PUBLIC_SUPABASE_URL
+   Value: https://wuxmtvdfzpjonzupmgsd.supabase.co
+
+   Variable Name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+   Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   ```
+
+4. **Redeploy your application** after adding environment variables
+
+#### Troubleshooting Production Database Issues:
+
+If you see "Unable to load data from database" on the `/admin/daily-values` page:
+
+- ✅ Check that DATABASE_URL is set in Vercel (Settings → Environment Variables)
+- ✅ Verify it starts with `postgresql://` (NOT `file:`)
+- ✅ Ensure your Supabase database password is correct
+- ✅ Check browser console for detailed error messages (press F12)
 
 ### 4. CI/CD (GitHub Actions)
 

@@ -192,20 +192,66 @@ function DailyValuesContent() {
   // DATA QUERIES
   // ==========================================================================
   const utils = api.useUtils();
-  const { data: stats } = api.dailyValues.getStats.useQuery();
-  const { data: coreValues, isLoading: coreValuesLoading } =
-    api.dailyValues.getAllCoreValues.useQuery();
-  const { data: supportingValues, isLoading: supportingValuesLoading } =
-    api.dailyValues.getAllSupportingValues.useQuery();
-  const { data: availableSupportingValues } =
-    api.dailyValues.getAvailableSupportingValues.useQuery();
-  const { data: quotes, isLoading: quotesLoading } =
-    api.dailyValues.getAllQuotes.useQuery();
-  const { data: authors } = api.dailyValues.getAllAuthors.useQuery();
-  const { data: authorsWithCounts } =
+  const { data: stats, error: statsError } =
+    api.dailyValues.getStats.useQuery();
+  const {
+    data: coreValues,
+    isLoading: coreValuesLoading,
+    error: coreValuesError,
+  } = api.dailyValues.getAllCoreValues.useQuery();
+  const {
+    data: supportingValues,
+    isLoading: supportingValuesLoading,
+    error: supportingValuesError,
+  } = api.dailyValues.getAllSupportingValues.useQuery();
+  const {
+    data: availableSupportingValues,
+    error: availableSupportingValuesError,
+  } = api.dailyValues.getAvailableSupportingValues.useQuery();
+  const {
+    data: quotes,
+    isLoading: quotesLoading,
+    error: quotesError,
+  } = api.dailyValues.getAllQuotes.useQuery();
+  const { data: authors, error: authorsError } =
+    api.dailyValues.getAllAuthors.useQuery();
+  const { data: authorsWithCounts, error: authorsWithCountsError } =
     api.dailyValues.getAuthorsWithQuoteCounts.useQuery();
-  const { data: postQueue, isLoading: queueLoading } =
-    api.dailyValues.getPostQueue.useQuery();
+  const {
+    data: postQueue,
+    isLoading: queueLoading,
+    error: queueError,
+  } = api.dailyValues.getPostQueue.useQuery();
+
+  // Log errors in development for debugging
+  useEffect(() => {
+    const errors = {
+      stats: statsError,
+      coreValues: coreValuesError,
+      supportingValues: supportingValuesError,
+      availableSupportingValues: availableSupportingValuesError,
+      quotes: quotesError,
+      authors: authorsError,
+      authorsWithCounts: authorsWithCountsError,
+      queue: queueError,
+    };
+
+    const hasErrors = Object.values(errors).some(
+      (e) => e !== undefined && e !== null
+    );
+    if (hasErrors) {
+      console.error("[Daily Values] API Errors:", errors);
+    }
+  }, [
+    statsError,
+    coreValuesError,
+    supportingValuesError,
+    availableSupportingValuesError,
+    quotesError,
+    authorsError,
+    authorsWithCountsError,
+    queueError,
+  ]);
 
   // Fetch Core Values for selected quote (when editing)
   const { data: quoteCoreValues } =
@@ -955,6 +1001,45 @@ Living with an embodied value system means letting principles like ${valueName} 
             </Badge>
           </div>
         </div>
+
+        {/* Error Banner */}
+        {(coreValuesError ||
+          supportingValuesError ||
+          quotesError ||
+          authorsError) && (
+          <div className="mb-6 rounded-lg border-2 border-red-500/30 bg-red-500/10 p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+              <div className="flex-1">
+                <h3 className="mb-1 font-semibold text-red-900 dark:text-red-100">
+                  Database Connection Error
+                </h3>
+                <p className="mb-2 text-sm text-red-800 dark:text-red-200">
+                  Unable to load data from the database. This usually means the
+                  DATABASE_URL environment variable is not configured correctly
+                  in production.
+                </p>
+                <details className="text-xs text-red-700 dark:text-red-300">
+                  <summary className="cursor-pointer hover:underline">
+                    View technical details
+                  </summary>
+                  <div className="mt-2 space-y-1 rounded bg-red-900/20 p-2 font-mono">
+                    {coreValuesError && (
+                      <div>Core Values: {coreValuesError.message}</div>
+                    )}
+                    {supportingValuesError && (
+                      <div>
+                        Supporting Values: {supportingValuesError.message}
+                      </div>
+                    )}
+                    {quotesError && <div>Quotes: {quotesError.message}</div>}
+                    {authorsError && <div>Authors: {authorsError.message}</div>}
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <Tabs
