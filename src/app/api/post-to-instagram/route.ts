@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Extract images and convert base64 to Blobs
-    const { images, caption, metadata } = body;
+    const { images, caption, metadata, dryRun } = body;
 
     // Convert data URLs to Blobs
     const base64ToBlob = (dataUrl: string): Blob => {
@@ -42,34 +42,40 @@ export async function POST(request: NextRequest) {
       env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    console.log("📤 Uploading images to Supabase Storage...");
-
-    // Upload images to Supabase Storage with fixed filenames
-    // Using upsert: true to overwrite existing files (keeps URLs constant)
-    const [upload1, upload2, upload3] = await Promise.all([
-      supabase.storage.from(STORAGE_BUCKET).upload("image1.jpg", image1Blob, {
-        contentType: "image/jpeg",
-        cacheControl: "3600",
-        upsert: true, // Overwrite existing file
-      }),
-      supabase.storage.from(STORAGE_BUCKET).upload("image2.jpg", image2Blob, {
-        contentType: "image/jpeg",
-        cacheControl: "3600",
-        upsert: true,
-      }),
-      supabase.storage.from(STORAGE_BUCKET).upload("image3.jpg", image3Blob, {
-        contentType: "image/jpeg",
-        cacheControl: "3600",
-        upsert: true,
-      }),
+    // Delete old files first to avoid race conditions with upsert
+    await Promise.all([
+      supabase.storage.from(STORAGE_BUCKET).remove(["image1.jpg"]),
+      supabase.storage.from(STORAGE_BUCKET).remove(["image2.jpg"]),
+      supabase.storage.from(STORAGE_BUCKET).remove(["image3.jpg"]),
     ]);
+
+    // Upload images sequentially to avoid race conditions
+    const upload1 = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload("image1.jpg", image1Blob, {
+        contentType: "image/jpeg",
+        cacheControl: "0",
+      });
+
+    const upload2 = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload("image2.jpg", image2Blob, {
+        contentType: "image/jpeg",
+        cacheControl: "0",
+      });
+
+    const upload3 = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload("image3.jpg", image3Blob, {
+        contentType: "image/jpeg",
+        cacheControl: "0",
+      });
 
     // Check for upload errors
     if (upload1.error || upload2.error || upload3.error) {
       const errors = [upload1.error, upload2.error, upload3.error].filter(
         Boolean
       );
-      console.error("❌ Upload errors:", errors);
       return NextResponse.json(
         {
           error: "Failed to upload images to Supabase Storage",
@@ -78,8 +84,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    console.log("✅ Images uploaded successfully");
 
     // Get public URLs (these never change since we use fixed filenames)
     const {
@@ -96,15 +100,14 @@ export async function POST(request: NextRequest) {
 
     // Add cache-busting timestamp to ensure Zapier gets fresh images
     const timestamp = Date.now();
+    const cacheBust = `?v=${timestamp}&nocache=true`;
     const imageUrls = {
-      image1: `${url1}?t=${timestamp}`,
-      image2: `${url2}?t=${timestamp}`,
-      image3: `${url3}?t=${timestamp}`,
+      image1: `${url1}${cacheBust}`,
+      image2: `${url2}${cacheBust}`,
+      image3: `${url3}${cacheBust}`,
     };
 
-    console.log("📸 Image URLs generated:", imageUrls);
-
-    // Send URLs to Zapier
+    // Prepare Zapier payload
     const zapierPayload = {
       image1: imageUrls.image1,
       image2: imageUrls.image2,
@@ -113,7 +116,19 @@ export async function POST(request: NextRequest) {
       metadata,
     };
 
-    console.log("📤 Sending to Zapier...");
+    // If dry run mode, skip Zapier and return payload preview
+    if (dryRun) {
+      return NextResponse.json({
+        success: true,
+        dryRun: true,
+        imageUrls,
+        zapierPayload,
+        message:
+          "Images uploaded to Supabase. Zapier webhook skipped (dry run mode).",
+      });
+    }
+
+    // Send URLs to Zapier
     const response = await fetch(ZAPIER_WEBHOOK_URL, {
       method: "POST",
       headers: {

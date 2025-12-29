@@ -112,6 +112,22 @@ export const quotePosts = pgTable("quote_posts", {
     .defaultNow(),
 });
 
+/**
+ * Pending Posts - Buffer station for scheduled Instagram posts
+ * Holds single payload temporarily before sending to Zapier
+ * Always uses id='current' as singleton pattern
+ */
+export const pendingPosts = pgTable("pending_posts", {
+  id: text("id").primaryKey(), // Always 'current'
+  zapierPayload: text("zapier_payload").notNull(), // JSON stringified
+  scheduledFor: timestamp("scheduled_for", { withTimezone: true }).notNull(),
+  status: text("status").notNull().default("pending"), // "pending" | "sent"
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+});
+
 // ============================================================================
 // RELATIONS
 // ============================================================================
@@ -187,3 +203,6 @@ export type NewCoreValueQuote = typeof coreValueQuotes.$inferInsert;
 
 export type QuotePost = typeof quotePosts.$inferSelect;
 export type NewQuotePost = typeof quotePosts.$inferInsert;
+
+export type PendingPost = typeof pendingPosts.$inferSelect;
+export type NewPendingPost = typeof pendingPosts.$inferInsert;

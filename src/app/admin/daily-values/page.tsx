@@ -38,6 +38,7 @@ import {
   Send,
   Loader2,
   Shuffle,
+  Repeat,
   AlertTriangle,
   ChevronDown,
   Check,
@@ -187,6 +188,41 @@ function DailyValuesContent() {
   } | null>(null);
   const [generatedCaption, setGeneratedCaption] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // ==========================================================================
+  // QUEUE STATE
+  // ==========================================================================
+  const [expandedQueueItems, setExpandedQueueItems] = useState<Set<string>>(
+    new Set()
+  );
+  const [queueItemImages, setQueueItemImages] = useState<
+    Map<
+      string,
+      {
+        page1: string;
+        page2: string;
+        page3: string;
+        theme: BrandTheme;
+      }
+    >
+  >(new Map());
+  const [queueItemThemes, setQueueItemThemes] = useState<
+    Map<string, BrandTheme>
+  >(new Map());
+  const [generatingQueueItems, setGeneratingQueueItems] = useState<Set<string>>(
+    new Set()
+  );
+  const [queueItemCaptions, setQueueItemCaptions] = useState<
+    Map<string, string>
+  >(new Map());
+
+  // ==========================================================================
+  // BUFFER STATION STATE
+  // ==========================================================================
+  const [bufferActive, setBufferActive] = useState(false);
+  const [bufferPayload, setBufferPayload] = useState<any>(null);
+  const [bufferTimeRemaining, setBufferTimeRemaining] = useState(120); // 2 minutes in seconds
+  const [bufferEndTime, setBufferEndTime] = useState<number | null>(null);
 
   // ==========================================================================
   // DATA QUERIES
@@ -477,6 +513,99 @@ function DailyValuesContent() {
     },
   });
 
+  // Queue Management Mutations
+  const fillQueue = api.dailyValues.fillQueue.useMutation({
+    onSuccess: (data) => {
+      void utils.dailyValues.getPostQueue.invalidate();
+      void utils.dailyValues.getStats.invalidate();
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  const popQueue = api.dailyValues.popQueue.useMutation({
+    onSuccess: (data) => {
+      void utils.dailyValues.getPostQueue.invalidate();
+      void utils.dailyValues.getStats.invalidate();
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  const enqueuePost = api.dailyValues.enqueuePost.useMutation({
+    onSuccess: (data) => {
+      void utils.dailyValues.getPostQueue.invalidate();
+      void utils.dailyValues.getStats.invalidate();
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  const rotateQueue = api.dailyValues.rotateQueue.useMutation({
+    onSuccess: (data) => {
+      void utils.dailyValues.getPostQueue.invalidate();
+      void utils.dailyValues.getStats.invalidate();
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  const deleteQueueItem = api.dailyValues.deleteQueueItem.useMutation({
+    onSuccess: (data) => {
+      void utils.dailyValues.getPostQueue.invalidate();
+      void utils.dailyValues.getStats.invalidate();
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  const clearQueue = api.dailyValues.clearQueue.useMutation({
+    onSuccess: (data) => {
+      void utils.dailyValues.getPostQueue.invalidate();
+      void utils.dailyValues.getStats.invalidate();
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  const updateQueueItem = api.dailyValues.updateQueueItem.useMutation({
+    onSuccess: () => {
+      void utils.dailyValues.getPostQueue.invalidate();
+    },
+    onError: (error) => {
+      alert(`Error: ${error.message}`);
+    },
+  });
+
+  // Pending Posts (Buffer Station)
+  const upsertPendingPost = api.dailyValues.upsertPendingPost.useMutation({
+    onSuccess: () => {
+      void utils.dailyValues.getCurrentPendingPost.invalidate();
+    },
+    onError: (error) => {
+      alert(`Error creating pending post: ${error.message}`);
+    },
+  });
+
+  // Poll pending post every second when buffer is active
+  const { data: currentPendingPost } =
+    api.dailyValues.getCurrentPendingPost.useQuery(undefined, {
+      refetchInterval: bufferActive ? 1000 : false, // Poll every second when buffer active
+      enabled: bufferActive,
+    });
+
   // ==========================================================================
   // HANDLERS
   // ==========================================================================
@@ -699,6 +828,62 @@ function DailyValuesContent() {
       }));
     }
   }, [quoteCoreValues, quoteDialog.mode]);
+
+  // Restore buffer state from database on mount
+  useEffect(() => {
+    if (currentPendingPost && currentPendingPost.status === "pending") {
+      const now = Date.now();
+      const endTime = new Date(currentPendingPost.scheduledFor).getTime();
+      const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+
+      if (remaining > 0) {
+        const payload = JSON.parse(currentPendingPost.zapierPayload);
+        setBufferPayload(payload);
+        setBufferEndTime(endTime);
+        setBufferTimeRemaining(remaining);
+        setBufferActive(true);
+      } else if (remaining <= 0) {
+        // Post should have been sent by backend already
+        setBufferActive(false);
+        setBufferPayload(null);
+        setBufferTimeRemaining(120);
+        setBufferEndTime(null);
+      }
+    } else if (currentPendingPost?.status === "sent") {
+      // Post was sent, clear buffer
+      setBufferActive(false);
+      setBufferPayload(null);
+      setBufferTimeRemaining(120);
+      setBufferEndTime(null);
+    }
+  }, [currentPendingPost]);
+
+  // Buffer Station Countdown Timer (sync from database)
+  useEffect(() => {
+    if (!bufferActive || !bufferEndTime) return;
+
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const remaining = Math.max(0, Math.floor((bufferEndTime - now) / 1000));
+      setBufferTimeRemaining(remaining);
+
+      // When countdown reaches 0, the backend (pg_cron) will handle sending to Zapier
+      // We just clear the buffer UI after a delay to show "sent" state
+      if (remaining <= 0) {
+        // Check status from database - if sent, clear buffer
+        setTimeout(() => {
+          if (currentPendingPost?.status === "sent") {
+            setBufferActive(false);
+            setBufferPayload(null);
+            setBufferTimeRemaining(120);
+            setBufferEndTime(null);
+          }
+        }, 2000); // Wait 2 seconds for backend to process
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [bufferActive, bufferEndTime, currentPendingPost]);
 
   // Delete Confirmation Handler
   const handleConfirmDelete = () => {
@@ -959,19 +1144,610 @@ Living with an embodied value system means letting principles like ${valueName} 
           `Webhook failed: ${response.status} ${response.statusText}`
         );
       }
-
-      alert("✅ Post sent to Zapier successfully!");
     } catch (error) {
       console.error("Error posting to Zapier:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      alert(`❌ Failed to post to Zapier\n\n${errorMessage}`);
+    }
+  };
+
+  // ==========================================================================
+  // QUEUE HANDLERS
+  // ==========================================================================
+
+  const toggleQueueItemExpanded = (postId: string) => {
+    setExpandedQueueItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleGenerateQueueItemImages = async (
+    post: PostQueueItem,
+    overrideTheme?: BrandTheme
+  ) => {
+    // Add to generating set
+    setGeneratingQueueItems((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(post.id);
+      return newSet;
+    });
+
+    try {
+      const coreValue = coreValues?.find(
+        (cv: CoreValue) => cv.id === post.coreValueId
+      );
+      const quote = quotes?.find((q: QuoteWithAuthor) => q.id === post.quoteId);
+
+      console.log("Found coreValue:", coreValue);
+      console.log("Found quote:", quote);
+
+      if (!coreValue || !quote) {
+        throw new Error("Could not find core value or quote");
+      }
+
+      if (!coreValue.value || !coreValue.description || !quote.text) {
+        throw new Error(
+          `Missing required fields - value: ${coreValue.value}, description: ${coreValue.description}, quote: ${quote.text}`
+        );
+      }
+
+      // Use override theme if provided, otherwise get from state
+      const theme =
+        overrideTheme ?? queueItemThemes.get(post.id) ?? DEFAULT_THEME;
+
+      const content: CarouselContent = {
+        value: {
+          name: coreValue.value,
+          description: coreValue.description,
+        },
+        quote: {
+          text: quote.text,
+          author: quote.authorName ?? "Unknown",
+        },
+      };
+
+      console.log("Generating carousel for:", post.id, content, theme);
+      const carousel = await generateCarousel(content, theme);
+      console.log("Generated carousel:", carousel);
+
+      // Convert Blobs to object URLs (same as Generate tab)
+      const page1Url = URL.createObjectURL(carousel.page1);
+      const page2Url = URL.createObjectURL(carousel.page2);
+      const page3Url = URL.createObjectURL(carousel.page3);
+
+      console.log("Created URLs:", { page1Url, page2Url, page3Url });
+
+      // Generate caption
+      const caption = generateCaption(
+        coreValue.value,
+        coreValue.description,
+        quote.text,
+        quote.authorName ?? "Unknown"
+      );
+
+      // Store images
+      setQueueItemImages((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(post.id, {
+          page1: page1Url,
+          page2: page2Url,
+          page3: page3Url,
+          theme,
+        });
+        return newMap;
+      });
+
+      // Store caption
+      setQueueItemCaptions((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(post.id, caption);
+        return newMap;
+      });
+    } catch (error) {
+      console.error("Error generating queue item images:", error);
+      alert(
+        `Error generating images: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    } finally {
+      // Remove from generating set
+      setGeneratingQueueItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(post.id);
+        return newSet;
+      });
+    }
+  };
+
+  const handleQueueItemThemeChange = async (
+    postId: string,
+    newTheme: BrandTheme
+  ) => {
+    setQueueItemThemes((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(postId, newTheme);
+      return newMap;
+    });
+
+    // If images already exist, regenerate with new theme
+    const existingImages = queueItemImages.get(postId);
+    if (existingImages) {
+      const post = postQueue?.find((p: PostQueueItem) => p.id === postId);
+      if (post) {
+        // Pass the new theme directly to avoid stale state
+        await handleGenerateQueueItemImages(post, newTheme);
+      }
+    }
+  };
+
+  const handleDeleteQueueItem = (postId: string) => {
+    if (confirm("Are you sure you want to remove this post from the queue?")) {
+      deleteQueueItem.mutate({ id: postId });
+    }
+  };
+
+  // Helper function to post a queue item to Instagram
+  const handlePostQueueItem = async (post: PostQueueItem) => {
+    const coreValue = coreValues?.find(
+      (cv: CoreValue) => cv.id === post.coreValueId
+    );
+    const quote = quotes?.find((q: QuoteWithAuthor) => q.id === post.quoteId);
+
+    if (!coreValue || !quote) {
+      console.error("Error: Could not find value or quote data");
+      return;
+    }
+
+    try {
+      const apiUrl = "/api/post-to-instagram";
+      const theme = queueItemThemes.get(post.id) ?? DEFAULT_THEME;
+
+      const content: CarouselContent = {
+        quote: {
+          text: quote.text,
+          author: quote.authorName ?? "Unknown",
+        },
+        value: {
+          name: coreValue.value,
+          description: coreValue.description,
+        },
+      };
+
+      const carousel = await generateCarousel(content, theme);
+
+      const blobToBase64 = (blob: Blob): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result as string);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      const page1Base64 = await blobToBase64(carousel.page1);
+      const page2Base64 = await blobToBase64(carousel.page2);
+      const page3Base64 = await blobToBase64(carousel.page3);
+
+      const caption =
+        queueItemCaptions.get(post.id) ||
+        generateCaption(
+          coreValue.value,
+          coreValue.description,
+          quote.text,
+          quote.authorName ?? "Unknown"
+        );
+
+      const payload = {
+        images: {
+          page1: page1Base64,
+          page2: page2Base64,
+          page3: page3Base64,
+        },
+        caption,
+        metadata: {
+          value: coreValue.value,
+          valueDescription: coreValue.description,
+          quote: quote.text,
+          author: quote.authorName ?? "Unknown",
+          timestamp: new Date().toISOString(),
+        },
+        dryRun: true, // Enable dry run mode - skip Zapier, return payload preview
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+    } catch (error) {
+      console.error("Error posting to Instagram:", error);
+      throw error; // Re-throw to handle in calling function
+    }
+  };
+
+  const handlePopAndPost = async () => {
+    if (!postQueue || postQueue.length === 0) return;
+
+    const firstItem = postQueue[0];
+    if (!firstItem) return;
+
+    const coreValue = coreValues?.find(
+      (cv: CoreValue) => cv.id === firstItem.coreValueId
+    );
+    const quote = quotes?.find(
+      (q: QuoteWithAuthor) => q.id === firstItem.quoteId
+    );
+
+    if (!coreValue || !quote) return;
+
+    try {
+      const apiUrl = "/api/post-to-instagram";
+      const theme = queueItemThemes.get(firstItem.id) ?? DEFAULT_THEME;
+
+      const content: CarouselContent = {
+        quote: {
+          text: quote.text,
+          author: quote.authorName ?? "Unknown",
+        },
+        value: {
+          name: coreValue.value,
+          description: coreValue.description,
+        },
+      };
+
+      const carousel = await generateCarousel(content, theme);
+
+      const blobToBase64 = (blob: Blob): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      const page1Base64 = await blobToBase64(carousel.page1);
+      const page2Base64 = await blobToBase64(carousel.page2);
+      const page3Base64 = await blobToBase64(carousel.page3);
+
+      const caption =
+        queueItemCaptions.get(firstItem.id) ||
+        generateCaption(
+          coreValue.value,
+          coreValue.description,
+          quote.text,
+          quote.authorName ?? "Unknown"
+        );
+
+      const payload = {
+        images: {
+          page1: page1Base64,
+          page2: page2Base64,
+          page3: page3Base64,
+        },
+        caption,
+        metadata: {
+          value: coreValue.value,
+          valueDescription: coreValue.description,
+          quote: quote.text,
+          author: quote.authorName ?? "Unknown",
+          timestamp: new Date().toISOString(),
+        },
+        dryRun: true, // Upload only, don't send to Zapier yet
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Calculate end time and save to database
+      const endTime = Date.now() + 120000; // 2 minutes from now
+      const scheduledFor = new Date(endTime);
+
+      // Save to database (singleton pattern with id='current')
+      await upsertPendingPost.mutateAsync({
+        zapierPayload: JSON.stringify(result.zapierPayload),
+        scheduledFor,
+      });
+
+      // Activate buffer station
+      setBufferPayload(result.zapierPayload);
+      setBufferTimeRemaining(120);
+      setBufferEndTime(endTime);
+      setBufferActive(true);
+
+      // Pop from queue immediately
+      popQueue.mutate();
+    } catch (error) {
+      console.error("Pop and Post failed:", error);
+    }
+  };
+
+  const handleRotateAndPost = async () => {
+    if (!postQueue || postQueue.length === 0) return;
+
+    const firstItem = postQueue[0];
+    if (!firstItem) return;
+
+    const coreValue = coreValues?.find(
+      (cv: CoreValue) => cv.id === firstItem.coreValueId
+    );
+    const quote = quotes?.find(
+      (q: QuoteWithAuthor) => q.id === firstItem.quoteId
+    );
+
+    if (!coreValue || !quote) return;
+
+    try {
+      const apiUrl = "/api/post-to-instagram";
+      const theme = queueItemThemes.get(firstItem.id) ?? DEFAULT_THEME;
+
+      const content: CarouselContent = {
+        quote: {
+          text: quote.text,
+          author: quote.authorName ?? "Unknown",
+        },
+        value: {
+          name: coreValue.value,
+          description: coreValue.description,
+        },
+      };
+
+      const carousel = await generateCarousel(content, theme);
+
+      const blobToBase64 = (blob: Blob): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      const page1Base64 = await blobToBase64(carousel.page1);
+      const page2Base64 = await blobToBase64(carousel.page2);
+      const page3Base64 = await blobToBase64(carousel.page3);
+
+      const caption =
+        queueItemCaptions.get(firstItem.id) ||
+        generateCaption(
+          coreValue.value,
+          coreValue.description,
+          quote.text,
+          quote.authorName ?? "Unknown"
+        );
+
+      const payload = {
+        images: {
+          page1: page1Base64,
+          page2: page2Base64,
+          page3: page3Base64,
+        },
+        caption,
+        metadata: {
+          value: coreValue.value,
+          valueDescription: coreValue.description,
+          quote: quote.text,
+          author: quote.authorName ?? "Unknown",
+          timestamp: new Date().toISOString(),
+        },
+        dryRun: true, // Upload only, don't send to Zapier yet
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Calculate end time and save to database
+      const endTime = Date.now() + 120000; // 2 minutes from now
+      const scheduledFor = new Date(endTime);
+
+      // Save to database (singleton pattern with id='current')
+      await upsertPendingPost.mutateAsync({
+        zapierPayload: JSON.stringify(result.zapierPayload),
+        scheduledFor,
+      });
+
+      // Activate buffer station
+      setBufferPayload(result.zapierPayload);
+      setBufferTimeRemaining(120);
+      setBufferEndTime(endTime);
+      setBufferActive(true);
+
+      // Rotate queue immediately
+      rotateQueue.mutate();
+    } catch (error) {
+      console.error("Rotate and Post failed:", error);
+    }
+  };
+
+  const handleRandomizeQueueItem = async (postId: string) => {
+    const existingImages = queueItemImages.get(postId);
+    const currentPost = postQueue?.find((p: PostQueueItem) => p.id === postId);
+
+    const result = await fetchRandomCombination();
+    if (result.data && currentPost) {
+      const newCoreValueId = result.data.coreValue.id;
+      const newQuoteId = result.data.quote!.id;
+
+      // Update the database
+      updateQueueItem.mutate({
+        id: postId,
+        coreValueId: newCoreValueId,
+        quoteId: newQuoteId,
+      });
+
+      // If images already exist, regenerate with new content immediately
+      if (existingImages) {
+        // Create updated post object with new IDs
+        const updatedPost: PostQueueItem = {
+          ...currentPost,
+          coreValueId: newCoreValueId,
+          quoteId: newQuoteId,
+        };
+        await handleGenerateQueueItemImages(updatedPost);
+      } else {
+        // Just clear the caption if no images
+        setQueueItemCaptions((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(postId);
+          return newMap;
+        });
+      }
+    }
+  };
+
+  const handleUpdateQueueItemValue = async (
+    postId: string,
+    coreValueId: string
+  ) => {
+    const existingImages = queueItemImages.get(postId);
+    const currentPost = postQueue?.find((p: PostQueueItem) => p.id === postId);
+
+    if (currentPost) {
+      updateQueueItem.mutate({ id: postId, coreValueId });
+
+      // If images already exist, regenerate with new content immediately
+      if (existingImages) {
+        // Create updated post object with new value ID
+        const updatedPost: PostQueueItem = {
+          ...currentPost,
+          coreValueId,
+        };
+        await handleGenerateQueueItemImages(updatedPost);
+      } else {
+        // Just clear the caption if no images
+        setQueueItemCaptions((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(postId);
+          return newMap;
+        });
+      }
+    }
+  };
+
+  const handleUpdateQueueItemQuote = async (
+    postId: string,
+    quoteId: string
+  ) => {
+    const existingImages = queueItemImages.get(postId);
+    const currentPost = postQueue?.find((p: PostQueueItem) => p.id === postId);
+
+    if (currentPost) {
+      updateQueueItem.mutate({ id: postId, quoteId });
+
+      // If images already exist, regenerate with new content immediately
+      if (existingImages) {
+        // Create updated post object with new quote ID
+        const updatedPost: PostQueueItem = {
+          ...currentPost,
+          quoteId,
+        };
+        await handleGenerateQueueItemImages(updatedPost);
+      } else {
+        // Just clear the caption if no images
+        setQueueItemCaptions((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(postId);
+          return newMap;
+        });
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-neutral-50 to-white dark:from-black dark:via-neutral-950 dark:to-black">
       <div className="container mx-auto px-4 py-8">
+        {/* Buffer Station */}
+        {bufferActive && (
+          <div className="animate-in slide-in-from-top mb-6 duration-300">
+            <Card className="border-indigo-500/50 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-1 items-center gap-4">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
+                      <Loader2 className="h-6 w-6 animate-spin text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
+                        Buffer Station Active
+                      </h3>
+                      <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                        Preparing to post to Instagram
+                      </p>
+                      {bufferPayload?.metadata && (
+                        <div className="mt-2 space-y-1 text-xs text-indigo-600 dark:text-indigo-400">
+                          <div className="font-medium">
+                            {bufferPayload.metadata.value}
+                          </div>
+                          <div className="italic">
+                            &quot;
+                            {bufferPayload.metadata.quote.substring(0, 80)}
+                            ...&quot;
+                          </div>
+                          {bufferPayload.metadata.author &&
+                            bufferPayload.metadata.author !== "Unknown" && (
+                              <div className="text-indigo-500 dark:text-indigo-500">
+                                — {bufferPayload.metadata.author}
+                              </div>
+                            )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-shrink-0 items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-indigo-900 tabular-nums dark:text-indigo-100">
+                        {Math.floor(bufferTimeRemaining / 60)}:
+                        {String(bufferTimeRemaining % 60).padStart(2, "0")}
+                      </div>
+                      <div className="text-xs text-indigo-700 dark:text-indigo-300">
+                        until post
+                      </div>
+                    </div>
+                    <div className="h-12 w-1 overflow-hidden rounded-full bg-indigo-200 dark:bg-indigo-800">
+                      <div
+                        className="h-full bg-indigo-500 transition-all duration-1000 ease-linear"
+                        style={{
+                          height: `${(bufferTimeRemaining / 120) * 100}%`,
+                          transition: "height 1s linear",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -1451,7 +2227,10 @@ Living with an embodied value system means letting principles like ${valueName} 
                   </div>
 
                   {/* Preview Area */}
-                  {generatedImages ? (
+                  {generatedImages &&
+                  generatedImages.page1 &&
+                  generatedImages.page2 &&
+                  generatedImages.page3 ? (
                     <div className="space-y-6">
                       <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
                         3-Page Carousel Preview
@@ -1467,6 +2246,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                               alt="Quote Page"
                               fill
                               className="object-contain"
+                              unoptimized
                             />
                           </div>
                         </div>
@@ -1480,6 +2260,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                               alt="Value and Description Page"
                               fill
                               className="object-contain"
+                              unoptimized
                             />
                           </div>
                         </div>
@@ -1493,6 +2274,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                               alt="Call to Action Page"
                               fill
                               className="object-contain"
+                              unoptimized
                             />
                           </div>
                         </div>
@@ -1571,13 +2353,127 @@ Living with an embodied value system means letting principles like ${valueName} 
                   <div>
                     <CardTitle>Post Queue</CardTitle>
                     <CardDescription>
-                      Manage the queue of posts for daily automation
+                      Manage the queue of posts for daily automation (Max 10)
                     </CardDescription>
                   </div>
-                  <Button className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Fill Queue
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        if (
+                          confirm(
+                            "Are you sure you want to clear the entire queue? This cannot be undone."
+                          )
+                        ) {
+                          clearQueue.mutate();
+                        }
+                      }}
+                      disabled={
+                        !postQueue ||
+                        postQueue.length === 0 ||
+                        clearQueue.isPending
+                      }
+                      className="flex items-center gap-2"
+                    >
+                      {clearQueue.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <XIcon className="h-3 w-3" />
+                      )}
+                      Clear
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => popQueue.mutate()}
+                      disabled={
+                        !postQueue ||
+                        postQueue.length === 0 ||
+                        popQueue.isPending
+                      }
+                      className="flex items-center gap-2"
+                    >
+                      {popQueue.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <ChevronDown className="h-3 w-3 rotate-180" />
+                      )}
+                      Pop
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => enqueuePost.mutate()}
+                      disabled={
+                        !postQueue ||
+                        postQueue.length >= 10 ||
+                        enqueuePost.isPending
+                      }
+                      className="flex items-center gap-2"
+                    >
+                      {enqueuePost.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Plus className="h-3 w-3" />
+                      )}
+                      Enqueue
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => rotateQueue.mutate()}
+                      disabled={
+                        !postQueue ||
+                        postQueue.length === 0 ||
+                        rotateQueue.isPending
+                      }
+                      className="flex items-center gap-2"
+                    >
+                      {rotateQueue.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Repeat className="h-3 w-3" />
+                      )}
+                      Rotate
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePopAndPost}
+                      disabled={!postQueue || postQueue.length === 0}
+                      className="flex items-center gap-2 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10"
+                    >
+                      <Send className="h-3 w-3" />
+                      Pop & Post
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRotateAndPost}
+                      disabled={!postQueue || postQueue.length === 0}
+                      className="flex items-center gap-2 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10"
+                    >
+                      <Send className="h-3 w-3" />
+                      Rotate & Post
+                    </Button>
+                    <Button
+                      onClick={() => fillQueue.mutate()}
+                      disabled={
+                        !postQueue ||
+                        postQueue.length >= 10 ||
+                        fillQueue.isPending
+                      }
+                      className="flex items-center gap-2"
+                    >
+                      {fillQueue.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                      Fill Queue
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -1587,66 +2483,317 @@ Living with an embodied value system means letting principles like ${valueName} 
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {postQueue?.map((post: PostQueueItem, index: number) => (
-                      <div
-                        key={post.id}
-                        className={`rounded-lg border p-4 ${
-                          index === 0
-                            ? "border-2 border-indigo-500/30 bg-indigo-500/5"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="mb-2 flex items-center gap-2">
-                              <Badge
-                                className={
-                                  index === 0
-                                    ? "bg-indigo-500 text-white"
-                                    : "bg-neutral-200 text-neutral-700"
-                                }
-                              >
-                                Position {post.queuePosition ?? index + 1}
-                                {index === 0 ? " - Next" : ""}
-                              </Badge>
-                              {post.scheduledFor && (
-                                <Badge variant="outline" className="text-xs">
-                                  Scheduled:{" "}
-                                  {new Date(
-                                    post.scheduledFor
-                                  ).toLocaleDateString()}
+                    {postQueue?.map((post: PostQueueItem, index: number) => {
+                      const coreValue = coreValues?.find(
+                        (cv: CoreValue) => cv.id === post.coreValueId
+                      );
+                      const quote = quotes?.find(
+                        (q: QuoteWithAuthor) => q.id === post.quoteId
+                      );
+                      const isExpanded = expandedQueueItems.has(post.id);
+                      const images = queueItemImages.get(post.id);
+                      const theme =
+                        queueItemThemes.get(post.id) ?? DEFAULT_THEME;
+                      const caption = queueItemCaptions.get(post.id);
+
+                      return (
+                        <div
+                          key={post.id}
+                          className={`rounded-lg border p-4 ${
+                            index === 0
+                              ? "border-2 border-indigo-500/30 bg-indigo-500/5"
+                              : ""
+                          }`}
+                        >
+                          {/* Simplified View */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="mb-2 flex items-center gap-2">
+                                <Badge
+                                  className={
+                                    index === 0
+                                      ? "bg-indigo-500 text-white"
+                                      : "bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200"
+                                  }
+                                >
+                                  #{post.queuePosition ?? index + 1}
+                                  {index === 0 ? " - Next" : ""}
                                 </Badge>
-                              )}
-                              {post.isPublished === "true" && (
                                 <Badge
                                   variant="outline"
-                                  className="bg-green-500/10 text-green-700"
+                                  className="bg-amber-500/10 text-amber-700 dark:text-amber-400"
                                 >
-                                  Published
+                                  <Palette className="mr-1 h-3 w-3" />
+                                  {theme.name}
                                 </Badge>
-                              )}
-                            </div>
-                            <p className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
-                              Post ID: {post.id.substring(0, 8)}...
-                            </p>
-                            {post.caption && (
-                              <p className="text-sm text-neutral-600 italic dark:text-neutral-400">
-                                {post.caption.substring(0, 100)}
-                                {post.caption.length > 100 ? "..." : ""}
+                              </div>
+                              <p className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                                {coreValue?.value ?? "Unknown Value"}
                               </p>
-                            )}
+                              <p className="text-sm text-neutral-600 italic dark:text-neutral-400">
+                                &quot;{quote?.text.substring(0, 100)}
+                                {quote && quote.text.length > 100 ? "..." : ""}
+                                &quot;
+                                {quote?.authorName &&
+                                  quote.authorName.toLowerCase() !==
+                                    "unknown" && (
+                                    <span className="ml-1 text-xs text-neutral-500 not-italic dark:text-neutral-500">
+                                      — {quote.authorName}
+                                    </span>
+                                  )}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleRandomizeQueueItem(post.id)
+                                }
+                                title="Randomize value and quote"
+                              >
+                                <Shuffle className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleQueueItemExpanded(post.id)}
+                              >
+                                <ChevronDown
+                                  className={`h-4 w-4 transition-transform ${
+                                    isExpanded ? "rotate-180" : ""
+                                  }`}
+                                />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteQueueItem(post.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+
+                          {/* Expanded View */}
+                          {isExpanded && (
+                            <div className="mt-4 space-y-4 border-t pt-4">
+                              {/* Value & Quote Selection */}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <Label className="text-xs font-medium">
+                                    Content
+                                  </Label>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleRandomizeQueueItem(post.id)
+                                    }
+                                    className="h-7 gap-1 text-xs"
+                                  >
+                                    <Shuffle className="h-3 w-3" />
+                                    Randomize
+                                  </Button>
+                                </div>
+
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                  {/* Value Selector */}
+                                  <div>
+                                    <Label className="mb-1.5 block text-xs text-neutral-600 dark:text-neutral-400">
+                                      Core Value
+                                    </Label>
+                                    <select
+                                      value={post.coreValueId}
+                                      onChange={(e) =>
+                                        handleUpdateQueueItemValue(
+                                          post.id,
+                                          e.target.value
+                                        )
+                                      }
+                                      className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                                    >
+                                      {coreValues?.map((cv: CoreValue) => (
+                                        <option key={cv.id} value={cv.id}>
+                                          {cv.value}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  {/* Quote Selector */}
+                                  <div>
+                                    <Label className="mb-1.5 block text-xs text-neutral-600 dark:text-neutral-400">
+                                      Quote
+                                    </Label>
+                                    <select
+                                      value={post.quoteId}
+                                      onChange={(e) =>
+                                        handleUpdateQueueItemQuote(
+                                          post.id,
+                                          e.target.value
+                                        )
+                                      }
+                                      className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                                    >
+                                      {quotes?.map((q: QuoteWithAuthor) => (
+                                        <option key={q.id} value={q.id}>
+                                          {q.text.substring(0, 60)}
+                                          {q.text.length > 60 ? "..." : ""}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Theme Selector */}
+                              <div>
+                                <Label className="mb-2 block text-xs font-medium">
+                                  Theme
+                                </Label>
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                                  {Object.entries(BRAND_THEMES).map(
+                                    ([key, t]) => (
+                                      <button
+                                        key={key}
+                                        onClick={() =>
+                                          handleQueueItemThemeChange(post.id, t)
+                                        }
+                                        className={`rounded-lg border p-3 text-left transition-all hover:border-neutral-400 ${
+                                          theme.name === t.name
+                                            ? "border-indigo-500 bg-indigo-500/5 ring-2 ring-indigo-500/20"
+                                            : "border-neutral-200 dark:border-neutral-700"
+                                        }`}
+                                      >
+                                        <div
+                                          className="mb-2 h-6 w-full rounded"
+                                          style={{
+                                            background: t.backgroundGradient
+                                              ? `linear-gradient(135deg, ${t.backgroundGradient.from} 0%, ${t.backgroundGradient.to} 100%)`
+                                              : `linear-gradient(135deg, ${t.backgroundColor} 0%, ${t.accentColor} 100%)`,
+                                          }}
+                                        />
+                                        <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
+                                          {t.name}
+                                        </p>
+                                      </button>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Generate/Regenerate Button */}
+                              <div className="flex justify-center">
+                                <Button
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleGenerateQueueItemImages(post)
+                                  }
+                                  disabled={generatingQueueItems.has(post.id)}
+                                  className="flex items-center gap-2"
+                                >
+                                  {generatingQueueItems.has(post.id) ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                      Generating...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Sparkles className="h-4 w-4" />
+                                      {images
+                                        ? "Regenerate Images"
+                                        : "Generate Images"}
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+
+                              {/* Images Display */}
+                              {images &&
+                                images.page1 &&
+                                images.page2 &&
+                                images.page3 && (
+                                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    <div className="rounded-lg border p-2 dark:border-neutral-700">
+                                      <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                                        Page 1
+                                      </p>
+                                      <Image
+                                        src={images.page1}
+                                        alt="Page 1"
+                                        width={400}
+                                        height={400}
+                                        className="w-full rounded"
+                                        unoptimized
+                                      />
+                                    </div>
+                                    <div className="rounded-lg border p-2 dark:border-neutral-700">
+                                      <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                                        Page 2
+                                      </p>
+                                      <Image
+                                        src={images.page2}
+                                        alt="Page 2"
+                                        width={400}
+                                        height={400}
+                                        className="w-full rounded"
+                                        unoptimized
+                                      />
+                                    </div>
+                                    <div className="rounded-lg border p-2 dark:border-neutral-700">
+                                      <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                                        Page 3
+                                      </p>
+                                      <Image
+                                        src={images.page3}
+                                        alt="Page 3"
+                                        width={400}
+                                        height={400}
+                                        className="w-full rounded"
+                                        unoptimized
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                              {/* Caption Preview */}
+                              {caption && (
+                                <div className="rounded-lg border bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
+                                  <p className="mb-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                                    Instagram Caption
+                                  </p>
+                                  <p className="text-xs whitespace-pre-wrap text-neutral-600 dark:text-neutral-400">
+                                    {caption}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Metadata */}
+                              <div className="space-y-2 rounded-lg bg-neutral-50 p-3 dark:bg-neutral-900">
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                                  <span className="font-medium">Value:</span>{" "}
+                                  {coreValue?.value}
+                                </p>
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                                  <span className="font-medium">Quote:</span>{" "}
+                                  &quot;
+                                  {quote?.text}&quot;
+                                </p>
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                                  <span className="font-medium">Author:</span>{" "}
+                                  {quote?.authorName ?? "Unknown"}
+                                </p>
+                                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                                  <span className="font-medium">Created:</span>{" "}
+                                  {new Date(post.createdAt).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {postQueue?.length === 0 && (
                       <div className="py-8 text-center text-neutral-500">
                         No posts in queue. Click &ldquo;Fill Queue&rdquo; to
