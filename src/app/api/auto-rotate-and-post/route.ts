@@ -257,10 +257,18 @@ async function generateCarouselWithPuppeteer(content: {
   quote: { text: string; author: string };
   value: { name: string; description: string };
 }) {
-  // Use serverless Chromium for Vercel deployment
+  // Configure for Vercel serverless environment
+  const isProduction = process.env.NODE_ENV === 'production';
+
   const browser = await puppeteer.launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
+    args: isProduction
+      ? [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox']
+      : ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: isProduction
+      ? await chromium.executablePath({
+          path: '/tmp/chromium',
+        })
+      : process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
     headless: true,
   });
 
