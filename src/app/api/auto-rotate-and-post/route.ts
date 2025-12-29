@@ -265,9 +265,7 @@ async function generateCarouselWithPuppeteer(content: {
       ? [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox']
       : ['--no-sandbox', '--disable-setuid-sandbox'],
     executablePath: isProduction
-      ? await chromium.executablePath({
-          path: '/tmp/chromium',
-        })
+      ? await chromium.executablePath()
       : process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
     headless: true,
   });
