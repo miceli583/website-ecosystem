@@ -526,10 +526,10 @@ function DailyValuesContent() {
   });
 
   const popQueue = api.dailyValues.popQueue.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       void utils.dailyValues.getPostQueue.invalidate();
       void utils.dailyValues.getStats.invalidate();
-      alert(data.message);
+      // Success - no alert needed, queue updates visually
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
@@ -548,10 +548,10 @@ function DailyValuesContent() {
   });
 
   const rotateQueue = api.dailyValues.rotateQueue.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       void utils.dailyValues.getPostQueue.invalidate();
       void utils.dailyValues.getStats.invalidate();
-      alert(data.message);
+      // Success - no alert needed, queue updates visually
     },
     onError: (error) => {
       alert(`Error: ${error.message}`);
