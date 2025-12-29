@@ -4,7 +4,7 @@
  *
  * This endpoint:
  * 1. Gets first item from queue
- * 2. Generates carousel images using Puppeteer (server-side)
+ * 2. Generates carousel images using node-canvas (server-side)
  * 3. Uploads images to Supabase Storage
  * 4. Creates pending post with 2-minute buffer
  * 5. Rotates the queue
@@ -13,14 +13,13 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
 import { db } from "~/server/db";
 import { quotePosts, coreValues, quotes, authors, pendingPosts } from "~/server/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "~/env";
 import { DEFAULT_THEME } from "~/lib/brand-themes";
+import { generateCarousel } from "~/lib/carousel-generator-server";
 
 const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -75,9 +74,9 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
 
-    // 3. Generate images using Puppeteer
-    console.log("🎨 Generating carousel images with Puppeteer...");
-    const images = await generateCarouselWithPuppeteer({
+    // 3. Generate images using node-canvas
+    console.log("🎨 Generating carousel images with node-canvas...");
+    const images = await generateCarousel({
       quote: {
         text: quoteData.text,
         author: quoteData.authorName ?? "Unknown",
@@ -86,7 +85,7 @@ export async function POST(request: NextRequest) {
         name: coreValue.value,
         description: coreValue.description,
       },
-    });
+    }, DEFAULT_THEME);
 
     // 4. Upload images to Supabase Storage
     console.log("☁️  Uploading images to Supabase Storage...");
@@ -248,212 +247,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-/**
- * Generate carousel images using Puppeteer
- */
-async function generateCarouselWithPuppeteer(content: {
-  quote: { text: string; author: string };
-  value: { name: string; description: string };
-}) {
-  // Configure for Vercel serverless environment
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  const browser = await puppeteer.launch({
-    args: isProduction
-      ? [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox']
-      : ['--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: isProduction
-      ? await chromium.executablePath()
-      : process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
-    headless: true,
-  });
-
-  try {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1080, height: 1350 });
-
-    // Generate all 3 pages
-    const page1Buffer = await generatePage1(page, content);
-    const page2Buffer = await generatePage2(page, content);
-    const page3Buffer = await generatePage3(page, content);
-
-    return {
-      page1: page1Buffer,
-      page2: page2Buffer,
-      page3: page3Buffer,
-    };
-  } finally {
-    await browser.close();
-  }
-}
-
-/**
- * Generate Page 1: Quote
- */
-async function generatePage1(page: any, content: any): Promise<Buffer> {
-  const theme = DEFAULT_THEME;
-
-  await page.setContent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            padding: 0;
-            width: 1080px;
-            height: 1350px;
-            background: linear-gradient(135deg, ${theme.backgroundGradient?.from ?? theme.backgroundColor}, ${theme.backgroundGradient?.to ?? theme.backgroundColor});
-            font-family: 'Georgia', serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 80px;
-            box-sizing: border-box;
-          }
-          .quote {
-            color: ${theme.textColor};
-            font-size: 56px;
-            line-height: 1.4;
-            text-align: center;
-            font-style: italic;
-            margin-bottom: 40px;
-          }
-          .author {
-            color: ${theme.accentColor};
-            font-size: 32px;
-            text-align: center;
-            font-style: normal;
-          }
-          .logo {
-            position: absolute;
-            bottom: 80px;
-            right: 80px;
-            width: 200px;
-            height: 100px;
-            background: url('/brand/logo-white.png') no-repeat center;
-            background-size: contain;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="quote">"${content.quote.text}"</div>
-        <div class="author">— ${content.quote.author}</div>
-        <div class="logo"></div>
-      </body>
-    </html>
-  `);
-
-  return await page.screenshot({ type: 'jpeg', quality: 95 });
-}
-
-/**
- * Generate Page 2: Core Value
- */
-async function generatePage2(page: any, content: any): Promise<Buffer> {
-  const theme = DEFAULT_THEME;
-
-  await page.setContent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            padding: 0;
-            width: 1080px;
-            height: 1350px;
-            background: linear-gradient(135deg, ${theme.backgroundGradient?.from ?? theme.backgroundColor}, ${theme.backgroundGradient?.to ?? theme.backgroundColor});
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 80px;
-            box-sizing: border-box;
-          }
-          .value {
-            color: ${theme.accentColor};
-            font-size: 96px;
-            font-weight: bold;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-          }
-          .logo {
-            position: absolute;
-            bottom: 80px;
-            right: 80px;
-            width: 200px;
-            height: 100px;
-            background: url('/brand/logo-white.png') no-repeat center;
-            background-size: contain;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="value">${content.value.name}</div>
-        <div class="logo"></div>
-      </body>
-    </html>
-  `);
-
-  return await page.screenshot({ type: 'jpeg', quality: 95 });
-}
-
-/**
- * Generate Page 3: Description
- */
-async function generatePage3(page: any, content: any): Promise<Buffer> {
-  const theme = DEFAULT_THEME;
-
-  await page.setContent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body {
-            margin: 0;
-            padding: 0;
-            width: 1080px;
-            height: 1350px;
-            background: linear-gradient(135deg, ${theme.backgroundGradient?.from ?? theme.backgroundColor}, ${theme.backgroundGradient?.to ?? theme.backgroundColor});
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 120px;
-            box-sizing: border-box;
-          }
-          .description {
-            color: ${theme.textColor};
-            font-size: 42px;
-            line-height: 1.6;
-            text-align: center;
-          }
-          .logo {
-            position: absolute;
-            bottom: 80px;
-            right: 80px;
-            width: 200px;
-            height: 100px;
-            background: url('/brand/logo-white.png') no-repeat center;
-            background-size: contain;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="description">${content.value.description}</div>
-        <div class="logo"></div>
-      </body>
-    </html>
-  `);
-
-  return await page.screenshot({ type: 'jpeg', quality: 95 });
 }
 
 /**
