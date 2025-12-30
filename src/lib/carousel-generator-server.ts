@@ -3,10 +3,54 @@
  * Uses node-canvas to generate identical images to client-side version
  */
 
-import { createCanvas, Canvas, CanvasRenderingContext2D, loadImage } from "canvas";
+import { createCanvas, Canvas, CanvasRenderingContext2D, loadImage, registerFont } from "canvas";
 import { join } from "path";
 import type { BrandTheme } from "./brand-themes";
 import { BRAND_TYPOGRAPHY } from "./brand-themes";
+
+// Register custom fonts for node-canvas
+// These fonts must be registered before any canvas operations
+const fontsDir = join(process.cwd(), "public", "fonts");
+
+registerFont(join(fontsDir, "QuattrocentoSans-Regular.ttf"), {
+  family: "Quattrocento Sans",
+  weight: "400",
+});
+
+registerFont(join(fontsDir, "QuattrocentoSans-Bold.ttf"), {
+  family: "Quattrocento Sans",
+  weight: "700",
+});
+
+registerFont(join(fontsDir, "Barlow-Light.ttf"), {
+  family: "Barlow",
+  weight: "300",
+});
+
+registerFont(join(fontsDir, "Barlow-Regular.ttf"), {
+  family: "Barlow",
+  weight: "400",
+});
+
+registerFont(join(fontsDir, "Barlow-Medium.ttf"), {
+  family: "Barlow",
+  weight: "500",
+});
+
+registerFont(join(fontsDir, "Barlow-SemiBold.ttf"), {
+  family: "Barlow",
+  weight: "600",
+});
+
+registerFont(join(fontsDir, "Barlow-Bold.ttf"), {
+  family: "Barlow",
+  weight: "700",
+});
+
+registerFont(join(fontsDir, "Barlow-ExtraBold.ttf"), {
+  family: "Barlow",
+  weight: "800",
+});
 
 // Instagram 4:5 portrait format
 const CANVAS_WIDTH = 1080;
@@ -105,7 +149,7 @@ function drawDailyAnchorBranding(
   theme: BrandTheme
 ) {
   ctx.fillStyle = theme.secondaryAccentColor ?? theme.accentColor;
-  ctx.font = `600 ${BRAND_TYPOGRAPHY.sizes.caption}px sans-serif`;
+  ctx.font = `600 ${BRAND_TYPOGRAPHY.sizes.caption}px Barlow, sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.globalAlpha = 0.9;
@@ -152,7 +196,7 @@ export async function generateQuotePage(
   for (const size of fontSizes) {
     fontSize = size;
     lineHeight = fontSize * 1.6;
-    ctx.font = `300 ${fontSize}px sans-serif`;
+    ctx.font = `300 ${fontSize}px Barlow, sans-serif`;
 
     const testLines = wrapText(ctx, quoteText, maxWidth);
     const totalTextHeight = testLines.length * lineHeight + 120;
@@ -162,7 +206,7 @@ export async function generateQuotePage(
     }
   }
 
-  ctx.font = `300 ${fontSize}px sans-serif`;
+  ctx.font = `300 ${fontSize}px Barlow, sans-serif`;
   const lines = wrapText(ctx, quoteText, maxWidth);
 
   // Calculate total content height
@@ -190,20 +234,20 @@ export async function generateQuotePage(
     content.quote.author.trim() &&
     content.quote.author.toLowerCase() !== "unknown"
   ) {
-    ctx.font = `300 ${authorSize}px sans-serif`;
+    ctx.font = `300 ${authorSize}px Barlow, sans-serif`;
     ctx.fillStyle = theme.accentColor;
     ctx.fillText(`— ${content.quote.author}`, PADDING, startY + 50);
   }
 
   // Swipe indicator
-  ctx.font = `300 26px sans-serif`;
+  ctx.font = `300 26px Barlow, sans-serif`;
   ctx.fillStyle = theme.secondaryAccentColor ?? theme.accentColor;
   ctx.globalAlpha = 0.5;
   ctx.textAlign = "right";
   ctx.fillText("→ Swipe", CANVAS_WIDTH - PADDING, PADDING + 70);
 
   // Page indicator
-  ctx.font = `300 22px sans-serif`;
+  ctx.font = `300 22px Barlow, sans-serif`;
   ctx.fillStyle = theme.secondaryAccentColor ?? theme.accentColor;
   ctx.globalAlpha = 0.4;
   ctx.textAlign = "center";
@@ -238,10 +282,10 @@ export async function generateValuesPage(
 
   // Pre-calculate all content dimensions
   const valueFontSize = BRAND_TYPOGRAPHY.sizes.title + 20;
-  ctx.font = `800 ${valueFontSize}px sans-serif`;
+  ctx.font = `800 ${valueFontSize}px Quattrocento Sans, sans-serif`;
   const valueLines = wrapText(ctx, content.value.name, maxWidth);
 
-  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body}px sans-serif`;
+  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body}px Barlow, sans-serif`;
   const descLines = wrapText(ctx, content.value.description, maxWidth);
 
   // Calculate total content height
@@ -264,7 +308,7 @@ export async function generateValuesPage(
 
   // Label with letter spacing
   ctx.fillStyle = theme.accentColor;
-  ctx.font = `700 ${BRAND_TYPOGRAPHY.sizes.caption}px sans-serif`;
+  ctx.font = `700 ${BRAND_TYPOGRAPHY.sizes.caption}px Barlow, sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
 
@@ -280,7 +324,7 @@ export async function generateValuesPage(
 
   // The Value
   ctx.fillStyle = theme.textColor;
-  ctx.font = `800 ${valueFontSize}px sans-serif`;
+  ctx.font = `800 ${valueFontSize}px Quattrocento Sans, sans-serif`;
 
   valueLines.forEach((line) => {
     let valueX = PADDING;
@@ -307,7 +351,7 @@ export async function generateValuesPage(
 
   // Description
   ctx.fillStyle = theme.textColor;
-  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body}px sans-serif`;
+  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body}px Barlow, sans-serif`;
 
   descLines.forEach((line) => {
     ctx.fillText(line, PADDING, y);
@@ -315,14 +359,14 @@ export async function generateValuesPage(
   });
 
   // Swipe indicator
-  ctx.font = `300 26px sans-serif`;
+  ctx.font = `300 26px Barlow, sans-serif`;
   ctx.fillStyle = theme.secondaryAccentColor ?? theme.accentColor;
   ctx.globalAlpha = 0.5;
   ctx.textAlign = "right";
   ctx.fillText("→ Swipe", CANVAS_WIDTH - PADDING, PADDING + 70);
 
   // Page indicator
-  ctx.font = `300 22px sans-serif`;
+  ctx.font = `300 22px Barlow, sans-serif`;
   ctx.fillStyle = theme.secondaryAccentColor ?? theme.accentColor;
   ctx.globalAlpha = 0.4;
   ctx.textAlign = "center";
@@ -354,7 +398,7 @@ export async function generateCTAPage(
   drawDailyAnchorBranding(ctx, theme);
 
   const maxWidth = CANVAS_WIDTH - PADDING * 2;
-  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body - 6}px sans-serif`;
+  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body - 6}px Barlow, sans-serif`;
   const explanationText = `Living with an embodied value system means letting principles like ${content.value.name} guide your decisions, shape your character, and anchor you in what truly matters on a moment to moment basis.`;
   const explanationLines = wrapText(ctx, explanationText, maxWidth);
 
@@ -384,7 +428,7 @@ export async function generateCTAPage(
 
   // Explanation text
   ctx.fillStyle = theme.textColor;
-  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body - 6}px sans-serif`;
+  ctx.font = `400 ${BRAND_TYPOGRAPHY.sizes.body - 6}px Barlow, sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
 
@@ -397,7 +441,7 @@ export async function generateCTAPage(
 
   // CTA Question
   ctx.fillStyle = theme.textColor;
-  ctx.font = `600 ${BRAND_TYPOGRAPHY.sizes.subtitle}px sans-serif`;
+  ctx.font = `600 ${BRAND_TYPOGRAPHY.sizes.subtitle}px Barlow, sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
 
@@ -419,7 +463,7 @@ export async function generateCTAPage(
 
   // Save & Share message
   ctx.fillStyle = theme.accentColor;
-  ctx.font = `500 ${BRAND_TYPOGRAPHY.sizes.body}px sans-serif`;
+  ctx.font = `500 ${BRAND_TYPOGRAPHY.sizes.body}px Barlow, sans-serif`;
   ctx.textAlign = "left";
 
   const saveShareText = "Be sure to Save and Share with likeminded friends!";
@@ -431,7 +475,7 @@ export async function generateCTAPage(
   });
 
   // Page indicator
-  ctx.font = `300 22px sans-serif`;
+  ctx.font = `300 22px Barlow, sans-serif`;
   ctx.fillStyle = theme.secondaryAccentColor ?? theme.accentColor;
   ctx.globalAlpha = 0.4;
   ctx.textAlign = "center";
