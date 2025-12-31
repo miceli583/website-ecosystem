@@ -702,7 +702,7 @@ export function MiracleMindDevHomePage() {
                   development meets human-centered design.
                 </p>
 
-                <Link href="/?domain=live">
+                <Link href="https://miraclemind.live">
                   <Button
                     variant="outline"
                     className="border-2 bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
