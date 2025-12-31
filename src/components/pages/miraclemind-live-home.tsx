@@ -228,7 +228,7 @@ export function MiracleMindLiveHomePage() {
           </section>
 
           {/* Divider */}
-          <div className="mx-auto mb-16 w-24 border-t-2 sm:mb-24" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }} />
+          <div className="mb-16 w-full border-t sm:mb-24" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }} />
 
           {/* Mission Section */}
           <section id="mission" className="mb-16 scroll-mt-20 sm:mb-24">
