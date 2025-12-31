@@ -65,22 +65,24 @@
 
   <!-- Text: MIRACLE MIND (inline) -->
   <text x="148" y="95"
-        font-family="'Quattrocento Sans', sans-serif"
+        font-family="'Quattrocento Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
         font-size="52"
-        font-weight="200"
+        font-weight="300"
         fill="url(#textGradient)"
         stroke="#8C5C26"
-        stroke-width="0.5"
+        stroke-width="0.8"
+        paint-order="stroke fill"
         filter="url(#textGlow)"
         letter-spacing="0">MIRACLE</text>
 
   <text x="383" y="95"
-        font-family="'Quattrocento Sans', sans-serif"
+        font-family="'Quattrocento Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
         font-size="52"
         font-weight="700"
         fill="url(#textGradient)"
         stroke="#8C5C26"
-        stroke-width="0.5"
+        stroke-width="0.8"
+        paint-order="stroke fill"
         filter="url(#textGlow)"
         letter-spacing="0.15em">MIND</text>
 </svg>
