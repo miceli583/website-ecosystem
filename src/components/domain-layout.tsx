@@ -283,6 +283,7 @@ export function DomainLayout({
       <header
         className={`sticky top-0 z-50 border-border/20 supports-[backdrop-filter]:bg-background/10 border-b backdrop-blur-md ${headerClassName || ""}`}
       >
+        {/* Updated navigation header */}
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* Left side: Logo */}
           <div className="flex items-center">
