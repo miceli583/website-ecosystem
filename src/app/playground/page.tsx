@@ -1,4 +1,3 @@
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
@@ -16,6 +15,7 @@ import {
   MousePointer,
   Sun,
   Zap,
+  Circle,
 } from "lucide-react";
 
 /**
@@ -29,9 +29,9 @@ import {
 const ANIMATIONS = [
   {
     id: "gradient-waves",
-    title: "Gradient Waves",
-    description: "Smooth flowing gradient waves with mesmerizing motion",
-    icon: Waves,
+    title: "Gradient Orbs",
+    description: "Floating gradient orbs with mesmerizing motion",
+    icon: Circle,
     color: "from-blue-500 to-cyan-500",
     href: "/playground/gradient-waves",
   },
@@ -110,16 +110,20 @@ export default async function PlaygroundPage({
   const domainParam = params.domain ? `?domain=${params.domain}` : "";
 
   return (
-    <DomainLayout>
-      <Suspense fallback={<div>Loading...</div>}>
-        <PlaygroundLayout>
-          <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
+    <Suspense fallback={<div>Loading...</div>}>
+      <PlaygroundLayout>
+        <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-amber-50 to-yellow-50 p-6 dark:from-amber-950/20 dark:to-yellow-950/20" style={{ background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%)' }}>
             <div className="mx-auto max-w-7xl space-y-12">
               {/* Header */}
               <div className="space-y-4 text-center">
                 <div className="mb-4 flex items-center justify-center gap-2">
-                  <Sparkles className="h-10 w-10 text-violet-600 dark:text-violet-400" />
-                  <h1 className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-5xl font-bold text-transparent dark:from-violet-400 dark:to-purple-400">
+                  <Sparkles className="h-10 w-10" style={{ color: '#D4AF37' }} />
+                  <h1 className="text-5xl font-bold" style={{
+                    background: 'linear-gradient(to right, #D4AF37, #B8942A)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}>
                     UI Playground
                   </h1>
                 </div>
@@ -138,7 +142,7 @@ export default async function PlaygroundPage({
                       key={animation.id}
                       href={`${animation.href}${domainParam}`}
                     >
-                      <Card className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                      <Card className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl" style={{ borderColor: 'rgba(212, 175, 55, 0.3)', borderWidth: '1px' }}>
                         <CardContent className="flex h-full flex-col p-6">
                           <div className="mb-4 flex items-center gap-3">
                             <div
@@ -153,7 +157,7 @@ export default async function PlaygroundPage({
                           <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
                             {animation.description}
                           </p>
-                          <div className="flex items-center gap-2 text-sm font-medium text-violet-600 dark:text-violet-400">
+                          <div className="flex items-center gap-2 text-sm font-medium" style={{ color: '#D4AF37' }}>
                             <span>View Demo</span>
                             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                           </div>
@@ -175,6 +179,5 @@ export default async function PlaygroundPage({
           </div>
         </PlaygroundLayout>
       </Suspense>
-    </DomainLayout>
   );
 }

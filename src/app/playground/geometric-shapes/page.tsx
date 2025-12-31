@@ -1,11 +1,10 @@
 "use client";
 
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export default function GeometricShapesPage() {
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-orange-950 dark:via-amber-950 dark:to-yellow-950">
           {/* Animated SVG Background */}
@@ -205,6 +204,6 @@ export default function GeometricShapesPage() {
           </div>
         </div>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }

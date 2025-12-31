@@ -17,7 +17,7 @@ import {
   Type,
   MousePointer,
   Zap,
-  Home,
+  ArrowLeft,
 } from "lucide-react";
 
 interface PlaygroundItem {
@@ -154,126 +154,26 @@ function PlaygroundLayoutContent({
 
   return (
     <div className="bg-background flex min-h-screen">
-      {/* Sidebar - Hidden on overview */}
-      {!isOverview && (
-        <div
-          className={`${sidebarOpen ? "w-80" : "w-16"} bg-muted/20 border-r transition-all duration-300`}
-        >
-          <div className="p-4">
-            {/* Header */}
-            <div className="mb-6 flex items-center justify-between">
-              {sidebarOpen && (
-                <div>
-                  <h2 className="text-lg font-semibold">Playground</h2>
-                  <p className="text-muted-foreground text-sm">
-                    Animation Showcase
-                  </p>
-                </div>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="h-8 w-8 p-0"
-              >
-                <ChevronRight
-                  className={`h-4 w-4 transition-transform ${sidebarOpen ? "rotate-180" : ""}`}
-                />
-              </Button>
-            </div>
-
-            {/* Navigation Items */}
-            <nav className="space-y-2">
-              {playgroundItems.map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
-
-                return (
-                  <Link key={item.id} href={`${item.href}${domainParam}`}>
-                    <div
-                      className={`group hover:bg-accent flex items-center rounded-lg p-3 transition-all duration-200 ${
-                        isActive
-                          ? "bg-accent text-accent-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                          isActive
-                            ? `bg-${item.color}-500 text-white`
-                            : `bg-${item.color}-100 text-${item.color}-600 dark:bg-${item.color}-900/30 dark:text-${item.color}-400`
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </div>
-
-                      {sidebarOpen && (
-                        <div className="ml-3 flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">
-                              {item.name}
-                            </span>
-                            {item.badge && (
-                              <Badge variant="secondary" className="text-xs">
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs opacity-70">
-                            {item.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Page Header - Hidden on overview */}
-        {!isOverview && (
-          <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
-            <div className="flex h-16 items-center px-6">
-              <div className="flex items-center space-x-3">
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-${currentItem.color}-500 to-${currentItem.color}-600`}
-                >
-                  <currentItem.icon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold">
-                    {title || currentItem.name}
-                  </h1>
-                  <p className="text-muted-foreground text-sm">
-                    {description || currentItem.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Content Area */}
         <div className="flex-1 overflow-auto">{children}</div>
       </div>
 
-      {/* Floating back button at bottom left - only show on overview */}
-      {isOverview && (
-        <Link href={`${backPath}${domainParam}`}>
-          <Button
-            size="lg"
-            className="fixed bottom-6 left-6 z-50 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl"
-          >
-            <Home className="mr-2 h-5 w-5" />
-            {isAdminPlayground ? "Back to Hub" : "Back to Home"}
-          </Button>
-        </Link>
-      )}
+      {/* Floating back button at top left */}
+      <Link href={isOverview ? `${backPath}${domainParam}` : `${basePath}${domainParam}`}>
+        <Button
+          size="lg"
+          className="fixed top-6 left-6 z-50 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl"
+          style={{
+            background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
+            color: '#000000'
+          }}
+        >
+          <ArrowLeft className="mr-2 h-5 w-5" />
+          Back
+        </Button>
+      </Link>
     </div>
   );
 }

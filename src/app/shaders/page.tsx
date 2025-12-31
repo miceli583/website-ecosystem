@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "~/components/ui/card";
-import { DomainLayout } from "~/components/domain-layout";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, ArrowLeft, Sparkles, Zap } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 /**
  * Public GLSL Shaders Gallery
@@ -78,16 +78,33 @@ function ShadersPageContent() {
   const domainParam = domain ? `?domain=${domain}` : "";
 
   return (
-    <DomainLayout>
-      <div className="via-background dark:via-background min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-950 dark:to-gray-900">
+    <div className="via-background dark:via-background min-h-screen p-6" style={{ background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%)' }}>
+        {/* Floating back button at top left */}
+        <Link href={`/?domain=matthew${domainParam ? `&${domainParam.slice(1)}` : ''}`}>
+          <Button
+            size="lg"
+            className="fixed top-6 left-6 z-50 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl"
+            style={{
+              background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
+              color: '#000000'
+            }}
+          >
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Back
+          </Button>
+        </Link>
+
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-16 text-center">
             <div className="mb-6 flex items-center justify-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
-                <Zap className="h-8 w-8 text-white" />
-              </div>
-              <h1 className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-5xl font-bold text-transparent dark:from-violet-400 dark:to-purple-400">
+              <Zap className="h-10 w-10" style={{ color: '#D4AF37' }} />
+              <h1 className="text-5xl font-bold" style={{
+                background: 'linear-gradient(to right, #D4AF37, #B8942A)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
                 GLSL Shaders
               </h1>
             </div>
@@ -160,7 +177,7 @@ function ShadersPageContent() {
                       <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
                         {shader.description}
                       </p>
-                      <div className="flex items-center gap-2 text-sm font-medium text-violet-600 dark:text-violet-400">
+                      <div className="flex items-center gap-2 text-sm font-medium" style={{ color: '#D4AF37' }}>
                         <span>Explore</span>
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </div>
@@ -177,7 +194,6 @@ function ShadersPageContent() {
           </div>
         </div>
       </div>
-    </DomainLayout>
   );
 }
 

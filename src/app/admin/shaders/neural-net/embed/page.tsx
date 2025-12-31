@@ -2,10 +2,15 @@
 
 export const dynamic = "force-dynamic";
 
-import { ShaderLayout } from "~/components/shaders/shader-layout";
 import { ShadertoyRenderer } from "~/components/shaders/shadertoy-renderer";
 
-// Neural Net shader code - "The Universe Within" by Martijn Steinrucken
+/**
+ * Neural Network Shader - Admin Embed Route
+ *
+ * Admin version of the embed route. Same as the public version but accessible
+ * through the admin domain for testing and development purposes.
+ */
+
 const NEURAL_NET_SHADER = `
 // The Universe Within - by Martijn Steinrucken aka BigWings 2018
 // Email:countfrolic@gmail.com Twitter:@The_ArtOfCode
@@ -138,11 +143,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // Removed audio/iChannel0 dependency - just use constant glow
     float glow = -uv.y*0.2;
 
-    // Original dynamic color (commented out)
-    // vec3 baseCol = vec3(s, cos(t*.4), -sin(t*.24))*.4+.6;
-
     // Blue color scheme
-    vec3 baseCol = vec3(0.2, 0.5, 1.0); // Bright blue
+    vec3 baseCol = vec3(0.2, 0.5, 1.0);
 
     vec3 col = baseCol*m;
     col += baseCol*glow;
@@ -155,31 +157,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 }
 `;
 
-export default function NeuralNetPage() {
+export default function NeuralNetEmbedPage() {
   return (
-    <ShaderLayout>
-      <div className="relative h-screen w-full overflow-hidden bg-black">
-        <ShadertoyRenderer
-          fragmentShader={NEURAL_NET_SHADER}
-          className="h-full w-full"
-        />
-
-        {/* Content Overlay */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="max-w-2xl space-y-6 p-8 text-center">
-            <h1 className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-5xl font-bold text-transparent">
-              Neural Network
-            </h1>
-            <p className="text-xl text-white/80">
-              A mesmerizing visualization of interconnected nodes, pulsing with
-              energy and consciousness
-            </p>
-            <p className="text-sm text-white/60 italic">
-              &quot;The Universe Within&quot; by Martijn Steinrucken
-            </p>
-          </div>
-        </div>
-      </div>
-    </ShaderLayout>
+    <div className="h-screen w-screen">
+      <ShadertoyRenderer fragmentShader={NEURAL_NET_SHADER} />
+    </div>
   );
 }

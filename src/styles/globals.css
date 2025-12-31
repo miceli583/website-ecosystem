@@ -123,4 +123,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    scroll-padding-top: 6.5rem; /* Offset for sticky header (3.5rem) + extra breathing room */
+  }
 }

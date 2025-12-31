@@ -1,11 +1,10 @@
 "use client";
 
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export default function GradientOrbsPage() {
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-black">
           {/* Animated Gradient Background */}
@@ -94,6 +93,6 @@ export default function GradientOrbsPage() {
           `}</style>
         </div>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }

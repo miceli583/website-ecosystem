@@ -13,7 +13,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface DomainLayoutProps {
   children: React.ReactNode;
@@ -223,7 +223,11 @@ export function DomainLayout({
 }: DomainLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [currentHostname, setCurrentHostname] = useState(hostname || "");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const domainParam = searchParams.get("domain");
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -231,6 +235,11 @@ export function DomainLayout({
       setCurrentHostname(window.location.hostname);
     }
   }, [hostname]);
+
+  // Force re-render when domain param changes
+  useEffect(() => {
+    setForceUpdate((prev) => prev + 1);
+  }, [domainParam]);
 
   if (!mounted) {
     return (
@@ -243,6 +252,7 @@ export function DomainLayout({
     );
   }
 
+  // Force re-evaluation of domainConfig when domain param changes
   const domainConfig = getDomainConfig(currentHostname);
   const isAdmin = isAdminPath(pathname);
   const navItems = isAdmin ? ADMIN_NAV : domainConfig.nav;
@@ -271,50 +281,145 @@ export function DomainLayout({
     >
       {/* Header Navigation */}
       <header
-        className={`border-border/40 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur ${headerClassName || ""}`}
+        className={`sticky top-0 z-50 border-border/20 supports-[backdrop-filter]:bg-background/10 border-b backdrop-blur-md ${headerClassName || ""}`}
       >
-        <div className="container mx-auto grid h-14 grid-cols-3 items-center px-4">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* Left side: Logo */}
           <div className="flex items-center">
             <Link
-              href="/"
-              className="flex items-center space-x-2 text-xl font-bold"
+              href={currentHostname.includes("localhost") ? "/?domain=live" : "https://miraclemind.live"}
+              className="flex items-center"
             >
-              {domainConfig.logo.startsWith("/") ? (
-                <div className="relative h-8 w-8">
-                  <Image
-                    src={domainConfig.logo}
-                    alt={domainConfig.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <span className="text-2xl">{domainConfig.logo}</span>
-              )}
-              <span className="hidden font-semibold sm:inline">
-                {displayName}
-              </span>
+              <div className="relative h-16 w-64 -mt-1">
+                <Image
+                  src="/brand/miracle-mind-logo-no-slogan.svg"
+                  alt="Miracle Mind"
+                  fill
+                  className="object-contain object-left"
+                />
+              </div>
             </Link>
           </div>
 
-          {/* Center Navigation */}
-          <nav className="hidden items-center justify-center space-x-6 md:flex">
-            {navItems.map((item) => (
-              <button
-                key={item.href}
-                className="text-muted-foreground hover:text-foreground text-xs font-semibold tracking-wider uppercase transition-colors"
-              >
-                {item.name}
-              </button>
-            ))}
-          </nav>
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 text-foreground hover:text-foreground/80"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
 
-          {/* Right side: Theme Toggle */}
-          <div className="flex items-center justify-end space-x-2">
-            <ThemeToggle />
+          {/* Desktop Navigation */}
+          <div className="hidden items-center space-x-6 md:flex">
+            <nav className="flex items-center space-x-6">
+              {navItems.map((item) => {
+                // Style "Join Beta" or "Early Access" as a button
+                if (item.name === "Join Beta" || (item.name as string) === "Early Access") {
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <button
+                        className="px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 rounded-md"
+                        style={{
+                          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        }}
+                      >
+                        {item.name}
+                      </button>
+                    </Link>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-foreground hover:text-foreground/80 text-xs font-semibold tracking-wider uppercase transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Explore Banyan Button - Only show on Live page */}
+            {((currentHostname.includes("localhost") && domainParam === "live") ||
+              currentHostname.includes("miraclemind.live")) && (
+              <a href="#banyan">
+                <button
+                  className="px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 rounded-md"
+                  style={{
+                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }}
+                >
+                  Explore BANYAN
+                </button>
+              </a>
+            )}
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="border-t border-border/20 bg-background md:hidden">
+            <nav className="container mx-auto flex flex-col space-y-1 px-4 py-4">
+              {navItems.map((item) => {
+                // Style "Join Beta" or "Early Access" as a button
+                if (item.name === "Join Beta" || (item.name as string) === "Early Access") {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <button
+                        className="w-full rounded-md px-4 py-3 text-sm font-semibold text-black transition-all duration-300"
+                        style={{
+                          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        }}
+                      >
+                        {item.name}
+                      </button>
+                    </Link>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-foreground transition-colors hover:bg-accent"
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+
+              {/* Explore Banyan Button for mobile - Only show on Live page */}
+              {((currentHostname.includes("localhost") && domainParam === "live") ||
+                currentHostname.includes("miraclemind.live")) && (
+                <a
+                  href="#banyan"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <button
+                    className="w-full rounded-md px-4 py-3 text-sm font-semibold text-black transition-all duration-300"
+                    style={{
+                      background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    }}
+                  >
+                    Explore BANYAN
+                  </button>
+                </a>
+              )}
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -322,7 +427,7 @@ export function DomainLayout({
 
       {/* Footer */}
       <footer
-        className={`border-border/40 mt-auto border-t ${footerClassName || ""}`}
+        className={`relative z-50 mt-auto border-t border-border/40 bg-background/95 backdrop-blur-md ${footerClassName || ""}`}
       >
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
@@ -339,19 +444,13 @@ export function DomainLayout({
               ) : (
                 <span className="text-lg">{domainConfig.logo}</span>
               )}
-              <span className="font-semibold">{domainConfig.name}</span>
+              <span className="font-semibold uppercase">{domainConfig.name}</span>
             </div>
             <p className="text-muted-foreground text-sm">
               {domainConfig.tagline}
             </p>
-            <div className="text-muted-foreground flex space-x-4 text-sm">
-              <span>© 2024</span>
-              <Link href="/privacy" className="hover:text-foreground">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-foreground">
-                Terms
-              </Link>
+            <div className="text-muted-foreground text-sm">
+              © 2025 MIRACLE MIND LLC
             </div>
           </div>
         </div>

@@ -2,10 +2,18 @@
 
 export const dynamic = "force-dynamic";
 
-import { ShaderLayout } from "~/components/shaders/shader-layout";
 import { ShadertoyRenderer } from "~/components/shaders/shadertoy-renderer";
 
-// Neural Net shader code - "The Universe Within" by Martijn Steinrucken
+/**
+ * Neural Network Shader - Embed Route (Public, No Auth)
+ *
+ * This is a public embed route specifically for use in iframes on landing pages.
+ * Unlike /shaders/neural-net/page.tsx, this has NO text overlay - just the shader.
+ *
+ * The main version has navigation and text overlays, making it unsuitable for backgrounds.
+ * This embed version is clean and perfect for background iframes.
+ */
+
 const NEURAL_NET_SHADER = `
 // The Universe Within - by Martijn Steinrucken aka BigWings 2018
 // Email:countfrolic@gmail.com Twitter:@The_ArtOfCode
@@ -107,8 +115,8 @@ float NetLayer(vec2 st, float n, float t) {
     m += line(p[7], p[3], st);
 
     float sPhase = (sin(t+n)+sin(t*.1))*.25+.5;
-    sPhase += pow(sin(t*.1)*.5+.5, 50.)*5.;
-    m += sparkle*sPhase;
+    sPhase += pow(sin(t*.1)*.5+.5, 50.)*.5;
+    m += sparkle*sPhase*0.3;
 
     return m;
 }
@@ -118,7 +126,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec2 uv = (fragCoord-iResolution.xy*.5)/iResolution.y;
 	vec2 M = vec2(0.0); // Disabled mouse interaction
 
-    float t = iTime*.1;
+    float t = iTime*.005;
 
     float s = sin(t);
     float c = cos(t);
@@ -138,11 +146,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // Removed audio/iChannel0 dependency - just use constant glow
     float glow = -uv.y*0.2;
 
-    // Original dynamic color (commented out)
-    // vec3 baseCol = vec3(s, cos(t*.4), -sin(t*.24))*.4+.6;
-
-    // Blue color scheme
-    vec3 baseCol = vec3(0.2, 0.5, 1.0); // Bright blue
+    // Golden color scheme (Primary Gold #D4AF37)
+    vec3 baseCol = vec3(0.831, 0.686, 0.216);
 
     vec3 col = baseCol*m;
     col += baseCol*glow;
@@ -155,31 +160,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 }
 `;
 
-export default function NeuralNetPage() {
+export default function NeuralNetEmbedPage() {
   return (
-    <ShaderLayout>
-      <div className="relative h-screen w-full overflow-hidden bg-black">
-        <ShadertoyRenderer
-          fragmentShader={NEURAL_NET_SHADER}
-          className="h-full w-full"
-        />
-
-        {/* Content Overlay */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="max-w-2xl space-y-6 p-8 text-center">
-            <h1 className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-5xl font-bold text-transparent">
-              Neural Network
-            </h1>
-            <p className="text-xl text-white/80">
-              A mesmerizing visualization of interconnected nodes, pulsing with
-              energy and consciousness
-            </p>
-            <p className="text-sm text-white/60 italic">
-              &quot;The Universe Within&quot; by Martijn Steinrucken
-            </p>
-          </div>
-        </div>
-      </div>
-    </ShaderLayout>
+    <div className="h-screen w-screen">
+      <ShadertoyRenderer fragmentShader={NEURAL_NET_SHADER} />
+    </div>
   );
 }

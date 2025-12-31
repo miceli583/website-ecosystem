@@ -1,0 +1,87 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "~/server/db";
+import { banyanEarlyAccess } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+
+/**
+ * POST /api/banyan/early-access
+ * Submit early access request for Banyan LifeOS
+ */
+export async function POST(request: NextRequest) {
+  try {
+    // Parse request body
+    const body = (await request.json()) as {
+      fullName: string;
+      email: string;
+      role?: string;
+      message?: string;
+    };
+
+    // Validate required fields
+    if (!body.fullName || !body.email) {
+      return NextResponse.json(
+        { error: "Full name and email are required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(body.email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    // Check for duplicate email
+    const existing = await db
+      .select()
+      .from(banyanEarlyAccess)
+      .where(eq(banyanEarlyAccess.email, body.email))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return NextResponse.json(
+        { error: "This email has already been registered for early access" },
+        { status: 409 }
+      );
+    }
+
+    // Insert into database
+    const [newSignup] = await db
+      .insert(banyanEarlyAccess)
+      .values({
+        fullName: body.fullName,
+        email: body.email,
+        role: body.role ?? null,
+        message: body.message ?? null,
+        contacted: false,
+      })
+      .returning();
+
+    // TODO: Send confirmation email to user
+    // TODO: Send notification to admin@miraclemind.live
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Thank you for your interest! We'll be in touch soon.",
+        data: {
+          id: newSignup!.id,
+          email: newSignup!.email,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error processing early access signup:", error);
+
+    return NextResponse.json(
+      {
+        error: "An error occurred while processing your request. Please try again.",
+      },
+      { status: 500 }
+    );
+  }
+}

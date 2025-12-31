@@ -1,12 +1,11 @@
 "use client";
 
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import { Zap, Atom, Orbit, Sparkles } from "lucide-react";
 
 export default function QuantumOrbitalPage() {
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-gradient-to-br from-orange-900 via-red-900 to-purple-900">
           {/* Energy field background */}
@@ -542,6 +541,6 @@ export default function QuantumOrbitalPage() {
           }
         `}</style>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }

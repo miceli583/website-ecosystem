@@ -45,12 +45,12 @@ export const DOMAIN_CONFIG = {
     theme: "brand",
     primaryColor: "#D4AF37", // metallic gold
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
-    tagline: "Guidance, Clarity, and the Miraculous Potential of the Mind",
+    tagline: "Technologies that make us more human",
     nav: [
-      { name: "Features", href: "/features" },
-      { name: "Pricing", href: "/pricing" },
-      { name: "About", href: "/about" },
-      { name: "Sign In", href: "/auth/signin" },
+      { name: "Mission", href: "#mission" },
+      { name: "Services", href: "#services" },
+      { name: "Values", href: "#values" },
+      { name: "Contact", href: "#contact" },
     ],
   },
   [DOMAINS.MIRACLE_MIND_DEV]: {
@@ -59,11 +59,13 @@ export const DOMAIN_CONFIG = {
     theme: "tech",
     primaryColor: "#D4AF37", // metallic gold
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
-    tagline: "Building the Future of Personal Development Tech",
+    tagline: "Technologies that make us more human",
     nav: [
-      { name: "Home", href: "/" },
-      { name: "Docs", href: "/docs" },
-      { name: "API", href: "/api-docs" },
+      { name: "The Problem", href: "#problem" },
+      { name: "Five Tools", href: "#five-tools" },
+      { name: "Three Principles", href: "#features" },
+      { name: "How It Works", href: "#how-it-works" },
+      { name: "Join Beta", href: "#signup" },
     ],
   },
 } as const;

@@ -1,12 +1,11 @@
 "use client";
 
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import { Star, Sparkles, Zap } from "lucide-react";
 
 export default function MeteorEffectPage() {
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
           {/* Meteor container */}
@@ -135,6 +134,6 @@ export default function MeteorEffectPage() {
           }
         `}</style>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }

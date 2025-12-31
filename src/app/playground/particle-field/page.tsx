@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export default function ParticleFieldPage() {
@@ -28,7 +27,7 @@ export default function ParticleFieldPage() {
   );
 
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-black">
           {/* Particle Field */}
@@ -175,6 +174,6 @@ export default function ParticleFieldPage() {
           `}</style>
         </div>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }

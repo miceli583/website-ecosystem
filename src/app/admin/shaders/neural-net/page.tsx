@@ -116,7 +116,7 @@ float NetLayer(vec2 st, float n, float t) {
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = (fragCoord-iResolution.xy*.5)/iResolution.y;
-	vec2 M = iMouse.xy/iResolution.xy-.5;
+	vec2 M = vec2(0.0); // Disabled mouse interaction
 
     float t = iTime*.1;
 

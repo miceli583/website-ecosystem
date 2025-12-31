@@ -25,18 +25,21 @@ function ShaderLayoutContent({ children }: ShaderLayoutProps) {
       {/* Fullscreen shader content */}
       {children}
 
-      {/* Floating back button at bottom left */}
+      {/* Floating back button at top left */}
       <Link
         href={`${backPath}${domainParam}`}
-        className="fixed bottom-8 left-8 z-50"
+        className="fixed top-6 left-6 z-50"
       >
         <Button
-          variant="secondary"
           size="lg"
-          className="group shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl"
+          className="shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl"
+          style={{
+            background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
+            color: '#000000'
+          }}
         >
-          <ArrowLeft className="mr-2 h-5 w-5 transition-transform group-hover:-translate-x-1" />
-          Back to Gallery
+          <ArrowLeft className="mr-2 h-5 w-5" />
+          Back
         </Button>
       </Link>
     </div>

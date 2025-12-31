@@ -1,13 +1,12 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 import { Sparkles, Type, Palette } from "lucide-react";
 
 export default function TextShimmerPage() {
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
           <div className="mx-auto max-w-4xl space-y-8">
@@ -245,6 +244,6 @@ export default function TextShimmerPage() {
           }
         `}</style>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }

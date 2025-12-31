@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, unique, serial, boolean } from "drizzle-orm/pg-core";
 
 // ============================================================================
 // DAILY VALUE POST AUTOMATION TABLES
@@ -129,6 +129,30 @@ export const pendingPosts = pgTable("pending_posts", {
 });
 
 // ============================================================================
+// BANYAN EARLY ACCESS
+// ============================================================================
+
+/**
+ * Banyan Early Access - Beta signup waitlist
+ * Stores early access requests for Banyan LifeOS platform
+ */
+export const banyanEarlyAccess = pgTable("banyan_early_access", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull().unique(),
+  role: text("role"), // Founder/Creator/Developer/Coach/Other
+  message: text("message"), // Optional "What brings you to Banyan?"
+  contacted: boolean("contacted").notNull().default(false),
+  notes: text("notes"), // Admin notes
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -206,3 +230,6 @@ export type NewQuotePost = typeof quotePosts.$inferInsert;
 
 export type PendingPost = typeof pendingPosts.$inferSelect;
 export type NewPendingPost = typeof pendingPosts.$inferInsert;
+
+export type BanyanEarlyAccess = typeof banyanEarlyAccess.$inferSelect;
+export type NewBanyanEarlyAccess = typeof banyanEarlyAccess.$inferInsert;

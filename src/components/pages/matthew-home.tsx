@@ -1,15 +1,21 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "~/components/ui/button";
+import Image from "next/image";
 import { Card, CardContent } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 import {
-  Github,
-  Linkedin,
   Mail,
   MapPin,
-  Calendar,
   Sparkles,
-  Rocket,
   Zap,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  Quote,
+  X,
 } from "lucide-react";
 
 interface MatthewHomePageProps {
@@ -21,153 +27,654 @@ export function MatthewHomePage({
   isDevPreview = false,
   domainParam = "",
 }: MatthewHomePageProps = {}) {
+  // Mobile testimonial slider state
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  // Expanded testimonial modal state
+  const [expandedTestimonial, setExpandedTestimonial] = useState<number | null>(null);
+
   // Use admin routes if in dev preview, otherwise use public routes
-  // Include domain parameter for localhost routing
   const playgroundUrl = isDevPreview
     ? `/admin/playground${domainParam}`
     : "/playground";
-  const templatesUrl = isDevPreview
-    ? `/admin/templates${domainParam}`
-    : "/templates";
   const shadersUrl = isDevPreview ? `/admin/shaders${domainParam}` : "/shaders";
 
+  // Testimonials data
+  const testimonials = [
+    {
+      name: "Austin Terry",
+      role: "Director of Ops & Account Manager, The Limitless Agency",
+      image: "/testimonials/AustinPhoto.jpeg",
+      content: "Matt is one of the most brilliant and kind-hearted individuals I've ever had the pleasure of knowing. He is a true polymath—a powerhouse with prodigious musical talent, an engineer and coder's mind, a steadfast creator's mentality, and the precision and care of a genuine artist. Above all, he carries an unshakable commitment to love, truth, and integrity in everything he does.\n\nHe has an insatiable curiosity for mastering new disciplines and weaving them into his work, while remaining grounded, peaceful, and deeply present in his way of being. Matt has a rare ability to change lives for the better, doing so with ease, clarity, and grace. Whatever he builds or brings into the world, you can expect nothing short of excellence.\n\nMost importantly, he truly cares—about his community, about people, and about humanity at large. He consistently goes above and beyond to serve others, leaving those around him feeling inspired, uplifted, and genuinely seen.\n\nThe world is a better place with Matt in it, and I'm deeply grateful to witness his genius unfold like a beautiful flower for all to behold.",
+      excerpt: "Matt is one of the most brilliant and kind-hearted individuals I've ever had the pleasure of knowing. He is a true polymath—a powerhouse with prodigious musical talent..."
+    },
+    {
+      name: "Callan McGuire",
+      role: "Co-founder, Papyra",
+      image: "/testimonials/CalPhoto.jpeg",
+      content: "It's rare to meet someone who so clearly articulates the power of being a generalist, but Matt does exactly that. In a world that pushes overspecialization, he reframed it in a way that immediately clicked for me.\n\nWhen you have a foot in multiple worlds, you gain a holistic perspective. You can connect ideas across disciplines—where deep understanding of a problem meets the skills required to solve it. That's where real innovation happens, and that's where Matt thrives.\n\nMatt's ideas feel genuinely original, which is incredibly rare. If you're considering working with him, give him a shot—you won't regret it.",
+      excerpt: "It's rare to meet someone who so clearly articulates the power of being a generalist, but Matt does exactly that. In a world that pushes overspecialization..."
+    },
+    {
+      name: "Anna Madewell",
+      role: "Festival Director, EmpowHER ATX",
+      image: "/testimonials/AnnaPhoto.jpg",
+      content: "Matt has supported me on my music journey in such a profound way. He truly helped me discover my sound—which is a big thing to say, but I mean it deeply. The worlds we create together feel incredibly aligned and intentional.\n\nHe is an exceptional listener and collaborates beautifully with other artists. Working with him in the studio, I immediately felt comfortable, supported, and creatively free. Matt has a rare talent for translating creation—music, emotion, and something truly divine—into sound.\n\nHe strikes a beautiful balance: gentle, open, and welcoming, while also being focused and effective at bringing ideas to life. I have immense appreciation for Matt and his artistry. He is truly a great artist.",
+      excerpt: "Matt has supported me on my music journey in such a profound way. He truly helped me discover my sound—which is a big thing to say..."
+    }
+  ];
+
+  const nextTestimonial = () => {
+    setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (expandedTestimonial !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [expandedTestimonial]);
+
   return (
-    <div className="from-background to-muted/20 relative min-h-screen overflow-hidden bg-gradient-to-br">
-      {/* Hero Section */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          {/* Profile Section */}
-          <div className="space-y-6 text-center">
-            <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-4xl font-bold text-white shadow-2xl">
-              MM
-            </div>
+    <div className="relative min-h-screen">
+      {/* Neural Net Shader Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <iframe
+          src="/shaders/neural-net/embed"
+          className="h-full w-full border-0 opacity-15"
+          title="Neural Network Background"
+        />
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
-            <div>
-              <h1 className="from-foreground to-muted-foreground bg-gradient-to-br bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-6xl">
-                Matthew Miceli
-              </h1>
-              <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-xl leading-relaxed font-light">
-                Software Engineer & Digital Architect building the future of web
-                experiences
-              </p>
-            </div>
+      {/* Gradient fade overlay - scrolls with page */}
+      <div className="absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-transparent via-30% to-black to-70% pointer-events-none" />
 
-            <div className="text-muted-foreground flex items-center justify-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                <span>New York, NY</span>
+      {/* Content */}
+      <div className="relative z-10 min-h-screen">
+        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+          {/* Hero Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="flex items-start justify-between gap-4 sm:gap-6 md:gap-8">
+              <div className="flex-1 space-y-3 sm:space-y-4 md:space-y-6">
+                <div className="animate-fade-in">
+                  <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
+                    Hi, I&apos;m Matthew Miceli
+                  </h1>
+                </div>
+                <div className="animate-fade-in-delay-1 max-w-2xl">
+                  <p className="text-sm text-gray-100 drop-shadow-md sm:text-base md:text-lg lg:text-xl">
+                    Digital Architect & Integrations Specialist. Bridging disciplines to create
+                    systems that make us more human. Founder of{" "}
+                    <Link href="https://www.miraclemind.live" className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
+                      Miracle Mind
+                    </Link>.
+                  </p>
+                </div>
+                <div className="animate-fade-in-delay-2 flex flex-col gap-2 text-xs text-gray-200 sm:flex-row sm:gap-4 sm:text-sm">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Austin, TX</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <a href="mailto:matthewmiceli@miraclemind.live" className="hover:underline" style={{ color: '#D4AF37' }}>
+                      matthewmiceli@miraclemind.live
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>Available for projects</span>
+              <div className="animate-fade-in-delay-2 flex-shrink-0">
+                <div className="h-24 w-24 overflow-hidden rounded-full border-2 shadow-2xl sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-42 lg:w-42" style={{ borderColor: '#D4AF37', boxShadow: '0 25px 50px -12px rgba(212, 175, 55, 0.25)' }}>
+                  <img
+                    src="/images/profile.jpg"
+                    alt="Matthew Miceli"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Skills Cards */}
-          <div className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
-            <Card className="border-border/50 bg-card/50 hover:bg-card/80 backdrop-blur-sm transition-all duration-300">
-              <CardContent className="p-6 text-center">
-                <div className="mb-3 text-2xl">⚡</div>
-                <h3 className="mb-2 font-semibold">Full-Stack Development</h3>
-                <p className="text-muted-foreground text-sm">
-                  Next.js, TypeScript, React, Node.js, tRPC, and modern web
-                  technologies
+          {/* About Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-3">
+              <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:text-3xl md:text-4xl">
+                About
+              </h2>
+              <div className="max-w-none space-y-4">
+                <p className="text-gray-100 drop-shadow-sm">
+                  I&apos;m a systems architect and bridge-builder who transforms creative potential into thriving realities.
+                  My journey spans robotics research, satellite testing, software development, high-ticket sales, and even
+                  music production.
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 bg-card/50 hover:bg-card/80 backdrop-blur-sm transition-all duration-300">
-              <CardContent className="p-6 text-center">
-                <div className="mb-3 text-2xl">🏗️</div>
-                <h3 className="mb-2 font-semibold">System Architecture</h3>
-                <p className="text-muted-foreground text-sm">
-                  Scalable applications, microservices, database design, and
-                  DevOps
+                <p className="text-gray-100 drop-shadow-sm">
+                  This diverse background has fostered a passion to discover what it means to be a modern polymath—one who
+                  harmonizes seemingly disparate disciplines and builds systems that foster integration. Whether it&apos;s
+                  connecting engineering and business, technology and creativity, or individual inspiration and collective impact,
+                  I excel at finding the unseen connections that make complex systems coherent.
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 bg-card/50 hover:bg-card/80 backdrop-blur-sm transition-all duration-300">
-              <CardContent className="p-6 text-center">
-                <div className="mb-3 text-2xl">🚀</div>
-                <h3 className="mb-2 font-semibold">Product Development</h3>
-                <p className="text-muted-foreground text-sm">
-                  From concept to deployment, creating impactful digital
-                  experiences
+                <p className="text-gray-100 drop-shadow-sm">
+                  Today, I combine this generalist perspective with deep technical expertise in AI-driven development
+                  to build full-stack web applications and enterprise solutions that empower human connection and make
+                  us more human.
                 </p>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </div>
+          </section>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" className="group">
-              <Mail className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-              Get In Touch
-            </Button>
+          {/* Testimonials Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-3-5">
+              <h2 className="mb-6 text-center text-2xl font-bold text-white drop-shadow-md sm:mb-8 sm:text-3xl md:text-4xl">
+                Kind Words
+              </h2>
 
-            <Button variant="outline" size="lg" className="group">
-              <Github className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-              View Projects
-            </Button>
+              {/* Desktop: Grid Layout - Hidden on Mobile */}
+              <div className="hidden gap-4 md:grid md:grid-cols-3">
+                {testimonials.map((testimonial, index) => (
+                  <Card
+                    key={testimonial.name}
+                    className="group cursor-pointer backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                    style={{
+                      borderColor: 'rgba(212, 175, 55, 0.3)',
+                      borderWidth: '1px',
+                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.05) 0%, rgba(107, 29, 54, 0.05) 100%)',
+                      animationDelay: `${0.4 + index * 0.1}s`
+                    }}
+                    onClick={() => setExpandedTestimonial(index)}
+                  >
+                    <CardContent className="p-5">
+                      <div className="mb-4 flex items-center gap-3">
+                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2" style={{ borderColor: '#D4AF37' }}>
+                          <Image
+                            src={testimonial.image}
+                            alt={testimonial.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white truncate">{testimonial.name}</p>
+                          <p className="text-xs leading-tight" style={{ color: '#D4AF37' }}>{testimonial.role}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm leading-relaxed text-gray-200 line-clamp-3">
+                        {testimonial.excerpt}
+                      </p>
+                      <div className="mt-3 flex items-center gap-1 text-xs font-semibold group-hover:gap-2 transition-all" style={{ color: '#D4AF37' }}>
+                        <span>Read more</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className="group border-purple-500/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20"
-            >
-              <Link href={playgroundUrl}>
-                <Sparkles className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                UI Playground
-              </Link>
-            </Button>
+              {/* Mobile: Slider - Hidden on Desktop */}
+              <div className="md:hidden">
+                <div className="relative">
+                  <Card
+                    className="cursor-pointer backdrop-blur-md"
+                    style={{
+                      borderColor: 'rgba(212, 175, 55, 0.3)',
+                      borderWidth: '1px',
+                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.05) 0%, rgba(107, 29, 54, 0.05) 100%)'
+                    }}
+                    onClick={() => setExpandedTestimonial(activeTestimonial)}
+                  >
+                    <CardContent className="p-5">
+                      <div className="mb-4 flex items-center gap-3">
+                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2" style={{ borderColor: '#D4AF37' }}>
+                          <Image
+                            src={testimonials[activeTestimonial]?.image || ''}
+                            alt={testimonials[activeTestimonial]?.name || ''}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white">{testimonials[activeTestimonial]?.name}</p>
+                          <p className="text-xs leading-tight" style={{ color: '#D4AF37' }}>{testimonials[activeTestimonial]?.role}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm leading-relaxed text-gray-200 line-clamp-3">
+                        {testimonials[activeTestimonial]?.excerpt}
+                      </p>
+                      <div className="mt-3 flex items-center gap-1 text-xs font-semibold" style={{ color: '#D4AF37' }}>
+                        <span>Read more</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </div>
+                    </CardContent>
+                  </Card>
 
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className="group border-blue-500/50 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20"
-            >
-              <Link href={templatesUrl}>
-                <Rocket className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                Template Gallery
-              </Link>
-            </Button>
+                  {/* Navigation Buttons */}
+                  <div className="mt-6 flex items-center justify-center gap-4">
+                    <button
+                      onClick={prevTestimonial}
+                      className="flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                      style={{
+                        background: 'rgba(212, 175, 55, 0.2)',
+                        borderColor: 'rgba(212, 175, 55, 0.3)',
+                        borderWidth: '1px'
+                      }}
+                      aria-label="Previous testimonial"
+                    >
+                      <ChevronLeft className="h-6 w-6" style={{ color: '#D4AF37' }} />
+                    </button>
 
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className="group border-violet-500/50 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
-            >
-              <Link href={shadersUrl}>
-                <Zap className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                Animation Showcase
-              </Link>
-            </Button>
-          </div>
+                    {/* Indicator Dots */}
+                    <div className="flex gap-2">
+                      {testimonials.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setActiveTestimonial(index)}
+                          className="h-2 w-2 rounded-full transition-all duration-200"
+                          style={{
+                            background: index === activeTestimonial ? '#D4AF37' : 'rgba(212, 175, 55, 0.3)',
+                            transform: index === activeTestimonial ? 'scale(1.5)' : 'scale(1)'
+                          }}
+                          aria-label={`Go to testimonial ${index + 1}`}
+                        />
+                      ))}
+                    </div>
 
-          {/* Social Links */}
-          <div className="flex items-center gap-6">
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Github className="h-6 w-6" />
-            </button>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Linkedin className="h-6 w-6" />
-            </button>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Mail className="h-6 w-6" />
-            </button>
-          </div>
+                    <button
+                      onClick={nextTestimonial}
+                      className="flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                      style={{
+                        background: 'rgba(212, 175, 55, 0.2)',
+                        borderColor: 'rgba(212, 175, 55, 0.3)',
+                        borderWidth: '1px'
+                      }}
+                      aria-label="Next testimonial"
+                    >
+                      <ChevronRight className="h-6 w-6" style={{ color: '#D4AF37' }} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expanded Testimonial Modal */}
+              {expandedTestimonial !== null && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+                  style={{ background: 'rgba(0, 0, 0, 0.8)' }}
+                  onClick={() => setExpandedTestimonial(null)}
+                >
+                  <Card
+                    className="relative max-w-2xl w-full max-h-[80vh] overflow-y-auto backdrop-blur-md"
+                    style={{
+                      borderColor: 'rgba(212, 175, 55, 0.4)',
+                      borderWidth: '1px',
+                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.1) 0%, rgba(107, 29, 54, 0.1) 100%)'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <CardContent className="p-6 sm:p-8">
+                      <button
+                        onClick={() => setExpandedTestimonial(null)}
+                        className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                        style={{
+                          background: 'rgba(212, 175, 55, 0.2)',
+                          borderColor: 'rgba(212, 175, 55, 0.3)',
+                          borderWidth: '1px'
+                        }}
+                        aria-label="Close"
+                      >
+                        <X className="h-4 w-4" style={{ color: '#D4AF37' }} />
+                      </button>
+
+                      {testimonials[expandedTestimonial] && (
+                        <>
+                          <div className="mb-6 flex items-center gap-4">
+                            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-2" style={{ borderColor: '#D4AF37' }}>
+                              <Image
+                                src={testimonials[expandedTestimonial].image}
+                                alt={testimonials[expandedTestimonial].name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-lg font-semibold text-white">{testimonials[expandedTestimonial].name}</p>
+                              <p className="text-sm" style={{ color: '#D4AF37' }}>{testimonials[expandedTestimonial].role}</p>
+                            </div>
+                          </div>
+
+                          <Quote className="mb-4 h-10 w-10 opacity-30" style={{ color: '#D4AF37' }} />
+
+                          <p className="leading-relaxed text-gray-100 whitespace-pre-line">
+                            {testimonials[expandedTestimonial].content}
+                          </p>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Miracle Mind Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-4">
+              <Card className="backdrop-blur-md transition-all duration-300" style={{
+                borderColor: 'rgba(212, 175, 55, 0.4)',
+                borderWidth: '1px',
+                background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.1) 0%, rgba(107, 29, 54, 0.1) 100%)'
+              }}>
+                <CardContent className="p-6 sm:p-8">
+                  <div className="flex items-start gap-6">
+                    <div className="relative h-16 w-16 flex-shrink-0">
+                      <Image
+                        src="/brand/miracle-mind-orbit-star-v3.svg"
+                        alt="Miracle Mind Orbit Star"
+                        fill
+                        className="object-contain drop-shadow-lg"
+                        style={{ filter: 'drop-shadow(0 10px 25px rgba(212, 175, 55, 0.3))' }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="mb-3 text-2xl font-bold text-white drop-shadow-md sm:text-3xl md:text-4xl">
+                        Miracle Mind
+                      </h2>
+                      <p className="mb-4 text-base text-gray-100 drop-shadow-sm sm:text-lg">
+                        In 2025, I founded Miracle Mind with a clear mission: develop technologies that make us more human
+                        and empower genuine connection.
+                      </p>
+                      <p className="mb-4 text-gray-200 drop-shadow-sm">
+                        In a climate where AI&apos;s trajectory remains uncertain, our mission is to serve as both steward and
+                        safeguard—nurturing the technologies that enhance our humanity while building protections against those
+                        that diminish it.
+                      </p>
+                      <p className="mb-6 text-gray-200 drop-shadow-sm">
+                        Our flagship product, <span className="font-semibold" style={{ color: '#D4AF37' }}>BANYAN</span>, is an AI-assisted
+                        Life Operating System that integrates habits, projects, finances, and wellbeing as interdependent
+                        elements.
+                      </p>
+                      <Link href="https://www.miraclemind.live">
+                        <Button
+                          size="lg"
+                          className="group shadow-lg"
+                          style={{
+                            background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
+                            boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)',
+                            color: '#000000'
+                          }}
+                        >
+                          <span className="mr-2">Explore Miracle Mind</span>
+                          <ExternalLink className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* Current Focus Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-5">
+              <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:text-3xl md:text-4xl">
+                Current Focus
+              </h2>
+              <div className="max-w-none space-y-4">
+                <p className="text-gray-100 drop-shadow-sm">
+                  Building full-stack web applications, SaaS platforms, and enterprise-level solutions with
+                  AI-driven development. My current tech stack:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Next.js",
+                    "React",
+                    "TypeScript",
+                    "tRPC",
+                    "Node.js",
+                    "PostgreSQL",
+                    "Drizzle ORM",
+                    "Supabase",
+                    "Tailwind CSS",
+                    "Python",
+                    "AI Workflows",
+                    "Notion",
+                    "Zapier",
+                  ].map((tech) => (
+                    <Badge
+                      key={tech}
+                      className="backdrop-blur-sm"
+                      style={{
+                        borderColor: 'rgba(212, 175, 55, 0.3)',
+                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                        color: '#F6E6C1'
+                      }}
+                    >
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Quick Links Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-6">
+              <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:mb-6 sm:text-3xl md:text-4xl">
+                Creative Exploration
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Link href={playgroundUrl}>
+                  <Card className="group cursor-pointer bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl" style={{ borderColor: 'rgba(212, 175, 55, 0.3)', borderWidth: '1px' }}>
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg shadow-lg" style={{ background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)', boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)' }}>
+                          <Sparkles className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-white">
+                            UI Playground
+                          </h3>
+                          <p className="text-sm text-gray-200">
+                            Interactive animation effects
+                          </p>
+                        </div>
+                        <ExternalLink className="h-5 w-5 transition-transform group-hover:translate-x-1" style={{ color: 'rgba(212, 175, 55, 0.7)' }} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <Link href={shadersUrl}>
+                  <Card className="group cursor-pointer bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl" style={{ borderColor: 'rgba(212, 175, 55, 0.3)', borderWidth: '1px' }}>
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg shadow-lg" style={{ background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)', boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)' }}>
+                          <Zap className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-white">
+                            Animation Showcase
+                          </h3>
+                          <p className="text-sm text-gray-200">
+                            GLSL shader gallery
+                          </p>
+                        </div>
+                        <ExternalLink className="h-5 w-5 transition-transform group-hover:translate-x-1" style={{ color: 'rgba(212, 175, 55, 0.7)' }} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* Education Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-7">
+              <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:mb-6 sm:text-3xl md:text-4xl">
+                Education
+              </h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Card className="border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg text-white font-bold text-lg" style={{
+                        background: 'linear-gradient(135deg, #CC0000 0%, #8B0000 100%)'
+                      }}>
+                        BU
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-white">
+                          MS in Robotics and Autonomous Systems
+                        </h3>
+                        <p style={{ color: '#D4AF37' }}>Boston University</p>
+                        <p className="mt-1 text-sm text-gray-300">
+                          2019 - 2022
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg text-white font-bold text-lg" style={{
+                        background: 'linear-gradient(135deg, #461D7C 0%, #FDD023 100%)'
+                      }}>
+                        LSU
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-white">
+                          BSE in Mechanical Engineering
+                        </h3>
+                        <p style={{ color: '#D4AF37' }}>Louisiana State University</p>
+                        <p className="mt-1 text-sm text-gray-300">
+                          2016 - 2020
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg text-white font-bold text-lg" style={{
+                        background: 'linear-gradient(135deg, #461D7C 0%, #FDD023 100%)'
+                      }}>
+                        LSU
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-white">
+                          BSE in Computer Science
+                        </h3>
+                        <p style={{ color: '#D4AF37' }}>Louisiana State University</p>
+                        <p className="mt-1 text-sm text-gray-300">
+                          2016 - 2020
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          {/* Contact Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-8">
+              <div className="text-center">
+                <h2 className="mb-4 text-2xl font-bold tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-4xl lg:text-5xl">
+                  Get in Touch
+                </h2>
+                <p className="mx-auto mb-6 max-w-2xl text-base text-gray-100 drop-shadow-md sm:mb-8 sm:text-lg md:text-xl">
+                  Interested in collaborating or have a project in mind? I&apos;d
+                  love to hear from you.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Button
+                    size="lg"
+                    className="group shadow-lg"
+                    style={{
+                      background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
+                      boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)',
+                      color: '#000000'
+                    }}
+                    asChild
+                  >
+                    <a href="mailto:matthewmiceli@miraclemind.live">
+                      <Mail className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                      Get In Touch
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
 
-      {/* Background decorations */}
-      <div className="bg-grid-pattern absolute inset-0 opacity-5" />
-      <div className="absolute top-1/4 left-10 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
-      <div className="absolute right-10 bottom-1/4 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" />
+      <style jsx global>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out;
+        }
+
+        .animate-fade-in-delay-1 {
+          animation: fade-in 0.6s ease-out 0.1s both;
+        }
+
+        .animate-fade-in-delay-2 {
+          animation: fade-in 0.6s ease-out 0.2s both;
+        }
+
+        .animate-fade-in-delay-3 {
+          animation: fade-in 0.6s ease-out 0.3s both;
+        }
+
+        .animate-fade-in-delay-4 {
+          animation: fade-in 0.6s ease-out 0.4s both;
+        }
+
+        .animate-fade-in-delay-5 {
+          animation: fade-in 0.6s ease-out 0.5s both;
+        }
+
+        .animate-fade-in-delay-6 {
+          animation: fade-in 0.6s ease-out 0.6s both;
+        }
+
+        .animate-fade-in-delay-7 {
+          animation: fade-in 0.6s ease-out 0.7s both;
+        }
+
+        .animate-fade-in-delay-8 {
+          animation: fade-in 0.6s ease-out 0.8s both;
+        }
+      `}</style>
     </div>
   );
 }

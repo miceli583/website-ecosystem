@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getDomainConfig, DOMAINS } from "~/lib/domains";
 import { DomainLayout } from "~/components/domain-layout";
 import { MatthewHomePage } from "~/components/pages/matthew-home";
@@ -10,6 +11,8 @@ import { MiracleMindDevHomePage } from "~/components/pages/miraclemind-dev-home"
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [hostname, setHostname] = useState("");
+  const searchParams = useSearchParams();
+  const domainParam = searchParams.get("domain");
 
   useEffect(() => {
     setMounted(true);
@@ -31,13 +34,20 @@ export default function HomePage() {
   const domainConfig = getDomainConfig(hostname);
 
   // Determine which page to render based on domain
+  function isMatthewDomain() {
+    // Handle localhost with domain parameter
+    if (hostname.includes("localhost")) {
+      return !domainParam || domainParam === "matthew";
+    }
+
+    // Handle production domains
+    return hostname.includes("matthewmiceli.com");
+  }
+
   function renderDomainPage() {
     // Handle localhost with domain parameter
     if (hostname.includes("localhost")) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const domain = urlParams.get("domain");
-
-      switch (domain) {
+      switch (domainParam) {
         case "matthew":
           return <MatthewHomePage />;
         case "live":
@@ -62,5 +72,11 @@ export default function HomePage() {
     return <MatthewHomePage />;
   }
 
+  // Matthew's personal page doesn't use the DomainLayout (no nav/footer)
+  if (isMatthewDomain()) {
+    return renderDomainPage();
+  }
+
+  // Other domains use the layout
   return <DomainLayout hostname={hostname}>{renderDomainPage()}</DomainLayout>;
 }

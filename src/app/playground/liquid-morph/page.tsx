@@ -1,11 +1,10 @@
 "use client";
 
-import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export default function LiquidMorphPage() {
   return (
-    <DomainLayout>
+    
       <PlaygroundLayout>
         <div className="relative min-h-full overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-red-50 dark:from-pink-950 dark:via-rose-950 dark:to-red-950">
           {/* Liquid Blob Animations */}
@@ -208,6 +207,6 @@ export default function LiquidMorphPage() {
           `}</style>
         </div>
       </PlaygroundLayout>
-    </DomainLayout>
+    
   );
 }
