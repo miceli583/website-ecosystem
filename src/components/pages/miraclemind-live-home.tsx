@@ -716,7 +716,7 @@ export function MiracleMindLiveHomePage() {
                       builds systems that foster integration.
                     </p>
 
-                    <Link href="/?domain=matthew">
+                    <Link href="https://matthewmiceli.com">
                       <Button
                         variant="outline"
                         className="border-2 bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
