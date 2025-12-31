@@ -640,7 +640,7 @@ export function MiracleMindLiveHomePage() {
                   goals become the natural byproduct of aligned habits and values.
                 </p>
 
-                <Link href="/?domain=dev">
+                <Link href="https://miraclemind.dev">
                   <Button
                     size="lg"
                     className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
