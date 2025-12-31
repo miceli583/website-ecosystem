@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
@@ -6,7 +7,7 @@ import { Zap, Atom, Orbit, Sparkles } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default function QuantumOrbitalPage() {
+function QuantumOrbitalPageContent() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -545,5 +546,13 @@ export default function QuantumOrbitalPage() {
         `}</style>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function QuantumOrbitalPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <QuantumOrbitalPageContent />
+    </Suspense>
   );
 }

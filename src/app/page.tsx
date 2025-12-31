@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +9,7 @@ import { MatthewHomePage } from "~/components/pages/matthew-home";
 import { MiracleMindLiveHomePage } from "~/components/pages/miraclemind-live-home";
 import { MiracleMindDevHomePage } from "~/components/pages/miraclemind-dev-home";
 
-export default function HomePage() {
+function HomePageContent() {
   const [mounted, setMounted] = useState(false);
   const [hostname, setHostname] = useState("");
   const searchParams = useSearchParams();
@@ -79,4 +80,12 @@ export default function HomePage() {
 
   // Other domains use the layout
   return <DomainLayout hostname={hostname}>{renderDomainPage()}</DomainLayout>;
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
+  );
 }

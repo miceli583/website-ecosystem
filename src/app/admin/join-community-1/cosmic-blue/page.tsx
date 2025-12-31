@@ -1,10 +1,11 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { JoinCommunity1Content } from "~/components/join-community-1-content";
 import { BackButton } from "~/components/back-button";
 
-export default function CosmicBlueJoinCommunity1Page() {
+function CosmicBlueJoinCommunity1PageContent() {
   return (
     <DomainLayout
       headerClassName="border-b border-white/10 bg-[#0891b2] backdrop-blur-sm"
@@ -27,5 +28,13 @@ export default function CosmicBlueJoinCommunity1Page() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function CosmicBlueJoinCommunity1Page() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <CosmicBlueJoinCommunity1PageContent />
+    </Suspense>
   );
 }

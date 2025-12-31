@@ -176,7 +176,7 @@ function ShadersContent() {
   );
 }
 
-export default function ShadersPage() {
+function ShadersPageContent() {
   return (
     <DomainLayout>
       <BackButton href="/admin" label="Back to Hub" />
@@ -190,5 +190,13 @@ export default function ShadersPage() {
         <ShadersContent />
       </Suspense>
     </DomainLayout>
+  );
+}
+
+export default function ShadersPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <ShadersPageContent />
+    </Suspense>
   );
 }

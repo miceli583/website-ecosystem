@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -6,7 +7,7 @@ import { useEffect, useRef } from "react";
 import { DomainLayout } from "~/components/domain-layout";
 import { ShaderLayout } from "~/components/shaders/shader-layout";
 
-export default function FractalNoisePage() {
+function FractalNoisePageContent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -189,5 +190,13 @@ export default function FractalNoisePage() {
         </div>
       </ShaderLayout>
     </DomainLayout>
+  );
+}
+
+export default function FractalNoisePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <FractalNoisePageContent />
+    </Suspense>
   );
 }

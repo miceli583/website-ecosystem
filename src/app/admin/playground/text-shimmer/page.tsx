@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DomainLayout } from "~/components/domain-layout";
@@ -7,7 +8,7 @@ import { Sparkles, Type, Palette } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default function TextShimmerPage() {
+function TextShimmerPageContent() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -248,5 +249,13 @@ export default function TextShimmerPage() {
         `}</style>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function TextShimmerPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <TextShimmerPageContent />
+    </Suspense>
   );
 }

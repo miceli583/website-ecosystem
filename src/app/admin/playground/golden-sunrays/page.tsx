@@ -8,7 +8,7 @@ import { Sun, Sparkles, Eye, Settings } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default function GoldenSunraysPage() {
+function GoldenSunraysPageContent() {
   return (
     <DomainLayout>
       <Suspense fallback={<div>Loading...</div>}>
@@ -450,5 +450,13 @@ export default function GoldenSunraysPage() {
         </PlaygroundLayout>
       </Suspense>
     </DomainLayout>
+  );
+}
+
+export default function GoldenSunraysPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <GoldenSunraysPageContent />
+    </Suspense>
   );
 }

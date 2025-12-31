@@ -1,11 +1,12 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export const dynamic = "force-dynamic";
 
-export default function GeometricShapesPage() {
+function GeometricShapesPageContent() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -208,5 +209,13 @@ export default function GeometricShapesPage() {
         </div>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function GeometricShapesPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <GeometricShapesPageContent />
+    </Suspense>
   );
 }

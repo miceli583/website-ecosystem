@@ -13,7 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 
 const BRAND_ASSETS = {
   logos: {
@@ -550,7 +550,7 @@ const getBackgroundClass = (bg: string) => {
   }
 };
 
-export default function BrandPage() {
+function BrandPageContent() {
   const [activeFormat, setActiveFormat] = useState<"svg" | "png">("svg");
 
   const downloadLogoWithBackground = async (
@@ -1268,5 +1268,13 @@ export default function BrandPage() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function BrandPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <BrandPageContent />
+    </Suspense>
   );
 }

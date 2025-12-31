@@ -1,11 +1,12 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export const dynamic = "force-dynamic";
 
-export default function GradientOrbsPage() {
+function GradientOrbsPageContent() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -97,5 +98,13 @@ export default function GradientOrbsPage() {
         </div>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function GradientOrbsPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <GradientOrbsPageContent />
+    </Suspense>
   );
 }

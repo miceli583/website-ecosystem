@@ -71,6 +71,11 @@ export function MatthewHomePage({
     setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Matthew Miceli";
+  }, []);
+
   // Lock body scroll when modal is open
   useEffect(() => {
     if (expandedTestimonial !== null) {

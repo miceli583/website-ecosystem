@@ -1,10 +1,11 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { JoinCommunity1Content } from "~/components/join-community-1-content";
 import { BackButton } from "~/components/back-button";
 
-export default function BlueCyanJoinCommunity1Page() {
+function BlueCyanJoinCommunity1PageContent() {
   return (
     <DomainLayout
       headerClassName="border-b border-white/10 bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] backdrop-blur-sm"
@@ -27,5 +28,13 @@ export default function BlueCyanJoinCommunity1Page() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function BlueCyanJoinCommunity1Page() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <BlueCyanJoinCommunity1PageContent />
+    </Suspense>
   );
 }

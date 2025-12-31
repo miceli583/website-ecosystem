@@ -1,10 +1,11 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { JoinCommunity1Content } from "~/components/join-community-1-content";
 import { BackButton } from "~/components/back-button";
 
-export default function EmeraldTealJoinCommunity1Page() {
+function EmeraldTealJoinCommunity1PageContent() {
   return (
     <DomainLayout
       headerClassName="border-b border-white/10 bg-gradient-to-r from-[#10b981] to-[#14b8a6] backdrop-blur-sm"
@@ -27,5 +28,13 @@ export default function EmeraldTealJoinCommunity1Page() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function EmeraldTealJoinCommunity1Page() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <EmeraldTealJoinCommunity1PageContent />
+    </Suspense>
   );
 }

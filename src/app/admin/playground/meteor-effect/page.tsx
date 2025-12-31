@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
@@ -6,7 +7,7 @@ import { Star, Sparkles, Zap } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-export default function MeteorEffectPage() {
+function MeteorEffectPageContent() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -138,5 +139,13 @@ export default function MeteorEffectPage() {
         `}</style>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function MeteorEffectPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <MeteorEffectPageContent />
+    </Suspense>
   );
 }

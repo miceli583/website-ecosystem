@@ -1,10 +1,11 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { JoinCommunity1Content } from "~/components/join-community-1-content";
 import { BackButton } from "~/components/back-button";
 
-export default function JoinCommunity1Page() {
+function JoinCommunity1PageContent() {
   return (
     <DomainLayout>
       <BackButton href="/admin" label="Back to Hub" />
@@ -29,5 +30,13 @@ export default function JoinCommunity1Page() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function JoinCommunity1Page() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <JoinCommunity1PageContent />
+    </Suspense>
   );
 }

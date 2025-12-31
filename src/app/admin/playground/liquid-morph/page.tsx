@@ -1,11 +1,12 @@
 "use client";
+import { Suspense } from "react";
 
 import { DomainLayout } from "~/components/domain-layout";
 import { PlaygroundLayout } from "~/components/playground/playground-layout";
 
 export const dynamic = "force-dynamic";
 
-export default function LiquidMorphPage() {
+function LiquidMorphPageContent() {
   return (
     <DomainLayout>
       <PlaygroundLayout>
@@ -211,5 +212,13 @@ export default function LiquidMorphPage() {
         </div>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function LiquidMorphPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <LiquidMorphPageContent />
+    </Suspense>
   );
 }

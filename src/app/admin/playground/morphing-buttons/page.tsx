@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -20,7 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 
-export default function MorphingButtonsPage() {
+function MorphingButtonsPageContent() {
   const [likeCount, setLikeCount] = useState(42);
   const [isLiked, setIsLiked] = useState(false);
   const [downloadState, setDownloadState] = useState<
@@ -412,5 +413,13 @@ export default function MorphingButtonsPage() {
         `}</style>
       </PlaygroundLayout>
     </DomainLayout>
+  );
+}
+
+export default function MorphingButtonsPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <MorphingButtonsPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { DomainLayout } from "~/components/domain-layout";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
@@ -9,7 +9,7 @@ import Image from "next/image";
 import { ArrowRight, Sparkles, Clock } from "lucide-react";
 import { BackButton } from "~/components/back-button";
 
-export default function ForestGreenLandingPage() {
+function ForestGreenLandingPageContent() {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -149,5 +149,13 @@ export default function ForestGreenLandingPage() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function ForestGreenLandingPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <ForestGreenLandingPageContent />
+    </Suspense>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { DomainLayout } from "~/components/domain-layout";
 import { LaunchLanding1Content } from "~/components/launch-landing-1-content";
 import { BackButton } from "~/components/back-button";
 
-export default function EmeraldLaunchLanding1Page() {
+function EmeraldLaunchLanding1PageContent() {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -54,5 +54,13 @@ export default function EmeraldLaunchLanding1Page() {
         </div>
       </div>
     </DomainLayout>
+  );
+}
+
+export default function EmeraldLaunchLanding1Page() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <EmeraldLaunchLanding1PageContent />
+    </Suspense>
   );
 }
