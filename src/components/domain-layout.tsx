@@ -303,7 +303,7 @@ export function DomainLayout({
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-foreground hover:text-foreground/80"
+            className="md:hidden p-2 text-white hover:text-white/80"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
           >
@@ -338,7 +338,7 @@ export function DomainLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-foreground hover:text-foreground/80 text-xs font-semibold tracking-wider uppercase transition-colors"
+                    className="text-white hover:text-white/80 text-xs font-semibold tracking-wider uppercase transition-colors"
                   >
                     {item.name}
                   </Link>
@@ -365,7 +365,7 @@ export function DomainLayout({
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="border-t border-border/20 bg-background md:hidden">
+          <div className="border-t border-white/10 bg-black md:hidden">
             <nav className="container mx-auto flex flex-col space-y-1 px-4 py-4">
               {navItems.map((item) => {
                 // Style "Join Beta" or "Early Access" as a button
@@ -393,7 +393,7 @@ export function DomainLayout({
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-foreground transition-colors hover:bg-accent"
+                    className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
                   >
                     {item.name}
                   </Link>
