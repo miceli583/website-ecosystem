@@ -90,7 +90,7 @@ export function MatthewHomePage({
   }, [expandedTestimonial]);
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen bg-black">
       {/* Neural Net Shader Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <iframe
