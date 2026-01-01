@@ -292,7 +292,7 @@ export function DomainLayout({
             >
               <div className="relative h-16 w-64 -mt-1">
                 <Image
-                  src="/brand/miracle-mind-logo-no-slogan.svg"
+                  src="/brand/miracle-mind-logo-no-slogan.png"
                   alt="Miracle Mind"
                   fill
                   className="object-contain object-left"
