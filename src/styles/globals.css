@@ -126,4 +126,33 @@
   html {
     scroll-padding-top: 6.5rem; /* Offset for sticky header (3.5rem) + extra breathing room */
   }
+
+  /* Blog post prose styles */
+  .blog-prose p {
+    color: #e5e7eb;
+    margin-bottom: 1.5em;
+    line-height: 1.75;
+  }
+
+  .blog-prose h2 {
+    color: #ffffff;
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+  }
+
+  .blog-prose strong {
+    color: #D4AF37;
+    font-weight: 600;
+  }
+
+  .blog-prose a {
+    color: #D4AF37;
+    text-decoration: underline;
+  }
+
+  .blog-prose a:hover {
+    color: #F6E6C1;
+  }
 }

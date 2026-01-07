@@ -692,7 +692,7 @@ function BrandPageContent() {
               className="mx-auto mb-8 max-w-2xl text-xl text-neutral-600 dark:text-neutral-400"
               style={{ fontFamily: "var(--font-muli)" }}
             >
-              Technologies that make us more human
+              Technology Empowering Human Sovereignty
             </p>
             <div className="flex items-center justify-center gap-3">
               <Badge className="border-[#D4AF37]/40 bg-[#D4AF37]/10 text-[#D4AF37] dark:border-[#D4AF37]/30">

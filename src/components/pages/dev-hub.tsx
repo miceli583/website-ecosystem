@@ -21,6 +21,7 @@ import {
   Megaphone,
   ChevronDown,
   CalendarClock,
+  BookOpen,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
@@ -654,6 +655,43 @@ function DevHubContent() {
                     router.push(`/admin/daily-values${domainParam}`)
                   }
                   className="flex items-center justify-between rounded-lg border-2 border-indigo-500/30 bg-white px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm transition-all hover:border-indigo-500/50 hover:shadow-md dark:bg-neutral-900 dark:text-indigo-400"
+                >
+                  <span>Open Dashboard</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </CardContent>
+            </Card>
+
+            {/* Blog Management */}
+            <Card className="group flex h-full flex-col border-2 border-purple-500/30 bg-gradient-to-br from-purple-500/5 to-purple-500/10 transition-all duration-300 hover:shadow-2xl dark:border-purple-500/40 dark:from-purple-500/10 dark:to-purple-500/5">
+              <CardContent className="flex flex-1 flex-col p-6">
+                <div className="mb-4 flex flex-none items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg transition-transform group-hover:scale-110">
+                    <BookOpen className="h-7 w-7 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3
+                      className="text-xl font-bold text-black dark:text-white"
+                      style={{
+                        fontFamily: "var(--font-cinzel)",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Blog Management
+                    </h3>
+                    <Badge className="mt-1 border-purple-500/30 bg-purple-500/20 text-purple-700 shadow-sm dark:text-purple-300">
+                      11 BLOG SEEDS
+                    </Badge>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Manage blog posts, drafts, and publish content to your public blog
+                </p>
+                <button
+                  onClick={() =>
+                    router.push(`/admin/blog${domainParam}`)
+                  }
+                  className="flex items-center justify-between rounded-lg border-2 border-purple-500/30 bg-white px-4 py-3 text-sm font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-neutral-900 dark:text-purple-400"
                 >
                   <span>Open Dashboard</span>
                   <ArrowRight className="h-4 w-4" />

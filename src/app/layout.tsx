@@ -9,7 +9,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
   title: "Miracle Mind",
-  description: "Building technologies that make us more human",
+  description: "Technology Empowering Human Sovereignty",
   icons: [{ rel: "icon", url: "/brand/miracle-mind-orbit-star-v3.svg", type: "image/svg+xml" }],
 };
 

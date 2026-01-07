@@ -45,7 +45,7 @@ export const DOMAIN_CONFIG = {
     theme: "brand",
     primaryColor: "#D4AF37", // metallic gold
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
-    tagline: "Technologies that make us more human",
+    tagline: "Technology Empowering Human Sovereignty",
     nav: [
       { name: "Mission", href: "#mission" },
       { name: "Services", href: "#services" },
@@ -59,7 +59,7 @@ export const DOMAIN_CONFIG = {
     theme: "tech",
     primaryColor: "#D4AF37", // metallic gold
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
-    tagline: "Technologies that make us more human",
+    tagline: "Technology Empowering Human Sovereignty",
     nav: [
       { name: "The Problem", href: "#problem" },
       { name: "Five Tools", href: "#five-tools" },

@@ -175,7 +175,7 @@ export function MiracleMindLiveHomePage() {
                 letterSpacing: "0.02em",
               }}
             >
-              Building Technologies
+              Building Technology
               <br />
               <span
                 style={{
@@ -185,7 +185,7 @@ export function MiracleMindLiveHomePage() {
                   backgroundClip: "text",
                 }}
               >
-                That Make Us More Human
+                Empowering Human Sovereignty
               </span>
             </h1>
 
@@ -193,7 +193,7 @@ export function MiracleMindLiveHomePage() {
               className="mx-auto mb-8 max-w-3xl px-4 text-base text-gray-200 sm:mb-12 sm:text-xl"
               style={{ fontFamily: "var(--font-geist-sans)", fontWeight: 300 }}
             >
-              From AI integrations to complete software platforms—amplifying human potential, deepening connection, and honoring what makes us most alive
+              From AI integrations to complete software platforms—empowering human sovereignty, deepening connection, and honoring what makes us most human
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

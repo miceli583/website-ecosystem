@@ -16,6 +16,8 @@ import {
   ChevronRight,
   Quote,
   X,
+  BookOpen,
+  ArrowRight,
 } from "lucide-react";
 
 interface MatthewHomePageProps {
@@ -119,8 +121,8 @@ export function MatthewHomePage({
                 </div>
                 <div className="animate-fade-in-delay-1 max-w-2xl">
                   <p className="text-sm text-gray-100 drop-shadow-md sm:text-base md:text-lg lg:text-xl">
-                    Digital Architect & Integrations Specialist. Bridging disciplines to create
-                    systems that make us more human. Founder of{" "}
+                    Digital Architect & Integrations Specialist. Integrating disciplines to design
+                    systems that honor what makes us human. Founder of{" "}
                     <Link href="https://www.miraclemind.live" className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
                       Miracle Mind
                     </Link>.
@@ -159,28 +161,71 @@ export function MatthewHomePage({
               </h2>
               <div className="max-w-none space-y-4">
                 <p className="text-gray-100 drop-shadow-sm">
-                  I&apos;m a systems architect and bridge-builder who transforms creative potential into thriving realities.
-                  My journey spans robotics research, satellite testing, software development, high-ticket sales, and even
-                  music production.
+                  I&apos;m a systems architect who bridges worlds—transforming vision into reality through the integration of diverse disciplines. My path has taken me through robotics research, satellite testing, software development, high-ticket sales, and music production.
                 </p>
                 <p className="text-gray-100 drop-shadow-sm">
-                  This diverse background has fostered a passion to discover what it means to be a modern polymath—one who
-                  harmonizes seemingly disparate disciplines and builds systems that foster integration. Whether it&apos;s
-                  connecting engineering and business, technology and creativity, or individual inspiration and collective impact,
-                  I excel at finding the unseen connections that make complex systems coherent.
+                  This breadth has shaped my approach: I thrive in the spaces between fields, connecting engineering with business, technology with creativity, individual insight with collective impact. I illuminate unseen patterns and design systems that honor each part within the greater whole.
                 </p>
                 <p className="text-gray-100 drop-shadow-sm">
-                  Today, I combine this generalist perspective with deep technical expertise in AI-driven development
-                  to build full-stack web applications and enterprise solutions that empower human connection and make
-                  us more human.
+                  Today, I apply this integrative thinking alongside deep technical expertise in AI-driven development, creating full-stack applications and enterprise solutions that strengthen human connection and honor our humanity.
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Testimonials Section */}
+          {/* Featured Writing Section */}
           <section className="mb-12 sm:mb-16">
             <div className="animate-fade-in-delay-3-5">
+              <div className="mb-6 flex items-end justify-between">
+                <h2 className="text-2xl font-bold text-white drop-shadow-md sm:text-3xl md:text-4xl">
+                  Featured Writing
+                </h2>
+                <Link
+                  href="/blog"
+                  className="text-sm font-semibold transition-colors hover:underline"
+                  style={{ color: '#D4AF37' }}
+                >
+                  View All Posts →
+                </Link>
+              </div>
+              <Link href="/blog/honoring-our-humanity">
+                <Card className="group cursor-pointer backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{
+                  borderColor: 'rgba(212, 175, 55, 0.4)',
+                  borderWidth: '1px',
+                  background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.08) 0%, rgba(107, 29, 54, 0.08) 100%)'
+                }}>
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg shadow-lg" style={{ background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)', boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)' }}>
+                        <BookOpen className="h-6 w-6 text-black" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span className="text-xs text-gray-400">January 6, 2026</span>
+                          <span className="text-xs" style={{ color: '#D4AF37' }}>•</span>
+                          <span className="text-xs" style={{ color: '#D4AF37' }}>5 min read</span>
+                        </div>
+                        <h3 className="mb-3 text-xl font-bold text-white group-hover:underline sm:text-2xl">
+                          Honoring Our Humanity: Technology as Guardian, Not Replacement
+                        </h3>
+                        <p className="mb-4 text-sm leading-relaxed text-gray-200 sm:text-base">
+                          In an age where AI can outperform us in countless tasks, we must ask: what does it mean to be human? And how do we build technology that strengthens—rather than erodes—the connections that make us whole?
+                        </p>
+                        <div className="flex items-center gap-2 text-sm font-semibold transition-all group-hover:gap-3" style={{ color: '#D4AF37' }}>
+                          <span>Read full article</span>
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </section>
+
+          {/* Testimonials Section */}
+          <section className="mb-12 sm:mb-16">
+            <div className="animate-fade-in-delay-4">
               <h2 className="mb-6 text-center text-2xl font-bold text-white drop-shadow-md sm:mb-8 sm:text-3xl md:text-4xl">
                 Kind Words
               </h2>
@@ -194,7 +239,7 @@ export function MatthewHomePage({
                     style={{
                       borderColor: 'rgba(212, 175, 55, 0.3)',
                       borderWidth: '1px',
-                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.05) 0%, rgba(107, 29, 54, 0.05) 100%)',
+                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.12) 0%, rgba(107, 29, 54, 0.12) 100%)',
                       animationDelay: `${0.4 + index * 0.1}s`
                     }}
                     onClick={() => setExpandedTestimonial(index)}
@@ -234,7 +279,7 @@ export function MatthewHomePage({
                     style={{
                       borderColor: 'rgba(212, 175, 55, 0.3)',
                       borderWidth: '1px',
-                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.05) 0%, rgba(107, 29, 54, 0.05) 100%)'
+                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.12) 0%, rgba(107, 29, 54, 0.12) 100%)'
                     }}
                     onClick={() => setExpandedTestimonial(activeTestimonial)}
                   >
@@ -313,18 +358,22 @@ export function MatthewHomePage({
               {/* Expanded Testimonial Modal */}
               {expandedTestimonial !== null && (
                 <div
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-                  style={{ background: 'rgba(0, 0, 0, 0.8)' }}
-                  onClick={() => setExpandedTestimonial(null)}
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                  style={{ background: 'rgba(0, 0, 0, 0.85)' }}
+                  onMouseDown={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setExpandedTestimonial(null);
+                    }
+                  }}
                 >
                   <Card
                     className="relative max-w-2xl w-full max-h-[80vh] overflow-y-auto backdrop-blur-md"
                     style={{
                       borderColor: 'rgba(212, 175, 55, 0.4)',
                       borderWidth: '1px',
-                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.1) 0%, rgba(107, 29, 54, 0.1) 100%)'
+                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.35) 0%, rgba(107, 29, 54, 0.35) 100%)'
                     }}
-                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
                   >
                     <CardContent className="p-6 sm:p-8">
                       <button
@@ -373,7 +422,7 @@ export function MatthewHomePage({
 
           {/* Miracle Mind Section */}
           <section className="mb-12 sm:mb-16">
-            <div className="animate-fade-in-delay-4">
+            <div className="animate-fade-in-delay-5">
               <Card className="backdrop-blur-md transition-all duration-300" style={{
                 borderColor: 'rgba(212, 175, 55, 0.4)',
                 borderWidth: '1px',
@@ -395,8 +444,8 @@ export function MatthewHomePage({
                         Miracle Mind
                       </h2>
                       <p className="mb-4 text-base text-gray-100 drop-shadow-sm sm:text-lg">
-                        In 2025, I founded Miracle Mind with a clear mission: develop technologies that make us more human
-                        and empower genuine connection.
+                        In 2025, I founded Miracle Mind with a clear mission: develop technology that empowers human sovereignty
+                        and genuine connection.
                       </p>
                       <p className="mb-4 text-gray-200 drop-shadow-sm">
                         In a climate where AI&apos;s trajectory remains uncertain, our mission is to serve as both steward and
@@ -431,7 +480,7 @@ export function MatthewHomePage({
 
           {/* Current Focus Section */}
           <section className="mb-12 sm:mb-16">
-            <div className="animate-fade-in-delay-5">
+            <div className="animate-fade-in-delay-6">
               <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:text-3xl md:text-4xl">
                 Current Focus
               </h2>
@@ -475,7 +524,7 @@ export function MatthewHomePage({
 
           {/* Quick Links Section */}
           <section className="mb-12 sm:mb-16">
-            <div className="animate-fade-in-delay-6">
+            <div className="animate-fade-in-delay-7">
               <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:mb-6 sm:text-3xl md:text-4xl">
                 Creative Exploration
               </h2>
@@ -527,7 +576,7 @@ export function MatthewHomePage({
 
           {/* Education Section */}
           <section className="mb-12 sm:mb-16">
-            <div className="animate-fade-in-delay-7">
+            <div className="animate-fade-in-delay-8">
               <h2 className="mb-4 text-2xl font-bold text-white drop-shadow-md sm:mb-6 sm:text-3xl md:text-4xl">
                 Education
               </h2>
@@ -600,7 +649,7 @@ export function MatthewHomePage({
 
           {/* Contact Section */}
           <section className="mb-12 sm:mb-16">
-            <div className="animate-fade-in-delay-8">
+            <div className="animate-fade-in-delay-9">
               <div className="text-center">
                 <h2 className="mb-4 text-2xl font-bold tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-4xl lg:text-5xl">
                   Get in Touch
@@ -678,6 +727,10 @@ export function MatthewHomePage({
 
         .animate-fade-in-delay-8 {
           animation: fade-in 0.6s ease-out 0.8s both;
+        }
+
+        .animate-fade-in-delay-9 {
+          animation: fade-in 0.6s ease-out 0.9s both;
         }
       `}</style>
     </div>
