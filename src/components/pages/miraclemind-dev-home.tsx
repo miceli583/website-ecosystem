@@ -44,7 +44,7 @@ export function MiracleMindDevHomePage() {
 
     // Cleanup: restore default on unmount
     return () => {
-      document.title = "Create T3 App";
+      document.title = "Miracle Mind";
       const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
       if (favicon) {
         favicon.href = "/brand/miracle-mind-orbit-star-v3.svg";

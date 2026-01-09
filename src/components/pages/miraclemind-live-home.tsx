@@ -29,7 +29,7 @@ export function MiracleMindLiveHomePage() {
 
     // Cleanup: restore default on unmount
     return () => {
-      document.title = "Create T3 App";
+      document.title = "Miracle Mind";
     };
   }, []);
 
