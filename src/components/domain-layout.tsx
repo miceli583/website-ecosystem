@@ -331,7 +331,7 @@ export function DomainLayout({
             {/* Explore Banyan Button - Only show on Dev page (company site) */}
             {((currentHostname.includes("localhost") && domainParam === "dev") ||
               currentHostname.includes("miraclemind.dev")) && !isAdminPath(pathname) && (
-              <a href="/banyan">
+              <a href="#banyan">
                 <button
                   className="px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 rounded-md"
                   style={{
@@ -364,7 +364,7 @@ export function DomainLayout({
               {((currentHostname.includes("localhost") && domainParam === "dev") ||
                 currentHostname.includes("miraclemind.dev")) && !isAdminPath(pathname) && (
                 <a
-                  href="/banyan"
+                  href="#banyan"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <button
