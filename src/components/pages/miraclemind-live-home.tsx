@@ -77,7 +77,7 @@ export function MiracleMindLiveHomePage() {
     },
     {
       icon: Sparkles,
-      title: "Harmony",
+      title: "Coherence",
       description: "Where AI-driven development meets human-centered design. Bridging technical excellence with deep understanding of how people actually want to live and work.",
     },
   ];
