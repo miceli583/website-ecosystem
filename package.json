@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "next build",
+    "clean": "rm -rf .next",
+    "clean:all": "rm -rf .next node_modules/.cache",
+    "clear-auth": "node scripts/clear-auth-state.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

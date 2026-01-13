@@ -3,8 +3,9 @@
  *
  * Domain Structure:
  * - matthewmiceli.com: Personal portfolio and professional presence
- * - miraclemind.live: Main product/brand site for MiracleMind
- * - miraclemind.dev: Development environment and admin dashboard
+ * - miraclemind.dev: Main company site (services, values, mission)
+ * - miraclemind.dev/banyan: BANYAN product page
+ * - miraclemind.live: Redirects to miraclemind.dev (legacy domain)
  *
  * Routing Strategy:
  * - Public routes (/) render different content based on domain
@@ -55,17 +56,17 @@ export const DOMAIN_CONFIG = {
   },
   [DOMAINS.MIRACLE_MIND_DEV]: {
     name: "Miracle Mind",
-    description: "Technical Documentation & Development Resources",
-    theme: "tech",
+    description:
+      "AI-driven development empowering human sovereignty, deepening connection, and honoring what makes us most human",
+    theme: "brand",
     primaryColor: "#D4AF37", // metallic gold
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
     tagline: "Technology Empowering Human Sovereignty",
     nav: [
-      { name: "The Problem", href: "#problem" },
-      { name: "Five Tools", href: "#five-tools" },
-      { name: "Three Principles", href: "#features" },
-      { name: "How It Works", href: "#how-it-works" },
-      { name: "Join Beta", href: "#signup" },
+      { name: "Mission", href: "#mission" },
+      { name: "Services", href: "#services" },
+      { name: "Values", href: "#values" },
+      { name: "Contact", href: "#contact" },
     ],
   },
 } as const;
@@ -147,5 +148,6 @@ export const DEV_URLS = {
   matthew: "http://localhost:3000?domain=matthew",
   live: "http://localhost:3000?domain=live",
   dev: "http://localhost:3000?domain=dev",
+  banyan: "http://localhost:3000/banyan?domain=dev",
   admin: "http://localhost:3000/admin?domain=dev",
 } as const;

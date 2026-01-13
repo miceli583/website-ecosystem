@@ -2,6 +2,13 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { DomainLayout } from "~/components/domain-layout";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Template Gallery | Matthew Miceli",
+  description:
+    "Beautiful, responsive templates built with Next.js, TypeScript, and Tailwind CSS",
+};
 import {
   Rocket,
   User,

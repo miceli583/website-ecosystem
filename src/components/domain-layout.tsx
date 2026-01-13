@@ -287,7 +287,7 @@ export function DomainLayout({
           {/* Left side: Logo */}
           <div className="flex items-center">
             <Link
-              href={currentHostname.includes("localhost") ? "/?domain=live" : "https://miraclemind.live"}
+              href={currentHostname.includes("localhost") ? "/?domain=dev" : "https://miraclemind.dev"}
               className="flex items-center"
             >
               <div className="relative h-16 w-64 -mt-1">
@@ -317,33 +317,15 @@ export function DomainLayout({
           {/* Desktop Navigation */}
           <div className="hidden items-center space-x-6 md:flex">
             <nav className="flex items-center space-x-6">
-              {navItems.map((item) => {
-                // Style "Join Beta" or "Early Access" as a button
-                if (item.name === "Join Beta" || (item.name as string) === "Early Access") {
-                  return (
-                    <Link key={item.href} href={item.href}>
-                      <button
-                        className="px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 rounded-md"
-                        style={{
-                          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                        }}
-                      >
-                        {item.name}
-                      </button>
-                    </Link>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="text-white hover:text-white/80 text-xs font-semibold tracking-wider uppercase transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-white hover:text-white/80 text-xs font-semibold tracking-wider uppercase transition-colors"
+                >
+                  {item.name}
+                </Link>
+              ))}
             </nav>
 
             {/* Explore Banyan Button - Only show on Live page */}
@@ -367,38 +349,16 @@ export function DomainLayout({
         {mobileMenuOpen && (
           <div className="border-t border-white/10 bg-black md:hidden">
             <nav className="container mx-auto flex flex-col space-y-1 px-4 py-4">
-              {navItems.map((item) => {
-                // Style "Join Beta" or "Early Access" as a button
-                if (item.name === "Join Beta" || (item.name as string) === "Early Access") {
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <button
-                        className="w-full rounded-md px-4 py-3 text-sm font-semibold text-black transition-all duration-300"
-                        style={{
-                          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                        }}
-                      >
-                        {item.name}
-                      </button>
-                    </Link>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
+                >
+                  {item.name}
+                </Link>
+              ))}
 
               {/* Explore Banyan Button for mobile - Only show on Live page */}
               {((currentHostname.includes("localhost") && domainParam === "live") ||

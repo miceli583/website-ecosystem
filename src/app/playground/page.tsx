@@ -3,6 +3,13 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import Link from "next/link";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "UI Playground | Matthew Miceli",
+  description:
+    "Explore interactive UI components and animations built with React, TypeScript, and Tailwind CSS",
+};
 import {
   Sparkles,
   Code,

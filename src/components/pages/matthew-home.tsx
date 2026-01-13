@@ -123,7 +123,7 @@ export function MatthewHomePage({
                   <p className="text-sm text-gray-100 drop-shadow-md sm:text-base md:text-lg lg:text-xl">
                     Digital Architect & Integrations Specialist. Integrating disciplines to design
                     systems that honor what makes us human. Founder of{" "}
-                    <Link href="https://www.miraclemind.live" className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
+                    <Link href="https://miraclemind.dev" className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
                       Miracle Mind
                     </Link>.
                   </p>
@@ -457,7 +457,7 @@ export function MatthewHomePage({
                         Life Operating System that integrates habits, projects, finances, and wellbeing as interdependent
                         elements.
                       </p>
-                      <Link href="https://www.miraclemind.live">
+                      <Link href="https://miraclemind.dev">
                         <Button
                           size="lg"
                           className="group shadow-lg"

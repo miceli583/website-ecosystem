@@ -1,6 +1,12 @@
 import { DevHub } from "~/components/pages/dev-hub";
 import { Suspense } from "react";
 import { DomainLayout } from "~/components/domain-layout";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Development Hub | Miracle Mind",
+  description: "Admin dashboard for managing Miracle Mind ecosystem",
+};
 
 /**
  * Admin Dashboard - Development Hub

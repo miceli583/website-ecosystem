@@ -34,9 +34,32 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    user = authUser;
+  } catch (error) {
+    // Handle stale/invalid refresh tokens gracefully
+    if (error && typeof error === 'object' && 'code' in error) {
+      const authError = error as { code?: string; message?: string };
+
+      if (authError.code === 'refresh_token_already_used' ||
+          authError.code === 'invalid_grant') {
+        // Clear the stale cookies by signing out
+        await supabase.auth.signOut();
+
+        if (process.env.NODE_ENV === "development") {
+          console.warn('⚠️  [Auth] Cleared stale auth cookies - user will need to re-login');
+        }
+      } else {
+        // Log other auth errors
+        console.error('[Auth] Session error:', authError.code, authError.message);
+      }
+    }
+  }
 
   return { supabaseResponse, user };
 }

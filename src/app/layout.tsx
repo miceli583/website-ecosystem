@@ -8,7 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://miraclemind.xyz"),
+  metadataBase: new URL("https://miraclemind.dev"),
   title: "Miracle Mind",
   description: "Technology Empowering Human Sovereignty",
   icons: [
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Miracle Mind",
     description: "Technology Empowering Human Sovereignty",
-    url: "https://miraclemind.xyz",
+    url: "https://miraclemind.dev",
     siteName: "Miracle Mind",
     images: [
       {

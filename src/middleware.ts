@@ -23,6 +23,26 @@ export async function middleware(request: NextRequest) {
   let pathname = request.nextUrl.pathname;
   let searchParams = request.nextUrl.searchParams;
 
+  // PERMANENT REDIRECT: miraclemind.live → miraclemind.dev
+  // Skip auth check - just redirect immediately
+  if (hostname === "miraclemind.live" || hostname === "www.miraclemind.live") {
+    const url = request.nextUrl.clone();
+    url.hostname = "miraclemind.dev";
+    url.protocol = "https:";
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🔀 [Middleware] Redirecting .live → .dev: ${url.toString()}`);
+    }
+
+    // 308 Permanent Redirect (preserves method and body)
+    return NextResponse.redirect(url, { status: 308 });
+  }
+
+  // Only check auth for routes that ACTUALLY need it
+  const needsAuth =
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/auth/callback');
+
   // Subdomain routing - handle admin.* subdomains
   // admin.miraclemind.dev/templates → /admin/templates?domain=dev
   const hostParts = hostname.split(".");
@@ -56,15 +76,23 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Update Supabase session
-  const { supabaseResponse, user } = await updateSession(request);
+  // Only update session for routes that need authentication
+  let supabaseResponse = NextResponse.next({ request });
+  let user = null;
+
+  if (needsAuth) {
+    const session = await updateSession(request);
+    supabaseResponse = session.supabaseResponse;
+    user = session.user;
+  }
 
   // Get current domain
   const currentDomain = getDomainFromHeaders(request.headers);
 
   if (process.env.NODE_ENV === "development") {
+    const authStatus = needsAuth ? `Auth Check: User ${user?.email || "None"}` : "Public Route";
     console.log(
-      `🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain} | User: ${user?.email || "None"}`
+      `🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain} | ${authStatus}`
     );
   }
 

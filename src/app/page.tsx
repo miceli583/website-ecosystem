@@ -52,9 +52,9 @@ function HomePageContent() {
         case "matthew":
           return <MatthewHomePage />;
         case "live":
-          return <MiracleMindLiveHomePage />;
+          return <MiracleMindLiveHomePage />; // Keep for testing
         case "dev":
-          return <MiracleMindDevHomePage />;
+          return <MiracleMindLiveHomePage />; // NOW SERVES COMPANY CONTENT
         default:
           return <MatthewHomePage />; // Default for localhost
       }
@@ -64,9 +64,9 @@ function HomePageContent() {
     if (hostname.includes("matthewmiceli.com")) {
       return <MatthewHomePage />;
     } else if (hostname.includes("miraclemind.live")) {
-      return <MiracleMindLiveHomePage />;
+      return <MiracleMindLiveHomePage />; // Will redirect soon
     } else if (hostname.includes("miraclemind.dev")) {
-      return <MiracleMindDevHomePage />;
+      return <MiracleMindLiveHomePage />; // NOW SERVES COMPANY CONTENT
     }
 
     // Default fallback
