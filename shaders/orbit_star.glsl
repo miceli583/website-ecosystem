@@ -1,5 +1,5 @@
 // Orbit Star - Miracle Mind logo shader
-// Two concentric rings with swirling orbital paths and glowing center
+// Two concentric rings, bowed square curves, swirling orbital paths, glowing center
 
 float saturate(float x) { return clamp(x, 0.0, 1.0); }
 
@@ -8,66 +8,15 @@ float sdRing(vec2 p, float r, float thickness) {
     return abs(length(p) - r) - thickness;
 }
 
-// Signed distance to a curved arc (bezier-like swirl)
-float sdSwirl(vec2 p, float startAngle, float time) {
-    // Rotate point to start angle
-    float a = startAngle + time * 0.3;
-    float c = cos(a), s = sin(a);
-    vec2 rp = mat2(c, -s, s, c) * p;
-
-    // Create curved path from outer to inner ring
-    float outerR = 0.36;
-    float innerR = 0.29;
-
-    // Parametric curve following the swirl
-    float angle = atan(rp.y, rp.x);
-    float r = length(rp);
-
-    // Swirl curve: radius decreases as angle increases (quarter turn)
-    float targetAngle = mod(angle + 3.14159, 1.5708) - 0.7854; // Map to -45 to +45 degrees
-    float targetR = mix(outerR, innerR, saturate((targetAngle + 0.7854) / 1.5708));
-
-    // Distance to the curve
-    float curveD = abs(r - targetR);
-
-    // Only show in the quarter arc
-    float angleMask = smoothstep(0.0, 0.1, targetAngle + 0.7854) * smoothstep(0.0, 0.1, 0.7854 - targetAngle);
-
-    return curveD / max(angleMask, 0.01);
-}
-
-// Smooth orbital arc
-float orbitalArc(vec2 p, float startAngle, float time) {
-    float a = startAngle + time * 0.2;
-    float c = cos(a), s = sin(a);
-    vec2 rp = mat2(c, -s, s, c) * p;
-
-    float angle = atan(rp.y, rp.x);
-    float r = length(rp);
-
-    // Arc parameters
-    float outerR = 0.36;
-    float innerR = 0.29;
-    float midR = (outerR + innerR) * 0.5;
-
-    // Curved path: starts at outer ring top, curves to inner ring right
-    // Using a spiral-like function
-    float t = (angle + 3.14159) / 6.28318; // 0 to 1 around circle
-    t = mod(t + 0.25, 1.0); // Start from top
-
-    // Only draw quarter arc
-    if (t > 0.25) return 1000.0;
-
-    // Interpolate radius along the arc
-    float progress = t / 0.25;
-    float targetR = mix(outerR, innerR, progress);
-
-    // Add curve bulge
-    float bulge = sin(progress * 3.14159) * 0.03;
-    targetR += bulge;
-
-    float d = abs(r - targetR);
-    return d;
+// Quadratic bezier curve distance (via sampling)
+float sdBezierQuad(vec2 p, vec2 a, vec2 b, vec2 c) {
+    float minD = 1000.0;
+    for (int i = 0; i <= 16; i++) {
+        float t = float(i) / 16.0;
+        vec2 q = (1.0-t)*(1.0-t)*a + 2.0*(1.0-t)*t*b + t*t*c;
+        minD = min(minD, length(p - q));
+    }
+    return minD;
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
@@ -97,24 +46,62 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float innerGlow = saturate(0.004 / (abs(innerRing) + 0.002)) * 0.55 * breathe;
     col += goldLight * innerGlow;
 
-    // === ORBITAL SWIRL ARCS ===
-    // Four curved paths at 90-degree intervals, slowly rotating
-    float arcWidth = 0.018;
+    // === BOWED SQUARE (four bezier curves connecting cardinal points) ===
+    // Matches SVG: curves from top->right->bottom->left->top, bowing outward
+    float bowedR = 0.36;  // Same as outer ring radius
+    float bowAmount = 0.15; // How much the curves bow outward
+
+    // Cardinal points
+    vec2 top = vec2(0.0, -bowedR);
+    vec2 right = vec2(bowedR, 0.0);
+    vec2 bottom = vec2(0.0, bowedR);
+    vec2 left = vec2(-bowedR, 0.0);
+
+    // Control points (bowed outward diagonally)
+    vec2 ctrlTR = normalize(vec2(1.0, -1.0)) * (bowedR + bowAmount);  // top-right
+    vec2 ctrlBR = normalize(vec2(1.0, 1.0)) * (bowedR + bowAmount);   // bottom-right
+    vec2 ctrlBL = normalize(vec2(-1.0, 1.0)) * (bowedR + bowAmount);  // bottom-left
+    vec2 ctrlTL = normalize(vec2(-1.0, -1.0)) * (bowedR + bowAmount); // top-left
+
+    // Slow rotation for the bowed square
+    float bowAngle = time * 0.08;
+    float bc = cos(bowAngle), bs = sin(bowAngle);
+    mat2 bowRot = mat2(bc, -bs, bs, bc);
+    vec2 uvBow = bowRot * uv;
+
+    // Distance to each curved segment
+    float d1 = sdBezierQuad(uvBow, top, ctrlTR, right);
+    float d2 = sdBezierQuad(uvBow, right, ctrlBR, bottom);
+    float d3 = sdBezierQuad(uvBow, bottom, ctrlBL, left);
+    float d4 = sdBezierQuad(uvBow, left, ctrlTL, top);
+
+    float bowedSquareDist = min(min(d1, d2), min(d3, d4));
+
+    // Glow for bowed square
+    float bowedGlow = saturate(0.012 / (bowedSquareDist + 0.004)) * breathe;
+
+    // Energy pulse traveling along the bowed square
+    float angle = atan(uvBow.y, uvBow.x);
+    float travelPulse = sin(angle * 2.0 - time * 1.5) * 0.4 + 0.6;
+
+    col += mix(goldDark, goldMid, 0.6) * bowedGlow * travelPulse;
+
+    // === ORBITAL SWIRL ARCS (rotating opposite direction) ===
     float arcIntensity = 0.0;
 
     for (int i = 0; i < 4; i++) {
         float startAngle = float(i) * 1.5708; // 90 degrees apart
 
-        // Rotate point
-        float a = startAngle + time * 0.15;
+        // Rotate point (opposite direction from bowed square)
+        float a = startAngle - time * 0.2;
         float c = cos(a), s = sin(a);
         vec2 rp = mat2(c, -s, s, c) * uv;
 
-        float angle = atan(rp.y, rp.x);
+        float pAngle = atan(rp.y, rp.x);
         float pr = length(rp);
 
         // Normalize angle to 0-1
-        float t = (angle + 3.14159) / 6.28318;
+        float t = (pAngle + 3.14159) / 6.28318;
         t = mod(t + 0.25, 1.0);
 
         // Only draw in first quarter
@@ -136,14 +123,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
             // Fade at ends
             float endFade = smoothstep(0.0, 0.05, progress) * smoothstep(0.0, 0.05, 1.0 - progress);
 
-            float arc = saturate(0.006 / (d + 0.002)) * endFade;
+            float arc = saturate(0.005 / (d + 0.002)) * endFade;
             arcIntensity += arc;
         }
     }
 
     // Add traveling energy along arcs
     float energy = sin(time * 2.0) * 0.3 + 0.7;
-    col += mix(goldMid, goldLight, 0.5) * arcIntensity * breathe * energy;
+    col += mix(goldMid, goldLight, 0.5) * arcIntensity * breathe * energy * 0.8;
 
     // === CENTER GLOW ===
     float centerDot = saturate(0.015 / (r + 0.008)) * pulse;
@@ -162,7 +149,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     }
 
     // === AMBIENT GLOW ===
-    float ambientGlow = saturate(0.08 / (r + 0.15)) * 0.15;
+    float ambientGlow = saturate(0.08 / (r + 0.15)) * 0.12;
     col += goldDark * ambientGlow * breathe;
 
     // Subtle color shimmer
