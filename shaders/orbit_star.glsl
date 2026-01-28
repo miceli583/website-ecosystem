@@ -60,12 +60,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float sq45 = 0.7071;
     vec2 uvDiamond = vec2(uvSq.x * sq45 + uvSq.y * sq45, -uvSq.x * sq45 + uvSq.y * sq45);
 
-    // SDF for clean square with very subtle outward bow
-    float baseSquare = max(abs(uvDiamond.x), abs(uvDiamond.y)) - squareSize;
-    // Very subtle outward bow at edge midpoints
-    float cornerness = abs(uvDiamond.x) * abs(uvDiamond.y) / (squareSize * squareSize);
-    float bowAmount = 0.008; // Very subtle
-    float squareDist = baseSquare - (1.0 - cornerness * 4.0) * bowAmount;
+    // Pure square SDF - perfectly straight edges
+    float squareDist = max(abs(uvDiamond.x), abs(uvDiamond.y)) - squareSize;
 
     // Clean solid line
     float lineWidth = 0.010;
