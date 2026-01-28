@@ -1,7 +1,7 @@
 # Project Status
 
 **Version:** 0.1.0
-**Last Updated:** 2026-01-27
+**Last Updated:** 2026-01-28
 **Commits:** 82
 
 ## Feature Status
@@ -11,7 +11,7 @@
 | Multi-domain routing | Working | matthewmiceli.com, miraclemind.dev, miraclemind.live |
 | Authentication (Supabase) | Working | Email/password, magic links |
 | Admin dashboard | Working | Protected routes at `/admin/*` |
-| Shader gallery | Working | 17 interactive shaders |
+| Shader gallery | Working | 8 interactive shaders (orbit-star enhanced) |
 | Template gallery | Working | Component showcase |
 | Blog system | Partial | Basic functionality, automation incomplete |
 | Daily values system | Working | Quotes, authors, values CRUD |
@@ -30,10 +30,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Jan 28 | 11c0d60 | Add 3D tilt and reduce glow in Orbit Star shader |
+| Jan 28 | 3128537 | Smooth outward bow on square (no kinks) |
+| Jan 28 | cc56bab | Add Orbit Star shader based on Miracle Mind logo |
 | Jan 27 | 4edf8c9 | Sync TODO.md with codebase and update STATUS.md |
 | Jan 27 | e9383a5 | Update STATUS.md with session changes |
-| Jan 27 | 7dc2089 | Add project CLAUDE.md for Claude Code context |
-| Jan 27 | ae067f4 | Add documentation standards: STATUS.md, TODO.md, CONTRIBUTING.md |
-| Jan 27 | b5e64cf | Update brand logos and add accurate color PNG |
 
 See `git log --oneline` for full history.
