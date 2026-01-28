@@ -51,12 +51,11 @@
         letter-spacing="0.15em">MIND</text>
 
   <!-- Slogan -->
-  <text x="150" y="108"
+  <text x="152" y="108"
         font-family="'Barlow', sans-serif"
         font-size="18"
         font-weight="300"
         fill="#FFF8E7"
         opacity="0.8"
-        textLength="385"
-        lengthAdjust="spacing">Technology Empowering Human Sovereignty</text>
+        letter-spacing="0.035em">Technology Empowering Human Sovereignty</text>
 </svg>
