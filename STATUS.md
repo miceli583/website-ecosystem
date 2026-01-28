@@ -2,7 +2,7 @@
 
 **Version:** 0.1.0
 **Last Updated:** 2026-01-27
-**Commits:** 78
+**Commits:** 80
 
 ## Feature Status
 
@@ -30,10 +30,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Jan 27 | 7dc2089 | Add project CLAUDE.md for Claude Code context |
+| Jan 27 | ae067f4 | Add documentation standards: STATUS.md, TODO.md, CONTRIBUTING.md |
 | Jan 27 | b5e64cf | Update brand logos and add accurate color PNG |
 | Jan 27 | be85dbc | Clean up documentation and scripts |
 | Jan 21 | 52f1de8 | Update Values section: Change Harmony to Coherence |
-| Jan 13 | c215f07 | Fix: Restore original BANYAN button behavior |
-| Jan 6 | d16e5d4 | Fix: Show Explore BANYAN button on .dev domain |
 
 See `git log --oneline` for full history.
