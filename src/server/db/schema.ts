@@ -153,6 +153,26 @@ export const banyanEarlyAccess = pgTable("banyan_early_access", {
 });
 
 // ============================================================================
+// STRIPE CUSTOMERS
+// ============================================================================
+
+/**
+ * Customers - Stripe customer records
+ * Links Stripe customer IDs to emails for payment tracking
+ */
+export const customers = pgTable("customers", {
+  id: serial("id").primaryKey(),
+  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
+  email: text("email").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -233,3 +253,6 @@ export type NewPendingPost = typeof pendingPosts.$inferInsert;
 
 export type BanyanEarlyAccess = typeof banyanEarlyAccess.$inferSelect;
 export type NewBanyanEarlyAccess = typeof banyanEarlyAccess.$inferInsert;
+
+export type Customer = typeof customers.$inferSelect;
+export type NewCustomer = typeof customers.$inferInsert;

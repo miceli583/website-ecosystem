@@ -3,6 +3,9 @@ import { db } from "~/server/db";
 import { banyanEarlyAccess } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { rateLimit } from "~/lib/rate-limit";
+import { sendEmail, sendAdminNotification } from "~/lib/email";
+import { BanyanConfirmationEmail } from "~/lib/email-templates/banyan-confirmation";
+import { AdminNotificationEmail } from "~/lib/email-templates/admin-notification";
 
 /**
  * POST /api/banyan/early-access
@@ -75,8 +78,23 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // TODO: Send confirmation email to user
-    // TODO: Send notification to admin@miraclemind.live
+    // Send emails (non-blocking)
+    void sendEmail({
+      to: body.email,
+      subject: "Welcome to BANYAN Early Access",
+      react: BanyanConfirmationEmail({ fullName: body.fullName }),
+    });
+
+    void sendAdminNotification({
+      subject: "New BANYAN Early Access Signup",
+      react: AdminNotificationEmail({
+        subject: "New BANYAN Early Access Signup",
+        fullName: body.fullName,
+        email: body.email,
+        role: body.role,
+        message: body.message,
+      }),
+    });
 
     return NextResponse.json(
       {

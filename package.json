@@ -31,6 +31,7 @@
     "@libsql/client": "^0.14.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@react-email/components": "^1.0.6",
     "@sparticuz/chromium": "^143.0.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.76.1",
@@ -53,8 +54,10 @@
     "puppeteer-core": "^24.34.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.9.1",
     "server-only": "^0.0.1",
     "sharp": "^0.34.5",
+    "stripe": "^20.2.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.24.2"
