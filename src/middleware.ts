@@ -38,10 +38,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, { status: 308 });
   }
 
+  // Client portal subdomain: clients.miraclemind.dev
+  const isClientPortal =
+    hostname.startsWith("clients.miraclemind.dev") ||
+    (hostname.includes("localhost") && searchParams.get("domain") === "clients");
+
   // Only check auth for routes that ACTUALLY need it
   const needsAuth =
     pathname.startsWith('/admin') ||
-    pathname.startsWith('/auth/callback');
+    pathname.startsWith('/auth/callback') ||
+    pathname.startsWith('/client') ||
+    isClientPortal;
 
   // Subdomain routing - handle admin.* subdomains
   // admin.miraclemind.dev/templates → /admin/templates?domain=dev
@@ -168,6 +175,20 @@ export async function middleware(request: NextRequest) {
         console.log(`🎮 [Middleware] Playground redirect: ${playgroundUrl}`);
       }
       return NextResponse.redirect(new URL(playgroundUrl));
+    }
+  }
+
+  // Handle client portal routes - require authentication
+  if (isClientPortal || pathname.startsWith("/client")) {
+    if (!user) {
+      const loginUrl = hostname.includes("localhost")
+        ? `${request.nextUrl.protocol}//${hostname}/admin/login?domain=dev`
+        : `https://miraclemind.dev/admin/login`;
+
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🔒 [Middleware] Client portal auth required, redirecting to: ${loginUrl}`);
+      }
+      return NextResponse.redirect(new URL(loginUrl));
     }
   }
 

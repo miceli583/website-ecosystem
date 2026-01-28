@@ -173,6 +173,89 @@ export const customers = pgTable("customers", {
 });
 
 // ============================================================================
+// CLIENT PORTAL / CRM
+// ============================================================================
+
+/**
+ * Clients - CRM client records
+ */
+export const clients = pgTable("clients", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+  stripeCustomerId: text("stripe_customer_id"),
+  status: text("status").notNull().default("active"), // active | inactive
+  company: text("company"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Client Projects - Track projects per client
+ */
+export const clientProjects = pgTable("client_projects", {
+  id: serial("id").primaryKey(),
+  clientId: serial("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("active"), // active | completed | paused
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Client Updates - Demos, proposals, invoices, general updates
+ */
+export const clientUpdates = pgTable("client_updates", {
+  id: serial("id").primaryKey(),
+  projectId: serial("project_id")
+    .notNull()
+    .references(() => clientProjects.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  type: text("type").notNull().default("update"), // demo | proposal | update | invoice
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Client Agreements - Contracts and proposals requiring signature
+ */
+export const clientAgreements = pgTable("client_agreements", {
+  id: serial("id").primaryKey(),
+  clientId: serial("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  projectId: serial("project_id").references(() => clientProjects.id),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  status: text("status").notNull().default("draft"), // draft | sent | signed | declined
+  signedAt: timestamp("signed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -226,6 +309,43 @@ export const quotePostsRelations = relations(quotePosts, ({ one }) => ({
   }),
 }));
 
+export const clientsRelations = relations(clients, ({ many }) => ({
+  projects: many(clientProjects),
+  agreements: many(clientAgreements),
+}));
+
+export const clientProjectsRelations = relations(
+  clientProjects,
+  ({ one, many }) => ({
+    client: one(clients, {
+      fields: [clientProjects.clientId],
+      references: [clients.id],
+    }),
+    updates: many(clientUpdates),
+  })
+);
+
+export const clientUpdatesRelations = relations(clientUpdates, ({ one }) => ({
+  project: one(clientProjects, {
+    fields: [clientUpdates.projectId],
+    references: [clientProjects.id],
+  }),
+}));
+
+export const clientAgreementsRelations = relations(
+  clientAgreements,
+  ({ one }) => ({
+    client: one(clients, {
+      fields: [clientAgreements.clientId],
+      references: [clients.id],
+    }),
+    project: one(clientProjects, {
+      fields: [clientAgreements.projectId],
+      references: [clientProjects.id],
+    }),
+  })
+);
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
@@ -256,3 +376,15 @@ export type NewBanyanEarlyAccess = typeof banyanEarlyAccess.$inferInsert;
 
 export type Customer = typeof customers.$inferSelect;
 export type NewCustomer = typeof customers.$inferInsert;
+
+export type Client = typeof clients.$inferSelect;
+export type NewClient = typeof clients.$inferInsert;
+
+export type ClientProject = typeof clientProjects.$inferSelect;
+export type NewClientProject = typeof clientProjects.$inferInsert;
+
+export type ClientUpdate = typeof clientUpdates.$inferSelect;
+export type NewClientUpdate = typeof clientUpdates.$inferInsert;
+
+export type ClientAgreement = typeof clientAgreements.$inferSelect;
+export type NewClientAgreement = typeof clientAgreements.$inferInsert;

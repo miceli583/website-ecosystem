@@ -17,6 +17,7 @@ export const DOMAINS = {
   MATTHEW_MICELI: "matthewmiceli.com",
   MIRACLE_MIND_LIVE: "miraclemind.live",
   MIRACLE_MIND_DEV: "miraclemind.dev",
+  CLIENTS_PORTAL: "clients.miraclemind.dev",
 } as const;
 
 export type DomainKey = keyof typeof DOMAINS;
@@ -69,6 +70,20 @@ export const DOMAIN_CONFIG = {
       { name: "Contact", href: "#contact" },
     ],
   },
+  [DOMAINS.CLIENTS_PORTAL]: {
+    name: "Miracle Mind — Client Portal",
+    description: "Your project dashboard",
+    theme: "brand",
+    primaryColor: "#D4AF37",
+    logo: "/brand/miracle-mind-orbit-star-v3.svg",
+    tagline: "Client Portal",
+    nav: [
+      { name: "Dashboard", href: "/client" },
+      { name: "Demos", href: "/client/demos" },
+      { name: "Proposals", href: "/client/proposals" },
+      { name: "Billing", href: "/client/billing" },
+    ],
+  },
 } as const;
 
 /**
@@ -76,6 +91,7 @@ export const DOMAIN_CONFIG = {
  */
 export const ADMIN_NAV = [
   { name: "Dashboard", href: "/admin" },
+  { name: "Clients", href: "/admin/clients" },
   { name: "Brand", href: "/admin/brand" },
   { name: "Templates", href: "/admin/templates" },
   { name: "Shaders", href: "/admin/shaders" },
@@ -101,6 +117,8 @@ export function getDomainConfig(hostname: string) {
         return DOMAIN_CONFIG[DOMAINS.MIRACLE_MIND_LIVE];
       case "dev":
         return DOMAIN_CONFIG[DOMAINS.MIRACLE_MIND_DEV];
+      case "clients":
+        return DOMAIN_CONFIG[DOMAINS.CLIENTS_PORTAL];
       default:
         return DOMAIN_CONFIG[DOMAINS.MATTHEW_MICELI]; // Default for localhost
     }
@@ -113,6 +131,8 @@ export function getDomainConfig(hostname: string) {
     return DOMAIN_CONFIG[DOMAINS.MATTHEW_MICELI];
   } else if (domain.includes("miraclemind.live")) {
     return DOMAIN_CONFIG[DOMAINS.MIRACLE_MIND_LIVE];
+  } else if (domain.startsWith("clients.miraclemind.dev")) {
+    return DOMAIN_CONFIG[DOMAINS.CLIENTS_PORTAL];
   } else if (domain.includes("miraclemind.dev")) {
     return DOMAIN_CONFIG[DOMAINS.MIRACLE_MIND_DEV];
   }
@@ -129,6 +149,7 @@ export function getDomainFromHeaders(headers: Headers): DomainValue {
 
   if (host.includes("matthewmiceli.com")) return DOMAINS.MATTHEW_MICELI;
   if (host.includes("miraclemind.live")) return DOMAINS.MIRACLE_MIND_LIVE;
+  if (host.startsWith("clients.miraclemind.dev")) return DOMAINS.CLIENTS_PORTAL;
   if (host.includes("miraclemind.dev")) return DOMAINS.MIRACLE_MIND_DEV;
 
   return DOMAINS.MATTHEW_MICELI; // Default
@@ -150,4 +171,5 @@ export const DEV_URLS = {
   dev: "http://localhost:3000?domain=dev",
   banyan: "http://localhost:3000/banyan?domain=dev",
   admin: "http://localhost:3000/admin?domain=dev",
+  clients: "http://localhost:3000?domain=clients",
 } as const;
