@@ -60,11 +60,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float sq45 = 0.7071;
     vec2 uvDiamond = vec2(uvSq.x * sq45 + uvSq.y * sq45, -uvSq.x * sq45 + uvSq.y * sq45);
 
-    // SDF for square with outward bow (edges bulge outward)
+    // SDF for clean square with very subtle outward bow
     float baseSquare = max(abs(uvDiamond.x), abs(uvDiamond.y)) - squareSize;
-    // Bow outward: reduce distance at edge midpoints
+    // Very subtle outward bow at edge midpoints
     float cornerness = abs(uvDiamond.x) * abs(uvDiamond.y) / (squareSize * squareSize);
-    float bowAmount = 0.04;
+    float bowAmount = 0.008; // Very subtle
     float squareDist = baseSquare - (1.0 - cornerness * 4.0) * bowAmount;
 
     // Clean solid line
@@ -130,9 +130,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     col += goldLight * centerDot;
     col += goldMid * centerHalo;
 
-    // === ORBITING PARTICLES (counter-clockwise) ===
+    // === ORBITING PARTICLES (counter-clockwise, slow) ===
     for (int i = 0; i < 3; i++) {
-        float particleAngle = -time * (0.5 + float(i) * 0.12) + float(i) * 2.094;
+        float particleAngle = -time * (0.15 + float(i) * 0.03) + float(i) * 2.094;
         float particleR = 0.32 + sin(time * 0.5 + float(i)) * 0.02;
         vec2 particlePos = vec2(cos(particleAngle), sin(particleAngle)) * particleR;
         float particleDist = length(uv - particlePos);
