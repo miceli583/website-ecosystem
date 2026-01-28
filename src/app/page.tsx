@@ -8,6 +8,7 @@ import { DomainLayout } from "~/components/domain-layout";
 import { MatthewHomePage } from "~/components/pages/matthew-home";
 import { MiracleMindLiveHomePage } from "~/components/pages/miraclemind-live-home";
 import { MiracleMindDevHomePage } from "~/components/pages/miraclemind-dev-home";
+import { MiracleMindHomeV2 } from "~/components/pages/miraclemind-home-v2";
 
 function HomePageContent() {
   const [mounted, setMounted] = useState(false);
@@ -54,7 +55,7 @@ function HomePageContent() {
         case "live":
           return <MiracleMindLiveHomePage />; // Keep for testing
         case "dev":
-          return <MiracleMindLiveHomePage />; // NOW SERVES COMPANY CONTENT
+          return <MiracleMindHomeV2 />;
         default:
           return <MatthewHomePage />; // Default for localhost
       }
@@ -66,7 +67,7 @@ function HomePageContent() {
     } else if (hostname.includes("miraclemind.live")) {
       return <MiracleMindLiveHomePage />; // Will redirect soon
     } else if (hostname.includes("miraclemind.dev")) {
-      return <MiracleMindLiveHomePage />; // NOW SERVES COMPANY CONTENT
+      return <MiracleMindHomeV2 />;
     }
 
     // Default fallback

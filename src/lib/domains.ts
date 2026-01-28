@@ -63,9 +63,9 @@ export const DOMAIN_CONFIG = {
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
     tagline: "Technology Empowering Human Sovereignty",
     nav: [
-      { name: "Mission", href: "#mission" },
       { name: "Services", href: "#services" },
-      { name: "Values", href: "#values" },
+      { name: "BANYAN", href: "/banyan" },
+      { name: "Stewardship", href: "/stewardship" },
       { name: "Contact", href: "#contact" },
     ],
   },
