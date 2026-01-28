@@ -128,7 +128,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     // === ORBITING PARTICLES ===
     for (int i = 0; i < 3; i++) {
-        float particleAngle = -time * (0.4 + float(i) * 0.15) + float(i) * 2.094;
+        float particleAngle = time * (0.4 + float(i) * 0.15) + float(i) * 2.094;
         float particleR = 0.32 + sin(time * 0.5 + float(i)) * 0.02;
         vec2 particlePos = vec2(cos(particleAngle), sin(particleAngle)) * particleR;
         float particleDist = length(uv - particlePos);
