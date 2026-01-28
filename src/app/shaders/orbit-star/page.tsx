@@ -31,8 +31,15 @@ float sdBezierQuad(vec2 p, vec2 a, vec2 b, vec2 c) {
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+    vec2 uvOrig = uv;
 
     float time = iTime;
+
+    // === 3D PERSPECTIVE TILT ===
+    float tiltX = sin(time * 0.3) * 0.06;
+    float tiltY = cos(time * 0.25) * 0.04;
+    float perspective = 1.0 + uvOrig.y * tiltX + uvOrig.x * tiltY;
+    uv *= perspective;
 
     // Breathing animation
     float breathe = sin(time * 0.6) * 0.15 + 0.85;
@@ -48,12 +55,12 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     // === OUTER RING ===
     float outerRing = sdRing(uv, 0.36, 0.012);
-    float outerGlow = saturate(0.008 / (abs(outerRing) + 0.003)) * breathe;
+    float outerGlow = saturate(0.005 / (abs(outerRing) + 0.003)) * breathe;
     col += mix(goldMid, goldLight, saturate(1.0 - abs(outerRing) * 20.0)) * outerGlow;
 
     // === INNER RING (semi-transparent) ===
     float innerRing = sdRing(uv, 0.29, 0.006);
-    float innerGlow = saturate(0.004 / (abs(innerRing) + 0.002)) * 0.55 * breathe;
+    float innerGlow = saturate(0.003 / (abs(innerRing) + 0.002)) * 0.45 * breathe;
     col += goldLight * innerGlow;
 
     // === ROTATED SQUARE (diamond orientation, straight edges) ===
@@ -80,11 +87,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float coreLine = 1.0 - smoothstep(0.0, lineWidth, abs(squareDist));
 
     // Soft glow around the square
-    float squareGlow = saturate(0.02 / (abs(squareDist) + 0.008)) * breathe;
+    float squareGlow = saturate(0.012 / (abs(squareDist) + 0.008)) * breathe;
 
     // Combine: solid line + soft glow
-    col += goldLight * coreLine * 0.9;
-    col += goldMid * squareGlow * 0.5;
+    col += goldLight * coreLine * 0.8;
+    col += goldMid * squareGlow * 0.35;
 
     // === ORBITAL SWIRL ARCS (your original - kept!) ===
     float arcIntensity = 0.0;
@@ -130,11 +137,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     // Add traveling energy along arcs
     float energy = sin(time * 2.0) * 0.3 + 0.7;
-    col += mix(goldMid, goldLight, 0.5) * arcIntensity * breathe * energy * 0.8;
+    col += mix(goldMid, goldLight, 0.5) * arcIntensity * breathe * energy * 0.5;
 
     // === CENTER GLOW ===
-    float centerDot = saturate(0.015 / (r + 0.008)) * pulse;
-    float centerHalo = saturate(0.003 / (r + 0.015)) * 0.6 * breathe;
+    float centerDot = saturate(0.010 / (r + 0.008)) * pulse;
+    float centerHalo = saturate(0.002 / (r + 0.015)) * 0.4 * breathe;
     col += goldLight * centerDot;
     col += goldMid * centerHalo;
 
@@ -144,12 +151,12 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         float particleR = 0.32 + sin(time * 0.5 + float(i)) * 0.02;
         vec2 particlePos = vec2(cos(particleAngle), sin(particleAngle)) * particleR;
         float particleDist = length(uv - particlePos);
-        float particle = saturate(0.003 / (particleDist + 0.001)) * 0.7;
+        float particle = saturate(0.002 / (particleDist + 0.001)) * 0.5;
         col += goldLight * particle * pulse;
     }
 
     // === AMBIENT GLOW ===
-    float ambientGlow = saturate(0.08 / (r + 0.15)) * 0.12;
+    float ambientGlow = saturate(0.05 / (r + 0.15)) * 0.08;
     col += goldDark * ambientGlow * breathe;
 
     // Subtle color shimmer
