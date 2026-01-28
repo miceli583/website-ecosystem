@@ -57,44 +57,55 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     col += goldLight * innerGlow;
 
     // === BOWED SQUARE (four bezier curves connecting cardinal points) ===
-    // Matches SVG: curves from top->right->bottom->left->top, bowing outward
-    float bowedR = 0.36;  // Same as outer ring radius
-    float bowAmount = 0.15; // How much the curves bow outward
+    // Prominent overlay - the iconic shape from the logo
+    float bowedR = 0.32;  // Slightly inside the rings
+    float bowAmount = 0.12; // How much the curves bow outward
 
-    // Cardinal points
-    vec2 top = vec2(0.0, -bowedR);
-    vec2 right = vec2(bowedR, 0.0);
-    vec2 bottom = vec2(0.0, bowedR);
-    vec2 left = vec2(-bowedR, 0.0);
+    // Cardinal points (rotated 45 degrees so corners point to diagonals)
+    float sq = 0.7071; // sqrt(2)/2
+    vec2 topRight = vec2(sq, -sq) * bowedR;
+    vec2 bottomRight = vec2(sq, sq) * bowedR;
+    vec2 bottomLeft = vec2(-sq, sq) * bowedR;
+    vec2 topLeft = vec2(-sq, -sq) * bowedR;
 
-    // Control points (bowed outward diagonally)
-    vec2 ctrlTR = normalize(vec2(1.0, -1.0)) * (bowedR + bowAmount);  // top-right
-    vec2 ctrlBR = normalize(vec2(1.0, 1.0)) * (bowedR + bowAmount);   // bottom-right
-    vec2 ctrlBL = normalize(vec2(-1.0, 1.0)) * (bowedR + bowAmount);  // bottom-left
-    vec2 ctrlTL = normalize(vec2(-1.0, -1.0)) * (bowedR + bowAmount); // top-left
+    // Control points (bowed outward along cardinal directions)
+    vec2 ctrlTop = vec2(0.0, -(bowedR + bowAmount));
+    vec2 ctrlRight = vec2(bowedR + bowAmount, 0.0);
+    vec2 ctrlBottom = vec2(0.0, bowedR + bowAmount);
+    vec2 ctrlLeft = vec2(-(bowedR + bowAmount), 0.0);
 
     // Slow rotation for the bowed square
-    float bowAngle = time * 0.08;
+    float bowAngle = time * 0.1;
     float bc = cos(bowAngle), bs = sin(bowAngle);
     mat2 bowRot = mat2(bc, -bs, bs, bc);
     vec2 uvBow = bowRot * uv;
 
-    // Distance to each curved segment
-    float d1 = sdBezierQuad(uvBow, top, ctrlTR, right);
-    float d2 = sdBezierQuad(uvBow, right, ctrlBR, bottom);
-    float d3 = sdBezierQuad(uvBow, bottom, ctrlBL, left);
-    float d4 = sdBezierQuad(uvBow, left, ctrlTL, top);
+    // Distance to each curved segment (corner to corner, bowing outward)
+    float d1 = sdBezierQuad(uvBow, topLeft, ctrlTop, topRight);
+    float d2 = sdBezierQuad(uvBow, topRight, ctrlRight, bottomRight);
+    float d3 = sdBezierQuad(uvBow, bottomRight, ctrlBottom, bottomLeft);
+    float d4 = sdBezierQuad(uvBow, bottomLeft, ctrlLeft, topLeft);
 
     float bowedSquareDist = min(min(d1, d2), min(d3, d4));
 
-    // Glow for bowed square
-    float bowedGlow = saturate(0.012 / (bowedSquareDist + 0.004)) * breathe;
+    // Solid core line
+    float lineWidth = 0.012;
+    float coreLine = smoothstep(lineWidth, lineWidth * 0.3, bowedSquareDist);
+
+    // Outer glow
+    float outerGlowBow = saturate(0.025 / (bowedSquareDist + 0.008)) * breathe;
+
+    // Inner bright glow
+    float innerGlowBow = saturate(0.008 / (bowedSquareDist + 0.002));
 
     // Energy pulse traveling along the bowed square
     float angle = atan(uvBow.y, uvBow.x);
-    float travelPulse = sin(angle * 2.0 - time * 1.5) * 0.4 + 0.6;
+    float travelPulse = sin(angle * 4.0 - time * 2.0) * 0.3 + 0.7;
 
-    col += mix(goldDark, goldMid, 0.6) * bowedGlow * travelPulse;
+    // Combine: solid gold core + glow
+    col += goldLight * coreLine * 0.9;
+    col += goldMid * outerGlowBow * travelPulse;
+    col += goldLight * innerGlowBow * 0.5;
 
     // === ORBITAL SWIRL ARCS (your original - kept!) ===
     float arcIntensity = 0.0;
