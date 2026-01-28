@@ -19,6 +19,13 @@ import { Button } from "~/components/ui/button";
 // GLSL Shader showcase items
 const SHADERS = [
   {
+    id: "orbit-star",
+    title: "Orbit Star",
+    description: "The Miracle Mind emblem - concentric orbits with swirling golden paths",
+    color: "amber",
+    href: "/shaders/orbit-star",
+  },
+  {
     id: "north-star",
     title: "North Star",
     description: "Golden guiding beacon with radiant rays and pulsing energy",
