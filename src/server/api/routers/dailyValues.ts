@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import { db } from "~/server/db";
 import {
   coreValues,
@@ -57,7 +61,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  createSupportingValue: publicProcedure
+  createSupportingValue: protectedProcedure
     .input(
       z.object({
         value: z.string().min(1, "Value name is required"),
@@ -88,7 +92,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  updateSupportingValue: publicProcedure
+  updateSupportingValue: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -124,7 +128,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  deleteSupportingValue: publicProcedure
+  deleteSupportingValue: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       // Check if this Supporting Value is used as a Core Value
@@ -161,7 +165,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return { requiresConfirmation: false, deleted: true };
     }),
 
-  confirmDeleteSupportingValue: publicProcedure
+  confirmDeleteSupportingValue: protectedProcedure
     .input(z.object({ id: z.string(), coreValueId: z.string() }))
     .mutation(async ({ input }) => {
       // Delete Core Value first (cascade will handle quotes and posts)
@@ -194,7 +198,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  createCoreValue: publicProcedure
+  createCoreValue: protectedProcedure
     .input(
       z.object({
         value: z.string().min(1, "Value name is required"),
@@ -250,7 +254,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  updateCoreValue: publicProcedure
+  updateCoreValue: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -303,7 +307,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  deleteCoreValue: publicProcedure
+  deleteCoreValue: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       // Cascade delete will handle coreValueQuotes and quotePosts
@@ -364,7 +368,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  createAuthor: publicProcedure
+  createAuthor: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1, "Author name is required"),
@@ -384,7 +388,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  updateAuthor: publicProcedure
+  updateAuthor: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -404,7 +408,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  deleteAuthor: publicProcedure
+  deleteAuthor: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       // Check if author has quotes
@@ -470,7 +474,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  createQuote: publicProcedure
+  createQuote: protectedProcedure
     .input(
       z.object({
         text: z.string().min(5, "Quote text must be at least 5 characters"),
@@ -510,7 +514,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  updateQuote: publicProcedure
+  updateQuote: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -551,7 +555,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  deleteQuote: publicProcedure
+  deleteQuote: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       // Cascade delete will handle coreValueQuotes and quotePosts
@@ -560,7 +564,7 @@ export const dailyValuesRouter = createTRPCRouter({
     }),
 
   // Associate/Disassociate Quote with Core Values
-  associateQuoteWithCoreValue: publicProcedure
+  associateQuoteWithCoreValue: protectedProcedure
     .input(
       z.object({
         quoteId: z.string(),
@@ -597,7 +601,7 @@ export const dailyValuesRouter = createTRPCRouter({
       return result[0];
     }),
 
-  disassociateQuoteFromCoreValue: publicProcedure
+  disassociateQuoteFromCoreValue: protectedProcedure
     .input(
       z.object({
         quoteId: z.string(),
@@ -635,7 +639,7 @@ export const dailyValuesRouter = createTRPCRouter({
     }),
 
   // Update Core Value associations for a Quote (replaces all associations)
-  updateQuoteCoreValues: publicProcedure
+  updateQuoteCoreValues: protectedProcedure
     .input(
       z.object({
         quoteId: z.string(),
@@ -798,7 +802,7 @@ export const dailyValuesRouter = createTRPCRouter({
    * Fill Queue - Add random posts to fill up to 10 items
    * Prevents duplicate quotes and exact duplicates
    */
-  fillQueue: publicProcedure.mutation(async () => {
+  fillQueue: protectedProcedure.mutation(async () => {
     const QUEUE_LIMIT = 10;
 
     // Get current queue
@@ -907,7 +911,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Pop Queue - Remove first item and reorder remaining
    */
-  popQueue: publicProcedure.mutation(async () => {
+  popQueue: protectedProcedure.mutation(async () => {
     // Get first item in queue
     const firstItem = await db
       .select()
@@ -949,7 +953,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Enqueue - Add one random item to end (if < 10)
    */
-  enqueuePost: publicProcedure.mutation(async () => {
+  enqueuePost: protectedProcedure.mutation(async () => {
     const QUEUE_LIMIT = 10;
 
     // Get current queue
@@ -1020,7 +1024,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Rotate Queue - Pop first item and enqueue new one
    */
-  rotateQueue: publicProcedure.mutation(async () => {
+  rotateQueue: protectedProcedure.mutation(async () => {
     const QUEUE_LIMIT = 10;
 
     // Get first item
@@ -1124,7 +1128,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Delete Queue Item - Delete specific item and reorder
    */
-  deleteQueueItem: publicProcedure
+  deleteQueueItem: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       // Delete the item
@@ -1153,7 +1157,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Clear Queue - Delete all items in queue
    */
-  clearQueue: publicProcedure.mutation(async () => {
+  clearQueue: protectedProcedure.mutation(async () => {
     await db.delete(quotePosts);
 
     return {
@@ -1165,7 +1169,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Update Queue Item - Update value/quote for a specific queue item
    */
-  updateQueueItem: publicProcedure
+  updateQueueItem: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -1213,7 +1217,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Upsert Pending Post - Create or update the pending post (singleton pattern)
    */
-  upsertPendingPost: publicProcedure
+  upsertPendingPost: protectedProcedure
     .input(
       z.object({
         zapierPayload: z.string(), // JSON stringified payload
@@ -1248,7 +1252,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Update Pending Post Status - Mark as sent/failed
    */
-  updatePendingPostStatus: publicProcedure
+  updatePendingPostStatus: protectedProcedure
     .input(
       z.object({
         status: z.enum(["pending", "sent"]),
@@ -1279,7 +1283,7 @@ export const dailyValuesRouter = createTRPCRouter({
   /**
    * Delete Pending Post - Remove the current pending post
    */
-  deletePendingPost: publicProcedure.mutation(async () => {
+  deletePendingPost: protectedProcedure.mutation(async () => {
     await db.delete(pendingPosts).where(eq(pendingPosts.id, "current"));
     return { success: true };
   }),

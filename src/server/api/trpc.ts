@@ -12,6 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "~/server/db";
+import { createClient } from "~/lib/supabase/server";
 
 /**
  * 1. CONTEXT
@@ -26,8 +27,14 @@ import { db } from "~/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return {
     db,
+    user,
     ...opts,
   };
 };
@@ -109,6 +116,30 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 export const publicProcedure = t.procedure.use(timingMiddleware);
 
 /**
- * Protected procedures can be added here when implementing authentication
- * with Supabase Auth or other auth providers
+ * Auth middleware - ensures the user is authenticated via Supabase Auth
  */
+const authMiddleware = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to perform this action",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      user: ctx.user,
+    },
+  });
+});
+
+/**
+ * Protected (authenticated) procedure
+ *
+ * Ensures the user is logged in before allowing access. Use this for
+ * mutations and any queries that should require authentication.
+ */
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(authMiddleware);

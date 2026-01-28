@@ -4,11 +4,17 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { env } from "~/env";
 
 const ZAPIER_WEBHOOK_URL =
   "https://hooks.zapier.com/hooks/catch/25829205/ua7aaz9/";
 
 export async function POST(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const zapierPayload = await request.json();
 

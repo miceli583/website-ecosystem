@@ -7,12 +7,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "~/env";
 
+function verifyCronAuth(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  return authHeader === `Bearer ${env.CRON_SECRET}`;
+}
+
 const ZAPIER_WEBHOOK_URL =
   "https://hooks.zapier.com/hooks/catch/25829205/ua7aaz9/";
 
 const STORAGE_BUCKET = "daily-anchors";
 
 export async function POST(request: NextRequest) {
+  if (!verifyCronAuth(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 

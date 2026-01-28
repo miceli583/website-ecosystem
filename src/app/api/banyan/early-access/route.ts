@@ -2,12 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { banyanEarlyAccess } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
+import { rateLimit } from "~/lib/rate-limit";
 
 /**
  * POST /api/banyan/early-access
  * Submit early access request for Banyan LifeOS
  */
 export async function POST(request: NextRequest) {
+  // Rate limit: 5 requests per 15 minutes per IP
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { success: withinLimit } = rateLimit(
+    `early-access:${ip}`,
+    5,
+    15 * 60 * 1000
+  );
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 }
+    );
+  }
+
   try {
     // Parse request body
     const body = (await request.json()) as {

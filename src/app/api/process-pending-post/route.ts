@@ -7,17 +7,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { pendingPosts } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
+import { env } from "~/env";
 
 const ZAPIER_WEBHOOK_URL =
   "https://hooks.zapier.com/hooks/catch/25829205/ua7aaz9/";
 
 export async function POST(request: NextRequest) {
   try {
-    // Optional: Add authentication to prevent unauthorized calls
-    // const authHeader = request.headers.get("authorization");
-    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // Get the current pending post
     const pendingPost = await db
@@ -118,6 +118,11 @@ export async function POST(request: NextRequest) {
 // Also support GET for manual testing/debugging
 export async function GET(request: NextRequest) {
   try {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const pendingPost = await db
       .select()
       .from(pendingPosts)
