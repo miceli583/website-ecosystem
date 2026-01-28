@@ -497,22 +497,6 @@ export async function generateCTAPage(
 }
 
 /**
- * Generate Page 3: Core Value Description
- * NOTE: This function is currently unused and disabled.
- * @deprecated - Not currently part of the 3-page carousel
- */
-/*
-async function generateDescriptionPage(
-  content: CarouselContent,
-  theme: BrandTheme
-): Promise<Blob> {
-  // This function is commented out as it's not currently used
-  // and references properties that don't exist in CarouselContent
-  throw new Error("generateDescriptionPage is deprecated");
-}
-*/
-
-/**
  * Generate carousel pages (3 pages: Quote + Values + CTA)
  * Page order: 1. Quote, 2. Value/Description, 3. CTA
  */
