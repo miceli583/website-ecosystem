@@ -50,8 +50,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // Clean geometric square with glowing edges
     float squareSize = 0.26;
 
-    // Slow rotation
-    float sqAngle = time * 0.1;
+    // Slow rotation (inverted)
+    float sqAngle = -time * 0.1;
     float sc = cos(sqAngle), ss = sin(sqAngle);
     mat2 sqRot = mat2(sc, -ss, ss, sc);
     vec2 uvSq = sqRot * uv;
@@ -80,8 +80,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     for (int i = 0; i < 4; i++) {
         float startAngle = float(i) * 1.5708; // 90 degrees apart
 
-        // Rotate point (opposite direction from bowed square)
-        float a = startAngle - time * 0.2;
+        // Rotate point (opposite direction from square)
+        float a = startAngle + time * 0.2;
         float c = cos(a), s = sin(a);
         vec2 rp = mat2(c, -s, s, c) * uv;
 
@@ -128,7 +128,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     // === ORBITING PARTICLES ===
     for (int i = 0; i < 3; i++) {
-        float particleAngle = time * (0.4 + float(i) * 0.15) + float(i) * 2.094;
+        float particleAngle = -time * (0.4 + float(i) * 0.15) + float(i) * 2.094;
         float particleR = 0.32 + sin(time * 0.5 + float(i)) * 0.02;
         vec2 particlePos = vec2(cos(particleAngle), sin(particleAngle)) * particleR;
         float particleDist = length(uv - particlePos);
