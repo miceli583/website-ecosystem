@@ -1,39 +1,45 @@
 # Project Status
 
-**Version:** 0.1.0
+**Version:** 0.2.0
 **Last Updated:** 2026-01-28
-**Commits:** 82
+**Commits:** 87
 
 ## Feature Status
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Multi-domain routing | Working | matthewmiceli.com, miraclemind.dev, miraclemind.live |
-| Authentication (Supabase) | Working | Email/password, magic links |
-| Admin dashboard | Working | Protected routes at `/admin/*` |
+| Multi-domain routing | Working | matthewmiceli.com, miraclemind.dev, miraclemind.live, clients.miraclemind.dev |
+| Authentication (Supabase) | Working | Email/password, magic links, tRPC protectedProcedure |
+| Admin dashboard | Working | Protected routes at `/admin/*`, includes CRM |
+| Client portal | Working | `/client/[slug]` with dashboard, demos, proposals, billing |
 | Shader gallery | Working | 8 interactive shaders (orbit-star enhanced) |
 | Template gallery | Working | Component showcase |
 | Blog system | Partial | Basic functionality, automation incomplete |
-| Daily values system | Working | Quotes, authors, values CRUD |
-| BANYAN early access | Working | Waitlist signup form |
-| Instagram automation | Partial | Infrastructure ready, needs webhook config |
+| Daily values system | Working | Quotes, authors, values CRUD (mutations protected) |
+| BANYAN early access | Working | Waitlist signup + email confirmation + admin notification |
+| Instagram automation | Partial | Endpoints secured with Bearer auth, needs webhook config |
 | Resume/PDF generation | Working | Server-side Puppeteer |
+| Stripe integration | Foundation | Client singleton, webhook handler, customers table |
+| Resend email | Working | Templates for BANYAN confirmation, admin alerts, client updates |
+| Security hardening | Complete | RLS on all tables, rate limiting, CSP/HSTS headers, Bearer auth |
+| Homepage v2 | Working | New company homepage with orbit-star shader, services grid |
+| Stewardship program | Working | Partner page with Entheos Holistics |
+| Legal pages | Working | Terms of Service, Privacy Policy |
 
 ## Known Limitations
 
-- **Email notifications**: BANYAN signups don't trigger email alerts
-- **Auth on process-pending-post**: Endpoint currently unprotected
+- **Stripe**: Foundation only — no checkout flows or billing UI yet
 - **Instagram automation**: Requires external Make.com/Zapier webhook setup
-- **Deprecated code**: `generateDescriptionPage` in carousel-generator needs removal
+- **Client portal**: No self-service auth flow yet (admin creates accounts)
 
 ## Recent Changes
 
 | Date | Commit | Description |
 |------|--------|-------------|
-| Jan 28 | 11c0d60 | Add 3D tilt and reduce glow in Orbit Star shader |
-| Jan 28 | 3128537 | Smooth outward bow on square (no kinks) |
-| Jan 28 | cc56bab | Add Orbit Star shader based on Miracle Mind logo |
-| Jan 27 | 4edf8c9 | Sync TODO.md with codebase and update STATUS.md |
-| Jan 27 | e9383a5 | Update STATUS.md with session changes |
+| Jan 28 | 6c89beb | Add client portal: CRM, admin interface, portal pages, emails |
+| Jan 28 | 5805acf | New company homepage v2, stewardship program, legal pages |
+| Jan 28 | dcd31cb | Stripe foundation, Resend email, BANYAN notifications |
+| Jan 28 | 8117aec | Remove dead code: animations page, deprecated carousel function |
+| Jan 28 | 97a65d7 | Security hardening: protectedProcedure, Bearer auth, rate limiting, RLS |
 
 See `git log --oneline` for full history.
