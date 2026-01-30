@@ -21,7 +21,7 @@ _None currently_
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
 
 ### Medium Priority
-- [ ] Configure Make.com/Zapier webhook for Instagram automation
+- [x] Configure Make.com/Zapier webhook for Instagram automation
 - [ ] Add Gamma API integration for slide automation
 - [ ] Populate CHW360 demo content for client portal
 
