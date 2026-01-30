@@ -2,9 +2,9 @@
 
 import { Suspense } from "react";
 import Link from "next/link";
-import { Leaf, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { PartnerCard } from "~/components/stewardship/partner-card";
+import { ImageCard } from "~/components/ui/image-card";
 import { DomainLayout } from "~/components/domain-layout";
 
 function StewardshipContent() {
@@ -51,12 +51,15 @@ function StewardshipContent() {
             Our Partners
           </h2>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <PartnerCard
-              name="Entheos Holistics"
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <ImageCard
+              title="Entheos Holistics"
               description="Plant-based wellness products and holistic health practices. Premium supplements, adaptogens, and ceremonial-grade botanicals sourced with integrity."
+              imageSrc="/images/stewards/entheos.png"
+              imageAlt="Entheos Holistics - forest landscape"
               href="https://entheosholistics.com/?sld=miceli"
-              icon={Leaf}
+              linkText="Visit site"
+              simple
             />
           </div>
         </section>
@@ -78,7 +81,9 @@ function StewardshipContent() {
           </h2>
           <p className="mb-6 text-gray-300">
             If your business or practice is aligned with conscious living and
-            human empowerment, we&apos;d love to hear from you.
+            human empowerment,
+            <br />
+            we&apos;d love to hear from you.
           </p>
           <a href="mailto:connect@miraclemind.live?subject=Stewardship%20Interest">
             <Button

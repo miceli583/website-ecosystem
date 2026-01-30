@@ -24,51 +24,84 @@ function ServicesContent() {
     return path;
   };
 
-  const services = [
-    {
-      title: "Custom Applications",
-      description:
-        "Full-stack web applications, mobile apps, and custom CRMs. From concept to production, we build systems that scale with your vision.",
-      imageSrc: "https://images.unsplash.com/photo-1558618666-fcd25c85f64d?w=800&h=500&fit=crop",
-      imageAlt: "Abstract geometric architecture representing custom software development",
-      href: "/contact",
-      linkText: "Get started",
-    },
+  const services: Array<{
+    title: string;
+    description: string;
+    imageSrc: string;
+    imageAlt: string;
+    imagePosition?: string;
+    goldTint?: boolean;
+    imageScale?: number;
+    objectFit?: "cover" | "contain";
+  }> = [
     {
       title: "AI & Automation",
       description:
-        "Custom AI tools, workflow automation, and intelligent systems. Available via client portal, as packaged solutions, or deeply integrated into your existing tech.",
-      imageSrc: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=500&fit=crop",
-      imageAlt: "Neural network visualization representing AI and automation",
-      href: "/contact",
-      linkText: "Get started",
+        "Custom AI tools, workflow automation, and intelligent systems. Available via client portal, as independent packaged solutions, or deeply integrated into your existing systems.",
+      imageSrc: "/images/services/ai-robot-hand.jpg",
+      imageAlt: "AI robot floating above wireframe hand",
+      imagePosition: "right center",
+      goldTint: true,
     },
     {
-      title: "System Integration",
+      title: "System Integration & Coherence",
       description:
         "Connect disparate systems, develop APIs, build data pipelines. We create coherence from complexity, helping your tools work together seamlessly.",
-      imageSrc: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop",
-      imageAlt: "Connected network nodes representing system integration",
-      href: "/contact",
-      linkText: "Get started",
+      imageSrc: "/images/services/mushroom-network.avif",
+      imageAlt: "Mushroom mycelial network representing system integration",
+    },
+    {
+      title: "Custom Applications",
+      description:
+        "Full-stack web apps, mobile apps, and custom CRMs w/ AI and LLM integration. From concept to production, we build systems that scale with your vision.",
+      imageSrc: "/images/services/fingerprint-tech.avif",
+      imageAlt: "Fingerprint technology representing custom software development",
+      goldTint: true,
     },
     {
       title: "Technical Consulting",
       description:
         "Architecture review, technology strategy, and roadmapping. Informed decisions aligned with your long-term vision and business goals.",
-      imageSrc: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=500&fit=crop",
-      imageAlt: "Strategic planning and consulting",
-      href: "/contact",
-      linkText: "Get started",
+      imageSrc: "/images/services/consulting-ring.png",
+      imageAlt: "Gold ring representing focused consulting",
     },
     {
       title: "Optimization Services",
       description:
         "Efficiency audits, cost reduction strategies, and architectural redesign. Transform technical debt into competitive advantage.",
-      imageSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop",
-      imageAlt: "Performance optimization and analytics",
-      href: "/contact",
-      linkText: "Get started",
+      imageSrc: "/images/services/optimization-wave.jpg",
+      imageAlt: "Gold particle wave representing optimization flow",
+    },
+    {
+      title: "Data & Analytics",
+      description:
+        "Data infrastructure, dashboards, and business intelligence. Turn raw information into actionable insights that drive informed decisions.",
+      imageSrc: "/images/services/data-matrix.avif",
+      imageAlt: "Digital matrix representing data infrastructure",
+    },
+    {
+      title: "Training & Enablement",
+      description:
+        "Empower your team to truly own their tools. Documentation, workshops, and knowledge transfer that builds lasting capability.",
+      imageSrc: "/images/services/training-horse.jpeg",
+      imageAlt: "Gold horse representing empowerment and momentum",
+    },
+    {
+      title: "Product Strategy & Discovery",
+      description:
+        "Define what to build before building it. User research, requirements gathering, and prototyping to ensure technology serves real human needs.",
+      imageSrc: "/images/services/strategy-chess.jpeg",
+      imageAlt: "Chess pieces representing strategic thinking",
+      imagePosition: "center 0%",
+      imageScale: 1.3,
+    },
+    {
+      title: "Maintenance & Support",
+      description:
+        "Ongoing monitoring, updates, and support. Long-term partnership that keeps your systems healthy and evolving with your needs.",
+      imageSrc: "/images/services/support-hexagon.jpeg",
+      imageAlt: "Gold hexagon representing stable support structure",
+      objectFit: "contain",
     },
   ];
 
@@ -105,12 +138,9 @@ function ServicesContent() {
         </section>
 
         {/* Services Grid */}
-        <section
-          className="px-4 py-20 sm:px-6"
-          style={{ backgroundColor: "rgba(23, 23, 23, 0.95)" }}
-        >
+        <section className="px-4 pb-20 sm:px-6">
           <div className="mx-auto max-w-6xl">
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-3">
               {services.map((service) => (
                 <ImageCard
                   key={service.title}
@@ -118,8 +148,11 @@ function ServicesContent() {
                   description={service.description}
                   imageSrc={service.imageSrc}
                   imageAlt={service.imageAlt}
-                  href={buildHref(service.href)}
-                  linkText={service.linkText}
+                  simple
+                  imagePosition={service.imagePosition}
+                  goldTint={service.goldTint}
+                  imageScale={service.imageScale}
+                  objectFit={service.objectFit}
                 />
               ))}
             </div>

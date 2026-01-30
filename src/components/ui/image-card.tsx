@@ -16,6 +16,10 @@ interface ImageCardProps {
   imagePosition?: string;
   /** Apply black/gold/white tint effect */
   goldTint?: boolean;
+  /** Scale the image (e.g., 1.2 to zoom in 20%) */
+  imageScale?: number;
+  /** Object fit mode - "cover" (default) or "contain" to show whole image */
+  objectFit?: "cover" | "contain";
 }
 
 export function ImageCard({
@@ -29,6 +33,8 @@ export function ImageCard({
   simple = false,
   imagePosition,
   goldTint = false,
+  imageScale,
+  objectFit = "cover",
 }: ImageCardProps) {
   // Simple variant: no card wrapper, just image + text below
   if (simple) {
@@ -40,10 +46,13 @@ export function ImageCard({
             src={imageSrc}
             alt={imageAlt}
             fill
-            className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
+            className={`transition-transform duration-500 group-hover:scale-105 ${
               goldTint ? "grayscale" : ""
-            }`}
-            style={imagePosition ? { objectPosition: imagePosition } : undefined}
+            } ${objectFit === "contain" ? "object-contain" : "object-cover"}`}
+            style={{
+              ...(imagePosition ? { objectPosition: imagePosition } : {}),
+              ...(imageScale ? { transform: `scale(${imageScale})` } : {}),
+            }}
           />
           {goldTint && (
             <div
