@@ -22,11 +22,19 @@ export function ClientPortalLayout({
   basePath = "/portal",
 }: ClientPortalLayoutProps) {
   const router = useRouter();
-  const { data: profile } = api.portal.getMyProfile.useQuery();
-  const isAdmin = profile?.role === "admin";
+  const utils = api.useUtils();
+  const { data: profile, isLoading: profileLoading } = api.portal.getMyProfile.useQuery(
+    undefined,
+    { staleTime: 0 } // Always fetch fresh profile data
+  );
+  // Only show admin features when profile is loaded AND role is admin
+  const isAdmin = !profileLoading && profile?.role === "admin";
+  // Check if user is viewing their own portal (client viewing own, not admin viewing client)
+  const isOwnPortal = profile?.clientSlug === slug;
+  // Display name: show user's name only if viewing own portal, otherwise show client name
+  const displayName = isOwnPortal ? (profile?.name ?? clientName) : clientName;
 
   const navItems = [
-    { name: "Dashboard", href: `${basePath}/${slug}` },
     { name: "Demos", href: `${basePath}/${slug}/demos` },
     { name: "Proposals", href: `${basePath}/${slug}/proposals` },
     { name: "Tooling", href: `${basePath}/${slug}/tooling` },
@@ -35,6 +43,8 @@ export function ClientPortalLayout({
   ];
 
   const handleSignOut = async () => {
+    // Invalidate all cached data before signing out
+    await utils.invalidate();
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/?domain=live");
@@ -77,7 +87,7 @@ export function ClientPortalLayout({
             </div>
             <div>
               <p className="text-xs text-gray-500">Client Portal</p>
-              <p className="text-sm font-semibold">{clientName}</p>
+              <p className="text-sm font-semibold">{displayName}</p>
             </div>
           </div>
           <div className="flex items-center gap-6">

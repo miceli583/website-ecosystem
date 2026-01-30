@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "~/lib/stripe";
 import { env } from "~/env";
 import { db } from "~/server/db";
-import { customers } from "~/server/db/schema";
+import { customers, clientResources, clients } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import type Stripe from "stripe";
+import { sendEmail } from "~/lib/email";
+import { ProposalReceiptEmail } from "~/components/emails/proposal-receipt";
 
 export async function POST(request: NextRequest) {
   if (!stripe || !env.STRIPE_WEBHOOK_SECRET) {
@@ -59,6 +61,8 @@ export async function POST(request: NextRequest) {
 
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // Handle customer creation
       if (session.customer && session.customer_email) {
         const customerId =
           typeof session.customer === "string"
@@ -76,6 +80,68 @@ export async function POST(request: NextRequest) {
             stripeCustomerId: customerId,
             email: session.customer_email,
           });
+        }
+      }
+
+      // Handle proposal payment
+      const proposalId = session.metadata?.proposalId;
+      if (proposalId) {
+        const proposal = await db.query.clientResources.findFirst({
+          where: eq(clientResources.id, parseInt(proposalId)),
+          with: { client: true },
+        });
+
+        if (proposal) {
+          // Update proposal status to accepted
+          const metadata = proposal.metadata as Record<string, unknown> | null;
+          await db
+            .update(clientResources)
+            .set({
+              metadata: {
+                ...metadata,
+                status: "accepted",
+                paidAt: new Date().toISOString(),
+                stripeSessionId: session.id,
+                stripePaymentIntentId: session.payment_intent,
+              },
+              updatedAt: new Date(),
+            })
+            .where(eq(clientResources.id, proposal.id));
+
+          // Send receipt email
+          const customerEmail = session.customer_email ?? proposal.client.email;
+          if (customerEmail) {
+            const selectedPackageIds = session.metadata?.selectedPackageIds?.split(",") ?? [];
+            const packages = (metadata?.packages as Array<{
+              id: string;
+              name: string;
+              price: number;
+              type: string;
+              interval?: string;
+            }>) ?? [];
+
+            const selectedPackages = packages.filter(pkg =>
+              selectedPackageIds.includes(pkg.id)
+            );
+
+            await sendEmail({
+              to: customerEmail,
+              subject: `Receipt: ${proposal.title}`,
+              react: ProposalReceiptEmail({
+                clientName: proposal.client.name,
+                proposalTitle: proposal.title,
+                packages: selectedPackages.map(pkg => ({
+                  name: pkg.name,
+                  price: pkg.price,
+                  type: pkg.type as "one-time" | "subscription",
+                  interval: pkg.interval,
+                })),
+                totalAmount: session.amount_total ? session.amount_total / 100 : 0,
+                currency: session.currency ?? "usd",
+                paidAt: new Date(),
+              }),
+            });
+          }
         }
       }
       break;

@@ -1,196 +1,55 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useMemo } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
-import { Card, CardContent } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
+import {
+  SearchFilterBar,
+  ListItem,
+  ListContainer,
+  type SortOrder,
+  type FilterOption,
+} from "~/components/portal";
 import {
   Wrench,
   Loader2,
   AlertCircle,
-  ExternalLink,
   Key,
   Book,
   Code,
   Link as LinkIcon,
   FileText,
-  Eye,
-  EyeOff,
-  Copy,
-  Check,
+  Search,
 } from "lucide-react";
-import { useState } from "react";
 
 type Resource = RouterOutputs["portal"]["getResources"][number];
 
-// Icon mapping
-const iconMap: Record<string, React.ReactNode> = {
-  link: <LinkIcon className="h-5 w-5" />,
-  key: <Key className="h-5 w-5" />,
-  book: <Book className="h-5 w-5" />,
-  code: <Code className="h-5 w-5" />,
-  file: <FileText className="h-5 w-5" />,
-  wrench: <Wrench className="h-5 w-5" />,
-};
-
-function ResourceCard({ resource }: { resource: Resource }) {
-  const [showCredentials, setShowCredentials] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const metadata = resource.metadata as Record<string, unknown> | null;
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+// Get icon for resource type
+function getResourceIcon(resource: Resource) {
+  const iconMap: Record<string, React.ReactNode> = {
+    link: <LinkIcon className="h-5 w-5" />,
+    key: <Key className="h-5 w-5" />,
+    book: <Book className="h-5 w-5" />,
+    code: <Code className="h-5 w-5" />,
+    file: <FileText className="h-5 w-5" />,
+    wrench: <Wrench className="h-5 w-5" />,
   };
 
-  const getIcon = () => {
-    if (resource.icon && iconMap[resource.icon]) {
-      return iconMap[resource.icon];
-    }
-    // Default icons by type
-    switch (resource.type) {
-      case "credential":
-        return <Key className="h-5 w-5" />;
-      case "embed":
-        return <Code className="h-5 w-5" />;
-      case "file":
-        return <FileText className="h-5 w-5" />;
-      default:
-        return <LinkIcon className="h-5 w-5" />;
-    }
-  };
+  if (resource.icon && iconMap[resource.icon]) {
+    return iconMap[resource.icon];
+  }
 
-  return (
-    <Card
-      className="bg-white/5 transition-all hover:bg-white/10"
-      style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-    >
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3">
-            <div
-              className="mt-1 flex h-10 w-10 items-center justify-center rounded-lg"
-              style={{ backgroundColor: "rgba(212, 175, 55, 0.1)", color: "#D4AF37" }}
-            >
-              {getIcon()}
-            </div>
-            <div>
-              <h3 className="font-semibold text-white">{resource.title}</h3>
-              {resource.description && (
-                <p className="mt-1 text-sm text-gray-400">{resource.description}</p>
-              )}
-            </div>
-          </div>
-          {resource.isFeatured && (
-            <Badge className="bg-yellow-900/50 text-yellow-400">Featured</Badge>
-          )}
-        </div>
-
-        {/* Link type */}
-        {resource.type === "link" && resource.url && (
-          <a
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 text-sm transition-colors hover:underline"
-            style={{ color: "#D4AF37" }}
-          >
-            Open link <ExternalLink className="h-4 w-4" />
-          </a>
-        )}
-
-        {/* Credential type */}
-        {resource.type === "credential" && metadata && (
-          <div className="mt-4 space-y-2 rounded-md bg-black/30 p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase text-gray-500">Credentials</span>
-              <button
-                onClick={() => setShowCredentials(!showCredentials)}
-                className="text-gray-400 hover:text-white"
-              >
-                {showCredentials ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
-            </div>
-            {Boolean(metadata.username) && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Username:</span>
-                <div className="flex items-center gap-2">
-                  <code className="text-sm text-white">
-                    {showCredentials ? String(metadata.username) : "••••••••"}
-                  </code>
-                  <button
-                    onClick={() => handleCopy(String(metadata.username))}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-            {Boolean(metadata.password) && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Password:</span>
-                <div className="flex items-center gap-2">
-                  <code className="text-sm text-white">
-                    {showCredentials ? String(metadata.password) : "••••••••"}
-                  </code>
-                  <button
-                    onClick={() => handleCopy(String(metadata.password))}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-            {Boolean(metadata.apiKey) && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">API Key:</span>
-                <div className="flex items-center gap-2">
-                  <code className="text-sm text-white">
-                    {showCredentials ? String(metadata.apiKey) : "••••••••••••"}
-                  </code>
-                  <button
-                    onClick={() => handleCopy(String(metadata.apiKey))}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* File type */}
-        {resource.type === "file" && resource.url && (
-          <a
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white transition-colors hover:bg-white/20"
-          >
-            <FileText className="h-4 w-4" />
-            Download {metadata?.filename ? String(metadata.filename) : "file"}
-          </a>
-        )}
-
-        {/* Project association */}
-        {resource.project && (
-          <p className="mt-3 text-xs text-gray-500">
-            Project: {resource.project.name}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
+  // Default icons by type
+  switch (resource.type) {
+    case "credential":
+      return <Key className="h-5 w-5" />;
+    case "embed":
+      return <Code className="h-5 w-5" />;
+    case "file":
+      return <FileText className="h-5 w-5" />;
+    default:
+      return <LinkIcon className="h-5 w-5" />;
+  }
 }
 
 export default function PortalToolingPage({
@@ -204,6 +63,67 @@ export default function PortalToolingPage({
     slug,
     section: "tooling",
   });
+
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProject, setSelectedProject] = useState<number | "all">("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+
+  // Get unique projects for filter
+  const projectFilters: FilterOption[] = useMemo(() => {
+    if (!resources) return [];
+    const projectMap = new Map<number, string>();
+
+    resources.forEach((r: Resource) => {
+      if (r.project) {
+        projectMap.set(r.project.id, r.project.name);
+      }
+    });
+
+    return Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+  }, [resources]);
+
+  // Filter resources
+  const filteredResources = useMemo(() => {
+    if (!resources) return [];
+
+    return resources.filter((r: Resource) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesTitle = r.title.toLowerCase().includes(query);
+        const matchesDesc = r.description?.toLowerCase().includes(query);
+        const matchesProject = r.project?.name.toLowerCase().includes(query);
+        if (!matchesTitle && !matchesDesc && !matchesProject) return false;
+      }
+
+      // Project filter
+      if (selectedProject !== "all" && r.project?.id !== selectedProject) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [resources, searchQuery, selectedProject]);
+
+  // Sort resources
+  const sortedResources = useMemo(() => {
+    return [...filteredResources].sort((a, b) => {
+      if (sortOrder === "name") {
+        return a.title.localeCompare(b.title);
+      }
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+  }, [filteredResources, sortOrder]);
+
+  // Clear filters
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedProject("all");
+    setSortOrder("newest");
+  };
 
   if (isLoading) {
     return (
@@ -231,21 +151,36 @@ export default function PortalToolingPage({
     );
   }
 
-  const featuredResources = resources?.filter((r: Resource) => r.isFeatured) ?? [];
-  const otherResources = resources?.filter((r: Resource) => !r.isFeatured) ?? [];
+  const hasContent = (resources?.length ?? 0) > 0;
+  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
 
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
-      <h1 className="mb-2 text-3xl font-bold">Tooling</h1>
-      <p className="mb-8 text-gray-400">
-        Resources, integrations, and developer tools for your projects.
-      </p>
+      <div className="mb-6">
+        <h1 className="mb-2 text-3xl font-bold">Tooling</h1>
+        <p className="text-gray-400">
+          Resources, integrations, and developer tools for your projects.
+        </p>
+      </div>
+
+      {/* Search/Filter Bar */}
+      <SearchFilterBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search tools..."
+        sortOrder={sortOrder}
+        onSortChange={setSortOrder}
+        filterOptions={projectFilters}
+        selectedFilter={selectedProject}
+        onFilterChange={(id) => setSelectedProject(id as number | "all")}
+        filterLabel="Project"
+      />
 
       {resourcesLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
         </div>
-      ) : resources?.length === 0 ? (
+      ) : !hasContent ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Wrench className="mb-4 h-12 w-12 text-gray-600" />
           <p className="text-gray-500">No tools configured yet.</p>
@@ -254,33 +189,26 @@ export default function PortalToolingPage({
           </p>
         </div>
       ) : (
-        <div className="space-y-8">
-          {/* Featured */}
-          {featuredResources.length > 0 && (
-            <div>
-              <h2 className="mb-4 text-lg font-semibold text-gray-300">Featured</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {featuredResources.map((resource: Resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Other resources */}
-          {otherResources.length > 0 && (
-            <div>
-              {featuredResources.length > 0 && (
-                <h2 className="mb-4 text-lg font-semibold text-gray-300">All Tools</h2>
-              )}
-              <div className="grid gap-4 sm:grid-cols-2">
-                {otherResources.map((resource: Resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <ListContainer
+          emptyIcon={<Search className="h-12 w-12" />}
+          emptyMessage="No tools match your search."
+          onClearFilters={clearFilters}
+          showClearFilters={hasActiveFilters}
+        >
+          {sortedResources.map((resource) => (
+            <ListItem
+              key={resource.id}
+              icon={getResourceIcon(resource)}
+              title={resource.title}
+              description={resource.description}
+              date={resource.createdAt}
+              secondaryText={resource.project?.name}
+              href={resource.url}
+              disabled={!resource.subscriptionActive}
+              disabledMessage="Subscription required"
+            />
+          ))}
+        </ListContainer>
       )}
     </ClientPortalLayout>
   );

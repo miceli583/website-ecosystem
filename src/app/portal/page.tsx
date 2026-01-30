@@ -17,12 +17,14 @@ export default function PortalPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Get current user's portal profile
+  const utils = api.useUtils();
+
+  // Get current user's portal profile - always fresh
   const {
     data: profile,
     isLoading: profileLoading,
     error: profileError,
-  } = api.portal.getMyProfile.useQuery();
+  } = api.portal.getMyProfile.useQuery(undefined, { staleTime: 0 });
 
   // Get client list for admins
   const { data: clients, isLoading: clientsLoading } =
@@ -41,6 +43,8 @@ export default function PortalPage() {
   }, [profile, profileLoading, router]);
 
   const handleSignOut = async () => {
+    // Invalidate all cached data before signing out
+    await utils.invalidate();
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/?domain=live");
@@ -117,13 +121,21 @@ export default function PortalPage() {
               <p className="text-sm font-semibold">{profile.name}</p>
             </div>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/portal/profile?domain=live"
+              className="text-sm text-gray-400 transition-colors hover:text-white"
+            >
+              Profile
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 

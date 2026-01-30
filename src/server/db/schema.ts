@@ -188,6 +188,7 @@ export const portalUsers = pgTable("portal_users", {
   authUserId: uuid("auth_user_id").unique(), // Supabase auth.users.id - NULL for unclaimed accounts
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  phone: text("phone"), // Optional phone number
   role: text("role").notNull().default("client"), // "admin" | "client"
   clientSlug: text("client_slug"), // NULL for admin, required for clients
   isActive: boolean("is_active").notNull().default(true),
@@ -280,6 +281,9 @@ export const clientResources = pgTable("client_resources", {
   url: text("url"), // for links, embeds, files, microapps
   embedCode: text("embed_code"), // for custom embed HTML
   content: text("content"), // for richtext
+
+  // Subscription linking - if set, resource requires active subscription
+  stripeProductId: text("stripe_product_id"), // Stripe product ID for subscription check
 
   // Flexible metadata for type-specific data
   metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
