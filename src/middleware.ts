@@ -23,6 +23,15 @@ export async function middleware(request: NextRequest) {
   let pathname = request.nextUrl.pathname;
   let searchParams = request.nextUrl.searchParams;
 
+  // CRITICAL: Redirect www.miraclemind.live → miraclemind.live
+  // This ensures PKCE code_verifier is on the same domain as auth callback
+  // Without this, magic links fail because code_verifier is stored on www but callback is on non-www
+  if (hostname === "www.miraclemind.live") {
+    const url = request.nextUrl.clone();
+    url.host = "miraclemind.live";
+    return NextResponse.redirect(url, 301);
+  }
+
   // Portal domain: miraclemind.live (or ?domain=live in dev)
   const isPortalDomain =
     hostname === "miraclemind.live" ||
