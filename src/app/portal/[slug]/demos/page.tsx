@@ -25,11 +25,14 @@ export default function PortalDemosPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery({ slug });
-  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery({
-    slug,
-    section: "demos",
-  });
+  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { staleTime: 5 * 60 * 1000 } // 5 minutes - client data rarely changes
+  );
+  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
+    { slug, section: "demos" },
+    { staleTime: 2 * 60 * 1000 } // 2 minutes - resources can change more often
+  );
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");

@@ -77,12 +77,18 @@ export default function PortalBillingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery({ slug });
+  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { staleTime: 5 * 60 * 1000 } // 5 minutes
+  );
   const {
     data: billing,
     isLoading: billingLoading,
     refetch: refetchBilling,
-  } = api.portal.getBillingInfo.useQuery({ slug });
+  } = api.portal.getBillingInfo.useQuery(
+    { slug },
+    { staleTime: 2 * 60 * 1000 } // 2 minutes - billing data cached server-side
+  );
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);

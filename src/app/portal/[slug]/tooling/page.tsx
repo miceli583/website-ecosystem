@@ -58,11 +58,14 @@ export default function PortalToolingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery({ slug });
-  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery({
-    slug,
-    section: "tooling",
-  });
+  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { staleTime: 5 * 60 * 1000 } // 5 minutes
+  );
+  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
+    { slug, section: "tooling" },
+    { staleTime: 2 * 60 * 1000 } // 2 minutes
+  );
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");

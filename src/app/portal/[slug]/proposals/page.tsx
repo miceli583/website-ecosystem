@@ -69,11 +69,17 @@ export default function PortalProposalsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery({ slug });
+  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { staleTime: 5 * 60 * 1000 } // 5 minutes
+  );
   const {
     data: proposals,
     isLoading: proposalsLoading,
-  } = api.portal.getProposals.useQuery({ slug });
+  } = api.portal.getProposals.useQuery(
+    { slug },
+    { staleTime: 2 * 60 * 1000 } // 2 minutes
+  );
 
   // Modal state
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
@@ -301,11 +307,6 @@ export default function PortalProposalsPage({
                         </div>
                       </div>
                       <div className="flex flex-shrink-0 items-center gap-4">
-                        {proposal.total > 0 && (
-                          <span className="font-semibold" style={{ color: "#D4AF37" }}>
-                            {formatCurrency(proposal.total, proposal.currency)}
-                          </span>
-                        )}
                         <span className="text-sm text-gray-500">
                           {new Date(proposal.createdAt).toLocaleDateString("en-US", {
                             month: "short",

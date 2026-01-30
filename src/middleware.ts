@@ -23,6 +23,15 @@ export async function middleware(request: NextRequest) {
   let pathname = request.nextUrl.pathname;
   let searchParams = request.nextUrl.searchParams;
 
+  // Canonical redirect: www to non-www for all production domains
+  // This ensures magic link redirect URLs are consistent with Supabase config
+  if (hostname.startsWith("www.")) {
+    const nonWwwHost = hostname.replace("www.", "");
+    const canonicalUrl = new URL(request.url);
+    canonicalUrl.host = nonWwwHost;
+    return NextResponse.redirect(canonicalUrl, { status: 301 });
+  }
+
   // Portal domain: miraclemind.live (or ?domain=live in dev)
   const isPortalDomain =
     hostname === "miraclemind.live" ||

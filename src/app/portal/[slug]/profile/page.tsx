@@ -30,7 +30,10 @@ export default function PortalProfilePage({
 }) {
   const { slug } = use(params);
   const utils = api.useUtils();
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery({ slug });
+  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { staleTime: 5 * 60 * 1000 } // 5 minutes
+  );
   // Get logged-in user's profile to check if admin
   const { data: myProfile } = api.portal.getMyProfile.useQuery(
     undefined,
