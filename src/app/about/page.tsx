@@ -36,27 +36,35 @@ function AboutContent() {
     {
       icon: Heart,
       label: "Contribution",
-      desc: "Technology in service of humanity",
+      desc: "Building systems that create genuine value for people and communities",
     },
     {
       icon: Users,
       label: "Sovereignty",
-      desc: "Empowering human agency",
+      desc: "Technology that expands your freedom to act on your own behalf",
     },
     {
       icon: Leaf,
       label: "Cultivation",
-      desc: "Playing the long game",
+      desc: "Investing in solutions designed for sustainable, long-term growth",
     },
     {
       icon: Sparkles,
       label: "Coherence",
-      desc: "AI meets human-centered design",
+      desc: "Aligning systems so every part works in harmony with the whole",
     },
     {
       icon: Code,
       label: "Integration",
-      desc: "Unified systems, seamless flow",
+      desc: (
+        <>
+          Weaving disparate
+          <br />
+          tools and data into one
+          <br />
+          fluid ecosystem
+        </>
+      ),
     },
   ];
 
@@ -87,6 +95,7 @@ function AboutContent() {
             </h1>
             <p className="text-lg leading-relaxed text-gray-300">
               We build technology that empowers human sovereignty, deepens connection,
+              <br />
               and honors what makes us most alive.
             </p>
           </div>
@@ -104,34 +113,64 @@ function AboutContent() {
             >
               Our Philosophy
             </h2>
-            <div className="space-y-6 text-center text-lg leading-relaxed text-gray-300">
-              <p>
-                We operate as a{" "}
-                <span style={{ color: "#D4AF37", fontWeight: 600 }}>
-                  Collective Intelligence
-                </span>
-                —where human insight and AI capability amplify each other. This isn't
-                about replacing human judgment; it's about extending what's possible
-                when technology serves human agency.
-              </p>
+            <div className="space-y-6 text-lg leading-relaxed text-gray-300">
               <p>
                 We define sovereignty as{" "}
                 <span style={{ color: "#D4AF37", fontWeight: 600 }}>
                   freedom plus agency
                 </span>
-                —the ability to act on your own behalf. AI represents a field of
-                limitless possibilities, pure potentialities crystallized through the
-                power of human choice. This is where sovereignty plays in.
+                —the ability to act on your own behalf.
               </p>
               <p>
-                Technology, like nature, works best when it mirrors organic patterns—
-                neural networks, mycelial systems, the interconnected web of life.
-                Because of this, what were once rigid technological structures have
-                the ability to become{" "}
+                With the rise of AI, sovereignty must sit at the forefront of human
+                consciousness. This technology represents limitless possibility:
+                pure potential, activated through human choice. When stewarded with
+                intention, it expands our agency, increases our bandwidth, and
+                returns our attention to what matters most.
+              </p>
+              <p>
                 <span style={{ color: "#D4AF37", fontWeight: 600 }}>
-                  flexible and dynamic
+                  This is where sovereignty comes in.
                 </span>
-                —solutions emergent from real needs, not predicted problems.
+              </p>
+              <p>
+                We choose to steward this technology in alignment with an embodied
+                value system. And that alignment begins with language—because how we
+                name something shapes how we relate to it.
+              </p>
+              <p>
+                We call it{" "}
+                <span style={{ color: "#D4AF37", fontWeight: 600 }}>
+                  Collective Intelligence
+                </span>
+                , not Artificial Intelligence.
+              </p>
+              <p>
+                Because there is nothing artificial about this technology. It is
+                built from refined minerals and crystalline structures, transmitting
+                electrical signals that mirror our own nervous systems, neural
+                biology, and the mycelial networks that connect living ecosystems.
+              </p>
+              <p>
+                The word <em>artificial</em> carries an assumption of separation—from
+                nature, from one another, and from ourselves. Words are spells. When
+                we shift our language from <em>Artificial</em> to <em>Collective</em>,
+                we open the door to stewarding this technology in coherence with our
+                humanness, in alignment with our biology.
+              </p>
+              <p>
+                From this orientation, rigid technological systems soften into living
+                ones. Structures become adaptable. Systems are guided by living
+                agreements rather than rigid rules—shaped by the real conditions of
+                the people they serve.
+              </p>
+              <p>
+                What emerges are{" "}
+                <span style={{ color: "#D4AF37", fontWeight: 600 }}>
+                  dynamic solutions
+                </span>
+                : responsive, relational, and alive. Not predicted futures, but
+                intelligence arising from present needs.
               </p>
             </div>
           </div>
@@ -218,12 +257,18 @@ function AboutContent() {
                     >
                       Matthew Miceli
                     </h3>
+                    <p className="mb-2 text-base leading-relaxed text-gray-300">
+                      I&apos;m a systems architect who bridges worlds—transforming vision
+                      into reality through the integration of diverse disciplines. My path
+                      has taken me through robotics research, satellite testing, software
+                      development, high-ticket sales, and even music production.
+                    </p>
                     <p className="mb-4 text-base leading-relaxed text-gray-300">
-                      My journey spans robotics research, satellite testing, software
-                      development, high-ticket sales, and music production. This diverse
-                      background has fostered my passion to discover what it means to be a
-                      modern polymath—one who harmonizes seemingly disparate disciplines and
-                      builds systems that foster integration.
+                      This breadth has shaped my approach: I thrive in the spaces between
+                      fields, connecting engineering with business, technology with
+                      creativity, individual insight with collective impact. I illuminate
+                      unseen patterns and design systems that honor each part as
+                      interdependent within a greater whole.
                     </p>
                     <Link href="https://matthewmiceli.com">
                       <Button

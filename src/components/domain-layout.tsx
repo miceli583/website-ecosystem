@@ -414,32 +414,117 @@ export function DomainLayout({
         className={`relative z-50 mt-auto border-t backdrop-blur-md ${footerClassName || ""}`}
         style={{ backgroundColor: "#0b0b0b", borderColor: "rgba(212,175,55,0.4)" }}
       >
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <div className="relative h-16 w-64">
-              <Image
-                src="/brand/miracle-mind-logo-no-slogan.png"
-                alt="Miracle Mind"
-                fill
-                className="object-contain object-left"
-              />
+        <div className="container mx-auto px-4 py-12 sm:py-16">
+          <div className="grid gap-12 md:grid-cols-3">
+            {/* Left Column - CTA */}
+            <div className="flex flex-col">
+              <p className="mb-6 text-lg text-gray-300">
+                Let&apos;s build something meaningful together.
+              </p>
+              <Link href={buildHref("/contact")}>
+                <button
+                  className="mb-8 rounded-md px-6 py-3 text-sm font-medium text-black transition-all duration-300 hover:scale-105"
+                  style={{
+                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }}
+                >
+                  Get In Touch
+                </button>
+              </Link>
+              <p className="text-sm text-gray-500">
+                © {new Date().getFullYear()} Miracle Mind LLC. All Rights Reserved.
+              </p>
             </div>
-            <div className="flex gap-6">
-              <Link href={buildHref("/stewardship")} className="text-muted-foreground text-sm hover:text-foreground transition-colors">
-                Stewardship
-              </Link>
-              <Link href={buildHref("/terms")} className="text-muted-foreground text-sm hover:text-foreground transition-colors">
-                Terms
-              </Link>
-              <Link href={buildHref("/privacy")} className="text-muted-foreground text-sm hover:text-foreground transition-colors">
-                Privacy
-              </Link>
-              <Link href="/?domain=live" className="text-muted-foreground text-sm hover:text-foreground transition-colors">
-                Client Portal
-              </Link>
+
+            {/* Center Column - Orbit Star */}
+            <div className="flex items-start justify-center">
+              <div className="relative h-16 w-16">
+                <Image
+                  src="/brand/miracle-mind-orbit-star-v3.svg"
+                  alt="Miracle Mind"
+                  fill
+                  className="object-contain"
+                />
+              </div>
             </div>
-            <div className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} Miracle Mind LLC
+
+            {/* Right Columns - Links */}
+            <div className="grid grid-cols-3 gap-8">
+              {/* Navigate */}
+              <div>
+                <h4
+                  className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#D4AF37" }}
+                >
+                  Navigate
+                </h4>
+                <ul className="space-y-3">
+                  <li>
+                    <Link href={buildHref("/services")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      Services
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href={buildHref("/about")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      About
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href={buildHref("/contact")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      Contact
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Products */}
+              <div>
+                <h4
+                  className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#D4AF37" }}
+                >
+                  Products
+                </h4>
+                <ul className="space-y-3">
+                  <li>
+                    <Link href={buildHref("/banyan")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      BANYAN
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href={buildHref("/stewardship")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      Stewardship
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/?domain=live" className="text-sm text-gray-400 transition-colors hover:text-white">
+                      Client Portal
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Legal */}
+              <div>
+                <h4
+                  className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#D4AF37" }}
+                >
+                  Legal
+                </h4>
+                <ul className="space-y-3">
+                  <li>
+                    <Link href={buildHref("/privacy")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      Privacy Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href={buildHref("/terms")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                      Terms of Service
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

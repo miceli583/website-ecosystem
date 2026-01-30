@@ -796,7 +796,7 @@ export function MatthewHomePage({
                     >
                       <div>
                         <label htmlFor="contact-name" className="mb-2 block text-sm font-medium text-gray-300">
-                          Name
+                          Name <span style={{ color: "#D4AF37" }}>*</span>
                         </label>
                         <input
                           type="text"
@@ -812,7 +812,7 @@ export function MatthewHomePage({
 
                       <div>
                         <label htmlFor="contact-email" className="mb-2 block text-sm font-medium text-gray-300">
-                          Email
+                          Email <span style={{ color: "#D4AF37" }}>*</span>
                         </label>
                         <input
                           type="email"
@@ -843,7 +843,7 @@ export function MatthewHomePage({
 
                       <div>
                         <label htmlFor="contact-message" className="mb-2 block text-sm font-medium text-gray-300">
-                          Message
+                          Message <span style={{ color: "#D4AF37" }}>*</span>
                         </label>
                         <textarea
                           id="contact-message"

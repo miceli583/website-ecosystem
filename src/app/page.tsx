@@ -74,8 +74,8 @@ function HomePageContent() {
     return <MatthewHomePage />;
   }
 
-  // Matthew's personal page doesn't use the DomainLayout (no nav/footer)
-  if (isMatthewDomain()) {
+  // Matthew's personal page and client portal don't use the DomainLayout (no nav/footer)
+  if (isMatthewDomain() || domainParam === "live" || hostname.includes("miraclemind.live")) {
     return renderDomainPage();
   }
 

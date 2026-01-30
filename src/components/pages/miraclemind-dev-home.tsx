@@ -73,17 +73,11 @@ export function MiracleMindDevHomePage() {
           {/* Hero Section */}
           <section className="mb-16 flex flex-col items-center text-center sm:mb-24">
             <h1
-              className="mb-4 sm:mb-6"
+              className="mb-4 inline-flex flex-col items-center sm:mb-6"
               style={{
                 fontFamily: "var(--font-quattrocento-sans)",
               }}
             >
-              <span
-                className="block text-xl font-medium uppercase tracking-widest text-gray-400 sm:text-2xl"
-                style={{ letterSpacing: "0.25em" }}
-              >
-                Your Life
-              </span>
               <span
                 className="block text-4xl font-bold uppercase sm:text-6xl md:text-7xl"
                 style={{
@@ -98,10 +92,12 @@ export function MiracleMindDevHomePage() {
                 BANYAN
               </span>
               <span
-                className="block text-xl font-medium uppercase tracking-widest text-white sm:text-2xl"
-                style={{ letterSpacing: "0.25em" }}
+                className="block w-full text-center text-base font-medium uppercase tracking-widest text-white sm:text-xl md:text-2xl"
+                style={{
+                  letterSpacing: "0.15em",
+                }}
               >
-                Operating System
+                Life Operating System
               </span>
             </h1>
 
@@ -348,17 +344,6 @@ export function MiracleMindDevHomePage() {
                     ?
                   </h2>
 
-                  <div className="mb-6 mt-6 flex justify-center sm:mb-8 sm:mt-8">
-                    <div className="relative h-20 w-20 sm:h-28 sm:w-28 md:h-32 md:w-32">
-                      <Image
-                        src="/brand/banyan-tree-icon.svg"
-                        alt="Banyan Tree of Life"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  </div>
-
                   <p
                     className="mx-auto max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
                     style={{ fontFamily: "var(--font-geist-sans)" }}
@@ -598,7 +583,7 @@ export function MiracleMindDevHomePage() {
                 },
                 {
                   icon: Sparkles,
-                  title: "Multi-Passionate Polymaths",
+                  title: "Multi-Passionate Individuals",
                   description:
                     "Synthesizing diverse talents into coherent mastery",
                 },

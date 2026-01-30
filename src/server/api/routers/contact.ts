@@ -20,6 +20,7 @@ export const contactRouter = createTRPCRouter({
         message: z.string().min(10, "Message must be at least 10 characters"),
         services: z.array(z.string()).optional(),
         role: z.string().optional(),
+        stewardshipInterest: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -68,6 +69,7 @@ export const contactRouter = createTRPCRouter({
         message: input.message,
         services: input.services,
         role: input.role,
+        stewardshipInterest: input.stewardshipInterest,
       });
 
       // 3. Send email notification

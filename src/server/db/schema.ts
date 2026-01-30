@@ -275,6 +275,7 @@ export const contactSubmissions = pgTable("contact_submissions", {
   message: text("message").notNull(),
   services: text("services").array(), // Selected services of interest
   role: text("role"), // Organization type (solo_founder, startup_team, smb, enterprise, agency_consultant)
+  stewardshipInterest: boolean("stewardship_interest").default(false), // Interest in stewardship program
   read: boolean("read").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

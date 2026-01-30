@@ -1,9 +1,6 @@
 "use client";
 
 import { Suspense } from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { ImageCard } from "~/components/ui/image-card";
 import { DomainLayout } from "~/components/domain-layout";
 
@@ -62,42 +59,6 @@ function StewardshipContent() {
               simple
             />
           </div>
-        </section>
-
-        {/* Become a Steward CTA */}
-        <section
-          className="rounded-lg border p-8 text-center"
-          style={{
-            borderColor: "rgba(212, 175, 55, 0.3)",
-            background:
-              "linear-gradient(135deg, rgba(246,230,193,0.05) 0%, rgba(18,24,39,0.05) 100%)",
-          }}
-        >
-          <h2
-            className="mb-4 text-2xl font-bold"
-            style={{ fontFamily: "var(--font-quattrocento-sans)" }}
-          >
-            Interested in Becoming a Steward?
-          </h2>
-          <p className="mb-6 text-gray-300">
-            If your business or practice is aligned with conscious living and
-            human empowerment,
-            <br />
-            we&apos;d love to hear from you.
-          </p>
-          <a href="mailto:connect@miraclemind.live?subject=Stewardship%20Interest">
-            <Button
-              size="lg"
-              className="px-8 text-black transition-all duration-300 hover:scale-105"
-              style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-              }}
-            >
-              Get In Touch
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </a>
         </section>
       </div>
     </div>

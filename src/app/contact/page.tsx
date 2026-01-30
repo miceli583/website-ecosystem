@@ -15,15 +15,19 @@ function ContactContent() {
     message: "",
     services: [] as string[],
     role: "",
+    stewardshipInterest: false,
   });
 
   const serviceOptions = [
-    { value: "custom_applications", label: "Custom Applications" },
     { value: "ai_automation", label: "AI & Automation" },
-    { value: "system_integration", label: "System Integration" },
+    { value: "system_integration", label: "System Integration & Coherence" },
+    { value: "custom_applications", label: "Custom Applications" },
     { value: "technical_consulting", label: "Technical Consulting" },
     { value: "optimization", label: "Optimization Services" },
-    { value: "other", label: "Other" },
+    { value: "data_analytics", label: "Data & Analytics" },
+    { value: "training_enablement", label: "Training & Enablement" },
+    { value: "product_strategy", label: "Product Strategy & Discovery" },
+    { value: "maintenance_support", label: "Maintenance & Support" },
   ];
 
   const roleOptions = [
@@ -48,7 +52,7 @@ function ContactContent() {
   const submitMutation = api.contact.submit.useMutation({
     onSuccess: () => {
       setSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", message: "", services: [], role: "" });
+      setFormData({ name: "", email: "", phone: "", message: "", services: [], role: "", stewardshipInterest: false });
     },
   });
 
@@ -74,41 +78,35 @@ function ContactContent() {
   return (
     <DomainLayout>
     <div className="min-h-screen bg-black">
-      {/* Hero */}
+      {/* Contact Section */}
       <section className="px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1
-            className="mb-6 text-4xl font-bold text-white sm:text-5xl"
-            style={{
-              fontFamily: "var(--font-quattrocento-sans)",
-              letterSpacing: "0.02em",
-            }}
-          >
-            Get In{" "}
-            <span
+        <div className="mx-auto max-w-2xl">
+          <div className="mb-12 text-center">
+            <h1
+              className="mb-6 text-4xl font-bold text-white sm:text-5xl"
               style={{
-                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                fontFamily: "var(--font-quattrocento-sans)",
+                letterSpacing: "0.02em",
               }}
             >
-              Touch
-            </span>
-          </h1>
-          <p className="text-lg text-gray-300">
-            Have a project in mind or want to learn more about how we can help?
-            We'd love to hear from you.
-          </p>
-        </div>
-      </section>
-
-      {/* Form Section */}
-      <section
-        className="px-4 py-20 sm:px-6"
-        style={{ backgroundColor: "rgba(23, 23, 23, 0.95)" }}
-      >
-        <div className="mx-auto max-w-2xl">
+              Get In{" "}
+              <span
+                style={{
+                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Touch
+              </span>
+            </h1>
+            <p className="text-lg text-gray-300">
+              Have a project in mind or want to learn more about how we can help?
+              <br />
+              We&apos;d love to hear from you.
+            </p>
+          </div>
           {submitted ? (
             <Card
               className="bg-white/5 backdrop-blur-md"
@@ -253,7 +251,7 @@ function ContactContent() {
                     <label className="mb-3 block text-sm font-medium text-gray-300">
                       Services of Interest <span className="text-gray-500">(optional)</span>
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                       {serviceOptions.map((service) => (
                         <label
                           key={service.value}
@@ -275,6 +273,30 @@ function ContactContent() {
                         </label>
                       ))}
                     </div>
+                  </div>
+
+                  <div>
+                    <label
+                      className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/5 px-4 py-3 transition-colors hover:bg-white/10"
+                      style={{
+                        borderColor: formData.stewardshipInterest
+                          ? "rgba(212, 175, 55, 0.6)"
+                          : "rgba(212, 175, 55, 0.3)",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.stewardshipInterest}
+                        onChange={(e) =>
+                          setFormData({ ...formData, stewardshipInterest: e.target.checked })
+                        }
+                        className="h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
+                        style={{ accentColor: "#D4AF37" }}
+                      />
+                      <span className="text-sm text-gray-300">
+                        I&apos;m interested in the Stewardship Program
+                      </span>
+                    </label>
                   </div>
 
                   <div>
@@ -329,7 +351,6 @@ function ContactContent() {
               </CardContent>
             </Card>
           )}
-
         </div>
       </section>
     </div>
