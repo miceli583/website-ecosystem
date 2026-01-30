@@ -37,33 +37,74 @@ export function MiracleMindHomeV2() {
     return path;
   };
 
-  const clientServices = [
-    {
-      title: "Custom Applications",
-      description:
-        "Full-stack web apps, mobile apps, and custom CRMs. From concept to production, we build systems that scale with your vision.",
-      imageSrc: "https://images.unsplash.com/photo-1558618666-fcd25c85f64d?w=800&h=500&fit=crop",
-      imageAlt: "Abstract geometric architecture representing custom software development",
-      href: "/services",
-      linkText: "View services",
-    },
+  // Services in requested order: AI & Automation, System Integration, Custom Apps
+  const clientServices: Array<{
+    title: string;
+    description: string;
+    imageSrc: string;
+    imageAlt: string;
+    imagePosition?: string;
+    goldTint?: boolean;
+  }> = [
     {
       title: "AI & Automation",
       description:
-        "Custom AI tools, workflow automation, and intelligent systems. Available via client portal, as packaged solutions, or deeply integrated.",
-      imageSrc: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=500&fit=crop",
-      imageAlt: "Neural network visualization representing AI and automation",
-      href: "/services",
-      linkText: "View services",
+        "Custom AI tools, workflow automation, and intelligent systems. Available via client portal, as independent packaged solutions, or deeply integrated into your existing systems.",
+      imageSrc: "/images/services/ai-robot-hand.jpg",
+      imageAlt: "AI robot floating above wireframe hand",
+      imagePosition: "right center", // Crop to show right half
+      goldTint: true,
     },
     {
-      title: "System Integration",
+      title: "System Integration & Coherence",
       description:
-        "Connect disparate systems, develop APIs, build data pipelines. We create coherence from complexity.",
-      imageSrc: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop",
-      imageAlt: "Connected network nodes representing system integration",
-      href: "/services",
-      linkText: "View services",
+        "Connect disparate systems, develop APIs, build data pipelines. We create coherence from complexity, helping your tools work together seamlessly.",
+      imageSrc: "/images/services/mushroom-network.avif",
+      imageAlt: "Mushroom mycelial network representing system integration",
+    },
+    {
+      title: "Custom Applications",
+      description:
+        "Full-stack web apps, mobile apps, and custom CRMs w/ AI and LLM integration. From concept to production, we build systems that scale with your vision.",
+      imageSrc: "/images/services/fingerprint-tech.avif",
+      imageAlt: "Fingerprint technology representing custom software development",
+      goldTint: true,
+    },
+  ];
+
+  const values = [
+    {
+      icon: Heart,
+      label: "Contribution",
+      desc: "Building systems that create genuine value for people and communities",
+    },
+    {
+      icon: Users,
+      label: "Sovereignty",
+      desc: "Technology that expands your freedom to act on your own behalf",
+    },
+    {
+      icon: Leaf,
+      label: "Cultivation",
+      desc: "Investing in solutions designed for sustainable, long-term growth",
+    },
+    {
+      icon: Sparkles,
+      label: "Coherence",
+      desc: "Aligning systems so every part works in harmony with the whole",
+    },
+    {
+      icon: Code,
+      label: "Integration",
+      desc: (
+        <>
+          Weaving disparate
+          <br />
+          tools and data into one
+          <br />
+          fluid ecosystem
+        </>
+      ),
     },
   ];
 
@@ -107,8 +148,9 @@ export function MiracleMindHomeV2() {
               </span>
             </h1>
             <p className="mb-8 max-w-lg text-lg leading-relaxed text-gray-300">
-              Intelligent systems designed with humans at the center. We build
-              technology that expands your freedom, not your dependencies.
+              Intelligent systems designed with humans at the center. Powered by
+              AI-driven development that shortens time to market and enables
+              real-time solutions emergent from human needs.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href={buildHref("/services")}>
@@ -192,6 +234,7 @@ export function MiracleMindHomeV2() {
           </h2>
           <p className="mx-auto mb-12 max-w-2xl text-center text-gray-400">
             For founders, businesses, and enterprises aligned with our mission.
+            <br />
             AI-powered software grounded in human values.
           </p>
 
@@ -203,10 +246,27 @@ export function MiracleMindHomeV2() {
                 description={service.description}
                 imageSrc={service.imageSrc}
                 imageAlt={service.imageAlt}
-                href={buildHref(service.href)}
-                linkText={service.linkText}
+                simple
+                imagePosition={service.imagePosition}
+                goldTint={service.goldTint}
               />
             ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link href={buildHref("/services")}>
+              <Button
+                size="lg"
+                className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                }}
+              >
+                View All Services
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -224,7 +284,7 @@ export function MiracleMindHomeV2() {
                   color: "#D4AF37",
                 }}
               >
-                Our Flagship Product
+                Under Development
               </Badge>
               <h2
                 className="mb-4 text-3xl font-bold text-white sm:text-4xl lg:text-5xl"
@@ -250,8 +310,9 @@ export function MiracleMindHomeV2() {
                 An AI-powered life operating system that integrates health,
                 finance, relationships, and personal growth into one coherent
                 platform. Not to dictate how you should live, but to help you
-                understand the systems at play so you can make more aligned
-                choices.
+                understand how the pieces of your life affect each other as part
+                of an interdependent whole—so you can make decisions from a place
+                of clarity, balance, and integrity with your deepest values.
               </p>
               <Link href={buildHref("/banyan")}>
                 <Button
@@ -270,17 +331,12 @@ export function MiracleMindHomeV2() {
 
             {/* Right: Visual */}
             <div className="relative">
-              <div
-                className="relative mx-auto h-[300px] w-[300px] sm:h-[400px] sm:w-[400px]"
-                style={{
-                  maskImage: "radial-gradient(circle, black 50%, transparent 75%)",
-                  WebkitMaskImage: "radial-gradient(circle, black 50%, transparent 75%)",
-                }}
-              >
-                <iframe
-                  src="/shaders/orbit-star/embed"
-                  className="h-full w-full border-0"
-                  style={{ pointerEvents: "none" }}
+              <div className="relative mx-auto aspect-[4/3] max-w-[500px] overflow-hidden rounded-lg">
+                <Image
+                  src="/images/services/banyan-gold-tree.avif"
+                  alt="Abstract gold tree representing BANYAN LifeOS"
+                  fill
+                  className="object-cover"
                 />
               </div>
             </div>
@@ -316,38 +372,14 @@ export function MiracleMindHomeV2() {
           </h2>
           <p className="mb-12 text-lg leading-relaxed text-gray-300">
             We believe technology should deepen human connection, not replace
-            it. Every system we build serves human agency, cultivates long-term
-            growth, and honors what makes us most alive.
+            it. Every system we build serves
+            <br />
+            human agency, cultivates long-term growth, and honors what makes us
+            most alive.
           </p>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {[
-              {
-                icon: Heart,
-                label: "Contribution",
-                desc: "Technology in service of humanity",
-              },
-              {
-                icon: Users,
-                label: "Sovereignty",
-                desc: "Empowering human agency",
-              },
-              {
-                icon: Leaf,
-                label: "Cultivation",
-                desc: "Playing the long game",
-              },
-              {
-                icon: Sparkles,
-                label: "Coherence",
-                desc: "AI meets human-centered design",
-              },
-              {
-                icon: Code,
-                label: "Integration",
-                desc: "Unified systems, seamless flow",
-              },
-            ].map((v) => {
+            {values.map((v) => {
               const Icon = v.icon;
               return (
                 <div key={v.label} className="text-center">
@@ -407,8 +439,9 @@ export function MiracleMindHomeV2() {
             ?
           </h2>
           <p className="mb-8 text-gray-300">
-            Whether you need a custom application, AI integration, or want to
-            explore how BANYAN can transform your workflow — let&apos;s talk.
+            Whether you need a custom application, AI integration, or want to explore
+            <br />
+            how BANYAN can transform your workflow—let&apos;s talk.
           </p>
           <Link href={buildHref("/contact")}>
             <Button

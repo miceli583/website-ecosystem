@@ -99,7 +99,7 @@ function ServicesContent() {
             </h1>
             <p className="text-lg text-gray-300">
               For founders, businesses, and enterprises aligned with our mission.
-              AI-powered development that empowers human sovereignty and deepens connection.
+              We build technology that expands your freedom, not your dependencies.
             </p>
           </div>
         </section>

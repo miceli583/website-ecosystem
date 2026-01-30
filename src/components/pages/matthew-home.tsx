@@ -513,8 +513,17 @@ export function MatthewHomePage({
                       />
                     </div>
                     <div className="flex-1">
-                      <h2 className="mb-3 text-2xl font-bold text-white drop-shadow-md sm:text-3xl md:text-4xl">
-                        Miracle Mind
+                      <h2
+                        className="mb-3 text-2xl drop-shadow-md sm:text-3xl md:text-4xl"
+                        style={{
+                          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                        }}
+                      >
+                        <span style={{ fontWeight: 300 }}>MIRACLE</span>{" "}
+                        <span style={{ fontWeight: 700 }}>MIND</span>
                       </h2>
                       <p className="mb-4 text-base text-gray-100 drop-shadow-sm sm:text-lg">
                         In 2025, I founded Miracle Mind with a clear mission: develop technology that empowers human sovereignty
