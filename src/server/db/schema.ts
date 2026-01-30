@@ -180,6 +180,22 @@ export const customers = pgTable("customers", {
 // ============================================================================
 
 /**
+ * Portal Users - Authentication & authorization for client portal
+ * Links Supabase auth users to their portal role and client assignment
+ */
+export const portalUsers = pgTable("portal_users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  authUserId: uuid("auth_user_id").unique(), // Supabase auth.users.id - NULL for unclaimed accounts
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  role: text("role").notNull().default("client"), // "admin" | "client"
+  clientSlug: text("client_slug"), // NULL for admin, required for clients
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
  * Clients - CRM client records
  */
 export const clients = pgTable("clients", {
@@ -235,6 +251,41 @@ export const clientUpdates = pgTable("client_updates", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+/**
+ * Client Resources - Flexible client-specific content
+ * Supports: links, embeds, credentials, files, microapps, richtext
+ */
+export const clientResources = pgTable("client_resources", {
+  id: serial("id").primaryKey(),
+  clientId: serial("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  projectId: serial("project_id").references(() => clientProjects.id, { onDelete: "set null" }),
+
+  // Categorization
+  section: text("section").notNull().default("tooling"), // demos, tooling, billing, docs
+  type: text("type").notNull().default("link"), // link, embed, credential, file, microapp, richtext
+
+  // Display
+  title: text("title").notNull(),
+  description: text("description"),
+  icon: text("icon"), // lucide icon name or emoji
+  sortOrder: serial("sort_order").default(0),
+  isFeatured: boolean("is_featured").default(false),
+  isActive: boolean("is_active").default(true),
+
+  // Content (use based on type)
+  url: text("url"), // for links, embeds, files, microapps
+  embedCode: text("embed_code"), // for custom embed HTML
+  content: text("content"), // for richtext
+
+  // Flexible metadata for type-specific data
+  metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
+
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -391,9 +442,33 @@ export const quotePostsRelations = relations(quotePosts, ({ one }) => ({
   }),
 }));
 
-export const clientsRelations = relations(clients, ({ many }) => ({
+export const portalUsersRelations = relations(portalUsers, ({ one }) => ({
+  // Client slug links to clients table
+  client: one(clients, {
+    fields: [portalUsers.clientSlug],
+    references: [clients.slug],
+  }),
+}));
+
+export const clientsRelations = relations(clients, ({ many, one }) => ({
   projects: many(clientProjects),
   agreements: many(clientAgreements),
+  resources: many(clientResources),
+  portalUser: one(portalUsers, {
+    fields: [clients.slug],
+    references: [portalUsers.clientSlug],
+  }),
+}));
+
+export const clientResourcesRelations = relations(clientResources, ({ one }) => ({
+  client: one(clients, {
+    fields: [clientResources.clientId],
+    references: [clients.id],
+  }),
+  project: one(clientProjects, {
+    fields: [clientResources.projectId],
+    references: [clientProjects.id],
+  }),
 }));
 
 export const clientProjectsRelations = relations(
@@ -495,6 +570,9 @@ export type NewBanyanEarlyAccess = typeof banyanEarlyAccess.$inferInsert;
 export type Customer = typeof customers.$inferSelect;
 export type NewCustomer = typeof customers.$inferInsert;
 
+export type PortalUser = typeof portalUsers.$inferSelect;
+export type NewPortalUser = typeof portalUsers.$inferInsert;
+
 export type Client = typeof clients.$inferSelect;
 export type NewClient = typeof clients.$inferInsert;
 
@@ -506,6 +584,9 @@ export type NewClientUpdate = typeof clientUpdates.$inferInsert;
 
 export type ClientAgreement = typeof clientAgreements.$inferSelect;
 export type NewClientAgreement = typeof clientAgreements.$inferInsert;
+
+export type ClientResource = typeof clientResources.$inferSelect;
+export type NewClientResource = typeof clientResources.$inferInsert;
 
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type NewContactSubmission = typeof contactSubmissions.$inferInsert;

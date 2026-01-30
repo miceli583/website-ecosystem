@@ -23,32 +23,18 @@ export async function middleware(request: NextRequest) {
   let pathname = request.nextUrl.pathname;
   let searchParams = request.nextUrl.searchParams;
 
-  // PERMANENT REDIRECT: miraclemind.live → miraclemind.dev
-  // Skip auth check - just redirect immediately
-  if (hostname === "miraclemind.live" || hostname === "www.miraclemind.live") {
-    const url = request.nextUrl.clone();
-    url.hostname = "miraclemind.dev";
-    url.protocol = "https:";
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(`🔀 [Middleware] Redirecting .live → .dev: ${url.toString()}`);
-    }
-
-    // 308 Permanent Redirect (preserves method and body)
-    return NextResponse.redirect(url, { status: 308 });
-  }
-
-  // Client portal subdomain: clients.miraclemind.dev
-  const isClientPortal =
-    hostname.startsWith("clients.miraclemind.dev") ||
-    (hostname.includes("localhost") && searchParams.get("domain") === "clients");
+  // Portal domain: miraclemind.live (or ?domain=live in dev)
+  const isPortalDomain =
+    hostname === "miraclemind.live" ||
+    hostname === "www.miraclemind.live" ||
+    (hostname.includes("localhost") && searchParams.get("domain") === "live");
 
   // Only check auth for routes that ACTUALLY need it
   const needsAuth =
     pathname.startsWith('/admin') ||
     pathname.startsWith('/auth/callback') ||
-    pathname.startsWith('/client') ||
-    isClientPortal;
+    pathname.startsWith('/portal') ||
+    isPortalDomain;
 
   // Subdomain routing - handle admin.* subdomains
   // admin.miraclemind.dev/templates → /admin/templates?domain=dev
@@ -137,6 +123,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(loginUrl));
     }
 
+    // Check if user is an admin (only admin@miraclemind.live can access /admin routes)
+    const adminEmails = ["admin@miraclemind.live"];
+    if (!adminEmails.includes(user.email ?? "")) {
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🔒 [Middleware] Admin access denied for: ${user.email}`);
+      }
+      // Redirect non-admins to portal
+      const portalUrl = hostname.includes("localhost")
+        ? `${request.nextUrl.protocol}//${hostname}/portal?domain=live`
+        : `https://miraclemind.live/portal`;
+      return NextResponse.redirect(new URL(portalUrl));
+    }
+
     // Allow admin access on miraclemind.dev, admin.* subdomains, or localhost with domain=dev
     const isValidAdminDomain =
       hostname.includes("miraclemind.dev") ||
@@ -200,18 +199,37 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Handle client portal routes - require authentication
-  if (isClientPortal || pathname.startsWith("/client")) {
-    if (!user) {
+  // Handle portal routes on miraclemind.live domain
+  if (isPortalDomain) {
+    // Allow public access to login page (root of portal domain)
+    if (pathname === "/" || pathname === "/portal/set-password") {
+      return supabaseResponse;
+    }
+
+    // Require auth for all other portal routes
+    if (pathname.startsWith("/portal") && !user) {
       const loginUrl = hostname.includes("localhost")
-        ? `${request.nextUrl.protocol}//${hostname}/admin/login?domain=dev`
-        : `https://miraclemind.dev/admin/login`;
+        ? `${request.nextUrl.protocol}//${hostname}/?domain=live`
+        : `https://miraclemind.live/`;
 
       if (process.env.NODE_ENV === "development") {
-        console.log(`🔒 [Middleware] Client portal auth required, redirecting to: ${loginUrl}`);
+        console.log(`🔒 [Middleware] Portal auth required, redirecting to: ${loginUrl}`);
       }
       return NextResponse.redirect(new URL(loginUrl));
     }
+  }
+
+  // Legacy /client/* routes redirect to /portal/*
+  if (pathname.startsWith("/client/")) {
+    const newPath = pathname.replace("/client/", "/portal/");
+    const redirectUrl = hostname.includes("localhost")
+      ? `${request.nextUrl.protocol}//${hostname}${newPath}?domain=live`
+      : `https://miraclemind.live${newPath}`;
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🔀 [Middleware] Legacy client redirect: ${redirectUrl}`);
+    }
+    return NextResponse.redirect(new URL(redirectUrl));
   }
 
   // Add domain information to headers for server components
