@@ -16,10 +16,6 @@ import {
 import { eq, desc, isNull, and, asc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
-import {
-  getCachedActiveSubscriptions,
-  getCachedBillingInfo,
-} from "~/lib/stripe-cache";
 
 export const portalRouter = createTRPCRouter({
   /**
@@ -332,20 +328,42 @@ export const portalRouter = createTRPCRouter({
         },
       });
 
-      // Check subscription status for resources that require it (cached)
-      let activeProductIds: string[] = [];
+      // Check subscription status for resources that require it
+      let activeProductIds = new Set<string>();
       if (stripe && client.stripeCustomerId) {
-        const cached = await getCachedActiveSubscriptions(client.stripeCustomerId);
-        activeProductIds = cached.activeProductIds;
-      }
+        try {
+          const [activeSubscriptions, trialingSubscriptions] = await Promise.all([
+            stripe.subscriptions.list({
+              customer: client.stripeCustomerId,
+              status: "active",
+            }),
+            stripe.subscriptions.list({
+              customer: client.stripeCustomerId,
+              status: "trialing",
+            }),
+          ]);
 
-      const activeProductSet = new Set(activeProductIds);
+          for (const sub of [...activeSubscriptions.data, ...trialingSubscriptions.data]) {
+            if (sub.cancel_at_period_end) continue;
+            for (const item of sub.items.data) {
+              const productId =
+                typeof item.price.product === "string"
+                  ? item.price.product
+                  : item.price.product?.id;
+              if (productId) activeProductIds.add(productId);
+            }
+          }
+        } catch (error) {
+          console.error("Stripe subscription check failed:", error);
+          // Continue without subscription filtering
+        }
+      }
 
       // Add subscription status to each resource
       return resources.map((resource: typeof resources[number]) => ({
         ...resource,
         subscriptionActive: resource.stripeProductId
-          ? activeProductSet.has(resource.stripeProductId)
+          ? activeProductIds.has(resource.stripeProductId)
           : true, // Resources without stripeProductId are always accessible
       }));
     }),
@@ -513,14 +531,105 @@ export const portalRouter = createTRPCRouter({
       }
 
       try {
-        // Use cached billing info (2 minute TTL)
-        const cached = await getCachedBillingInfo(client.stripeCustomerId);
+        // Fetch invoices, subscriptions, and balance in parallel
+        const [invoices, subscriptions, customer] = await Promise.all([
+          stripe.invoices.list({
+            customer: client.stripeCustomerId,
+            limit: 20,
+          }),
+          stripe.subscriptions.list({
+            customer: client.stripeCustomerId,
+            status: "all",
+            limit: 10,
+          }),
+          stripe.customers.retrieve(client.stripeCustomerId),
+        ]);
+
+        // Get balance from customer object
+        const balance = "balance" in customer ? customer.balance : null;
+
+        // Collect unique product IDs from subscriptions to fetch names
+        const productIds = new Set<string>();
+        for (const sub of subscriptions.data) {
+          for (const item of sub.items.data) {
+            const productId =
+              typeof item.price.product === "string"
+                ? item.price.product
+                : item.price.product?.id;
+            if (productId) productIds.add(productId);
+          }
+        }
+
+        // Fetch product names in parallel
+        const productMap = new Map<string, string>();
+        if (productIds.size > 0) {
+          const products = await Promise.all(
+            Array.from(productIds).map((id) => stripe!.products.retrieve(id))
+          );
+          for (const product of products) {
+            if (!("deleted" in product)) {
+              productMap.set(product.id, product.name);
+            }
+          }
+        }
 
         return {
           hasStripeCustomer: true,
-          invoices: cached.invoices,
-          subscriptions: cached.subscriptions,
-          balance: cached.balance,
+          invoices: invoices.data.map((inv) => {
+            const lineItemDescriptions = inv.lines?.data
+              ?.map((line) => line.description)
+              .filter(Boolean)
+              .slice(0, 3);
+
+            const derivedDescription =
+              inv.description ??
+              (lineItemDescriptions?.length
+                ? lineItemDescriptions.join(", ")
+                : null);
+
+            return {
+              id: inv.id,
+              number: inv.number,
+              status: inv.status,
+              amountDue: inv.amount_due,
+              amountPaid: inv.amount_paid,
+              currency: inv.currency,
+              dueDate: inv.due_date,
+              paidAt: inv.status_transitions?.paid_at,
+              hostedInvoiceUrl: inv.hosted_invoice_url,
+              invoicePdf: inv.invoice_pdf,
+              created: inv.created,
+              description: derivedDescription,
+            };
+          }),
+          subscriptions: subscriptions.data.map((sub) => ({
+            id: sub.id,
+            status: sub.status,
+            startDate: sub.start_date,
+            billingCycleAnchor: sub.billing_cycle_anchor,
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
+            canceledAt: sub.canceled_at,
+            trialEnd: sub.trial_end,
+            items: sub.items.data.map((item) => {
+              const productId =
+                typeof item.price.product === "string"
+                  ? item.price.product
+                  : item.price.product?.id;
+
+              return {
+                id: item.id,
+                priceId: item.price.id,
+                productId,
+                productName: productId ? productMap.get(productId) : null,
+                unitAmount: item.price.unit_amount,
+                currency: item.price.currency,
+                interval: item.price.recurring?.interval,
+                intervalCount: item.price.recurring?.interval_count,
+                nickname: item.price.nickname,
+              };
+            }),
+          })),
+          balance,
         };
       } catch (error) {
         console.error("Stripe error:", error);
