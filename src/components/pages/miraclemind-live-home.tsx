@@ -151,7 +151,7 @@ export function MiracleMindLiveHomePage() {
               </h1>
               <p className="mb-6 text-gray-400">
                 We sent a link to <span className="text-white">{email}</span>.
-                Click the link to access your portal.
+                Open the link on this device and browser to complete setup.
               </p>
               <button
                 onClick={() => {
