@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
+import { ImageCard } from "~/components/ui/image-card";
 import {
   ArrowRight,
   Sparkles,
@@ -13,8 +14,6 @@ import {
   Users,
   Heart,
   Leaf,
-  TreeDeciduous,
-  Handshake,
 } from "lucide-react";
 
 export function MiracleMindHomeV2() {
@@ -37,6 +36,36 @@ export function MiracleMindHomeV2() {
     }
     return path;
   };
+
+  const clientServices = [
+    {
+      title: "Custom Applications",
+      description:
+        "Full-stack web apps, mobile apps, and custom CRMs. From concept to production, we build systems that scale with your vision.",
+      imageSrc: "https://images.unsplash.com/photo-1558618666-fcd25c85f64d?w=800&h=500&fit=crop",
+      imageAlt: "Abstract geometric architecture representing custom software development",
+      href: "/services",
+      linkText: "View services",
+    },
+    {
+      title: "AI & Automation",
+      description:
+        "Custom AI tools, workflow automation, and intelligent systems. Available via client portal, as packaged solutions, or deeply integrated.",
+      imageSrc: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=500&fit=crop",
+      imageAlt: "Neural network visualization representing AI and automation",
+      href: "/services",
+      linkText: "View services",
+    },
+    {
+      title: "System Integration",
+      description:
+        "Connect disparate systems, develop APIs, build data pipelines. We create coherence from complexity.",
+      imageSrc: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=500&fit=crop",
+      imageAlt: "Connected network nodes representing system integration",
+      href: "/services",
+      linkText: "View services",
+    },
+  ];
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -78,8 +107,8 @@ export function MiracleMindHomeV2() {
               </span>
             </h1>
             <p className="mb-8 max-w-lg text-lg leading-relaxed text-gray-300">
-              AI-driven development that shortens time to market and enables
-              real-time solutions emergent from customer needs.
+              Intelligent systems designed with humans at the center. We build
+              technology that expands your freedom, not your dependencies.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href={buildHref("/services")}>
@@ -134,7 +163,7 @@ export function MiracleMindHomeV2() {
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent" />
       </section>
 
-      {/* Services */}
+      {/* Client Services - What We Build */}
       <section
         id="services"
         className="scroll-mt-20 px-4 py-20 sm:px-6"
@@ -162,118 +191,108 @@ export function MiracleMindHomeV2() {
             </span>
           </h2>
           <p className="mx-auto mb-12 max-w-2xl text-center text-gray-400">
-            From flagship products to custom client work, we deliver
+            For founders, businesses, and enterprises aligned with our mission.
             AI-powered software grounded in human values.
           </p>
 
           <div className="grid gap-8 md:grid-cols-3">
-            {/* BANYAN */}
-            <Card
-              className="group bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                borderWidth: "1px",
-              }}
-            >
-              <CardContent className="p-8">
-                <TreeDeciduous
-                  className="mb-4 h-10 w-10"
-                  style={{ color: "#D4AF37" }}
-                />
-                <h3
-                  className="mb-2 text-xl font-bold text-white"
-                  style={{ fontFamily: "var(--font-quattrocento-sans)" }}
-                >
-                  BANYAN LifeOS
-                </h3>
-                <p className="mb-4 text-sm leading-relaxed text-gray-300">
-                  Our flagship product: an AI-powered life operating system
-                  that integrates health, finance, relationships, and
-                  personal growth into one coherent platform.
-                </p>
-                <Link
-                  href={buildHref("/banyan")}
-                  className="inline-flex items-center text-sm font-medium transition-colors"
-                  style={{ color: "#D4AF37" }}
-                >
-                  Learn more <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </CardContent>
-            </Card>
+            {clientServices.map((service) => (
+              <ImageCard
+                key={service.title}
+                title={service.title}
+                description={service.description}
+                imageSrc={service.imageSrc}
+                imageAlt={service.imageAlt}
+                href={buildHref(service.href)}
+                linkText={service.linkText}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* Custom Dev */}
-            <Card
-              className="group bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                borderWidth: "1px",
-              }}
-            >
-              <CardContent className="p-8">
-                <Code
-                  className="mb-4 h-10 w-10"
-                  style={{ color: "#D4AF37" }}
-                />
-                <h3
-                  className="mb-2 text-xl font-bold text-white"
-                  style={{ fontFamily: "var(--font-quattrocento-sans)" }}
+      {/* BANYAN Feature Section */}
+      <section className="px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* Left: Content */}
+            <div>
+              <Badge
+                className="mb-4 border-0 px-3 py-1"
+                style={{
+                  background: "rgba(212, 175, 55, 0.15)",
+                  color: "#D4AF37",
+                }}
+              >
+                Our Flagship Product
+              </Badge>
+              <h2
+                className="mb-4 text-3xl font-bold text-white sm:text-4xl lg:text-5xl"
+                style={{
+                  fontFamily: "var(--font-quattrocento-sans)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                BANYAN{" "}
+                <span
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
                 >
-                  Custom Development
-                </h3>
-                <p className="mb-4 text-sm leading-relaxed text-gray-300">
-                  Full-stack web applications, AI integrations, and
-                  automation systems built with modern tooling. From concept
-                  to production, we ship fast.
-                </p>
-                <a
-                  href="#contact"
-                  className="inline-flex items-center text-sm font-medium transition-colors"
-                  style={{ color: "#D4AF37" }}
+                  LifeOS
+                </span>
+              </h2>
+              <p className="mb-6 text-lg leading-relaxed text-gray-300">
+                An AI-powered life operating system that integrates health,
+                finance, relationships, and personal growth into one coherent
+                platform. Not to dictate how you should live, but to help you
+                understand the systems at play so you can make more aligned
+                choices.
+              </p>
+              <Link href={buildHref("/banyan")}>
+                <Button
+                  size="lg"
+                  className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }}
                 >
-                  Get in touch <ArrowRight className="ml-1 h-4 w-4" />
-                </a>
-              </CardContent>
-            </Card>
+                  Explore BANYAN
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
 
-            {/* Stewardship */}
-            <Card
-              className="group bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                borderWidth: "1px",
-              }}
-            >
-              <CardContent className="p-8">
-                <Handshake
-                  className="mb-4 h-10 w-10"
-                  style={{ color: "#D4AF37" }}
+            {/* Right: Visual */}
+            <div className="relative">
+              <div
+                className="relative mx-auto h-[300px] w-[300px] sm:h-[400px] sm:w-[400px]"
+                style={{
+                  maskImage: "radial-gradient(circle, black 50%, transparent 75%)",
+                  WebkitMaskImage: "radial-gradient(circle, black 50%, transparent 75%)",
+                }}
+              >
+                <iframe
+                  src="/shaders/orbit-star/embed"
+                  className="h-full w-full border-0"
+                  style={{ pointerEvents: "none" }}
                 />
-                <h3
-                  className="mb-2 text-xl font-bold text-white"
-                  style={{ fontFamily: "var(--font-quattrocento-sans)" }}
-                >
-                  Stewardship Program
-                </h3>
-                <p className="mb-4 text-sm leading-relaxed text-gray-300">
-                  Partner with aligned businesses and practitioners we
-                  trust. Our stewards extend our mission by connecting
-                  people with tools for conscious living.
-                </p>
-                <Link
-                  href={buildHref("/stewardship")}
-                  className="inline-flex items-center text-sm font-medium transition-colors"
-                  style={{ color: "#D4AF37" }}
-                >
-                  Learn more <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Values / Mission */}
-      <section className="px-4 py-20 sm:px-6">
+      <section
+        className="px-4 py-20 sm:px-6"
+        style={{ backgroundColor: "#141414" }}
+      >
         <div className="mx-auto max-w-4xl text-center">
           <h2
             className="mb-6 text-3xl font-bold text-white sm:text-4xl lg:text-5xl"
@@ -357,7 +376,6 @@ export function MiracleMindHomeV2() {
       <section
         id="contact"
         className="scroll-mt-20 px-4 py-20 sm:px-6"
-        style={{ backgroundColor: "#141414" }}
       >
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center justify-center">
@@ -407,7 +425,6 @@ export function MiracleMindHomeV2() {
           </Link>
         </div>
       </section>
-
     </div>
   );
 }

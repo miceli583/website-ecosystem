@@ -166,8 +166,18 @@ export function MatthewHomePage({
                     systems that honor what makes us human.
                     <br />
                     Founder of{" "}
-                    <Link href={getMiracleMindUrl()} className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
-                      Miracle Mind
+                    <Link
+                      href={getMiracleMindUrl()}
+                      className="hover:underline"
+                      style={{
+                        background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }}
+                    >
+                      <span style={{ fontWeight: 300 }}>MIRACLE</span>{" "}
+                      <span style={{ fontWeight: 700 }}>MIND</span>
                     </Link>.
                   </p>
                 </div>

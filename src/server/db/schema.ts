@@ -273,6 +273,8 @@ export const contactSubmissions = pgTable("contact_submissions", {
   email: text("email").notNull(),
   phone: text("phone"),
   message: text("message").notNull(),
+  services: text("services").array(), // Selected services of interest
+  role: text("role"), // Organization type (solo_founder, startup_team, smb, enterprise, agency_consultant)
   read: boolean("read").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

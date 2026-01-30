@@ -92,30 +92,48 @@ function AboutContent() {
           </div>
         </section>
 
-        {/* Mission */}
+        {/* Philosophy */}
         <section
           className="px-4 py-20 sm:px-6"
           style={{ backgroundColor: "#141414" }}
         >
           <div className="mx-auto max-w-4xl">
             <h2
-              className="mb-6 text-center text-3xl font-bold text-white sm:text-4xl"
+              className="mb-8 text-center text-3xl font-bold text-white sm:text-4xl"
               style={{ fontFamily: "var(--font-quattrocento-sans)" }}
             >
-              Our Mission
+              Our Philosophy
             </h2>
-            <p className="text-center text-lg leading-relaxed text-gray-300">
-              Technology in service of humanity and human connection. We specialize in{" "}
-              <span style={{ color: "#D4AF37", fontWeight: 600 }}>
-                AI-driven development
-              </span>{" "}
-              that shortens time to market and enables{" "}
-              <span style={{ color: "#D4AF37", fontWeight: 600 }}>
-                real-time solutions emergent from customer needs
-              </span>
-              . We develop AI-powered software in-house and build custom solutions for
-              companies, founders, and businesses.
-            </p>
+            <div className="space-y-6 text-center text-lg leading-relaxed text-gray-300">
+              <p>
+                We operate as a{" "}
+                <span style={{ color: "#D4AF37", fontWeight: 600 }}>
+                  Collective Intelligence
+                </span>
+                —where human insight and AI capability amplify each other. This isn't
+                about replacing human judgment; it's about extending what's possible
+                when technology serves human agency.
+              </p>
+              <p>
+                We define sovereignty as{" "}
+                <span style={{ color: "#D4AF37", fontWeight: 600 }}>
+                  freedom plus agency
+                </span>
+                —the ability to act on your own behalf. AI represents a field of
+                limitless possibilities, pure potentialities crystallized through the
+                power of human choice. This is where sovereignty plays in.
+              </p>
+              <p>
+                Technology, like nature, works best when it mirrors organic patterns—
+                neural networks, mycelial systems, the interconnected web of life.
+                Because of this, what were once rigid technological structures have
+                the ability to become{" "}
+                <span style={{ color: "#D4AF37", fontWeight: 600 }}>
+                  flexible and dynamic
+                </span>
+                —solutions emergent from real needs, not predicted problems.
+              </p>
+            </div>
           </div>
         </section>
 

@@ -14,6 +14,8 @@ interface ContactNotificationEmailProps {
   email: string;
   phone?: string;
   message: string;
+  services?: string[];
+  role?: string;
 }
 
 export function ContactNotificationEmail({
@@ -21,6 +23,8 @@ export function ContactNotificationEmail({
   email,
   phone,
   message,
+  services,
+  role,
 }: ContactNotificationEmailProps) {
   return (
     <Html>
@@ -38,6 +42,18 @@ export function ContactNotificationEmail({
               <>
                 <Text style={label}>Phone</Text>
                 <Text style={value}>{phone}</Text>
+              </>
+            )}
+            {role && (
+              <>
+                <Text style={label}>Role</Text>
+                <Text style={value}>{role}</Text>
+              </>
+            )}
+            {services && services.length > 0 && (
+              <>
+                <Text style={label}>Services of Interest</Text>
+                <Text style={value}>{services.join(", ")}</Text>
               </>
             )}
           </Section>

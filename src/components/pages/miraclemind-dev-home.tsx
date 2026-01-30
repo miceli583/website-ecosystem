@@ -72,48 +72,36 @@ export function MiracleMindDevHomePage() {
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
           {/* Hero Section */}
           <section className="mb-16 flex flex-col items-center text-center sm:mb-24">
-            <div className="mb-4 inline-flex items-center justify-center">
-              <div className="relative h-16 w-16 sm:h-24 sm:w-24">
-                <Image
-                  src="/brand/banyan-tree-icon.svg"
-                  alt="Banyan Tree of Life"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            </div>
-
-            <Badge
-              className="mb-6"
-              style={{
-                background: "rgba(212, 175, 55, 0.2)",
-                borderColor: "rgba(212, 175, 55, 0.4)",
-                color: "#D4AF37",
-              }}
-            >
-              Under Development: Web and Mobile
-            </Badge>
-
             <h1
-              className="mb-4 text-4xl font-bold text-white sm:mb-6 sm:text-6xl md:text-7xl"
+              className="mb-4 sm:mb-6"
               style={{
                 fontFamily: "var(--font-quattrocento-sans)",
-                letterSpacing: "0.02em",
               }}
             >
-              BANYAN
-              <br />
               <span
-                className="text-3xl sm:text-5xl md:text-6xl"
+                className="block text-xl font-medium uppercase tracking-widest text-gray-400 sm:text-2xl"
+                style={{ letterSpacing: "0.25em" }}
+              >
+                Your Life
+              </span>
+              <span
+                className="block text-4xl font-bold uppercase sm:text-6xl md:text-7xl"
                 style={{
                   background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
-                  textShadow: "0 0 40px rgba(212, 175, 55, 0.3)",
+                  letterSpacing: "0.08em",
+                  lineHeight: 1.1,
                 }}
               >
-                Your Life Operating System
+                BANYAN
+              </span>
+              <span
+                className="block text-xl font-medium uppercase tracking-widest text-white sm:text-2xl"
+                style={{ letterSpacing: "0.25em" }}
+              >
+                Operating System
               </span>
             </h1>
 
@@ -124,18 +112,30 @@ export function MiracleMindDevHomePage() {
               AI-powered integration across all life domains. So your daily habits align with your deepest values, and your goals emerge naturally from your way of being.
             </p>
 
-            <a href="#signup">
-              <Button
-                size="lg"
-                className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            <div className="flex flex-col items-center gap-4">
+              <Badge
+                className="border-0 px-3 py-1"
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background: "rgba(212, 175, 55, 0.2)",
+                  color: "#D4AF37",
                 }}
               >
-                Join Early Access
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </a>
+                Under Development: Web and Mobile
+              </Badge>
+
+              <a href="#signup">
+                <Button
+                  size="lg"
+                  className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                  style={{
+                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }}
+                >
+                  Request Early Access
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </a>
+            </div>
           </section>
 
           {/* Section Divider */}
@@ -695,70 +695,7 @@ export function MiracleMindDevHomePage() {
             <BanyanEarlyAccessForm />
           </section>
 
-          {/* Built by Miracle Mind */}
-          <section className="mb-16 sm:mb-24">
-            <Card
-              className="bg-white/5 backdrop-blur-md"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                borderWidth: "1px",
-              }}
-            >
-              <CardContent className="p-6 text-center sm:p-10 md:p-12">
-                <div className="mb-4 inline-flex items-center justify-center sm:mb-6">
-                  <div className="relative h-12 w-12 sm:h-16 sm:w-16">
-                    <Image
-                      src="/brand/miracle-mind-orbit-star-v3.svg"
-                      alt="Miracle Mind"
-                      fill
-                      className="object-contain"
-                    />
                   </div>
-                </div>
-
-                <h3
-                  className="mb-3 text-xl font-bold text-white sm:mb-4 sm:text-2xl"
-                  style={{ fontFamily: "var(--font-quattrocento-sans)" }}
-                >
-                  Built by{" "}
-                  <span
-                    style={{
-                      background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                      filter: "drop-shadow(0 0 20px rgba(212, 175, 55, 0.4))",
-                    }}
-                  >
-                    Miracle Mind
-                  </span>
-                </h3>
-
-                <p
-                  className="mx-auto mb-6 max-w-2xl px-4 text-sm text-gray-300 sm:mb-8 sm:text-base md:text-lg"
-                  style={{ fontFamily: "var(--font-geist-sans)" }}
-                >
-                  BANYAN is the flagship product of Miracle Mind—where AI-driven
-                  development meets human-centered design.
-                </p>
-
-                <Link href="/">
-                  <Button
-                    variant="outline"
-                    className="border-2 bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
-                    style={{
-                      borderColor: "rgba(212, 175, 55, 0.5)",
-                      color: "#D4AF37",
-                    }}
-                  >
-                    Learn About Miracle Mind
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </section>
-        </div>
       </div>
     </div>
   );

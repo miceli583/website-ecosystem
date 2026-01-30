@@ -12,6 +12,7 @@ export function BanyanEarlyAccessForm() {
     phone: "",
     role: "",
     message: "",
+    betaTester: false,
   });
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -38,7 +39,7 @@ export function BanyanEarlyAccessForm() {
       }
 
       setStatus("success");
-      setFormData({ fullName: "", email: "", phone: "", role: "", message: "" });
+      setFormData({ fullName: "", email: "", phone: "", role: "", message: "", betaTester: false });
     } catch (error) {
       setStatus("error");
       setErrorMessage(
@@ -105,7 +106,7 @@ export function BanyanEarlyAccessForm() {
             letterSpacing: "0.02em",
           }}
         >
-          Join the Beta
+          Request Early Access
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -224,6 +225,27 @@ export function BanyanEarlyAccessForm() {
             </select>
           </div>
 
+          {/* Beta Tester Interest */}
+          <div className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              id="betaTester"
+              checked={formData.betaTester}
+              onChange={(e) =>
+                setFormData({ ...formData, betaTester: e.target.checked })
+              }
+              className="mt-1 h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
+              style={{ accentColor: "#D4AF37" }}
+            />
+            <label
+              htmlFor="betaTester"
+              className="text-sm text-gray-300"
+              style={{ fontFamily: "var(--font-geist-sans)" }}
+            >
+              I'm interested in beta testing and providing feedback on early builds
+            </label>
+          </div>
+
           {/* Message */}
           <div>
             <label
@@ -231,7 +253,7 @@ export function BanyanEarlyAccessForm() {
               className="mb-2 block text-sm font-medium text-gray-200"
               style={{ fontFamily: "var(--font-geist-sans)" }}
             >
-              What brings you to Banyan?
+              What brings you to BANYAN?
             </label>
             <textarea
               id="message"

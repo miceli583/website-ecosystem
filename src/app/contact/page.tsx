@@ -13,13 +13,42 @@ function ContactContent() {
     email: "",
     phone: "",
     message: "",
+    services: [] as string[],
+    role: "",
   });
+
+  const serviceOptions = [
+    { value: "custom_applications", label: "Custom Applications" },
+    { value: "ai_automation", label: "AI & Automation" },
+    { value: "system_integration", label: "System Integration" },
+    { value: "technical_consulting", label: "Technical Consulting" },
+    { value: "optimization", label: "Optimization Services" },
+    { value: "other", label: "Other" },
+  ];
+
+  const roleOptions = [
+    { value: "", label: "Select your role..." },
+    { value: "solo_founder", label: "Solo Founder" },
+    { value: "startup_team", label: "Startup Team (2-10)" },
+    { value: "smb", label: "Small/Medium Business" },
+    { value: "enterprise", label: "Enterprise" },
+    { value: "agency_consultant", label: "Agency / Consultant" },
+  ];
+
+  const toggleService = (service: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      services: prev.services.includes(service)
+        ? prev.services.filter((s) => s !== service)
+        : [...prev.services, service],
+    }));
+  };
   const [submitted, setSubmitted] = useState(false);
 
   const submitMutation = api.contact.submit.useMutation({
     onSuccess: () => {
       setSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", message: "" });
+      setFormData({ name: "", email: "", phone: "", message: "", services: [], role: "" });
     },
   });
 
@@ -127,7 +156,7 @@ function ContactContent() {
                       htmlFor="name"
                       className="mb-2 block text-sm font-medium text-gray-300"
                     >
-                      Name
+                      Name <span style={{ color: "#D4AF37" }}>*</span>
                     </label>
                     <input
                       type="text"
@@ -150,7 +179,7 @@ function ContactContent() {
                       htmlFor="email"
                       className="mb-2 block text-sm font-medium text-gray-300"
                     >
-                      Email
+                      Email <span style={{ color: "#D4AF37" }}>*</span>
                     </label>
                     <input
                       type="email"
@@ -192,10 +221,68 @@ function ContactContent() {
 
                   <div>
                     <label
+                      htmlFor="role"
+                      className="mb-2 block text-sm font-medium text-gray-300"
+                    >
+                      Your Role <span className="text-gray-500">(optional)</span>
+                    </label>
+                    <select
+                      id="role"
+                      value={formData.role}
+                      onChange={(e) =>
+                        setFormData({ ...formData, role: e.target.value })
+                      }
+                      className="w-full rounded-md border bg-white/5 px-4 py-3 text-white focus:outline-none focus:ring-2"
+                      style={{
+                        borderColor: "rgba(212, 175, 55, 0.3)",
+                      }}
+                    >
+                      {roleOptions.map((option) => (
+                        <option
+                          key={option.value}
+                          value={option.value}
+                          className="bg-black"
+                        >
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-3 block text-sm font-medium text-gray-300">
+                      Services of Interest <span className="text-gray-500">(optional)</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {serviceOptions.map((service) => (
+                        <label
+                          key={service.value}
+                          className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/5 px-4 py-3 transition-colors hover:bg-white/10"
+                          style={{
+                            borderColor: formData.services.includes(service.value)
+                              ? "rgba(212, 175, 55, 0.6)"
+                              : "rgba(212, 175, 55, 0.3)",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.services.includes(service.value)}
+                            onChange={() => toggleService(service.value)}
+                            className="h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
+                            style={{ accentColor: "#D4AF37" }}
+                          />
+                          <span className="text-sm text-gray-300">{service.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
                       htmlFor="message"
                       className="mb-2 block text-sm font-medium text-gray-300"
                     >
-                      Message
+                      Message <span style={{ color: "#D4AF37" }}>*</span>
                     </label>
                     <textarea
                       id="message"

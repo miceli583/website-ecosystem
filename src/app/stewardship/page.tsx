@@ -37,31 +37,10 @@ function StewardshipContent() {
 
         <p className="mb-12 max-w-2xl text-lg leading-relaxed text-gray-300">
           We partner with businesses and practitioners whose work aligns with
-          our mission of empowering human sovereignty. As a Steward, you help
-          extend our reach while earning from the value you create.
+          our mission. These are companies and individuals we steward—endorsing
+          their products and services because we believe in their positive
+          impact on the people we serve.
         </p>
-
-        {/* How it works */}
-        <section className="mb-16">
-          <h2
-            className="mb-6 text-2xl font-bold"
-            style={{ fontFamily: "var(--font-quattrocento-sans)" }}
-          >
-            How It Works
-          </h2>
-          <div className="space-y-4 text-gray-300">
-            <p>
-              Stewards are trusted partners — not affiliates. We vet every
-              partner to ensure their products and services genuinely support
-              the well-being of the people we serve.
-            </p>
-            <p>
-              When you refer someone through a Steward link, both parties
-              benefit: the person gets access to a vetted resource, and the
-              Steward earns a commission for the introduction.
-            </p>
-          </div>
-        </section>
 
         {/* Partners */}
         <section className="mb-16">

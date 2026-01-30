@@ -18,6 +18,8 @@ export const contactRouter = createTRPCRouter({
         email: z.string().email("Valid email is required"),
         phone: z.string().optional(),
         message: z.string().min(10, "Message must be at least 10 characters"),
+        services: z.array(z.string()).optional(),
+        role: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -64,6 +66,8 @@ export const contactRouter = createTRPCRouter({
         email: input.email,
         phone: input.phone,
         message: input.message,
+        services: input.services,
+        role: input.role,
       });
 
       // 3. Send email notification
@@ -79,6 +83,8 @@ export const contactRouter = createTRPCRouter({
               email: input.email,
               phone: input.phone,
               message: input.message,
+              services: input.services,
+              role: input.role,
             }),
           });
         } catch (error) {
