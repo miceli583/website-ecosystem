@@ -497,9 +497,9 @@ export function DomainLayout({
                     </Link>
                   </li>
                   <li>
-                    <Link href="/?domain=live" className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <a href="https://www.miraclemind.live/" className="text-sm text-gray-400 transition-colors hover:text-white">
                       Client Portal
-                    </Link>
+                    </a>
                   </li>
                 </ul>
               </div>
