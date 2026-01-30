@@ -16,6 +16,8 @@ import {
   CheckCircle,
   FileText,
   AlertCircle,
+  ScrollText,
+  X,
 } from "lucide-react";
 
 // Talking tracks for Module 1 (Organizational Skills Part 1)
@@ -885,6 +887,7 @@ export default function TalkingTracksPage({
   const { slug } = use(params);
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set([1]));
   const [expandAll, setExpandAll] = useState(false);
+  const [showFullScript, setShowFullScript] = useState(false);
 
   const toggleCard = (num: number) => {
     setExpandedCards((prev) => {
@@ -979,23 +982,32 @@ export default function TalkingTracksPage({
           <p className="text-sm text-gray-500">
             Click on any card to view talking points and presenter guidance
           </p>
-          <button
-            onClick={handleExpandAll}
-            className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-white/5"
-            style={{ borderColor: "#F97316", color: "#F97316" }}
-          >
-            {expandAll ? (
-              <>
-                <ChevronUp className="h-4 w-4" />
-                Collapse All
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-4 w-4" />
-                Expand All
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFullScript(true)}
+              className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-500"
+            >
+              <ScrollText className="h-4 w-4" />
+              Full Script
+            </button>
+            <button
+              onClick={handleExpandAll}
+              className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-white/5"
+              style={{ borderColor: "#F97316", color: "#F97316" }}
+            >
+              {expandAll ? (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  Collapse All
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  Expand All
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Talking Track Cards */}
@@ -1021,6 +1033,87 @@ export default function TalkingTracksPage({
           </p>
         </div>
       </main>
+
+      {/* Full Script Modal */}
+      {showFullScript && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative flex h-[90vh] w-full max-w-3xl flex-col rounded-2xl border border-gray-800 bg-gray-950">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-600">
+                  <ScrollText className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-white">Full Talking Track Script</h2>
+                  <p className="text-xs text-gray-500">Module 1: Organizational Skills Part 1</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFullScript(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="prose prose-invert max-w-none">
+                {talkingTracks.map((track) => (
+                  <div key={track.num} className="mb-8 border-b border-gray-800 pb-8 last:border-0">
+                    <h3 className="mb-4 text-lg font-bold text-orange-400">
+                      Slide {track.num}: {track.title}
+                    </h3>
+
+                    <div className="mb-4">
+                      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                        Talking Points
+                      </p>
+                      {track.talkingPoints.map((point, idx) => (
+                        <p key={idx} className="mb-3 leading-relaxed text-gray-300">
+                          {point}
+                        </p>
+                      ))}
+                    </div>
+
+                    {track.presenterTips && track.presenterTips.length > 0 && (
+                      <div className="mb-4 rounded-lg bg-yellow-900/20 p-4">
+                        <p className="mb-2 text-sm font-semibold text-yellow-400">
+                          Presenter Tips
+                        </p>
+                        <ul className="list-inside list-disc space-y-1 text-sm text-yellow-200/80">
+                          {track.presenterTips.map((tip, idx) => (
+                            <li key={idx}>{tip}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {track.transition && (
+                      <div className="rounded-lg bg-teal-900/20 p-4">
+                        <p className="mb-1 text-sm font-semibold text-teal-400">
+                          Transition
+                        </p>
+                        <p className="text-sm italic text-teal-200/80">
+                          &ldquo;{track.transition}&rdquo;
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t border-gray-800 px-6 py-4">
+              <p className="text-center text-xs text-gray-600">
+                {talkingTracks.length} slides • Scroll to read full script
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

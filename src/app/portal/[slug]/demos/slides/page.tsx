@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { ArrowLeft, FileText, Presentation, Mic, Play } from "lucide-react";
+import { ArrowLeft, FileText, Presentation, Mic, Play, Sparkles } from "lucide-react";
 
 export default function SlidesHubPage({
   params,
@@ -122,6 +122,28 @@ export default function SlidesHubPage({
               </span>
             </div>
             <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-cyan-500/5 blur-2xl transition-all group-hover:bg-cyan-500/10" />
+          </Link>
+
+          {/* GAMMA Presentations Card */}
+          <Link
+            href={`/portal/${slug}/demos/slides/gamma`}
+            className="group relative overflow-hidden rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-8 transition-all hover:border-purple-600/50 hover:shadow-xl hover:shadow-purple-900/10"
+          >
+            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-purple-900/20">
+              <Sparkles className="h-7 w-7 text-purple-400" />
+            </div>
+            <h2 className="mb-2 text-xl font-bold text-white group-hover:text-purple-400">
+              Gamma Presentations
+            </h2>
+            <p className="text-gray-400">
+              Generate polished presentation decks with AI. Export to PowerPoint, PDF, or share links.
+            </p>
+            <div className="mt-6 flex items-center gap-2 text-sm text-gray-500">
+              <span className="rounded-full bg-purple-900/30 px-2 py-1 text-purple-400">
+                AI-powered
+              </span>
+            </div>
+            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-purple-500/5 blur-2xl transition-all group-hover:bg-purple-500/10" />
           </Link>
 
         </div>
