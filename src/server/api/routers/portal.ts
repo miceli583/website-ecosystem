@@ -866,9 +866,24 @@ export const portalRouter = createTRPCRouter({
         installments?: number;
       };
 
-      // Ensure client has Stripe customer
+      // Ensure client has valid Stripe customer (handles test/live mode mismatch)
       let customerId = proposal.client.stripeCustomerId;
-      if (!customerId) {
+      let needsNewCustomer = !customerId;
+
+      // Verify existing customer exists in current Stripe environment
+      if (customerId) {
+        try {
+          await stripe.customers.retrieve(customerId);
+        } catch (err) {
+          // Customer doesn't exist in this Stripe environment (test vs live mismatch)
+          console.warn(
+            `Stripe customer ${customerId} not found for client ${proposal.client.slug}, creating new one`
+          );
+          needsNewCustomer = true;
+        }
+      }
+
+      if (needsNewCustomer) {
         const customer = await stripe.customers.create({
           email: proposal.client.email,
           name: proposal.client.name,
