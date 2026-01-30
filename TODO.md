@@ -11,33 +11,33 @@ _None currently_
 ## Tech Debt (code quality issues)
 
 - [ ] Improve site efficiency and reduce lag/response times (bundle size, caching, queries)
-- [ ] Authenticate Stripe MCP server for full integration testing
 
 ## Enhancements (prioritized)
 
 ### High Priority
-- [ ] Build Stripe checkout flows and billing UI for client portal
-- [ ] Add client self-service auth (admin creates account, client confirms email)
+- [ ] Admin UI for managing client resources (demos, tooling, proposals)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
+- [ ] Webhook for Stripe checkout completion (update proposal status)
 
 ### Medium Priority
-- [x] Configure Make.com/Zapier webhook for Instagram automation
 - [ ] Add Gamma API integration for slide automation
-- [ ] Populate CHW360 demo content for client portal
+- [ ] Populate Matti demo content for client portal
 
 ### Lower Priority
 - [ ] Create next blog post
 - [ ] Bundle size optimization pass
 - [ ] Usage-based pricing / COG calculators
-- [x] Create shader for miracle-mind-orbit-star-v3.svg
-- [x] Security hardening (protectedProcedure, Bearer auth, rate limiting, RLS)
-- [x] Stripe foundation + Resend email integration
-- [x] BANYAN signup email notifications
-- [x] New company homepage v2 with orbit-star shader
-- [x] Stewardship program page + partner cards
-- [x] Terms of Service + Privacy Policy pages
-- [x] Client portal with CRM, admin interface, email notifications
-- [x] Remove dead code (animations page, deprecated carousel function)
+- [x] Stripe checkout flows for proposals (one-time, subscription)
+- [x] Demos page: project-based organization, search/filter
+- [x] Proposals page: line items, expandable cards, checkout
+- [x] Tooling page: search, refresh, improved credential display
+- [x] Portal v2: role-based auth on miraclemind.live
+- [x] Client self-service auth (magic link claim flow)
+- [x] Stripe billing page with invoices/subscriptions
+- [x] Profile page with editable fields + change password
+- [x] Client resources system (demos, tooling, credentials)
+- [x] Configure Make.com/Zapier webhook for Instagram automation
+- [x] Stripe MCP integration + billing API
 
 ## Design Questions (needs decision)
 

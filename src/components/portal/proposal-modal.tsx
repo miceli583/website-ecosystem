@@ -349,15 +349,37 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
             </div>
           )}
 
-          {/* Packages */}
-          {packages.length > 0 && (
+          {/* One-time Packages */}
+          {packages.filter(p => p.type === "one-time").length > 0 && (
             <div className="mb-6">
               <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-500">
                 <Package className="h-4 w-4" />
-                Select Packages
+                Website Build
               </h3>
               <div className="space-y-3">
-                {packages.map((pkg) => (
+                {packages.filter(p => p.type === "one-time").map((pkg) => (
+                  <PackageCard
+                    key={pkg.id}
+                    pkg={pkg}
+                    currency={currency}
+                    selected={selectedPackages.has(pkg.id)}
+                    onToggle={() => togglePackage(pkg.id)}
+                    disabled={status !== "sent"}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Subscription Packages */}
+          {packages.filter(p => p.type === "subscription").length > 0 && (
+            <div className="mb-6">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-500">
+                <Clock className="h-4 w-4" />
+                Hosting & Maintenance (Optional)
+              </h3>
+              <div className="space-y-3">
+                {packages.filter(p => p.type === "subscription").map((pkg) => (
                   <PackageCard
                     key={pkg.id}
                     pkg={pkg}
