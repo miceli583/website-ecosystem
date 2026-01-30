@@ -24,8 +24,8 @@ export async function middleware(request: NextRequest) {
   let searchParams = request.nextUrl.searchParams;
 
   // Canonical redirect: www to non-www for all production domains
-  // This ensures magic link redirect URLs are consistent with Supabase config
-  if (hostname.startsWith("www.")) {
+  // EXCEPT auth callback - must process code before redirect or it becomes invalid
+  if (hostname.startsWith("www.") && !pathname.startsWith("/auth/callback")) {
     const nonWwwHost = hostname.replace("www.", "");
     const canonicalUrl = new URL(request.url);
     canonicalUrl.host = nonWwwHost;

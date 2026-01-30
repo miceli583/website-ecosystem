@@ -56,7 +56,10 @@ export function MiracleMindLiveHomePage() {
 
     try {
       const supabase = createClient();
-      const origin = window.location.origin;
+      // Always use canonical non-www URL to match Supabase allowed redirect URLs
+      const origin = typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? window.location.origin
+        : "https://miraclemind.live";
       const redirectUrl = `${origin}/auth/callback?domain=live&next=/portal/set-password`;
       console.log("Magic link redirect URL:", redirectUrl);
 
@@ -92,7 +95,10 @@ export function MiracleMindLiveHomePage() {
 
     try {
       const supabase = createClient();
-      const origin = window.location.origin;
+      // Always use canonical non-www URL to match Supabase allowed redirect URLs
+      const origin = typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? window.location.origin
+        : "https://miraclemind.live";
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email,
         {
