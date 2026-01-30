@@ -23,12 +23,12 @@ export async function middleware(request: NextRequest) {
   let pathname = request.nextUrl.pathname;
   let searchParams = request.nextUrl.searchParams;
 
-  // Canonical redirect: www to non-www for all production domains
-  // EXCEPT auth callback - must process code before redirect or it becomes invalid
-  if (hostname.startsWith("www.") && !pathname.startsWith("/auth/callback")) {
-    const nonWwwHost = hostname.replace("www.", "");
+  // Canonical redirect: www to non-www for miraclemind.live only
+  // This domain is the portal and needs consistent URLs for Supabase auth
+  // Skip auth callback to process code before any redirect
+  if (hostname === "www.miraclemind.live" && !pathname.startsWith("/auth/callback")) {
     const canonicalUrl = new URL(request.url);
-    canonicalUrl.host = nonWwwHost;
+    canonicalUrl.host = "miraclemind.live";
     return NextResponse.redirect(canonicalUrl, { status: 301 });
   }
 
