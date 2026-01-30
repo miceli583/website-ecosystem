@@ -156,6 +156,28 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Miracle Mind routes - only accessible via miraclemind.dev
+  const miracleMindRoutes = ["/banyan", "/services", "/contact", "/stewardship"];
+  const isMiracleMindRoute = miracleMindRoutes.some(route => pathname.startsWith(route));
+
+  if (isMiracleMindRoute) {
+    const isValidMiracleMindDomain =
+      hostname.includes("miraclemind.dev") ||
+      (hostname.includes("localhost") && searchParams.get("domain") === "dev");
+
+    if (!isValidMiracleMindDomain) {
+      // Redirect to miraclemind.dev
+      const redirectUrl = hostname.includes("localhost")
+        ? `${request.nextUrl.protocol}//${hostname}${pathname}?domain=dev`
+        : `https://miraclemind.dev${pathname}`;
+
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🌐 [Middleware] Miracle Mind route redirect: ${redirectUrl}`);
+      }
+      return NextResponse.redirect(new URL(redirectUrl));
+    }
+  }
+
   // Handle playground routes - only accessible via matthewmiceli.com (personal site)
   if (pathname.startsWith("/playground")) {
     // Allow playground access on matthewmiceli.com or localhost with domain=matthew

@@ -119,7 +119,7 @@ const blogPosts: Record<string, BlogPost> = {
           Imagine what becomes possible when these pieces converge: data sovereignty, coherent life systems, regenerative land stewardship, and communities built on authentic resonance rather than algorithmic feeds.
         </p>
         <p>
-          This is the work I&apos;ve dedicated myself to—building infrastructure for this emergence. Through <a href="https://www.miraclemind.live" target="_blank" rel="noopener noreferrer">Miracle Mind</a>, we&apos;re developing technical solutions aligned with these principles. <span className="font-semibold" style={{ color: '#D4AF37' }}>BANYAN</span>, our AI-assisted Life Operating System, integrates habits, projects, finances, and wellbeing as interdependent elements—not to dictate how you should live, but to help you understand the systems at play so you can make more aligned choices. Technology in service of human agency and sovereignty.
+          This is the work I&apos;ve dedicated myself to—building infrastructure for this emergence. Through <a href="https://miraclemind.dev" target="_blank" rel="noopener noreferrer">Miracle Mind</a>, we&apos;re developing technical solutions aligned with these principles. <span className="font-semibold" style={{ color: '#D4AF37' }}>BANYAN</span>, our AI-assisted Life Operating System, integrates habits, projects, finances, and wellbeing as interdependent elements—not to dictate how you should live, but to help you understand the systems at play so you can make more aligned choices. Technology in service of human agency and sovereignty.
         </p>
         <p>
           Through another project I co-founded, <a href="https://joinnewearthcollective.com" target="_blank" rel="noopener noreferrer">New Earth Collective</a>, we&apos;re stewarding spaces—both digital and physical—where people with shared vision can find each other, form micro-communities, and seed regenerative projects. Where energetic blueprints guide authentic connection. Where gathering in person becomes the foundation, not the exception. Where we remember what it means to belong to each other and to the land.
@@ -147,7 +147,7 @@ const blogPosts: Record<string, BlogPost> = {
             }}
             asChild
           >
-            <a href="mailto:matthewmiceli@miraclemind.live">
+            <a href="/#contact">
               <Mail className="mr-2 h-4 w-4" />
               Get In Touch
             </a>

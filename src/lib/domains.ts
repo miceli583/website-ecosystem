@@ -43,16 +43,16 @@ export const DOMAIN_CONFIG = {
   },
   [DOMAINS.MIRACLE_MIND_LIVE]: {
     name: "Miracle Mind",
-    description: "Transform Your Mind, Transform Your Life",
+    description: "Client Portal",
     theme: "brand",
     primaryColor: "#D4AF37", // metallic gold
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
-    tagline: "Technology Empowering Human Sovereignty",
+    tagline: "Client Portal",
     nav: [
-      { name: "Mission", href: "#mission" },
-      { name: "Services", href: "#services" },
-      { name: "Values", href: "#values" },
-      { name: "Contact", href: "#contact" },
+      { name: "About", href: "/about" },
+      { name: "Services", href: "/services" },
+      { name: "Stewardship", href: "/stewardship" },
+      { name: "Contact", href: "/contact" },
     ],
   },
   [DOMAINS.MIRACLE_MIND_DEV]: {
@@ -64,10 +64,10 @@ export const DOMAIN_CONFIG = {
     logo: "/brand/miracle-mind-orbit-star-v3.svg",
     tagline: "Technology Empowering Human Sovereignty",
     nav: [
-      { name: "Services", href: "#services" },
-      { name: "BANYAN", href: "/banyan" },
+      { name: "About", href: "/about" },
+      { name: "Services", href: "/services" },
       { name: "Stewardship", href: "/stewardship" },
-      { name: "Contact", href: "#contact" },
+      { name: "Contact", href: "/contact" },
     ],
   },
   [DOMAINS.CLIENTS_PORTAL]: {

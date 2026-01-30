@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { banyanEarlyAccess } from "~/server/db/schema";
+import { banyanEarlyAccess, masterCrm } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { rateLimit } from "~/lib/rate-limit";
 import { sendEmail, sendAdminNotification } from "~/lib/email";
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as {
       fullName: string;
       email: string;
+      phone?: string;
       role?: string;
       message?: string;
     };
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for duplicate email
+    // Check for duplicate email in banyan_early_access
     const existing = await db
       .select()
       .from(banyanEarlyAccess)
@@ -66,12 +67,55 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert into database
+    // 1. Upsert to master_crm (by email)
+    const existingContact = await db
+      .select()
+      .from(masterCrm)
+      .where(eq(masterCrm.email, body.email))
+      .limit(1);
+
+    let crmId: string;
+
+    if (existingContact.length > 0) {
+      // Update existing contact
+      crmId = existingContact[0]!.id;
+      await db
+        .update(masterCrm)
+        .set({
+          name: body.fullName,
+          phone: body.phone ?? existingContact[0]!.phone,
+          lastContactAt: new Date(),
+          updatedAt: new Date(),
+          // Add banyan_waitlist tag if not already present
+          tags: existingContact[0]!.tags?.includes("banyan_waitlist")
+            ? existingContact[0]!.tags
+            : [...(existingContact[0]!.tags ?? []), "banyan_waitlist"],
+        })
+        .where(eq(masterCrm.id, crmId));
+    } else {
+      // Create new contact
+      const [newContact] = await db
+        .insert(masterCrm)
+        .values({
+          email: body.email,
+          name: body.fullName,
+          phone: body.phone,
+          source: "banyan_waitlist",
+          status: "lead",
+          tags: ["banyan_waitlist"],
+        })
+        .returning({ id: masterCrm.id });
+      crmId = newContact!.id;
+    }
+
+    // 2. Insert into banyan_early_access with crm reference
     const [newSignup] = await db
       .insert(banyanEarlyAccess)
       .values({
+        crmId,
         fullName: body.fullName,
         email: body.email,
+        phone: body.phone ?? null,
         role: body.role ?? null,
         message: body.message ?? null,
         contacted: false,
@@ -91,6 +135,7 @@ export async function POST(request: NextRequest) {
         subject: "New BANYAN Early Access Signup",
         fullName: body.fullName,
         email: body.email,
+        phone: body.phone,
         role: body.role,
         message: body.message,
       }),

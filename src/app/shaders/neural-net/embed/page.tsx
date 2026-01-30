@@ -20,7 +20,7 @@ const NEURAL_NET_SHADER = `
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 #define S(a, b, t) smoothstep(a, b, t)
-#define NUM_LAYERS 4.
+#define NUM_LAYERS 2.
 
 float N21(vec2 p) {
 	vec3 a = fract(vec3(p.xyx) * vec3(213.897, 653.453, 253.098));
@@ -163,7 +163,11 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 export default function NeuralNetEmbedPage() {
   return (
     <div className="h-screen w-screen">
-      <ShadertoyRenderer fragmentShader={NEURAL_NET_SHADER} />
+      <ShadertoyRenderer
+        fragmentShader={NEURAL_NET_SHADER}
+        resolutionScale={0.5}
+        targetFps={30}
+      />
     </div>
   );
 }

@@ -54,10 +54,10 @@ export function MiracleMindDevHomePage() {
 
   return (
     <div className="relative min-h-screen bg-black">
-      {/* Neural Net Shader Background */}
+      {/* Orbit Star Shader Background */}
       <div className="fixed inset-0 z-0">
         <iframe
-          src="/shaders/neural-net/embed"
+          src="/shaders/orbit-star/embed"
           className="h-full w-full border-0"
           style={{ pointerEvents: "none" }}
         />
@@ -138,6 +138,11 @@ export function MiracleMindDevHomePage() {
             </a>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* The Problem Section */}
           <section id="problem" className="mb-16 sm:mb-24">
             <div className="text-center">
@@ -194,6 +199,11 @@ export function MiracleMindDevHomePage() {
               </p>
             </div>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* What You Actually Get */}
           <section id="five-tools" className="mb-16 sm:mb-24">
@@ -297,6 +307,11 @@ export function MiracleMindDevHomePage() {
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* The Solution Section */}
           <section id="solution" className="mb-16 sm:mb-24">
             <Card
@@ -361,6 +376,11 @@ export function MiracleMindDevHomePage() {
               </CardContent>
             </Card>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Three Principles */}
           <section id="features" className="mb-16 sm:mb-24">
@@ -451,6 +471,11 @@ export function MiracleMindDevHomePage() {
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* How It Works */}
           <section id="how-it-works" className="mb-16 sm:mb-24">
             <h2
@@ -535,6 +560,11 @@ export function MiracleMindDevHomePage() {
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* For Whom */}
           <section className="mb-16 sm:mb-24">
             <h2
@@ -610,6 +640,11 @@ export function MiracleMindDevHomePage() {
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* Playing the Long Game */}
           <section className="mb-16 sm:mb-24">
             <Card
@@ -649,6 +684,11 @@ export function MiracleMindDevHomePage() {
               </CardContent>
             </Card>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Early Access Form */}
           <section className="mb-16 sm:mb-24">

@@ -252,8 +252,26 @@ export function DomainLayout({
     );
   }
 
+  // Miracle Mind routes that should always use dev config
+  const miracleMindRoutes = ["/banyan", "/services", "/contact", "/stewardship"];
+  const isMiracleMindRoute = miracleMindRoutes.some(route => pathname.startsWith(route));
+
+  // Helper to build href with domain param preserved on localhost
+  const buildHref = (path: string) => {
+    if (currentHostname.includes("localhost") && domainParam) {
+      return `${path}?domain=${domainParam}`;
+    }
+    return path;
+  };
+
   // Force re-evaluation of domainConfig when domain param changes
-  const domainConfig = getDomainConfig(currentHostname);
+  // On localhost, infer domain from pathname if it's a Miracle Mind route
+  let effectiveHostname = currentHostname;
+  if (currentHostname.includes("localhost") && isMiracleMindRoute && !domainParam) {
+    effectiveHostname = "miraclemind.dev"; // Force dev config for MM routes
+  }
+
+  const domainConfig = getDomainConfig(effectiveHostname);
   const isAdmin = isAdminPath(pathname);
   const navItems = isAdmin ? ADMIN_NAV : domainConfig.nav;
 
@@ -281,7 +299,8 @@ export function DomainLayout({
     >
       {/* Header Navigation */}
       <header
-        className={`sticky top-0 z-50 border-white/10 bg-black border-b ${headerClassName || ""}`}
+        className={`sticky top-0 z-50 backdrop-blur-md ${headerClassName || ""}`}
+        style={{ backgroundColor: "#0b0b0b" }}
       >
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           {/* Left side: Logo */}
@@ -320,7 +339,7 @@ export function DomainLayout({
               {navItems.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={buildHref(item.href)}
                   className="text-white hover:text-white/80 text-xs font-semibold tracking-wider uppercase transition-colors"
                 >
                   {item.name}
@@ -328,10 +347,10 @@ export function DomainLayout({
               ))}
             </nav>
 
-            {/* Explore Banyan Button - Only show on Dev page (company site) */}
-            {((currentHostname.includes("localhost") && domainParam === "dev") ||
-              currentHostname.includes("miraclemind.dev")) && !isAdminPath(pathname) && (
-              <a href="#banyan">
+            {/* Explore Banyan Button - Show on Miracle Mind domains */}
+            {((currentHostname.includes("localhost") && (domainParam === "dev" || domainParam === "live")) ||
+              currentHostname.includes("miraclemind.dev") || currentHostname.includes("miraclemind.live")) && !isAdminPath(pathname) && (
+              <Link href={buildHref("/banyan")}>
                 <button
                   className="px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 rounded-md"
                   style={{
@@ -340,7 +359,7 @@ export function DomainLayout({
                 >
                   Explore BANYAN
                 </button>
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -352,7 +371,7 @@ export function DomainLayout({
               {navItems.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={buildHref(item.href)}
                   onClick={() => setMobileMenuOpen(false)}
                   className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
                 >
@@ -360,11 +379,11 @@ export function DomainLayout({
                 </Link>
               ))}
 
-              {/* Explore Banyan Button for mobile - Only show on Dev page (company site) */}
-              {((currentHostname.includes("localhost") && domainParam === "dev") ||
-                currentHostname.includes("miraclemind.dev")) && !isAdminPath(pathname) && (
-                <a
-                  href="#banyan"
+              {/* Explore Banyan Button for mobile - Show on Miracle Mind domains */}
+              {((currentHostname.includes("localhost") && (domainParam === "dev" || domainParam === "live")) ||
+                currentHostname.includes("miraclemind.dev") || currentHostname.includes("miraclemind.live")) && !isAdminPath(pathname) && (
+                <Link
+                  href={buildHref("/banyan")}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <button
@@ -375,11 +394,16 @@ export function DomainLayout({
                   >
                     Explore BANYAN
                   </button>
-                </a>
+                </Link>
               )}
             </nav>
           </div>
         )}
+
+        {/* Header bottom divider */}
+        <div className="w-full">
+          <div className="h-px w-full" style={{ backgroundColor: "rgba(212,175,55,0.4)" }} />
+        </div>
       </header>
 
       {/* Main Content */}
@@ -387,30 +411,35 @@ export function DomainLayout({
 
       {/* Footer */}
       <footer
-        className={`relative z-50 mt-auto border-t border-border/40 bg-background/95 backdrop-blur-md ${footerClassName || ""}`}
+        className={`relative z-50 mt-auto border-t backdrop-blur-md ${footerClassName || ""}`}
+        style={{ backgroundColor: "#0b0b0b", borderColor: "rgba(212,175,55,0.4)" }}
       >
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <div className="flex items-center space-x-2">
-              {domainConfig.logo.startsWith("/") ? (
-                <div className="relative h-6 w-6">
-                  <Image
-                    src={domainConfig.logo}
-                    alt={domainConfig.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <span className="text-lg">{domainConfig.logo}</span>
-              )}
-              <span className="font-semibold uppercase">{domainConfig.name}</span>
+            <div className="relative h-16 w-64">
+              <Image
+                src="/brand/miracle-mind-logo-no-slogan.png"
+                alt="Miracle Mind"
+                fill
+                className="object-contain object-left"
+              />
             </div>
-            <p className="text-muted-foreground text-sm">
-              {domainConfig.tagline}
-            </p>
+            <div className="flex gap-6">
+              <Link href={buildHref("/stewardship")} className="text-muted-foreground text-sm hover:text-foreground transition-colors">
+                Stewardship
+              </Link>
+              <Link href={buildHref("/terms")} className="text-muted-foreground text-sm hover:text-foreground transition-colors">
+                Terms
+              </Link>
+              <Link href={buildHref("/privacy")} className="text-muted-foreground text-sm hover:text-foreground transition-colors">
+                Privacy
+              </Link>
+              <Link href="/?domain=live" className="text-muted-foreground text-sm hover:text-foreground transition-colors">
+                Client Portal
+              </Link>
+            </div>
             <div className="text-muted-foreground text-sm">
-              © 2025 MIRACLE MIND LLC
+              © {new Date().getFullYear()} Miracle Mind LLC
             </div>
           </div>
         </div>

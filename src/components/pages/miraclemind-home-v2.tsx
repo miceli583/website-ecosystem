@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import {
@@ -17,12 +18,25 @@ import {
 } from "lucide-react";
 
 export function MiracleMindHomeV2() {
+  const searchParams = useSearchParams();
+  const domainParam = searchParams.get("domain");
+  const [hostname, setHostname] = useState("");
+
   useEffect(() => {
+    setHostname(window.location.hostname);
     document.title = "Miracle Mind — Technology Empowering Human Sovereignty";
     return () => {
       document.title = "Miracle Mind";
     };
   }, []);
+
+  // Helper to build href with domain param preserved on localhost
+  const buildHref = (path: string) => {
+    if (hostname.includes("localhost") && domainParam) {
+      return `${path}?domain=${domainParam}`;
+    }
+    return path;
+  };
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -30,42 +44,45 @@ export function MiracleMindHomeV2() {
       <section className="relative overflow-hidden">
         <div className="mx-auto grid min-h-[85vh] max-w-7xl items-center gap-8 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-0">
           {/* Left: Text */}
-          <div className="relative z-10">
-            <p
-              className="mb-4 text-sm font-semibold uppercase tracking-widest"
-              style={{ color: "#D4AF37" }}
-            >
-              Miracle Mind LLC
-            </p>
+          <div className="relative z-10 order-2 lg:order-1">
             <h1
-              className="mb-6 text-4xl font-bold text-white sm:text-5xl lg:text-6xl"
+              className="mb-8"
               style={{
                 fontFamily: "var(--font-quattrocento-sans)",
-                letterSpacing: "0.02em",
-                lineHeight: 1.1,
               }}
             >
-              Technology{" "}
               <span
+                className="block text-2xl font-medium uppercase tracking-widest text-gray-400 sm:text-3xl"
+                style={{ letterSpacing: "0.25em" }}
+              >
+                Technology
+              </span>
+              <span
+                className="block text-4xl font-bold uppercase sm:text-5xl lg:text-6xl"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
+                  letterSpacing: "0.08em",
+                  lineHeight: 1.1,
                 }}
               >
                 Empowering
               </span>
-              <br />
-              Human Sovereignty
+              <span
+                className="block text-2xl font-medium uppercase tracking-widest text-white sm:text-3xl"
+                style={{ letterSpacing: "0.25em" }}
+              >
+                Human Sovereignty
+              </span>
             </h1>
             <p className="mb-8 max-w-lg text-lg leading-relaxed text-gray-300">
               AI-driven development that shortens time to market and enables
               real-time solutions emergent from customer needs.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="#services">
+              <Link href={buildHref("/services")}>
                 <Button
                   size="lg"
                   className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
@@ -77,8 +94,8 @@ export function MiracleMindHomeV2() {
                   Our Services
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </a>
-              <Link href="/banyan">
+              </Link>
+              <Link href={buildHref("/banyan")}>
                 <Button
                   variant="outline"
                   size="lg"
@@ -96,11 +113,17 @@ export function MiracleMindHomeV2() {
           </div>
 
           {/* Right: Orbit Star shader */}
-          <div className="relative hidden lg:block">
-            <div className="relative mx-auto h-[500px] w-[500px]">
+          <div className="relative order-1 lg:order-2">
+            <div
+              className="relative mx-auto h-[250px] w-[250px] sm:h-[350px] sm:w-[350px] lg:h-[500px] lg:w-[500px]"
+              style={{
+                maskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+                WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+              }}
+            >
               <iframe
                 src="/shaders/orbit-star/embed"
-                className="h-full w-full rounded-full border-0"
+                className="h-full w-full border-0"
                 style={{ pointerEvents: "none" }}
               />
             </div>
@@ -115,6 +138,7 @@ export function MiracleMindHomeV2() {
       <section
         id="services"
         className="scroll-mt-20 px-4 py-20 sm:px-6"
+        style={{ backgroundColor: "#141414" }}
       >
         <div className="mx-auto max-w-6xl">
           <h2
@@ -168,7 +192,7 @@ export function MiracleMindHomeV2() {
                   personal growth into one coherent platform.
                 </p>
                 <Link
-                  href="/banyan"
+                  href={buildHref("/banyan")}
                   className="inline-flex items-center text-sm font-medium transition-colors"
                   style={{ color: "#D4AF37" }}
                 >
@@ -236,7 +260,7 @@ export function MiracleMindHomeV2() {
                   people with tools for conscious living.
                 </p>
                 <Link
-                  href="/stewardship"
+                  href={buildHref("/stewardship")}
                   className="inline-flex items-center text-sm font-medium transition-colors"
                   style={{ color: "#D4AF37" }}
                 >
@@ -277,7 +301,7 @@ export function MiracleMindHomeV2() {
             growth, and honors what makes us most alive.
           </p>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {[
               {
                 icon: Heart,
@@ -298,6 +322,11 @@ export function MiracleMindHomeV2() {
                 icon: Sparkles,
                 label: "Coherence",
                 desc: "AI meets human-centered design",
+              },
+              {
+                icon: Code,
+                label: "Integration",
+                desc: "Unified systems, seamless flow",
               },
             ].map((v) => {
               const Icon = v.icon;
@@ -325,7 +354,11 @@ export function MiracleMindHomeV2() {
       </section>
 
       {/* Contact / CTA */}
-      <section id="contact" className="scroll-mt-20 px-4 py-20 sm:px-6">
+      <section
+        id="contact"
+        className="scroll-mt-20 px-4 py-20 sm:px-6"
+        style={{ backgroundColor: "#141414" }}
+      >
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center justify-center">
             <div className="relative h-14 w-14">
@@ -359,7 +392,7 @@ export function MiracleMindHomeV2() {
             Whether you need a custom application, AI integration, or want to
             explore how BANYAN can transform your workflow — let&apos;s talk.
           </p>
-          <a href="mailto:matt@miraclemind.dev">
+          <Link href={buildHref("/contact")}>
             <Button
               size="lg"
               className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
@@ -371,30 +404,10 @@ export function MiracleMindHomeV2() {
               Get In Touch
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          </a>
+          </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t px-4 py-8 sm:px-6" style={{ borderColor: "rgba(212,175,55,0.2)" }}>
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} Miracle Mind LLC. All rights
-            reserved.
-          </p>
-          <div className="flex gap-6">
-            <Link href="/stewardship" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
-              Stewardship
-            </Link>
-            <Link href="/terms" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
-              Terms
-            </Link>
-            <Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
-              Privacy
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

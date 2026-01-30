@@ -11,7 +11,7 @@ export default function TermsPage() {
     <div className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <Link
-          href="/"
+          href="/?domain=dev"
           className="mb-8 inline-flex items-center text-sm text-gray-400 transition-colors hover:text-gray-200"
         >
           <ArrowLeft className="mr-1 h-4 w-4" />
@@ -85,11 +85,11 @@ export default function TermsPage() {
           <p>
             For questions about these terms, contact us at{" "}
             <a
-              href="mailto:matt@miraclemind.dev"
+              href="mailto:support@miraclemind.live"
               className="underline"
               style={{ color: "#D4AF37" }}
             >
-              matt@miraclemind.dev
+              support@miraclemind.live
             </a>
             .
           </p>

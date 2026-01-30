@@ -18,7 +18,9 @@ import {
   X,
   BookOpen,
   ArrowRight,
+  CheckCircle,
 } from "lucide-react";
+import { api } from "~/trpc/react";
 
 interface MatthewHomePageProps {
   isDevPreview?: boolean;
@@ -33,6 +35,44 @@ export function MatthewHomePage({
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   // Expanded testimonial modal state
   const [expandedTestimonial, setExpandedTestimonial] = useState<number | null>(null);
+  // Contact form state
+  const [contactForm, setContactForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+
+  const contactMutation = api.contact.submitPersonal.useMutation({
+    onSuccess: () => {
+      setContactSubmitted(true);
+      setContactForm({ name: "", email: "", phone: "", message: "" });
+    },
+  });
+
+  // Helper to extract readable error message from tRPC/Zod errors
+  const getErrorMessage = (error: { message: string } | null) => {
+    if (!error) return null;
+    try {
+      const parsed = JSON.parse(error.message);
+      if (Array.isArray(parsed) && parsed[0]?.message) {
+        return parsed[0].message as string;
+      }
+    } catch {
+      // Not JSON, return as-is
+    }
+    return error.message;
+  };
+
+  // Hostname for environment-aware links
+  const [hostname, setHostname] = useState("");
+  useEffect(() => {
+    setHostname(window.location.hostname);
+  }, []);
+
+  // Helper for cross-domain Miracle Mind links
+  const getMiracleMindUrl = () => {
+    if (hostname.includes("localhost")) {
+      return "/?domain=dev";
+    }
+    return "https://miraclemind.dev";
+  };
 
   // Use admin routes if in dev preview, otherwise use public routes
   const playgroundUrl = isDevPreview
@@ -99,6 +139,7 @@ export function MatthewHomePage({
           src="/shaders/neural-net/embed"
           className="h-full w-full border-0 opacity-15"
           title="Neural Network Background"
+          loading="lazy"
         />
         {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-black/30" />
@@ -122,8 +163,10 @@ export function MatthewHomePage({
                 <div className="animate-fade-in-delay-1 max-w-2xl">
                   <p className="text-sm text-gray-100 drop-shadow-md sm:text-base md:text-lg lg:text-xl">
                     Digital Architect & Integrations Specialist. Integrating disciplines to design
-                    systems that honor what makes us human. Founder of{" "}
-                    <Link href="https://miraclemind.dev" className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
+                    systems that honor what makes us human.
+                    <br />
+                    Founder of{" "}
+                    <Link href={getMiracleMindUrl()} className="font-semibold hover:underline" style={{ color: '#D4AF37' }}>
                       Miracle Mind
                     </Link>.
                   </p>
@@ -153,6 +196,11 @@ export function MatthewHomePage({
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* About Section */}
           <section className="mb-12 sm:mb-16">
             <div className="animate-fade-in-delay-3">
@@ -172,6 +220,11 @@ export function MatthewHomePage({
               </div>
             </div>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Featured Writing Section */}
           <section className="mb-12 sm:mb-16">
@@ -222,6 +275,11 @@ export function MatthewHomePage({
               </Link>
             </div>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Testimonials Section */}
           <section className="mb-12 sm:mb-16">
@@ -420,6 +478,11 @@ export function MatthewHomePage({
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* Miracle Mind Section */}
           <section className="mb-12 sm:mb-16">
             <div className="animate-fade-in-delay-5">
@@ -457,7 +520,7 @@ export function MatthewHomePage({
                         Life Operating System that integrates habits, projects, finances, and wellbeing as interdependent
                         elements.
                       </p>
-                      <Link href="https://miraclemind.dev">
+                      <Link href={getMiracleMindUrl()}>
                         <Button
                           size="lg"
                           className="group shadow-lg"
@@ -477,6 +540,11 @@ export function MatthewHomePage({
               </Card>
             </div>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Current Focus Section */}
           <section className="mb-12 sm:mb-16">
@@ -521,6 +589,11 @@ export function MatthewHomePage({
               </div>
             </div>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Quick Links Section */}
           <section className="mb-12 sm:mb-16">
@@ -573,6 +646,11 @@ export function MatthewHomePage({
               </div>
             </div>
           </section>
+
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
 
           {/* Education Section */}
           <section className="mb-12 sm:mb-16">
@@ -647,35 +725,145 @@ export function MatthewHomePage({
             </div>
           </section>
 
+          {/* Section Divider */}
+          <div className="relative -mx-4 mb-12 sm:-mx-6 sm:mb-16">
+            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+          </div>
+
           {/* Contact Section */}
-          <section className="mb-12 sm:mb-16">
+          <section id="contact" className="mb-12 sm:mb-16 scroll-mt-24">
             <div className="animate-fade-in-delay-9">
-              <div className="text-center">
-                <h2 className="mb-4 text-2xl font-bold tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-4xl lg:text-5xl">
-                  Get in Touch
-                </h2>
-                <p className="mx-auto mb-6 max-w-2xl text-base text-gray-100 drop-shadow-md sm:mb-8 sm:text-lg md:text-xl">
-                  Interested in collaborating or have a project in mind? I&apos;d
-                  love to hear from you.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Button
-                    size="lg"
-                    className="group shadow-lg"
-                    style={{
-                      background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
-                      boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)',
-                      color: '#000000'
-                    }}
-                    asChild
-                  >
-                    <a href="mailto:matthewmiceli@miraclemind.live">
-                      <Mail className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                      Get In Touch
-                    </a>
-                  </Button>
-                </div>
-              </div>
+              <h2 className="mb-4 text-2xl font-bold tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-4xl">
+                Get in Touch
+              </h2>
+              <p className="mb-6 max-w-2xl text-base text-gray-100 drop-shadow-md sm:mb-8 sm:text-lg">
+                Interested in collaborating or have a project in mind? I&apos;d
+                love to hear from you.
+              </p>
+
+              {contactSubmitted ? (
+                <Card
+                  className="bg-white/5 backdrop-blur-md"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.3)", borderWidth: "1px" }}
+                >
+                  <CardContent className="p-8 text-center">
+                    <CheckCircle className="mx-auto mb-4 h-12 w-12" style={{ color: "#D4AF37" }} />
+                    <h3 className="mb-2 text-2xl font-bold text-white">Message Sent</h3>
+                    <p className="mb-6 text-gray-300">
+                      Thank you for reaching out. I&apos;ll get back to you soon.
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => setContactSubmitted(false)}
+                      className="border-2 bg-white/5"
+                      style={{ borderColor: "rgba(212, 175, 55, 0.5)", color: "#D4AF37" }}
+                    >
+                      Send Another Message
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card
+                  className="bg-white/5 backdrop-blur-md"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.3)", borderWidth: "1px" }}
+                >
+                  <CardContent className="p-6 sm:p-8">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        contactMutation.mutate(contactForm);
+                      }}
+                      className="space-y-5"
+                    >
+                      <div>
+                        <label htmlFor="contact-name" className="mb-2 block text-sm font-medium text-gray-300">
+                          Name
+                        </label>
+                        <input
+                          type="text"
+                          id="contact-name"
+                          required
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                          className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+                          placeholder="Your name"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="contact-email" className="mb-2 block text-sm font-medium text-gray-300">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          id="contact-email"
+                          required
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                          className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+                          placeholder="you@example.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="contact-phone" className="mb-2 block text-sm font-medium text-gray-300">
+                          Phone <span className="text-gray-500">(optional)</span>
+                        </label>
+                        <input
+                          type="tel"
+                          id="contact-phone"
+                          value={contactForm.phone}
+                          onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                          className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+                          placeholder="+1 (555) 123-4567"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="contact-message" className="mb-2 block text-sm font-medium text-gray-300">
+                          Message
+                        </label>
+                        <textarea
+                          id="contact-message"
+                          required
+                          rows={4}
+                          value={contactForm.message}
+                          onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                          className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+                          placeholder="Tell me about your project or question..."
+                        />
+                      </div>
+
+                      {contactMutation.error && (
+                        <p className="text-sm text-red-400">
+                          {getErrorMessage(contactMutation.error)}
+                        </p>
+                      )}
+
+                      <Button
+                        type="submit"
+                        size="lg"
+                        disabled={contactMutation.isPending}
+                        className="w-full px-8 text-black shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                        style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
+                      >
+                        {contactMutation.isPending ? (
+                          "Sending..."
+                        ) : (
+                          <>
+                            Send Message
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </section>
         </div>

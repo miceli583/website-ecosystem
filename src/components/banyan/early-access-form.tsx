@@ -9,6 +9,7 @@ export function BanyanEarlyAccessForm() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    phone: "",
     role: "",
     message: "",
   });
@@ -37,7 +38,7 @@ export function BanyanEarlyAccessForm() {
       }
 
       setStatus("success");
-      setFormData({ fullName: "", email: "", role: "", message: "" });
+      setFormData({ fullName: "", email: "", phone: "", role: "", message: "" });
     } catch (error) {
       setStatus("error");
       setErrorMessage(
@@ -155,6 +156,30 @@ export function BanyanEarlyAccessForm() {
                 borderColor: "rgba(212, 175, 55, 0.3)",
               }}
               placeholder="you@example.com"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label
+              htmlFor="phone"
+              className="mb-2 block text-sm font-medium text-gray-200"
+              style={{ fontFamily: "var(--font-geist-sans)" }}
+            >
+              Phone <span className="text-gray-500">(optional)</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+              style={{
+                borderColor: "rgba(212, 175, 55, 0.3)",
+              }}
+              placeholder="+1 (555) 123-4567"
             />
           </div>
 

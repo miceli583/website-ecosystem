@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
-const FROM_ADDRESS = "Miracle Mind <noreply@miraclemind.dev>";
+const FROM_ADDRESS = "Miracle Mind <noreply@miraclemind.live>";
 const ADMIN_EMAIL = "admin@miraclemind.live";
 
 export async function sendEmail({

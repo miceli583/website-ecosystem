@@ -5,11 +5,17 @@ import { useEffect, useRef } from "react";
 interface ShadertoyRendererProps {
   fragmentShader: string;
   className?: string;
+  /** Resolution scale (0.0-1.0). Lower = better performance. Default: 1.0 */
+  resolutionScale?: number;
+  /** Target FPS. Lower = better performance. Default: 60 */
+  targetFps?: number;
 }
 
 export function ShadertoyRenderer({
   fragmentShader,
   className = "",
+  resolutionScale = 1.0,
+  targetFps = 60,
 }: ShadertoyRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -21,17 +27,22 @@ export function ShadertoyRenderer({
     const gl = canvas.getContext("webgl", {
       alpha: false,
       premultipliedAlpha: false,
-      antialias: true,
+      antialias: false, // Disable antialiasing for better performance
       preserveDrawingBuffer: false,
+      powerPreference: "low-power", // Prefer integrated GPU for backgrounds
     });
     if (!gl) {
       console.error("WebGL not supported");
       return;
     }
 
-    // Set canvas size with proper pixel ratio handling
+    // Frame rate limiting
+    const frameInterval = 1000 / targetFps;
+    let lastFrameTime = 0;
+
+    // Set canvas size with configurable resolution scale
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = (window.devicePixelRatio || 1) * resolutionScale;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
@@ -155,12 +166,20 @@ export function ShadertoyRenderer({
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mouseup", handleMouseUp);
 
-    // Animation loop
+    // Animation loop with frame rate limiting
     const startTime = Date.now();
     let animationFrameId: number;
 
-    function render() {
+    function render(currentTime: number) {
       if (!gl || !canvas) return;
+
+      animationFrameId = requestAnimationFrame(render);
+
+      // Frame rate limiting
+      const elapsed = currentTime - lastFrameTime;
+      if (elapsed < frameInterval) return;
+      lastFrameTime = currentTime - (elapsed % frameInterval);
+
       const time = (Date.now() - startTime) / 1000;
 
       gl.uniform1f(iTimeLocation, time);
@@ -168,10 +187,8 @@ export function ShadertoyRenderer({
       gl.uniform4f(iMouseLocation, mouseX, mouseY, mouseClick, mouseClick);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-      animationFrameId = requestAnimationFrame(render);
     }
-    render();
+    render(0);
 
     // Handle resize
     window.addEventListener("resize", resize);

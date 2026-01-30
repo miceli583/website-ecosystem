@@ -13,6 +13,7 @@ interface AdminNotificationEmailProps {
   subject: string;
   fullName: string;
   email: string;
+  phone?: string;
   role?: string;
   message?: string;
 }
@@ -21,6 +22,7 @@ export function AdminNotificationEmail({
   subject,
   fullName,
   email,
+  phone,
   role,
   message,
 }: AdminNotificationEmailProps) {
@@ -36,6 +38,12 @@ export function AdminNotificationEmail({
             <Text style={value}>{fullName}</Text>
             <Text style={label}>Email</Text>
             <Text style={value}>{email}</Text>
+            {phone && (
+              <>
+                <Text style={label}>Phone</Text>
+                <Text style={value}>{phone}</Text>
+              </>
+            )}
             {role && (
               <>
                 <Text style={label}>Role</Text>

@@ -1,26 +1,17 @@
+"use client";
+
+import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Leaf, ArrowRight } from "lucide-react";
+import { Leaf, ArrowRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { PartnerCard } from "~/components/stewardship/partner-card";
+import { DomainLayout } from "~/components/domain-layout";
 
-export const metadata = {
-  title: "Stewardship Program — Miracle Mind",
-  description:
-    "Partner with aligned businesses and practitioners we trust. Our stewards extend our mission by connecting people with tools for conscious living.",
-};
-
-export default function StewardshipPage() {
+function StewardshipContent() {
   return (
+    <DomainLayout>
     <div className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        {/* Back link */}
-        <Link
-          href="/"
-          className="mb-8 inline-flex items-center text-sm text-gray-400 transition-colors hover:text-gray-200"
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Back to Home
-        </Link>
 
         {/* Header */}
         <h1
@@ -110,7 +101,7 @@ export default function StewardshipPage() {
             If your business or practice is aligned with conscious living and
             human empowerment, we&apos;d love to hear from you.
           </p>
-          <a href="mailto:matt@miraclemind.dev?subject=Stewardship%20Interest">
+          <a href="mailto:connect@miraclemind.live?subject=Stewardship%20Interest">
             <Button
               size="lg"
               className="px-8 text-black transition-all duration-300 hover:scale-105"
@@ -126,5 +117,14 @@ export default function StewardshipPage() {
         </section>
       </div>
     </div>
+    </DomainLayout>
+  );
+}
+
+export default function StewardshipPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <StewardshipContent />
+    </Suspense>
   );
 }

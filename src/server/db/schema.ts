@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, unique, serial, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, unique, serial, boolean, uuid, jsonb } from "drizzle-orm/pg-core";
 
 // ============================================================================
 // DAILY VALUE POST AUTOMATION TABLES
@@ -135,11 +135,14 @@ export const pendingPosts = pgTable("pending_posts", {
 /**
  * Banyan Early Access - Beta signup waitlist
  * Stores early access requests for Banyan LifeOS platform
+ * Links to master_crm for unified contact management
  */
 export const banyanEarlyAccess = pgTable("banyan_early_access", {
   id: serial("id").primaryKey(),
+  crmId: uuid("crm_id").references(() => masterCrm.id, { onDelete: "set null" }),
   fullName: text("full_name").notNull(),
   email: text("email").notNull().unique(),
+  phone: text("phone"),
   role: text("role"), // Founder/Creator/Developer/Coach/Other
   message: text("message"), // Optional "What brings you to Banyan?"
   contacted: boolean("contacted").notNull().default(false),
@@ -256,6 +259,82 @@ export const clientAgreements = pgTable("client_agreements", {
 });
 
 // ============================================================================
+// CONTACT SUBMISSIONS (Legacy - miraclemind.dev contact form)
+// ============================================================================
+
+/**
+ * Contact Submissions - Public contact form entries (miraclemind.dev)
+ * Links to master_crm for unified contact management
+ */
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: serial("id").primaryKey(),
+  crmId: uuid("crm_id").references(() => masterCrm.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  message: text("message").notNull(),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ============================================================================
+// MASTER CRM
+// ============================================================================
+
+/**
+ * Master CRM - Central contact database
+ * All contact sources (personal site, miracle mind, banyan, etc.) feed into this
+ */
+export const masterCrm = pgTable("master_crm", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  phone: text("phone"),
+  communicationPreferences: jsonb("communication_preferences").$type<{
+    email?: boolean;
+    sms?: boolean;
+    phone?: boolean;
+  }>().default({ email: true }),
+  status: text("status").notNull().default("lead"), // lead | prospect | client | inactive | churned
+  source: text("source").notNull(), // personal_site | miracle_mind | banyan_waitlist | referral | etc.
+  tags: text("tags").array(),
+  notes: text("notes"),
+  firstContactAt: timestamp("first_contact_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  lastContactAt: timestamp("last_contact_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Personal Contact Submissions - Contact form entries from matthewmiceli.com
+ * Links to master_crm for unified contact management
+ */
+export const personalContactSubmissions = pgTable("personal_contact_submissions", {
+  id: serial("id").primaryKey(),
+  crmId: uuid("crm_id")
+    .notNull()
+    .references(() => masterCrm.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  message: text("message").notNull(),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -346,6 +425,42 @@ export const clientAgreementsRelations = relations(
   })
 );
 
+export const masterCrmRelations = relations(masterCrm, ({ many }) => ({
+  personalContactSubmissions: many(personalContactSubmissions),
+  contactSubmissions: many(contactSubmissions),
+  banyanEarlyAccessSignups: many(banyanEarlyAccess),
+}));
+
+export const banyanEarlyAccessRelations = relations(
+  banyanEarlyAccess,
+  ({ one }) => ({
+    crmContact: one(masterCrm, {
+      fields: [banyanEarlyAccess.crmId],
+      references: [masterCrm.id],
+    }),
+  })
+);
+
+export const contactSubmissionsRelations = relations(
+  contactSubmissions,
+  ({ one }) => ({
+    crmContact: one(masterCrm, {
+      fields: [contactSubmissions.crmId],
+      references: [masterCrm.id],
+    }),
+  })
+);
+
+export const personalContactSubmissionsRelations = relations(
+  personalContactSubmissions,
+  ({ one }) => ({
+    crmContact: one(masterCrm, {
+      fields: [personalContactSubmissions.crmId],
+      references: [masterCrm.id],
+    }),
+  })
+);
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
@@ -388,3 +503,12 @@ export type NewClientUpdate = typeof clientUpdates.$inferInsert;
 
 export type ClientAgreement = typeof clientAgreements.$inferSelect;
 export type NewClientAgreement = typeof clientAgreements.$inferInsert;
+
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type NewContactSubmission = typeof contactSubmissions.$inferInsert;
+
+export type MasterCrm = typeof masterCrm.$inferSelect;
+export type NewMasterCrm = typeof masterCrm.$inferInsert;
+
+export type PersonalContactSubmission = typeof personalContactSubmissions.$inferSelect;
+export type NewPersonalContactSubmission = typeof personalContactSubmissions.$inferInsert;
