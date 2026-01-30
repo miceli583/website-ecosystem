@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.4.0
+**Version:** 0.4.1
 **Last Updated:** 2026-01-30
-**Commits:** 92
+**Commits:** 107
 
 ## Feature Status
 
@@ -34,17 +34,16 @@
 
 ## Known Limitations
 
-- **Proposals**: Stripe checkout integration pending
 - **Portal**: Admin UI for managing resources pending
 
 ## Recent Changes
 
 | Date | Commit | Description |
 |------|--------|-------------|
-| Jan 30 | pending | Portal enhancements: proposals with Stripe checkout, demos filtering, profile edit |
+| Jan 30 | 767ec6b | Move demos under client route, add architecture docs, proposal enhancements |
+| Jan 30 | bd14654 | Client portal with billing management and subscription-linked tooling |
 | Jan 29 | b5f0dfb | Client portal refactor: role-based auth on miraclemind.live |
 | Jan 29 | 91429d6 | Refine pages, footer redesign, contact form expansion, BANYAN hero polish |
 | Jan 29 | 29f52cb | Expand services page with 9 offerings, stewardship image card |
-| Jan 28 | b24956a | Master CRM integration, contact forms, performance optimizations |
 
 See `git log --oneline` for full history.
