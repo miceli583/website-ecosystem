@@ -56,12 +56,9 @@ export function MiracleMindLiveHomePage() {
 
     try {
       const supabase = createClient();
-      // Always use canonical non-www URL to match Supabase allowed redirect URLs
-      const origin = typeof window !== "undefined" && window.location.hostname === "localhost"
-        ? window.location.origin
-        : "https://miraclemind.live";
+      // Use current origin so PKCE code_verifier stays on same domain
+      const origin = window.location.origin;
       const redirectUrl = `${origin}/auth/callback?domain=live&next=/portal/set-password`;
-      console.log("Magic link redirect URL:", redirectUrl);
 
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
@@ -95,10 +92,8 @@ export function MiracleMindLiveHomePage() {
 
     try {
       const supabase = createClient();
-      // Always use canonical non-www URL to match Supabase allowed redirect URLs
-      const origin = typeof window !== "undefined" && window.location.hostname === "localhost"
-        ? window.location.origin
-        : "https://miraclemind.live";
+      // Use current origin so PKCE code_verifier stays on same domain
+      const origin = window.location.origin;
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email,
         {
