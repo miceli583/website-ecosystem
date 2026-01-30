@@ -16,7 +16,9 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  Layers,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 // Types for proposal metadata
 export interface ProposalPackage {
@@ -80,6 +82,57 @@ function formatCurrency(amount: number, currency: string) {
   }).format(amount);
 }
 
+// Group line items by subsystem based on naming patterns
+function groupLineItemsBySubsystem(lineItems: ProposalPackage["lineItems"]) {
+  if (!lineItems || lineItems.length === 0) return [];
+
+  const groups: Array<{
+    name: string;
+    total: number;
+    items: typeof lineItems;
+  }> = [];
+
+  let currentGroup: (typeof groups)[0] | null = null;
+
+  for (const item of lineItems) {
+    // Detect subsystem from item name patterns
+    let subsystem: string | null = null;
+
+    if (item.name.toLowerCase().includes("landing page")) {
+      subsystem = "Landing Page";
+    } else if (
+      item.name.toLowerCase().includes("slide builder") ||
+      item.name.toLowerCase().includes("slide deck") ||
+      item.name.toLowerCase().includes("user flow") ||
+      item.name.toLowerCase().includes("document input") ||
+      item.name.toLowerCase().includes("theme selection") ||
+      item.name.toLowerCase().includes("prompt") ||
+      item.name.toLowerCase().includes("pdf download") ||
+      item.name.toLowerCase().includes("powerpoint") ||
+      item.name.toLowerCase().includes("video recommend")
+    ) {
+      subsystem = "Protected Slide Builder";
+    }
+
+    // If we detected a subsystem and it's different from current, start a new group
+    if (subsystem && (!currentGroup || currentGroup.name !== subsystem)) {
+      currentGroup = { name: subsystem, total: 0, items: [] };
+      groups.push(currentGroup);
+    }
+
+    // If no subsystem detected and no current group, create a default
+    if (!currentGroup) {
+      currentGroup = { name: "Items", total: 0, items: [] };
+      groups.push(currentGroup);
+    }
+
+    currentGroup.items!.push(item);
+    currentGroup.total += item.unitPrice * item.quantity;
+  }
+
+  return groups;
+}
+
 function PackageCard({
   pkg,
   currency,
@@ -95,6 +148,8 @@ function PackageCard({
 }) {
   const [showDetails, setShowDetails] = useState(false);
   const hasLineItems = pkg.lineItems && pkg.lineItems.length > 0;
+  const groupedItems = groupLineItemsBySubsystem(pkg.lineItems);
+  const hasMultipleGroups = groupedItems.length > 1;
 
   return (
     <div
@@ -161,17 +216,38 @@ function PackageCard({
           </button>
 
           {showDetails && (
-            <div className="mt-2 space-y-1">
-              {pkg.lineItems!.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex justify-between text-sm text-gray-400"
-                >
-                  <span>
-                    {item.name}
-                    {item.quantity > 1 && ` × ${item.quantity}`}
-                  </span>
-                  <span>{formatCurrency(item.unitPrice * item.quantity, currency)}</span>
+            <div className="mt-3 space-y-4">
+              {groupedItems.map((group, groupIdx) => (
+                <div key={groupIdx}>
+                  {hasMultipleGroups && (
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Layers className="h-3.5 w-3.5 text-yellow-500/70" />
+                        <span className="text-xs font-medium uppercase tracking-wide text-yellow-500/70">
+                          {group.name}
+                        </span>
+                      </div>
+                      <span className="text-xs font-medium text-gray-500">
+                        {formatCurrency(group.total, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <div className={`space-y-1 ${hasMultipleGroups ? "ml-5 border-l border-gray-800 pl-3" : ""}`}>
+                    {group.items!.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between text-sm text-gray-400"
+                      >
+                        <span>
+                          {item.name
+                            .replace(/ - Landing Page$/, "")
+                            .replace(/ - Slide Builder$/, "")}
+                          {item.quantity > 1 && ` × ${item.quantity}`}
+                        </span>
+                        <span className="flex-shrink-0 ml-2">{formatCurrency(item.unitPrice * item.quantity, currency)}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -270,7 +346,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
   const isLegacyProposal = packages.length === 0 && metadata?.lineItems;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4 md:p-6">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
@@ -278,12 +354,12 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
       />
 
       {/* Modal */}
-      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-gray-800 bg-gray-950 shadow-2xl">
+      <div className="relative max-h-[95vh] w-full overflow-y-auto rounded-t-2xl border border-gray-800 bg-gray-950 shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl md:max-w-3xl lg:max-w-4xl">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-gray-800 bg-gray-950 p-6">
+        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-gray-800 bg-gray-950 p-4 sm:p-6">
           <div>
-            <h2 className="text-xl font-bold text-white">{proposal.title}</h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <h2 className="text-lg font-bold text-white sm:text-xl md:text-2xl">{proposal.title}</h2>
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               {new Date(proposal.createdAt).toLocaleDateString("en-US", {
                 month: "long",
                 day: "numeric",
@@ -294,13 +370,13 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+            className="-mr-2 -mt-2 rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white sm:mr-0 sm:mt-0"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6 md:p-8">
           {/* Status banner */}
           {status === "accepted" && (
             <div className="mb-6 flex items-center gap-2 rounded-lg bg-green-900/30 p-3 text-green-400">
@@ -318,31 +394,31 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
           {/* Description */}
           {proposal.description && (
             <div className="mb-6">
-              <p className="text-gray-300">{proposal.description}</p>
+              <p className="text-sm text-gray-300 sm:text-base">{proposal.description}</p>
             </div>
           )}
 
           {/* Customer Info */}
           {customerInfo && (customerInfo.name || customerInfo.email || customerInfo.company) && (
-            <div className="mb-6 rounded-lg border border-gray-800 bg-white/5 p-4">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-500">
+            <div className="mb-6 rounded-lg border border-gray-800 bg-white/5 p-4 sm:p-5">
+              <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
                 <User className="h-4 w-4" />
                 Prepared For
               </h3>
               <div className="space-y-2 text-sm">
                 {customerInfo.name && (
-                  <p className="text-white">{customerInfo.name}</p>
+                  <p className="font-medium text-white">{customerInfo.name}</p>
                 )}
                 {customerInfo.company && (
                   <p className="flex items-center gap-2 text-gray-400">
-                    <Building className="h-4 w-4" />
+                    <Building className="h-4 w-4 flex-shrink-0" />
                     {customerInfo.company}
                   </p>
                 )}
                 {customerInfo.email && (
                   <p className="flex items-center gap-2 text-gray-400">
-                    <Mail className="h-4 w-4" />
-                    {customerInfo.email}
+                    <Mail className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{customerInfo.email}</span>
                   </p>
                 )}
               </div>
@@ -352,9 +428,11 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
           {/* One-time Packages */}
           {packages.filter(p => p.type === "one-time").length > 0 && (
             <div className="mb-6">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-500">
+              <h3 className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
                 <Package className="h-4 w-4" />
-                Website Build
+                {packages.filter(p => p.type === "one-time").length === 1
+                  ? packages.find(p => p.type === "one-time")?.name ?? "Package"
+                  : "Packages"}
               </h3>
               <div className="space-y-3">
                 {packages.filter(p => p.type === "one-time").map((pkg) => (
@@ -374,7 +452,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
           {/* Subscription Packages */}
           {packages.filter(p => p.type === "subscription").length > 0 && (
             <div className="mb-6">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-500">
+              <h3 className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
                 <Clock className="h-4 w-4" />
                 Hosting & Maintenance (Optional)
               </h3>
@@ -423,11 +501,14 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
 
           {/* Notes */}
           {metadata?.notes && (
-            <div className="mb-6 rounded-lg border border-gray-800 bg-white/5 p-4">
-              <h3 className="mb-2 text-sm font-medium uppercase tracking-wide text-gray-500">
-                Notes
+            <div className="mb-6 rounded-lg border border-gray-800 bg-white/5 p-4 sm:p-5 md:p-6">
+              <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
+                <FileText className="h-4 w-4" />
+                Terms & Details
               </h3>
-              <p className="text-sm text-gray-300">{metadata.notes}</p>
+              <div className="prose prose-sm prose-invert max-w-none prose-headings:text-yellow-400 prose-headings:font-semibold prose-headings:text-xs prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-300 prose-p:text-sm prose-p:my-1 prose-li:text-gray-300 prose-li:text-sm prose-li:my-0.5 prose-strong:text-white prose-ul:my-1 prose-hr:border-gray-700 prose-hr:my-4 sm:prose-headings:text-sm sm:prose-p:text-base sm:prose-li:text-base">
+                <ReactMarkdown>{metadata.notes}</ReactMarkdown>
+              </div>
             </div>
           )}
 
@@ -440,20 +521,20 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
         </div>
 
         {/* Footer with total and checkout */}
-        <div className="sticky bottom-0 border-t border-gray-800 bg-gray-950 p-6">
+        <div className="sticky bottom-0 border-t border-gray-800 bg-gray-950 p-4 sm:p-6">
           {checkoutError && (
             <div className="mb-4 rounded-lg bg-red-900/30 p-3 text-sm text-red-400">
               {checkoutError}
             </div>
           )}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-center sm:text-left">
+              <p className="text-xs text-gray-500 sm:text-sm">
                 {selectedPackages.size} package{selectedPackages.size !== 1 ? "s" : ""} selected
               </p>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline justify-center gap-2 sm:justify-start">
                 {oneTimeTotal > 0 && (
-                  <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
+                  <p className="text-xl font-bold sm:text-2xl md:text-3xl" style={{ color: "#D4AF37" }}>
                     {formatCurrency(oneTimeTotal, currency)}
                   </p>
                 )}
@@ -461,15 +542,15 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
                   <span className="text-gray-500">+</span>
                 )}
                 {recurringTotal > 0 && (
-                  <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
+                  <p className="text-xl font-bold sm:text-2xl md:text-3xl" style={{ color: "#D4AF37" }}>
                     {formatCurrency(recurringTotal, currency)}
-                    <span className="text-sm font-normal text-gray-500">
+                    <span className="text-xs font-normal text-gray-500 sm:text-sm">
                       /{recurringInterval}
                     </span>
                   </p>
                 )}
                 {oneTimeTotal === 0 && recurringTotal === 0 && (
-                  <p className="text-2xl font-bold text-gray-500">$0.00</p>
+                  <p className="text-xl font-bold text-gray-500 sm:text-2xl">$0.00</p>
                 )}
               </div>
             </div>
@@ -477,7 +558,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
             <Button
               onClick={handleCheckout}
               disabled={!canCheckout || checkingOut}
-              className="px-8"
+              className="w-full px-8 py-3 text-base sm:w-auto sm:py-2"
               style={{ backgroundColor: canCheckout ? "#D4AF37" : undefined }}
             >
               {checkingOut ? (

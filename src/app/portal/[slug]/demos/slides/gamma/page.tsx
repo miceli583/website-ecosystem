@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, ExternalLink, FileText, Download } from "lucide-react";
+import { ArrowLeft, Sparkles, ExternalLink, FileText } from "lucide-react";
 
 const gammaPressentations = [
   {
@@ -153,26 +153,15 @@ export default function GammaPresentationsPage({
                 </div>
 
                 {presentation.status === "ready" && presentation.url ? (
-                  <div className="flex flex-shrink-0 gap-2">
-                    <a
-                      href={presentation.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      View
-                    </a>
-                    <a
-                      href={`${presentation.url}?mode=pdf`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg border border-gray-700 px-4 py-2 font-medium text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800"
-                    >
-                      <Download className="h-4 w-4" />
-                      PDF
-                    </a>
-                  </div>
+                  <a
+                    href={presentation.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-shrink-0 items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    View
+                  </a>
                 ) : (
                   <span className="flex-shrink-0 rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-500">
                     Coming Soon
