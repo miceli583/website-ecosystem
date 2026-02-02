@@ -379,16 +379,18 @@ export default function CHW360MockupPage({
         </div>
 
         <div className="relative z-20 mx-auto max-w-6xl px-4">
-          <div className="min-h-[380px] py-12 lg:py-16">
+          <div className="py-12 lg:min-h-[380px] lg:py-16">
             {/* Text Content */}
             <div className="max-w-xl">
               <h1
-                className={`${serif.className} mb-4 text-[2.5rem] font-normal leading-[1.15] tracking-tight`}
+                className={`${serif.className} mb-4 text-3xl font-normal leading-[1.15] tracking-tight sm:text-[2.5rem]`}
                 style={{ color: "#2D5A5A" }}
               >
                 Empowering Community
                 <br />
-                Health Workers Across Texas
+                Health Workers
+                <br className="sm:hidden" />
+                {" "}Across Texas
               </h1>
               <p className="mb-6 text-[15px] leading-relaxed" style={{ color: "#5A6A6A" }}>
                 CHW360 provides training, resources, and support to help
@@ -414,6 +416,69 @@ export default function CHW360MockupPage({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Carousel - Below text on small screens */}
+        <div className="relative mb-8 mt-4 h-48 overflow-hidden lg:hidden">
+          {/* Continuous scrolling track */}
+          <div
+            className="absolute flex h-full"
+            style={{
+              animation: "continuousScroll 40s linear infinite",
+            }}
+          >
+            {/* First set of images */}
+            {heroImages.map((image, index) => (
+              <div
+                key={`mobile-first-${index}`}
+                className="relative h-full flex-shrink-0 px-2"
+                style={{ width: "200px" }}
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-lg shadow-md">
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover"
+                    style={{ objectPosition: "center center" }}
+                  />
+                </div>
+              </div>
+            ))}
+            {/* Duplicate set for seamless loop */}
+            {heroImages.map((image, index) => (
+              <div
+                key={`mobile-second-${index}`}
+                className="relative h-full flex-shrink-0 px-2"
+                style={{ width: "200px" }}
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-lg shadow-md">
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    className="object-cover"
+                    style={{ objectPosition: "center center" }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Left gradient */}
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8"
+            style={{
+              background: "linear-gradient(to right, #F5EDE6 0%, transparent 100%)",
+            }}
+          />
+          {/* Right gradient */}
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8"
+            style={{
+              background: "linear-gradient(to left, #F5EDE6 0%, transparent 100%)",
+            }}
+          />
         </div>
       </section>
 
