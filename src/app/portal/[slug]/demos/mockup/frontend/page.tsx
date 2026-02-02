@@ -386,7 +386,9 @@ export default function CHW360MockupPage({
                 className={`${serif.className} mb-4 text-3xl font-normal leading-[1.15] tracking-tight sm:text-[2.5rem]`}
                 style={{ color: "#2D5A5A" }}
               >
-                Empowering Community
+                Empowering
+                <br className="sm:hidden" />
+                {" "}Community
                 <br />
                 Health Workers
                 <br className="sm:hidden" />
