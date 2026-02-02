@@ -392,10 +392,10 @@ export default function CHW360MockupPage({
               </h1>
               <p className="mb-6 text-[15px] leading-relaxed" style={{ color: "#5A6A6A" }}>
                 CHW360 provides training, resources, and support to help
-                <br />
-                Community Health Workers learn, grow, and make a difference
-                <br />
-                in their communities.
+                <br className="hidden lg:inline" />
+                {" "}Community Health Workers learn, grow, and make a difference
+                <br className="hidden lg:inline" />
+                {" "}in their communities.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button
