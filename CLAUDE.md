@@ -9,6 +9,7 @@ npm run dev              # Start dev server
 npm run build            # Build (use SKIP_ENV_VALIDATION=1 if needed)
 npm run typecheck        # Type check
 npm run db:push          # Push schema to database
+bash scripts/install-hooks.sh  # Install git hooks (once after clone)
 ```
 
 ## Architecture

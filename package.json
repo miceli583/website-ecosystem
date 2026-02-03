@@ -25,7 +25,8 @@
     "pre-commit": "bash scripts/pre-commit.sh",
     "quality-check": "npm run format && npm run lint:fix && npm run lint && npm run typecheck && npm run build",
     "generate-resume-pdf": "tsx scripts/generate-resume-pdf.ts",
-    "generate-favicons": "tsx scripts/generate-favicons.ts"
+    "generate-favicons": "tsx scripts/generate-favicons.ts",
+    "prepare": "bash scripts/install-hooks.sh"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
