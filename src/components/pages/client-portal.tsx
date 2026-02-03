@@ -103,7 +103,7 @@ export function ClientPortalLayout({
                   key={item.href}
                   href={item.href}
                   className={`text-sm transition-colors hover:text-white ${
-                    isActiveLink(item.href) ? "font-medium text-yellow-500" : "text-gray-400"
+                    isActiveLink(item.href) ? "font-medium text-[#D4AF37]" : "text-gray-400"
                   }`}
                 >
                   {item.name}
@@ -161,7 +161,7 @@ export function ClientPortalLayout({
               onClick={() => setMobileMenuOpen(false)}
               className={`rounded-lg px-4 py-3 text-sm transition-colors hover:bg-white/10 ${
                 isActiveLink(item.href)
-                  ? "font-medium text-yellow-500"
+                  ? "font-medium text-[#D4AF37]"
                   : "text-gray-300"
               }`}
             >

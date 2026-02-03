@@ -506,7 +506,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
                 <FileText className="h-4 w-4" />
                 Terms & Details
               </h3>
-              <div className="prose prose-sm prose-invert max-w-none prose-headings:text-yellow-400 prose-headings:font-semibold prose-headings:text-xs prose-headings:mt-4 prose-headings:mb-2 prose-p:text-gray-300 prose-p:text-sm prose-p:my-1 prose-li:text-gray-300 prose-li:text-sm prose-li:my-0.5 prose-strong:text-white prose-ul:my-1 prose-hr:border-gray-700 prose-hr:my-4 sm:prose-headings:text-sm sm:prose-p:text-base sm:prose-li:text-base">
+              <div className="prose prose-invert max-w-none prose-headings:text-[#D4AF37] prose-headings:font-semibold prose-headings:text-sm prose-headings:mt-6 prose-headings:mb-3 sm:prose-headings:text-base prose-p:text-gray-300 prose-p:text-sm prose-p:my-2 prose-p:leading-relaxed sm:prose-p:text-base prose-li:text-gray-300 prose-li:text-sm prose-li:my-1 sm:prose-li:text-base prose-strong:text-white prose-ul:my-3 prose-ol:my-3 prose-hr:border-gray-700 prose-hr:my-6 prose-a:text-[#D4AF37] prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-[#D4AF37] prose-blockquote:text-gray-400 prose-code:text-[#D4AF37] prose-code:bg-white/5 prose-code:px-1 prose-code:rounded">
                 <ReactMarkdown>{metadata.notes}</ReactMarkdown>
               </div>
             </div>

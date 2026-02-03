@@ -288,7 +288,7 @@ export default function PortalProposalsPage({
                     onClick={() => handleProposalClick(proposal.id, proposal.type)}
                     className={proposal.type === "new" ? "cursor-pointer" : ""}
                   >
-                    <div className="flex items-center justify-between gap-4 rounded-md border border-gray-800 bg-white/5 px-4 py-3 transition-colors hover:border-yellow-600/50 hover:bg-white/10">
+                    <div className="flex items-center justify-between gap-4 rounded-md border border-gray-800 bg-white/5 px-4 py-4 transition-colors hover:border-[#D4AF37]/50 hover:bg-white/10">
                       <div className="flex items-center gap-3 overflow-hidden">
                         <div className="flex-shrink-0" style={{ color: "#D4AF37" }}>
                           <FileText className="h-5 w-5" />

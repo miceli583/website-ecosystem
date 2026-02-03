@@ -10,12 +10,12 @@
 - [x] Handle invoice.payment_succeeded / subscription.updated / subscription.deleted webhooks
 - [x] Resolve proposal names on invoices and subscriptions in billing page
 
-## Session 2 — Portal Hardening
+## Session 2 — Portal Hardening (DONE)
 
-- [ ] Remove Matt M test profile from portal and login
-- [ ] Add collaborative notes tab (admin + client can both edit/view, multiple notes)
-- [ ] Stress test portal flows
-- [ ] Research device-independent magic links (Supabase auth)
+- [x] Remove Matt M test profile from portal and login
+- [x] Add collaborative notes tab (admin + client can both edit/view, multiple notes)
+- [ ] Stress test portal flows (manual QA — checklist printed)
+- [ ] Research device-independent magic links (Supabase auth) — tabled
 
 ## Session 3 — Branding & Polish
 

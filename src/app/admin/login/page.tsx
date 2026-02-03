@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createClient } from "~/lib/supabase/client";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
 
@@ -39,93 +38,105 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-violet-50 via-white to-purple-50 p-4 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950">
-      <Card className="w-full max-w-md border-violet-200 shadow-xl dark:border-violet-800">
-        <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto mb-2 text-4xl">&lt;/MM&gt;</div>
-          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
-          <p className="text-muted-foreground text-sm">
+    <div className="flex min-h-screen items-center justify-center bg-black p-4">
+      <div
+        className="w-full max-w-md rounded-xl border bg-gray-900 p-8 shadow-2xl"
+        style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+      >
+        {/* Header */}
+        <div className="mb-8 space-y-3 text-center">
+          <Image
+            src="/brand/miracle-mind-logo-no-slogan.svg"
+            alt="Miracle Mind"
+            width={180}
+            height={40}
+            className="mx-auto mb-4"
+          />
+          <h1 className="text-2xl font-bold text-white">Admin Login</h1>
+          <p className="text-sm text-gray-500">
             Sign in to access the admin panel
           </p>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {error && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/20 dark:text-red-400">
-              <AlertCircle className="h-4 w-4" />
-              <span>{error}</span>
-            </div>
-          )}
+        </div>
 
-          {message && (
-            <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-600 dark:bg-green-950/20 dark:text-green-400">
-              <span>{message}</span>
-            </div>
-          )}
+        {/* Messages */}
+        {error && (
+          <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-950/30 p-3 text-sm text-red-400">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="border-input bg-background ring-offset-background file:text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-            </div>
+        {message && (
+          <div className="mb-6 flex items-center gap-2 rounded-lg bg-green-950/30 p-3 text-sm text-green-400">
+            <span>{message}</span>
+          </div>
+        )}
 
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="border-input bg-background ring-offset-background file:text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-violet-600 hover:bg-violet-700"
-              disabled={loading}
+        {/* Form */}
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium text-gray-300"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <input
+                id="email"
+                type="email"
+                placeholder="admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 pl-10 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37] focus:outline-none focus:ring-1 focus:ring-[#D4AF37] disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+          </div>
 
-          <p className="text-muted-foreground text-center text-xs">
-            Authorized personnel only. All access is logged and monitored.
-          </p>
-        </CardContent>
-      </Card>
+          <div className="space-y-2">
+            <label
+              htmlFor="password"
+              className="text-sm font-medium text-gray-300"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 pl-10 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37] focus:outline-none focus:ring-1 focus:ring-[#D4AF37] disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex h-10 w-full items-center justify-center rounded-md text-sm font-medium text-black transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            style={{ backgroundColor: "#D4AF37" }}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-xs text-gray-500">
+          Authorized personnel only. All access is logged and monitored.
+        </p>
+      </div>
     </div>
   );
 }

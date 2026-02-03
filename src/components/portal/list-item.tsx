@@ -50,7 +50,7 @@ export function ListItem({
       className={`flex items-center justify-between gap-4 rounded-md border px-4 py-3 transition-colors ${
         disabled
           ? "cursor-not-allowed border-gray-800 bg-white/[0.02] opacity-60"
-          : "border-gray-800 bg-white/5 hover:border-yellow-600/50 hover:bg-white/10"
+          : "border-gray-800 bg-white/5 hover:border-[#D4AF37]/50 hover:bg-white/10"
       }`}
     >
       <div className="flex items-center gap-3 overflow-hidden">
@@ -140,7 +140,7 @@ export function ListContainer({
         {showClearFilters && onClearFilters && (
           <button
             onClick={onClearFilters}
-            className="mt-4 text-sm text-yellow-500 hover:underline"
+            className="mt-4 text-sm text-[#D4AF37] hover:underline"
           >
             Clear filters
           </button>
@@ -149,5 +149,5 @@ export function ListContainer({
     );
   }
 
-  return <div className="space-y-2">{children}</div>;
+  return <div className="space-y-3">{children}</div>;
 }
