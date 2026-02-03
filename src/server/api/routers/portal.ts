@@ -525,14 +525,15 @@ export const portalRouter = createTRPCRouter({
         return {
           hasStripeCustomer: false,
           invoices: [],
+          payments: [],
           subscriptions: [],
           balance: null,
         };
       }
 
       try {
-        // Fetch invoices, subscriptions, and balance in parallel
-        const [invoices, subscriptions, customer] = await Promise.all([
+        // Fetch invoices, subscriptions, payments, and balance in parallel
+        const [invoices, subscriptions, paymentIntents, customer] = await Promise.all([
           stripe.invoices.list({
             customer: client.stripeCustomerId,
             limit: 20,
@@ -541,6 +542,10 @@ export const portalRouter = createTRPCRouter({
             customer: client.stripeCustomerId,
             status: "all",
             limit: 10,
+          }),
+          stripe.paymentIntents.list({
+            customer: client.stripeCustomerId,
+            limit: 20,
           }),
           stripe.customers.retrieve(client.stripeCustomerId),
         ]);
@@ -602,6 +607,25 @@ export const portalRouter = createTRPCRouter({
               description: derivedDescription,
             };
           }),
+          // One-time payments (from Checkout) - exclude subscription-related charges
+          payments: paymentIntents.data
+            .filter((pi) => pi.status === "succeeded")
+            .filter((pi) => {
+              // Skip PaymentIntents that are linked to invoices (subscription billing)
+              const desc = pi.description?.toLowerCase() ?? "";
+              return !desc.includes("subscription") && !desc.includes("invoice");
+            })
+            .map((pi) => ({
+              id: pi.id,
+              amount: pi.amount,
+              currency: pi.currency,
+              status: pi.status,
+              created: pi.created,
+              description: pi.description ?? pi.metadata?.proposalTitle ?? "Payment",
+              receiptUrl: pi.latest_charge && typeof pi.latest_charge !== "string"
+                ? pi.latest_charge.receipt_url ?? null
+                : null,
+            })),
           subscriptions: subscriptions.data.map((sub) => ({
             id: sub.id,
             status: sub.status,
@@ -636,6 +660,7 @@ export const portalRouter = createTRPCRouter({
         return {
           hasStripeCustomer: true,
           invoices: [],
+          payments: [],
           subscriptions: [],
           balance: null,
           error: "Failed to fetch billing information",

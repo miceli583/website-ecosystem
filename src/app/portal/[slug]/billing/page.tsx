@@ -169,8 +169,9 @@ export default function PortalBillingPage({
   }
 
   const hasInvoices = (billing?.invoices.length ?? 0) > 0;
+  const hasPayments = (billing?.payments?.length ?? 0) > 0;
   const hasSubscriptions = (billing?.subscriptions.length ?? 0) > 0;
-  const hasContent = hasInvoices || hasSubscriptions;
+  const hasContent = hasInvoices || hasPayments || hasSubscriptions;
 
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
@@ -335,14 +336,58 @@ export default function PortalBillingPage({
             </div>
           )}
 
-          {/* Invoices */}
-          {hasInvoices && (
+          {/* Payment History (Invoices + One-time Payments) */}
+          {(hasInvoices || hasPayments) && (
             <div>
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-300">
                 <Receipt className="h-5 w-5" style={{ color: "#D4AF37" }} />
                 Payment History
               </h2>
               <div className="space-y-3">
+                {/* One-time payments (from checkout) */}
+                {billing.payments?.map((payment) => (
+                  <Card
+                    key={payment.id}
+                    className="bg-white/5"
+                    style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                  >
+                    <CardContent className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {payment.description}
+                            </span>
+                            <Badge className="bg-green-900/50 text-green-400">Paid</Badge>
+                          </div>
+                          <p className="mt-0.5 text-sm text-gray-500">
+                            {formatDate(payment.created)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="font-semibold">
+                            {formatCurrency(payment.amount, payment.currency)}
+                          </p>
+                        </div>
+                        {payment.receiptUrl && (
+                          <a
+                            href={payment.receiptUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+                            title="View receipt"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Invoices */}
                 {billing.invoices.map((invoice) => (
                   <Card
                     key={invoice.id}
