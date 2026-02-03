@@ -313,6 +313,31 @@ export const clientAgreements = pgTable("client_agreements", {
     .defaultNow(),
 });
 
+/**
+ * Client Notes - Collaborative notes for admin and client
+ * Both admin and client can create and edit notes
+ */
+export const clientNotes = pgTable("client_notes", {
+  id: serial("id").primaryKey(),
+  clientId: serial("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  projectId: serial("project_id").references(() => clientProjects.id, {
+    onDelete: "set null",
+  }),
+  createdByAuthId: uuid("created_by_auth_id").notNull(),
+  createdByName: text("created_by_name").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(""),
+  isPinned: boolean("is_pinned").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // ============================================================================
 // CONTACT SUBMISSIONS (Legacy - miraclemind.dev contact form)
 // ============================================================================
@@ -458,6 +483,7 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
   projects: many(clientProjects),
   agreements: many(clientAgreements),
   resources: many(clientResources),
+  notes: many(clientNotes),
   portalUser: one(portalUsers, {
     fields: [clients.slug],
     references: [portalUsers.clientSlug],
@@ -506,6 +532,17 @@ export const clientAgreementsRelations = relations(
     }),
   })
 );
+
+export const clientNotesRelations = relations(clientNotes, ({ one }) => ({
+  client: one(clients, {
+    fields: [clientNotes.clientId],
+    references: [clients.id],
+  }),
+  project: one(clientProjects, {
+    fields: [clientNotes.projectId],
+    references: [clientProjects.id],
+  }),
+}));
 
 export const masterCrmRelations = relations(masterCrm, ({ many }) => ({
   personalContactSubmissions: many(personalContactSubmissions),

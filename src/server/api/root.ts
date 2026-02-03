@@ -3,6 +3,7 @@ import { dailyValuesRouter } from "~/server/api/routers/dailyValues";
 import { clientsRouter } from "~/server/api/routers/clients";
 import { contactRouter } from "~/server/api/routers/contact";
 import { portalRouter } from "~/server/api/routers/portal";
+import { portalNotesRouter } from "~/server/api/routers/portalNotes";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   clients: clientsRouter,
   contact: contactRouter,
   portal: portalRouter,
+  portalNotes: portalNotesRouter,
 });
 
 // export type definition of API

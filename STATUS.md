@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.4.1
-**Last Updated:** 2026-01-30
-**Commits:** 107
+**Version:** 0.4.3
+**Last Updated:** 2026-02-02
+**Commits:** 112
 
 ## Feature Status
 
@@ -15,6 +15,7 @@
 | Portal pages | Working | Dashboard, Demos, Proposals, Tooling, Billing, Profile |
 | Portal users | Working | Admin/client roles, claim account flow via magic link |
 | Client resources | Working | Flexible demos, tooling, credentials, embeds per client |
+| CHW360 mockup demo | Working | Exact mockup replica with carousel, brand assets page |
 | Shader gallery | Working | 8 interactive shaders (orbit-star enhanced) |
 | Template gallery | Working | Component showcase |
 | Blog system | Partial | Basic functionality, automation incomplete |
@@ -22,7 +23,7 @@
 | BANYAN early access | Working | Waitlist signup + email confirmation + admin notification |
 | Instagram automation | Working | Endpoints secured, Make.com webhook configured |
 | Resume/PDF generation | Working | Server-side Puppeteer |
-| Stripe integration | Working | Billing page with invoices/subscriptions, MCP connected |
+| Stripe integration | Working | Billing, subscriptions, webhook events, proposal linking |
 | Resend email | Working | Templates for BANYAN confirmation, admin alerts, client updates |
 | Security hardening | Complete | RLS on all tables, rate limiting, CSP/HSTS headers, Bearer auth |
 | Homepage v2 | Working | New company homepage with orbit-star shader, image-based service cards |
@@ -40,10 +41,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
-| Jan 30 | 767ec6b | Move demos under client route, add architecture docs, proposal enhancements |
-| Jan 30 | bd14654 | Client portal with billing management and subscription-linked tooling |
-| Jan 29 | b5f0dfb | Client portal refactor: role-based auth on miraclemind.live |
-| Jan 29 | 91429d6 | Refine pages, footer redesign, contact form expansion, BANYAN hero polish |
-| Jan 29 | 29f52cb | Expand services page with 9 offerings, stewardship image card |
+| Feb 02 | c3b0ce1 | Subscription tracking in webhooks, proposal linking in billing |
+| Feb 02 | 702c7c5 | Link payments to proposal names in billing history |
+| Feb 02 | ba8fc6c | Add one-time payments to billing history |
+| Feb 02 | 1d2b5d2 | CHW360 mockup demo: exact replica with carousel, brand assets page |
+| Feb 02 | 9bf9474 | Fix Stripe customer test/live mode mismatch |
 
 See `git log --oneline` for full history.

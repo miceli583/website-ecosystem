@@ -40,6 +40,7 @@ export function ClientPortalLayout({
     { name: "Demos", href: `${basePath}/${slug}/demos` },
     { name: "Proposals", href: `${basePath}/${slug}/proposals` },
     { name: "Tooling", href: `${basePath}/${slug}/tooling` },
+    { name: "Notes", href: `${basePath}/${slug}/notes` },
     { name: "Billing", href: `${basePath}/${slug}/billing` },
     { name: "Profile", href: `${basePath}/${slug}/profile` },
   ];

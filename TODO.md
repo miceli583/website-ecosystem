@@ -15,18 +15,26 @@ _None currently_
 ## Enhancements (prioritized)
 
 ### High Priority
+- [ ] Remove Matt M test profile from portal and login
+- [ ] Add collaborative notes tab to client portal (admin + client edit/view)
+- [ ] Stress test portal flows
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
-- [ ] Webhook for Stripe checkout completion (update proposal status)
 
 ### Medium Priority
+- [ ] Portal branding consistency with MiracleMind sites
+- [ ] Admin login page branding
+- [ ] Image carousel (continuous sliding) for matthewmiceli.com
+- [ ] Research device-independent magic links (Supabase auth)
 - [ ] Add Gamma API integration for slide automation
 - [ ] Populate Matti demo content for client portal
 
 ### Lower Priority
 - [ ] Create next blog post
 - [ ] Bundle size optimization pass
-- [ ] Usage-based pricing / COG calculators
+- [ ] Privacy policies and ToS improvements
+- [ ] Legal agreements for portal onboarding
+- [ ] Email/text marketing opt-in management
 - [x] Stripe checkout flows for proposals (one-time, subscription)
 - [x] Demos page: project-based organization, search/filter
 - [x] Proposals page: line items, expandable cards, checkout
