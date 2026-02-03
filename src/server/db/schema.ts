@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, unique, serial, boolean, uuid, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, unique, serial, integer, boolean, uuid, jsonb } from "drizzle-orm/pg-core";
 
 // ============================================================================
 // DAILY VALUE POST AUTOMATION TABLES
@@ -319,10 +319,10 @@ export const clientAgreements = pgTable("client_agreements", {
  */
 export const clientNotes = pgTable("client_notes", {
   id: serial("id").primaryKey(),
-  clientId: serial("client_id")
+  clientId: integer("client_id")
     .notNull()
     .references(() => clients.id, { onDelete: "cascade" }),
-  projectId: serial("project_id").references(() => clientProjects.id, {
+  projectId: integer("project_id").references(() => clientProjects.id, {
     onDelete: "set null",
   }),
   createdByAuthId: uuid("created_by_auth_id").notNull(),

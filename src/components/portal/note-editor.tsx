@@ -57,6 +57,7 @@ export function NoteEditor({
   const [title, setTitle] = useState(initialTitle);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({

@@ -532,22 +532,40 @@ export const portalRouter = createTRPCRouter({
       }
 
       try {
+        // Verify customer exists in current Stripe environment (handles test/live key mismatch)
+        let validCustomerId = client.stripeCustomerId;
+        try {
+          await stripe.customers.retrieve(validCustomerId);
+        } catch {
+          // Customer doesn't exist in current Stripe environment (test/live key mismatch)
+          // Don't clear the ID — it may be valid in the production environment
+          console.warn(
+            `Stripe customer ${validCustomerId} not found for ${client.slug} (likely test/live key mismatch)`
+          );
+          return {
+            hasStripeCustomer: false,
+            invoices: [],
+            payments: [],
+            subscriptions: [],
+            balance: null,
+          };
+        }
+
         // Fetch Stripe data and proposals in parallel
-        const [invoices, subscriptions, paymentIntents, customer, proposals] = await Promise.all([
+        const [invoices, subscriptions, paymentIntents, proposals] = await Promise.all([
           stripe.invoices.list({
-            customer: client.stripeCustomerId,
+            customer: validCustomerId,
             limit: 20,
           }),
           stripe.subscriptions.list({
-            customer: client.stripeCustomerId,
+            customer: validCustomerId,
             status: "all",
             limit: 10,
           }),
           stripe.paymentIntents.list({
-            customer: client.stripeCustomerId,
+            customer: validCustomerId,
             limit: 20,
           }),
-          stripe.customers.retrieve(client.stripeCustomerId),
           db.query.clientResources.findMany({
             where: and(
               eq(clientResources.clientId, client.id),
@@ -555,6 +573,9 @@ export const portalRouter = createTRPCRouter({
             ),
           }),
         ]);
+
+        // Get balance (already verified customer above)
+        const customer = await stripe.customers.retrieve(validCustomerId);
 
         // Get balance from customer object
         const balance = "balance" in customer ? customer.balance : null;
@@ -689,14 +710,13 @@ export const portalRouter = createTRPCRouter({
           balance,
         };
       } catch (error) {
-        console.error("Stripe error:", error);
+        console.error("Stripe billing error for client:", client.slug, error);
         return {
           hasStripeCustomer: true,
           invoices: [],
           payments: [],
           subscriptions: [],
           balance: null,
-          error: "Failed to fetch billing information",
         };
       }
     }),
