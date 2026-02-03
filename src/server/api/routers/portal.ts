@@ -608,24 +608,42 @@ export const portalRouter = createTRPCRouter({
             };
           }),
           // One-time payments (from Checkout) - exclude subscription-related charges
-          payments: paymentIntents.data
-            .filter((pi) => pi.status === "succeeded")
-            .filter((pi) => {
-              // Skip PaymentIntents that are linked to invoices (subscription billing)
-              const desc = pi.description?.toLowerCase() ?? "";
-              return !desc.includes("subscription") && !desc.includes("invoice");
-            })
-            .map((pi) => ({
+          payments: await (async () => {
+            const filteredPayments = paymentIntents.data
+              .filter((pi) => pi.status === "succeeded")
+              .filter((pi) => {
+                const desc = pi.description?.toLowerCase() ?? "";
+                return !desc.includes("subscription") && !desc.includes("invoice");
+              });
+
+            // Look up proposal names from DB by matching stripePaymentIntentId in metadata
+            const proposals = await db.query.clientResources.findMany({
+              where: and(
+                eq(clientResources.clientId, client.id),
+                eq(clientResources.section, "proposals"),
+              ),
+            });
+
+            // Build a map of PaymentIntent ID → proposal title
+            const piToProposal = new Map<string, string>();
+            for (const p of proposals) {
+              const meta = p.metadata as Record<string, unknown> | null;
+              const piId = meta?.stripePaymentIntentId as string | undefined;
+              if (piId) piToProposal.set(piId, p.title);
+            }
+
+            return filteredPayments.map((pi) => ({
               id: pi.id,
               amount: pi.amount,
               currency: pi.currency,
               status: pi.status,
               created: pi.created,
-              description: pi.description ?? pi.metadata?.proposalTitle ?? "Payment",
+              description: piToProposal.get(pi.id) ?? pi.description ?? "Payment",
               receiptUrl: pi.latest_charge && typeof pi.latest_charge !== "string"
                 ? pi.latest_charge.receipt_url ?? null
                 : null,
-            })),
+            }));
+          })(),
           subscriptions: subscriptions.data.map((sub) => ({
             id: sub.id,
             status: sub.status,
