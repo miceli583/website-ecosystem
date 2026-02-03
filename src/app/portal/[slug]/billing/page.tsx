@@ -243,6 +243,11 @@ export default function PortalBillingPage({
                               </span>
                               {getSubscriptionStatusBadge(sub.status)}
                             </div>
+                            {sub.proposalName && sub.proposalName !== subscriptionName && (
+                              <p className="mt-0.5 text-sm text-gray-500">
+                                From: {sub.proposalName}
+                              </p>
+                            )}
                             {sub.items.map((item) => (
                               <p key={item.id} className="mt-1 text-sm text-gray-400">
                                 {item.unitAmount
@@ -405,7 +410,9 @@ export default function PortalBillingPage({
                           </div>
                           <p className="mt-0.5 text-sm text-gray-500">
                             {formatDate(invoice.created)}
-                            {invoice.description && ` · ${invoice.description}`}
+                            {invoice.proposalName
+                              ? ` · ${invoice.proposalName}`
+                              : invoice.description && ` · ${invoice.description}`}
                           </p>
                         </div>
                       </div>

@@ -103,6 +103,10 @@ export async function POST(request: NextRequest) {
                 paidAt: new Date().toISOString(),
                 stripeSessionId: session.id,
                 stripePaymentIntentId: session.payment_intent,
+                stripeSubscriptionId:
+                  typeof session.subscription === "string"
+                    ? session.subscription
+                    : session.subscription?.id ?? null,
               },
               updatedAt: new Date(),
             })
@@ -142,6 +146,61 @@ export async function POST(request: NextRequest) {
               }),
             });
           }
+        }
+      }
+      break;
+    }
+
+    case "invoice.payment_succeeded": {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subDetails = invoice.parent?.subscription_details;
+      const subscriptionId = subDetails
+        ? typeof subDetails.subscription === "string"
+          ? subDetails.subscription
+          : subDetails.subscription?.id ?? null
+        : null;
+      console.log(
+        `[Stripe Webhook] Invoice ${invoice.id} paid — subscription: ${subscriptionId ?? "none"}, amount: ${invoice.amount_paid}`
+      );
+      break;
+    }
+
+    case "customer.subscription.updated": {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(
+        `[Stripe Webhook] Subscription ${subscription.id} updated — status: ${subscription.status}, cancel_at_period_end: ${subscription.cancel_at_period_end}`
+      );
+      break;
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log(
+        `[Stripe Webhook] Subscription ${subscription.id} deleted/canceled`
+      );
+
+      // Find proposals linked to this subscription and mark them
+      const linkedProposals = await db.query.clientResources.findMany({
+        where: eq(clientResources.section, "proposals"),
+      });
+
+      for (const proposal of linkedProposals) {
+        const meta = proposal.metadata as Record<string, unknown> | null;
+        if (meta?.stripeSubscriptionId === subscription.id) {
+          await db
+            .update(clientResources)
+            .set({
+              metadata: {
+                ...meta,
+                subscriptionStatus: "canceled",
+                subscriptionCanceledAt: new Date().toISOString(),
+              },
+              updatedAt: new Date(),
+            })
+            .where(eq(clientResources.id, proposal.id));
+          console.log(
+            `[Stripe Webhook] Marked proposal ${proposal.id} subscription as canceled`
+          );
         }
       }
       break;

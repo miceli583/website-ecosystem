@@ -532,8 +532,8 @@ export const portalRouter = createTRPCRouter({
       }
 
       try {
-        // Fetch invoices, subscriptions, payments, and balance in parallel
-        const [invoices, subscriptions, paymentIntents, customer] = await Promise.all([
+        // Fetch Stripe data and proposals in parallel
+        const [invoices, subscriptions, paymentIntents, customer, proposals] = await Promise.all([
           stripe.invoices.list({
             customer: client.stripeCustomerId,
             limit: 20,
@@ -548,10 +548,27 @@ export const portalRouter = createTRPCRouter({
             limit: 20,
           }),
           stripe.customers.retrieve(client.stripeCustomerId),
+          db.query.clientResources.findMany({
+            where: and(
+              eq(clientResources.clientId, client.id),
+              eq(clientResources.section, "proposals"),
+            ),
+          }),
         ]);
 
         // Get balance from customer object
         const balance = "balance" in customer ? customer.balance : null;
+
+        // Build dual lookup maps from proposals
+        const piToProposal = new Map<string, string>();
+        const subToProposal = new Map<string, string>();
+        for (const p of proposals) {
+          const meta = p.metadata as Record<string, unknown> | null;
+          const piId = meta?.stripePaymentIntentId as string | undefined;
+          if (piId) piToProposal.set(piId, p.title);
+          const subId = meta?.stripeSubscriptionId as string | undefined;
+          if (subId) subToProposal.set(subId, p.title);
+        }
 
         // Collect unique product IDs from subscriptions to fetch names
         const productIds = new Set<string>();
@@ -586,7 +603,19 @@ export const portalRouter = createTRPCRouter({
               .filter(Boolean)
               .slice(0, 3);
 
+            // Resolve proposal name via subscription link
+            const invSubDetails = inv.parent?.subscription_details;
+            const invSubscriptionId = invSubDetails
+              ? typeof invSubDetails.subscription === "string"
+                ? invSubDetails.subscription
+                : invSubDetails.subscription?.id ?? null
+              : null;
+            const proposalName = invSubscriptionId
+              ? subToProposal.get(invSubscriptionId) ?? null
+              : null;
+
             const derivedDescription =
+              proposalName ??
               inv.description ??
               (lineItemDescriptions?.length
                 ? lineItemDescriptions.join(", ")
@@ -605,32 +634,17 @@ export const portalRouter = createTRPCRouter({
               invoicePdf: inv.invoice_pdf,
               created: inv.created,
               description: derivedDescription,
+              proposalName,
             };
           }),
           // One-time payments (from Checkout) - exclude subscription-related charges
-          payments: await (async () => {
+          payments: (() => {
             const filteredPayments = paymentIntents.data
               .filter((pi) => pi.status === "succeeded")
               .filter((pi) => {
                 const desc = pi.description?.toLowerCase() ?? "";
                 return !desc.includes("subscription") && !desc.includes("invoice");
               });
-
-            // Look up proposal names from DB by matching stripePaymentIntentId in metadata
-            const proposals = await db.query.clientResources.findMany({
-              where: and(
-                eq(clientResources.clientId, client.id),
-                eq(clientResources.section, "proposals"),
-              ),
-            });
-
-            // Build a map of PaymentIntent ID → proposal title
-            const piToProposal = new Map<string, string>();
-            for (const p of proposals) {
-              const meta = p.metadata as Record<string, unknown> | null;
-              const piId = meta?.stripePaymentIntentId as string | undefined;
-              if (piId) piToProposal.set(piId, p.title);
-            }
 
             return filteredPayments.map((pi) => ({
               id: pi.id,
@@ -652,6 +666,7 @@ export const portalRouter = createTRPCRouter({
             cancelAtPeriodEnd: sub.cancel_at_period_end,
             canceledAt: sub.canceled_at,
             trialEnd: sub.trial_end,
+            proposalName: subToProposal.get(sub.id) ?? null,
             items: sub.items.data.map((item) => {
               const productId =
                 typeof item.price.product === "string"
