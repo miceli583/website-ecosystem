@@ -60,6 +60,8 @@ export function DemoHubLayout({
           <h1
             className="mb-4 text-4xl font-bold sm:text-5xl"
             style={{
+              fontFamily: "Quattrocento Sans, serif",
+              letterSpacing: "0.08em",
               background:
                 "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               WebkitBackgroundClip: "text",

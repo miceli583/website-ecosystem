@@ -298,7 +298,7 @@ const modules = [
     title: "Organizational Skills — Part 2",
     subtitle: "Application",
     slideCount: 61,
-    color: "#14919B",
+    color: "#D4AF37",
     icon: Target,
     description:
       "Applying organizational skills in real CHW work settings through workflows, documentation, follow-up, and coordination.",
@@ -314,7 +314,7 @@ const modules = [
     title: "Organizational Skills — Part 3",
     subtitle: "Advanced Practice",
     slideCount: 61,
-    color: "#E07A5F",
+    color: "#D4AF37",
     icon: Lightbulb,
     description:
       "Advanced organizational practice focusing on systems thinking, coordination, reporting, and adaptive organization.",
@@ -330,7 +330,7 @@ const modules = [
     title: "Organizational Skills — Part 4",
     subtitle: "Integration & Mastery",
     slideCount: 61,
-    color: "#9B5DE5",
+    color: "#D4AF37",
     icon: CheckCircle,
     description:
       "Integrating organizational mastery into daily CHW practice while maintaining ethics, boundaries, and sustainability.",
@@ -379,21 +379,21 @@ function getSlideType(title: string): string {
 function getSlideTypeColor(type: string) {
   switch (type) {
     case "overview":
-      return "bg-blue-900/30 text-blue-400 border-blue-800";
+      return "bg-amber-900/30 text-amber-400 border-amber-800/50";
     case "objective":
-      return "bg-purple-900/30 text-purple-400 border-purple-800";
+      return "bg-emerald-900/30 text-emerald-400 border-emerald-800/50";
     case "test":
-      return "bg-green-900/30 text-green-400 border-green-800";
+      return "bg-sky-900/30 text-sky-400 border-sky-800/50";
     case "case":
-      return "bg-orange-900/30 text-orange-400 border-orange-800";
+      return "bg-rose-900/30 text-rose-400 border-rose-800/50";
     case "reflection":
-      return "bg-yellow-900/30 text-yellow-400 border-yellow-800";
+      return "bg-violet-900/30 text-violet-400 border-violet-800/50";
     case "activity":
-      return "bg-pink-900/30 text-pink-400 border-pink-800";
+      return "bg-fuchsia-900/30 text-fuchsia-400 border-fuchsia-800/50";
     case "summary":
-      return "bg-teal-900/30 text-teal-400 border-teal-800";
+      return "bg-teal-900/30 text-teal-400 border-teal-800/50";
     default:
-      return "bg-gray-900/30 text-gray-400 border-gray-800";
+      return "bg-white/5 text-gray-400 border-white/10";
   }
 }
 
@@ -420,11 +420,11 @@ function DocumentModal({
       />
 
       {/* Modal */}
-      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-800 bg-gray-950 shadow-2xl">
+      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border bg-black shadow-2xl" style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}>
         {/* Header */}
         <div
-          className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-800 p-6"
-          style={{ backgroundColor: "rgba(3, 7, 18, 0.95)" }}
+          className="sticky top-0 z-10 flex items-center justify-between border-b p-6"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.95)", borderColor: "rgba(212, 175, 55, 0.2)" }}
         >
           <div className="flex items-center gap-4">
             <div
@@ -442,7 +442,7 @@ function DocumentModal({
           </div>
           <button
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-gray-400 transition-colors hover:bg-white/20 hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -456,7 +456,8 @@ function DocumentModal({
               return (
                 <div
                   key={slide.num}
-                  className="rounded-xl border border-gray-800 bg-gray-900/50 p-5 transition-colors hover:border-gray-700"
+                  className="rounded-xl border bg-white/5 p-5 transition-colors hover:bg-white/10"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
                 >
                   <div className="mb-3 flex items-center gap-3">
                     <span
@@ -485,7 +486,7 @@ function DocumentModal({
           </div>
 
           {/* Footer */}
-          <div className="mt-8 rounded-xl border border-gray-800 bg-gray-900/30 p-4 text-center">
+          <div className="mt-8 rounded-xl border p-4 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
             <p className="text-sm text-gray-500">
               © CHW360 | Educational Use Only | Not Medical Advice
             </p>
@@ -512,9 +513,9 @@ function ModuleCard({
 
   return (
     <div
-      className="overflow-hidden rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 transition-all"
+      className="overflow-hidden rounded-2xl border bg-white/5 backdrop-blur-md transition-all"
       style={{
-        borderColor: isExpanded ? `${module.color}40` : undefined,
+        borderColor: isExpanded ? "rgba(212, 175, 55, 0.4)" : "rgba(212, 175, 55, 0.2)",
       }}
     >
       {/* Header */}
@@ -581,9 +582,9 @@ function ModuleCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="border-t border-gray-800 bg-black/30">
+        <div className="border-t bg-black/30" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
           {/* Learning Objectives */}
-          <div className="border-b border-gray-800 p-6">
+          <div className="border-b p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
             <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
               <Target className="h-4 w-4" />
               Learning Objectives
@@ -615,7 +616,8 @@ function ModuleCard({
                 return (
                   <div
                     key={slide.num}
-                    className="rounded-lg border border-gray-800 bg-gray-900/50 p-4 transition-colors hover:border-gray-700"
+                    className="rounded-lg border bg-white/5 p-4 transition-colors hover:bg-white/10"
+                    style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
                   >
                     <div className="mb-2 flex items-center gap-2">
                       <span
@@ -635,7 +637,8 @@ function ModuleCard({
               })}
               <button
                 onClick={onViewFull}
-                className="w-full rounded-lg border border-dashed border-gray-700 bg-gray-900/30 p-4 text-center transition-colors hover:border-gray-600 hover:bg-gray-900/50"
+                className="w-full rounded-lg border border-dashed p-4 text-center transition-colors hover:bg-white/5"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
               >
                 <p className="text-sm text-gray-400">
                   + {module.slideCount - previewSlides.length} more slides —{" "}
@@ -675,7 +678,7 @@ export default function InputsPage({ params }: { params: Promise<{ slug: string 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-md">
+      <header className="border-b backdrop-blur-md" style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(0, 0, 0, 0.8)" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link
             href={`/portal/${slug}/demos/slides`}
@@ -703,9 +706,17 @@ export default function InputsPage({ params }: { params: Promise<{ slug: string 
       <main className="mx-auto max-w-5xl px-6 py-12">
         {/* Page Header */}
         <div className="mb-10">
-          <h1 className="mb-4 text-4xl font-bold">
-            <span style={{ color: "#D4AF37" }}>Organizational Skills</span>
-            <br />
+          <h1
+            className="mb-4 text-4xl font-bold sm:text-5xl"
+            style={{
+              fontFamily: "Quattrocento Sans, serif",
+              letterSpacing: "0.08em",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
             Training Modules
           </h1>
           <p className="max-w-2xl text-lg text-gray-400">
@@ -716,22 +727,22 @@ export default function InputsPage({ params }: { params: Promise<{ slug: string 
 
         {/* Stats Bar */}
         <div className="mb-10 grid grid-cols-4 gap-4">
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
             <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
               {modules.length}
             </p>
             <p className="text-sm text-gray-500">Modules</p>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold text-teal-400">{totalSlides}</p>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold text-[#D4AF37]">{totalSlides}</p>
             <p className="text-sm text-gray-500">Total Slides</p>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold text-purple-400">{totalObjectives}</p>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold text-[#D4AF37]">{totalObjectives}</p>
             <p className="text-sm text-gray-500">Learning Objectives</p>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold text-green-400">Ready</p>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold text-[#D4AF37]">Ready</p>
             <p className="text-sm text-gray-500">Status</p>
           </div>
         </div>
@@ -750,7 +761,7 @@ export default function InputsPage({ params }: { params: Promise<{ slug: string 
         </div>
 
         {/* Footer Note */}
-        <div className="mt-10 rounded-xl border border-gray-800 bg-gray-900/30 p-6 text-center">
+        <div className="mt-10 rounded-xl border p-6 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
           <p className="text-sm text-gray-500">
             © CHW360 | Educational Use Only | Not Medical Advice
           </p>

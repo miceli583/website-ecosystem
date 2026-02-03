@@ -17,11 +17,12 @@
 - [ ] Stress test portal flows (manual QA — checklist printed)
 - [ ] Research device-independent magic links (Supabase auth) — tabled
 
-## Session 3 — Branding & Polish
+## Session 3 — Branding & Polish (DONE)
 
-- [ ] Portal branding consistency with miraclemind.dev/matthewmiceli.com
-- [ ] Admin login page branding
-- [ ] Image carousel (continuous sliding) for matthewmiceli.com
+- [x] Portal branding consistency — standardized demo hubs, gold accent colors
+- [x] Admin login page rebranded to gold/black Miracle Mind theme
+- [x] Proposal spacing and markdown rendering improved
+- [ ] Image carousel (continuous sliding) for matthewmiceli.com — deprioritized
 
 ## Session 4+ — Admin Overhaul (Phased)
 

@@ -85,7 +85,7 @@ export function SearchFilterBar({
           <select
             value={sortOrder}
             onChange={(e) => onSortChange(e.target.value as SortOrder)}
-            className="h-full appearance-none rounded-md border border-gray-700 bg-white/5 px-4 py-2 pr-10 text-sm text-gray-300 transition-colors hover:bg-white/10 focus:border-yellow-600 focus:outline-none"
+            className="h-full appearance-none rounded-md border border-gray-700 bg-white/5 px-4 py-2 pr-10 text-sm text-gray-300 transition-colors hover:bg-white/10 focus:border-[#D4AF37] focus:outline-none"
           >
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -102,7 +102,7 @@ export function SearchFilterBar({
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 rounded-md border px-4 py-2 transition-colors ${
               showFilters || hasActiveFilter
-                ? "border-yellow-600 bg-yellow-900/20 text-yellow-400"
+                ? "border-[#D4AF37]/50 bg-[#D4AF37]/10 text-[#D4AF37]"
                 : "border-gray-700 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
             }`}
           >
@@ -122,7 +122,7 @@ export function SearchFilterBar({
             onClick={() => onFilterChange("all")}
             className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
               selectedFilter === "all"
-                ? "bg-yellow-900/50 text-yellow-400"
+                ? "bg-[#D4AF37]/20 text-[#D4AF37]"
                 : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
             }`}
           >
@@ -134,7 +134,7 @@ export function SearchFilterBar({
               onClick={() => onFilterChange(option.id)}
               className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
                 selectedFilter === option.id
-                  ? "bg-yellow-900/50 text-yellow-400"
+                  ? "bg-[#D4AF37]/20 text-[#D4AF37]"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
               }`}
             >

@@ -33,7 +33,7 @@ export function ListItem({
   badge,
   href,
   onClick,
-  external = true,
+  external = false,
   disabled = false,
   disabledMessage,
 }: ListItemProps) {
@@ -49,9 +49,14 @@ export function ListItem({
     <div
       className={`flex items-center justify-between gap-4 rounded-md border px-4 py-3 transition-colors ${
         disabled
-          ? "cursor-not-allowed border-gray-800 bg-white/[0.02] opacity-60"
-          : "border-gray-800 bg-white/5 hover:border-[#D4AF37]/50 hover:bg-white/10"
+          ? "cursor-not-allowed bg-white/[0.02] opacity-60"
+          : "bg-white/5 hover:bg-white/10"
       }`}
+      style={{
+        borderColor: disabled
+          ? "rgba(255, 255, 255, 0.08)"
+          : "rgba(212, 175, 55, 0.15)",
+      }}
     >
       <div className="flex items-center gap-3 overflow-hidden">
         <div

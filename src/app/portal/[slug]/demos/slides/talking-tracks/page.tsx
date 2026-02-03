@@ -747,21 +747,21 @@ function getSlideIcon(type: string) {
 function getSlideTypeColor(type: string) {
   switch (type) {
     case "overview":
-      return "bg-blue-900/30 text-blue-400 border-blue-800";
+      return "bg-amber-900/30 text-amber-400 border-amber-800/50";
     case "objective":
-      return "bg-purple-900/30 text-purple-400 border-purple-800";
+      return "bg-emerald-900/30 text-emerald-400 border-emerald-800/50";
     case "test":
-      return "bg-green-900/30 text-green-400 border-green-800";
+      return "bg-sky-900/30 text-sky-400 border-sky-800/50";
     case "case":
-      return "bg-orange-900/30 text-orange-400 border-orange-800";
+      return "bg-rose-900/30 text-rose-400 border-rose-800/50";
     case "reflection":
-      return "bg-yellow-900/30 text-yellow-400 border-yellow-800";
+      return "bg-violet-900/30 text-violet-400 border-violet-800/50";
     case "activity":
-      return "bg-pink-900/30 text-pink-400 border-pink-800";
+      return "bg-fuchsia-900/30 text-fuchsia-400 border-fuchsia-800/50";
     case "summary":
-      return "bg-teal-900/30 text-teal-400 border-teal-800";
+      return "bg-teal-900/30 text-teal-400 border-teal-800/50";
     default:
-      return "bg-gray-900/30 text-gray-400 border-gray-800";
+      return "bg-white/5 text-gray-400 border-white/10";
   }
 }
 
@@ -780,8 +780,8 @@ function TalkingTrackCard({
     <div
       className="overflow-hidden rounded-xl border transition-all"
       style={{
-        borderColor: isExpanded ? "rgba(249, 115, 22, 0.4)" : "rgb(31, 41, 55)",
-        backgroundColor: isExpanded ? "rgba(249, 115, 22, 0.05)" : "rgb(17, 24, 39)",
+        borderColor: isExpanded ? "rgba(212, 175, 55, 0.4)" : "rgba(212, 175, 55, 0.15)",
+        backgroundColor: isExpanded ? "rgba(212, 175, 55, 0.05)" : "rgba(255, 255, 255, 0.03)",
       }}
     >
       {/* Header */}
@@ -793,8 +793,8 @@ function TalkingTrackCard({
           <span
             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold"
             style={{
-              backgroundColor: "rgba(249, 115, 22, 0.2)",
-              color: "#F97316",
+              backgroundColor: "rgba(212, 175, 55, 0.15)",
+              color: "#D4AF37",
             }}
           >
             {track.num}
@@ -809,7 +809,7 @@ function TalkingTrackCard({
             </span>
           </div>
         </div>
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-800">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10">
           {isExpanded ? (
             <ChevronUp className="h-4 w-4 text-gray-400" />
           ) : (
@@ -820,11 +820,11 @@ function TalkingTrackCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="border-t border-gray-800 bg-black/30 p-5">
+        <div className="border-t bg-black/30 p-5" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
           {/* Talking Points */}
           <div className="mb-5">
             <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-              <Mic className="h-4 w-4" style={{ color: "#F97316" }} />
+              <Mic className="h-4 w-4" style={{ color: "#D4AF37" }} />
               Talking Points
             </h4>
             <ul className="space-y-3">
@@ -832,7 +832,7 @@ function TalkingTrackCard({
                 <li key={idx} className="flex items-start gap-3">
                   <span
                     className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-black"
-                    style={{ backgroundColor: "#F97316" }}
+                    style={{ backgroundColor: "#D4AF37" }}
                   >
                     {idx + 1}
                   </span>
@@ -846,17 +846,17 @@ function TalkingTrackCard({
           {track.presenterTips && track.presenterTips.length > 0 && (
             <div className="mb-5">
               <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
-                <Lightbulb className="h-4 w-4 text-yellow-500" />
+                <Lightbulb className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 Presenter Tips
               </h4>
               <ul className="space-y-2">
                 {track.presenterTips.map((tip, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2 rounded-lg border border-yellow-900/30 bg-yellow-900/10 p-3"
+                    className="flex items-start gap-2 rounded-lg border border-[#D4AF37]/20 bg-[#D4AF37]/5 p-3"
                   >
-                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-500" />
-                    <p className="text-sm text-yellow-200">{tip}</p>
+                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: "#D4AF37" }} />
+                    <p className="text-sm text-[#F6E6C1]">{tip}</p>
                   </li>
                 ))}
               </ul>
@@ -865,12 +865,12 @@ function TalkingTrackCard({
 
           {/* Transition */}
           {track.transition && (
-            <div className="rounded-lg border border-teal-900/30 bg-teal-900/10 p-4">
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-teal-400">
+            <div className="rounded-lg border border-[#D4AF37]/20 bg-[#D4AF37]/5 p-4">
+              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#D4AF37]">
                 <ArrowLeft className="h-4 w-4 rotate-180" />
                 Transition to Next Slide
               </h4>
-              <p className="text-sm italic text-teal-200">&ldquo;{track.transition}&rdquo;</p>
+              <p className="text-sm italic text-[#F6E6C1]">&ldquo;{track.transition}&rdquo;</p>
             </div>
           )}
         </div>
@@ -916,7 +916,7 @@ export default function TalkingTracksPage({
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-md">
+      <header className="border-b backdrop-blur-md" style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(0, 0, 0, 0.8)" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link
             href={`/portal/${slug}/demos/slides`}
@@ -928,7 +928,7 @@ export default function TalkingTracksPage({
           <div className="flex items-center gap-3">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-xl"
-              style={{ backgroundColor: "#F97316" }}
+              style={{ backgroundColor: "#D4AF37" }}
             >
               <Mic className="h-5 w-5 text-black" />
             </div>
@@ -944,10 +944,18 @@ export default function TalkingTracksPage({
       <main className="mx-auto max-w-5xl px-6 py-12">
         {/* Page Header */}
         <div className="mb-10">
-          <h1 className="mb-4 text-4xl font-bold">
-            <span style={{ color: "#F97316" }}>Module 1</span>
-            <br />
-            Organizational Skills Part 1
+          <h1
+            className="mb-4 text-4xl font-bold sm:text-5xl"
+            style={{
+              fontFamily: "Quattrocento Sans, serif",
+              letterSpacing: "0.08em",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Talking Tracks
           </h1>
           <p className="max-w-2xl text-lg text-gray-400">
             Presenter talking points and delivery guidance for all 61 slides of the
@@ -957,22 +965,22 @@ export default function TalkingTracksPage({
 
         {/* Stats Bar */}
         <div className="mb-10 grid grid-cols-4 gap-4">
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold" style={{ color: "#F97316" }}>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
               {talkingTracks.length}
             </p>
             <p className="text-sm text-gray-500">Slides</p>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold text-teal-400">{slidesWithTips}</p>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold text-[#D4AF37]">{slidesWithTips}</p>
             <p className="text-sm text-gray-500">With Tips</p>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold text-purple-400">{slidesWithTransitions}</p>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold text-[#D4AF37]">{slidesWithTransitions}</p>
             <p className="text-sm text-gray-500">With Transitions</p>
           </div>
-          <div className="rounded-xl border border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 p-4">
-            <p className="text-2xl font-bold text-green-400">~45 min</p>
+          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <p className="text-2xl font-bold text-[#D4AF37]">~45 min</p>
             <p className="text-sm text-gray-500">Est. Duration</p>
           </div>
         </div>
@@ -985,7 +993,8 @@ export default function TalkingTracksPage({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFullScript(true)}
-              className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-500"
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
             >
               <ScrollText className="h-4 w-4" />
               Full Script
@@ -993,7 +1002,7 @@ export default function TalkingTracksPage({
             <button
               onClick={handleExpandAll}
               className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-white/5"
-              style={{ borderColor: "#F97316", color: "#F97316" }}
+              style={{ borderColor: "#D4AF37", color: "#D4AF37" }}
             >
               {expandAll ? (
                 <>
@@ -1023,7 +1032,7 @@ export default function TalkingTracksPage({
         </div>
 
         {/* Footer Note */}
-        <div className="mt-10 rounded-xl border border-gray-800 bg-gray-900/30 p-6 text-center">
+        <div className="mt-10 rounded-xl border p-6 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
           <p className="text-sm text-gray-500">
             CHW360 | Educational Use Only | Not Medical Advice
           </p>
@@ -1037,11 +1046,11 @@ export default function TalkingTracksPage({
       {/* Full Script Modal */}
       {showFullScript && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[90vh] w-full max-w-3xl flex-col rounded-2xl border border-gray-800 bg-gray-950">
+          <div className="relative flex h-[90vh] w-full max-w-3xl flex-col rounded-2xl border bg-black" style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}>
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
+            <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D4AF37]">
                   <ScrollText className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -1051,7 +1060,7 @@ export default function TalkingTracksPage({
               </div>
               <button
                 onClick={() => setShowFullScript(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1061,8 +1070,8 @@ export default function TalkingTracksPage({
             <div className="flex-1 overflow-y-auto px-6 py-6">
               <div className="prose prose-invert max-w-none">
                 {talkingTracks.map((track) => (
-                  <div key={track.num} className="mb-8 border-b border-gray-800 pb-8 last:border-0">
-                    <h3 className="mb-4 text-lg font-bold text-orange-400">
+                  <div key={track.num} className="mb-8 border-b pb-8 last:border-0" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
+                    <h3 className="mb-4 text-lg font-bold text-[#D4AF37]">
                       Slide {track.num}: {track.title}
                     </h3>
 
@@ -1078,11 +1087,11 @@ export default function TalkingTracksPage({
                     </div>
 
                     {track.presenterTips && track.presenterTips.length > 0 && (
-                      <div className="mb-4 rounded-lg bg-yellow-900/20 p-4">
-                        <p className="mb-2 text-sm font-semibold text-yellow-400">
+                      <div className="mb-4 rounded-lg bg-[#D4AF37]/10 p-4">
+                        <p className="mb-2 text-sm font-semibold text-[#D4AF37]">
                           Presenter Tips
                         </p>
-                        <ul className="list-inside list-disc space-y-1 text-sm text-yellow-200/80">
+                        <ul className="list-inside list-disc space-y-1 text-sm text-[#F6E6C1]/80">
                           {track.presenterTips.map((tip, idx) => (
                             <li key={idx}>{tip}</li>
                           ))}
@@ -1091,11 +1100,11 @@ export default function TalkingTracksPage({
                     )}
 
                     {track.transition && (
-                      <div className="rounded-lg bg-teal-900/20 p-4">
-                        <p className="mb-1 text-sm font-semibold text-teal-400">
+                      <div className="rounded-lg bg-[#D4AF37]/10 p-4">
+                        <p className="mb-1 text-sm font-semibold text-[#D4AF37]">
                           Transition
                         </p>
-                        <p className="text-sm italic text-teal-200/80">
+                        <p className="text-sm italic text-[#F6E6C1]/80">
                           &ldquo;{track.transition}&rdquo;
                         </p>
                       </div>
@@ -1106,7 +1115,7 @@ export default function TalkingTracksPage({
             </div>
 
             {/* Modal Footer */}
-            <div className="border-t border-gray-800 px-6 py-4">
+            <div className="border-t px-6 py-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
               <p className="text-center text-xs text-gray-600">
                 {talkingTracks.length} slides • Scroll to read full script
               </p>

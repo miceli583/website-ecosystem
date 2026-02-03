@@ -86,7 +86,7 @@ export default function PortalDemosPage({
         description: r.description,
         url: r.url,
         projectId: r.project?.id ?? null,
-        projectName: r.project?.name ?? "General",
+        projectName: r.project?.name ?? "",
         createdAt: r.createdAt,
       });
     });

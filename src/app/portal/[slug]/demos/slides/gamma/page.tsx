@@ -49,7 +49,10 @@ export default function GammaPresentationsPage({
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-md">
+      <header
+        className="border-b backdrop-blur-md"
+        style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+      >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link
             href={`/portal/${slug}/demos/slides`}
@@ -59,8 +62,11 @@ export default function GammaPresentationsPage({
             Back to Slide Generator
           </Link>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600">
-              <Sparkles className="h-5 w-5 text-white" />
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-xl"
+              style={{ backgroundColor: "#D4AF37" }}
+            >
+              <Sparkles className="h-5 w-5 text-black" />
             </div>
             <div>
               <h1 className="font-bold">Gamma Presentations</h1>
@@ -74,8 +80,18 @@ export default function GammaPresentationsPage({
       <main className="mx-auto max-w-5xl px-6 py-12">
         {/* Page Header */}
         <div className="mb-10">
-          <h1 className="mb-4 text-4xl font-bold">
-            <span className="text-purple-400">Gamma</span> Presentations
+          <h1
+            className="mb-4 text-4xl font-bold sm:text-5xl"
+            style={{
+              fontFamily: "Quattrocento Sans, serif",
+              letterSpacing: "0.08em",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Gamma Presentations
           </h1>
           <p className="max-w-2xl text-lg text-gray-400">
             AI-generated presentation decks for your CHW training modules.
@@ -84,12 +100,15 @@ export default function GammaPresentationsPage({
         </div>
 
         {/* Info Banner */}
-        <div className="mb-8 rounded-xl border border-purple-900/50 bg-purple-950/30 p-4">
+        <div
+          className="mb-8 rounded-xl border p-4"
+          style={{ borderColor: "rgba(212, 175, 55, 0.3)", backgroundColor: "rgba(212, 175, 55, 0.05)" }}
+        >
           <div className="flex items-start gap-3">
-            <Sparkles className="mt-0.5 h-5 w-5 flex-shrink-0 text-purple-400" />
+            <Sparkles className="mt-0.5 h-5 w-5 flex-shrink-0" style={{ color: "#D4AF37" }} />
             <div>
-              <p className="font-medium text-purple-200">Powered by Gamma AI</p>
-              <p className="mt-1 text-sm text-purple-300/70">
+              <p className="font-medium" style={{ color: "#F6E6C1" }}>Powered by Gamma AI</p>
+              <p className="mt-1 text-sm text-gray-400">
                 These presentations are generated using your training content and can be
                 exported to PowerPoint or PDF for offline use.
               </p>
@@ -104,32 +123,40 @@ export default function GammaPresentationsPage({
               key={presentation.id}
               className={`group relative overflow-hidden rounded-2xl border p-6 transition-all ${
                 presentation.status === "ready"
-                  ? "border-gray-800 bg-gradient-to-br from-gray-900 to-gray-950 hover:border-purple-600/50 hover:shadow-xl hover:shadow-purple-900/10"
-                  : "border-gray-800/50 bg-gray-950/50"
+                  ? "bg-white/5 backdrop-blur-md hover:bg-white/10 hover:shadow-xl"
+                  : "bg-white/[0.02]"
               }`}
+              style={{
+                borderColor: presentation.status === "ready"
+                  ? "rgba(212, 175, 55, 0.2)"
+                  : "rgba(255, 255, 255, 0.05)",
+              }}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <div
-                    className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${
-                      presentation.status === "ready"
-                        ? "bg-purple-900/30"
-                        : "bg-gray-800/50"
-                    }`}
+                    className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl"
+                    style={{
+                      background: presentation.status === "ready"
+                        ? "linear-gradient(135deg, rgba(246, 230, 193, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%)"
+                        : "rgba(255, 255, 255, 0.03)",
+                      border: presentation.status === "ready"
+                        ? "1px solid rgba(212, 175, 55, 0.2)"
+                        : "1px solid rgba(255, 255, 255, 0.05)",
+                    }}
                   >
                     <FileText
-                      className={`h-6 w-6 ${
-                        presentation.status === "ready"
-                          ? "text-purple-400"
-                          : "text-gray-600"
-                      }`}
+                      className="h-6 w-6"
+                      style={{
+                        color: presentation.status === "ready" ? "#D4AF37" : "#4b5563",
+                      }}
                     />
                   </div>
                   <div>
                     <h2
                       className={`text-xl font-bold ${
                         presentation.status === "ready"
-                          ? "text-white group-hover:text-purple-400"
+                          ? "text-white group-hover:text-[#D4AF37]"
                           : "text-gray-500"
                       }`}
                     >
@@ -145,7 +172,7 @@ export default function GammaPresentationsPage({
                       {presentation.description}
                     </p>
                     {presentation.slides && (
-                      <p className="mt-2 text-sm text-purple-400">
+                      <p className="mt-2 text-sm" style={{ color: "#D4AF37" }}>
                         {presentation.slides} slides
                       </p>
                     )}
@@ -157,27 +184,31 @@ export default function GammaPresentationsPage({
                     href={presentation.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-shrink-0 items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
+                    className="flex flex-shrink-0 items-center gap-2 rounded-lg px-4 py-2 font-medium text-black transition-opacity hover:opacity-90"
+                    style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
                   >
                     <ExternalLink className="h-4 w-4" />
                     View
                   </a>
                 ) : (
-                  <span className="flex-shrink-0 rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-500">
+                  <span className="flex-shrink-0 rounded-full bg-white/5 px-3 py-1 text-sm text-gray-500">
                     Coming Soon
                   </span>
                 )}
               </div>
 
               {presentation.status === "ready" && (
-                <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-purple-500/5 blur-2xl transition-all group-hover:bg-purple-500/10" />
+                <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full blur-2xl transition-all" style={{ backgroundColor: "rgba(212, 175, 55, 0.03)" }} />
               )}
             </div>
           ))}
         </div>
 
         {/* Footer Note */}
-        <div className="mt-10 rounded-xl border border-gray-800 bg-gray-900/30 p-6 text-center">
+        <div
+          className="mt-10 rounded-xl border p-6 text-center"
+          style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(255, 255, 255, 0.02)" }}
+        >
           <p className="text-sm text-gray-500">
             CHW360 Training Materials | Generated with Gamma AI
           </p>

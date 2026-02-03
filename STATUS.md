@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.4.3
-**Last Updated:** 2026-02-02
-**Commits:** 112
+**Version:** 0.5.0
+**Last Updated:** 2026-02-03
+**Commits:** 114
 
 ## Feature Status
 
@@ -12,8 +12,8 @@
 | Authentication (Supabase) | Working | Email/password, magic links, tRPC protectedProcedure |
 | Admin dashboard | Working | Protected routes at `/admin/*`, includes CRM |
 | Client portal v2 | Working | `/portal/[slug]` with role-based auth, magic link claim flow |
-| Portal pages | Working | Dashboard, Demos, Proposals, Tooling, Billing, Profile |
-| Portal users | Working | Admin/client roles, claim account flow via magic link |
+| Portal pages | Working | Dashboard, Demos, Proposals, Tooling, Notes, Billing, Profile |
+| Portal notes | Working | TipTap rich text, collaborative (admin + client), pin/search |
 | Client resources | Working | Flexible demos, tooling, credentials, embeds per client |
 | CHW360 mockup demo | Working | Exact mockup replica with carousel, brand assets page |
 | Shader gallery | Working | 8 interactive shaders (orbit-star enhanced) |
@@ -41,10 +41,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 03 | 0ecedf5 | Rebrand admin login, standardize demo hubs, polish portal UI |
+| Feb 03 | dc5fd6c | Add collaborative notes tab with TipTap rich text editor |
 | Feb 02 | c3b0ce1 | Subscription tracking in webhooks, proposal linking in billing |
 | Feb 02 | 702c7c5 | Link payments to proposal names in billing history |
 | Feb 02 | ba8fc6c | Add one-time payments to billing history |
-| Feb 02 | 1d2b5d2 | CHW360 mockup demo: exact replica with carousel, brand assets page |
-| Feb 02 | 9bf9474 | Fix Stripe customer test/live mode mismatch |
 
 See `git log --oneline` for full history.
