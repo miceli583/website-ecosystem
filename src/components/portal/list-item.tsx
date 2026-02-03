@@ -19,6 +19,9 @@ interface ListItemProps {
   onClick?: () => void;
   external?: boolean; // Opens in new tab
 
+  // Admin actions slot (rendered on the right)
+  actions?: ReactNode;
+
   // Disabled state (e.g., subscription required)
   disabled?: boolean;
   disabledMessage?: string;
@@ -33,6 +36,7 @@ export function ListItem({
   badge,
   href,
   onClick,
+  actions,
   external = false,
   disabled = false,
   disabledMessage,
@@ -86,6 +90,7 @@ export function ListItem({
         {secondaryText && <span className="hidden sm:inline">{secondaryText}</span>}
         {formattedDate && <span>{formattedDate}</span>}
         {href && external && !disabled && <ExternalLink className="h-4 w-4" />}
+        {actions}
       </div>
     </div>
   );

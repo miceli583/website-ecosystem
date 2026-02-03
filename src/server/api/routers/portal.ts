@@ -274,6 +274,7 @@ export const portalRouter = createTRPCRouter({
       z.object({
         slug: z.string(),
         section: z.string().optional(), // filter by section (demos, tooling, etc.)
+        isActive: z.boolean().optional(), // undefined = admin sees all, true/false = filter
       })
     )
     .query(async ({ ctx, input }) => {
@@ -312,8 +313,13 @@ export const portalRouter = createTRPCRouter({
       // Build query conditions
       const conditions = [
         eq(clientResources.clientId, client.id),
-        eq(clientResources.isActive, true),
       ];
+
+      // Clients always see only active resources; admins can filter or see all
+      const activeFilter = input.isActive ?? (profile.role === "client" ? true : undefined);
+      if (activeFilter !== undefined) {
+        conditions.push(eq(clientResources.isActive, activeFilter));
+      }
 
       if (input.section) {
         conditions.push(eq(clientResources.section, input.section));
@@ -1350,5 +1356,189 @@ export const portalRouter = createTRPCRouter({
       });
 
       return { success: true };
+    }),
+
+  /**
+   * Update a client resource (admin only)
+   * Supports toggling active/archived, reassigning project, editing fields
+   */
+  updateResource: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        projectId: z.number().nullable().optional(),
+        title: z.string().min(1).optional(),
+        description: z.string().nullable().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().optional(),
+        isFeatured: z.boolean().optional(),
+        url: z.string().nullable().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || profile.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      const { id, ...updates } = input;
+
+      // Filter out undefined values
+      const setValues: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) {
+          setValues[key] = value;
+        }
+      }
+
+      if (Object.keys(setValues).length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No fields to update",
+        });
+      }
+
+      setValues.updatedAt = new Date();
+
+      const [updated] = await db
+        .update(clientResources)
+        .set(setValues)
+        .where(eq(clientResources.id, id))
+        .returning();
+
+      if (!updated) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Resource not found",
+        });
+      }
+
+      return updated;
+    }),
+
+  /**
+   * Delete a client resource (admin only)
+   */
+  deleteResource: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || profile.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      const [deleted] = await db
+        .delete(clientResources)
+        .where(eq(clientResources.id, input.id))
+        .returning();
+
+      if (!deleted) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Resource not found",
+        });
+      }
+
+      return { success: true };
+    }),
+
+  /**
+   * Get all projects for a client
+   */
+  getProjects: protectedProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || !profile.isActive) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Portal access denied",
+        });
+      }
+
+      if (profile.role === "client" && profile.clientSlug !== input.slug) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only access your own projects",
+        });
+      }
+
+      const client = await db.query.clients.findFirst({
+        where: eq(clients.slug, input.slug),
+      });
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      return db.query.clientProjects.findMany({
+        where: eq(clientProjects.clientId, client.id),
+        orderBy: [desc(clientProjects.createdAt)],
+      });
+    }),
+
+  /**
+   * Create a project for a client (admin only)
+   */
+  createProject: protectedProcedure
+    .input(
+      z.object({
+        slug: z.string(),
+        name: z.string().min(1),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || profile.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      const client = await db.query.clients.findFirst({
+        where: eq(clients.slug, input.slug),
+      });
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      const [project] = await db
+        .insert(clientProjects)
+        .values({
+          clientId: client.id,
+          name: input.name,
+          description: input.description ?? null,
+        })
+        .returning();
+
+      return project;
     }),
 });

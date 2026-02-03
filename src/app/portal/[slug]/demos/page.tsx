@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useCallback } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
@@ -14,10 +14,29 @@ import {
   SearchFilterBar,
   ListItem,
   ListContainer,
+  StatusTabs,
+  AdminActionMenu,
+  ProjectGroupHeader,
+  ProjectAssignDialog,
+  ConfirmDialog,
   type SortOrder,
   type FilterOption,
+  type AdminAction,
 } from "~/components/portal";
-import { Monitor, Loader2, AlertCircle, Search } from "lucide-react";
+import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2 } from "lucide-react";
+
+interface NormalizedDemo {
+  id: string;
+  resourceId: number | null; // null for legacy demos
+  title: string;
+  description: string | null;
+  url: string | null;
+  projectId: number | null;
+  projectName: string;
+  createdAt: Date | string;
+  isActive: boolean;
+  isLegacy: boolean;
+}
 
 export default function PortalDemosPage({
   params,
@@ -25,19 +44,65 @@ export default function PortalDemosPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const utils = api.useUtils();
+
+  // Data queries
   const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
     { slug },
-    { staleTime: 5 * 60 * 1000 } // 5 minutes - client data rarely changes
+    { staleTime: 5 * 60 * 1000 }
   );
+  const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const isAdmin = profile?.role === "admin";
+
+  // Admin sees all resources (no isActive filter); clients see only active
   const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
-    { slug, section: "demos" },
-    { staleTime: 2 * 60 * 1000 } // 2 minutes - resources can change more often
+    { slug, section: "demos", ...(isAdmin ? {} : { isActive: true }) },
+    { staleTime: 2 * 60 * 1000 }
+  );
+  const { data: projects } = api.portal.getProjects.useQuery(
+    { slug },
+    { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
   );
 
-  // Filter state
+  // Mutations
+  const updateResource = api.portal.updateResource.useMutation({
+    onSuccess: () => void utils.portal.getResources.invalidate(),
+  });
+  const deleteResource = api.portal.deleteResource.useMutation({
+    onSuccess: () => void utils.portal.getResources.invalidate(),
+  });
+  const createProject = api.portal.createProject.useMutation({
+    onSuccess: () => void utils.portal.getProjects.invalidate(),
+  });
+
+  // UI state
+  const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<number | "all">("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+
+  // Collapsed project groups
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = useCallback((groupName: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupName)) next.delete(groupName);
+      else next.add(groupName);
+      return next;
+    });
+  }, []);
+
+  // Dialog state
+  const [assignDialog, setAssignDialog] = useState<{ open: boolean; demo: NormalizedDemo | null }>({
+    open: false,
+    demo: null,
+  });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; demo: NormalizedDemo | null }>({
+    open: false,
+    demo: null,
+  });
 
   // Get all unique projects for filter options
   const projectFilters: FilterOption[] = useMemo(() => {
@@ -54,8 +119,12 @@ export default function PortalDemosPage({
       projectMap.set(p.id, p.name);
     });
 
+    projects?.forEach((p: { id: number; name: string }) => {
+      projectMap.set(p.id, p.name);
+    });
+
     return Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
-  }, [client, resources]);
+  }, [client, resources, projects]);
 
   // Process legacy demos
   const legacyDemos = useMemo(() => {
@@ -68,47 +137,50 @@ export default function PortalDemosPage({
   }, [client]);
 
   // Combine and normalize all demos
-  const allDemos = useMemo(() => {
-    const demos: Array<{
-      id: string;
-      title: string;
-      description: string | null;
-      url: string | null;
-      projectId: number | null;
-      projectName: string;
-      createdAt: Date | string;
-    }> = [];
+  const allDemos: NormalizedDemo[] = useMemo(() => {
+    const demos: NormalizedDemo[] = [];
 
     resources?.forEach((r: Resource) => {
       demos.push({
         id: `r-${r.id}`,
+        resourceId: r.id,
         title: r.title,
         description: r.description,
         url: r.url,
         projectId: r.project?.id ?? null,
         projectName: r.project?.name ?? "",
         createdAt: r.createdAt,
+        isActive: r.isActive ?? true,
+        isLegacy: false,
       });
     });
 
     legacyDemos.forEach((d: UpdateWithProject) => {
       demos.push({
         id: `d-${d.id}`,
+        resourceId: null,
         title: d.title,
         description: null,
         url: null,
         projectId: d.projectId,
         projectName: d.projectName,
         createdAt: d.createdAt,
+        isActive: true, // Legacy demos are always "active"
+        isLegacy: true,
       });
     });
 
     return demos;
   }, [resources, legacyDemos]);
 
+  // Split by active/archived
+  const activeDemos = useMemo(() => allDemos.filter((d) => d.isActive), [allDemos]);
+  const archivedDemos = useMemo(() => allDemos.filter((d) => !d.isActive), [allDemos]);
+  const currentDemos = activeTab === "active" ? activeDemos : archivedDemos;
+
   // Filter demos
   const filteredDemos = useMemo(() => {
-    return allDemos.filter((demo) => {
+    return currentDemos.filter((demo) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesTitle = demo.title.toLowerCase().includes(query);
@@ -121,7 +193,7 @@ export default function PortalDemosPage({
       }
       return true;
     });
-  }, [allDemos, searchQuery, selectedProject]);
+  }, [currentDemos, searchQuery, selectedProject]);
 
   // Sort demos
   const sortedDemos = useMemo(() => {
@@ -134,6 +206,82 @@ export default function PortalDemosPage({
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
   }, [filteredDemos, sortOrder]);
+
+  // Group by project
+  const groupedDemos = useMemo(() => {
+    const groups = new Map<string, NormalizedDemo[]>();
+    for (const demo of sortedDemos) {
+      const key = demo.projectName || "Unassigned";
+      const group = groups.get(key) ?? [];
+      group.push(demo);
+      groups.set(key, group);
+    }
+    // Sort groups: named projects first (alphabetical), "Unassigned" last
+    const sorted = Array.from(groups.entries()).sort(([a], [b]) => {
+      if (a === "Unassigned") return 1;
+      if (b === "Unassigned") return -1;
+      return a.localeCompare(b);
+    });
+    return sorted;
+  }, [sortedDemos]);
+
+  // Admin actions
+  const handleArchive = useCallback(
+    (demo: NormalizedDemo) => {
+      if (!demo.resourceId) return;
+      updateResource.mutate({ id: demo.resourceId, isActive: !demo.isActive });
+    },
+    [updateResource]
+  );
+
+  const handleDelete = useCallback(
+    (demo: NormalizedDemo) => {
+      if (!demo.resourceId) return;
+      deleteResource.mutate({ id: demo.resourceId });
+      setDeleteDialog({ open: false, demo: null });
+    },
+    [deleteResource]
+  );
+
+  const handleAssign = useCallback(
+    (projectId: number | null) => {
+      if (!assignDialog.demo?.resourceId) return;
+      updateResource.mutate({ id: assignDialog.demo.resourceId, projectId });
+    },
+    [assignDialog.demo, updateResource]
+  );
+
+  const handleCreateProject = useCallback(
+    (name: string) => {
+      createProject.mutate({ slug, name });
+    },
+    [createProject, slug]
+  );
+
+  const getAdminActions = useCallback(
+    (demo: NormalizedDemo): AdminAction[] => {
+      if (demo.isLegacy) return []; // Can't manage legacy demos
+      return [
+        {
+          label: demo.isActive ? "Archive" : "Unarchive",
+          icon: demo.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+          onClick: () => handleArchive(demo),
+        },
+        {
+          label: "Assign to Project",
+          icon: <FolderOpen className="h-4 w-4" />,
+          onClick: () => setAssignDialog({ open: true, demo }),
+        },
+        {
+          label: "Delete",
+          icon: <Trash2 className="h-4 w-4" />,
+          onClick: () => setDeleteDialog({ open: true, demo }),
+          variant: "danger" as const,
+        },
+      ];
+    },
+    [handleArchive]
+  );
 
   // Clear all filters
   const clearFilters = () => {
@@ -170,6 +318,10 @@ export default function PortalDemosPage({
 
   const hasContent = allDemos.length > 0;
   const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  // Show project headers unless every demo is unassigned
+  const showGrouping =
+    groupedDemos.length > 1 ||
+    (groupedDemos.length === 1 && groupedDemos[0]![0] !== "Unassigned");
 
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
@@ -180,7 +332,17 @@ export default function PortalDemosPage({
         </p>
       </div>
 
-      {/* Search/Filter Bar - always visible */}
+      {/* Admin tabs */}
+      {isAdmin && hasContent && (
+        <StatusTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeCount={activeDemos.length}
+          archivedCount={archivedDemos.length}
+        />
+      )}
+
+      {/* Search/Filter Bar */}
       <SearchFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -204,24 +366,85 @@ export default function PortalDemosPage({
         </div>
       ) : (
         <ListContainer
-            emptyIcon={<Search className="h-12 w-12" />}
-            emptyMessage="No demos match your search."
-            onClearFilters={clearFilters}
-            showClearFilters={hasActiveFilters}
-          >
-            {sortedDemos.map((demo) => (
-              <ListItem
-                key={demo.id}
-                icon={<Monitor className="h-5 w-5" />}
-                title={demo.title}
-                description={demo.description}
-                date={demo.createdAt}
-                secondaryText={demo.projectName}
-                href={demo.url}
-              />
-            ))}
-          </ListContainer>
+          emptyIcon={<Search className="h-12 w-12" />}
+          emptyMessage={
+            activeTab === "archived"
+              ? "No archived demos."
+              : "No demos match your search."
+          }
+          onClearFilters={clearFilters}
+          showClearFilters={hasActiveFilters}
+        >
+          {showGrouping
+            ? groupedDemos.map(([groupName, demos]) => (
+                <div key={groupName}>
+                  <ProjectGroupHeader
+                    projectName={groupName}
+                    itemCount={demos.length}
+                    collapsed={collapsedGroups.has(groupName)}
+                    onToggle={() => toggleGroup(groupName)}
+                  />
+                  {!collapsedGroups.has(groupName) &&
+                    demos.map((demo) => (
+                      <div key={demo.id} className="mb-3">
+                        <ListItem
+                          icon={<Monitor className="h-5 w-5" />}
+                          title={demo.title}
+                          description={demo.description}
+                          date={demo.createdAt}
+                          secondaryText={demo.projectName}
+                          href={demo.url}
+                          actions={
+                            isAdmin && !demo.isLegacy ? (
+                              <AdminActionMenu actions={getAdminActions(demo)} />
+                            ) : undefined
+                          }
+                        />
+                      </div>
+                    ))}
+                </div>
+              ))
+            : sortedDemos.map((demo) => (
+                <ListItem
+                  key={demo.id}
+                  icon={<Monitor className="h-5 w-5" />}
+                  title={demo.title}
+                  description={demo.description}
+                  date={demo.createdAt}
+                  secondaryText={demo.projectName}
+                  href={demo.url}
+                  actions={
+                    isAdmin && !demo.isLegacy ? (
+                      <AdminActionMenu actions={getAdminActions(demo)} />
+                    ) : undefined
+                  }
+                />
+              ))}
+        </ListContainer>
       )}
+
+      {/* Project Assignment Dialog */}
+      <ProjectAssignDialog
+        open={assignDialog.open}
+        onOpenChange={(open) => setAssignDialog({ open, demo: open ? assignDialog.demo : null })}
+        currentProjectId={assignDialog.demo?.projectId ?? null}
+        projects={projects ?? []}
+        onAssign={handleAssign}
+        onCreateProject={handleCreateProject}
+        isLoading={updateResource.isPending || createProject.isPending}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, demo: open ? deleteDialog.demo : null })}
+        title="Delete Demo"
+        description={`Are you sure you want to permanently delete "${deleteDialog.demo?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={() => deleteDialog.demo && handleDelete(deleteDialog.demo)}
+        isLoading={deleteResource.isPending}
+      />
     </ClientPortalLayout>
   );
 }

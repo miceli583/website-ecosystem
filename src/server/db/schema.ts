@@ -221,7 +221,7 @@ export const clients = pgTable("clients", {
  */
 export const clientProjects = pgTable("client_projects", {
   id: serial("id").primaryKey(),
-  clientId: serial("client_id")
+  clientId: integer("client_id")
     .notNull()
     .references(() => clients.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
@@ -240,7 +240,7 @@ export const clientProjects = pgTable("client_projects", {
  */
 export const clientUpdates = pgTable("client_updates", {
   id: serial("id").primaryKey(),
-  projectId: serial("project_id")
+  projectId: integer("project_id")
     .notNull()
     .references(() => clientProjects.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
@@ -260,10 +260,10 @@ export const clientUpdates = pgTable("client_updates", {
  */
 export const clientResources = pgTable("client_resources", {
   id: serial("id").primaryKey(),
-  clientId: serial("client_id")
+  clientId: integer("client_id")
     .notNull()
     .references(() => clients.id, { onDelete: "cascade" }),
-  projectId: serial("project_id").references(() => clientProjects.id, { onDelete: "set null" }),
+  projectId: integer("project_id").references(() => clientProjects.id, { onDelete: "set null" }),
 
   // Categorization
   section: text("section").notNull().default("tooling"), // demos, tooling, billing, docs
@@ -273,7 +273,7 @@ export const clientResources = pgTable("client_resources", {
   title: text("title").notNull(),
   description: text("description"),
   icon: text("icon"), // lucide icon name or emoji
-  sortOrder: serial("sort_order").default(0),
+  sortOrder: integer("sort_order").default(0),
   isFeatured: boolean("is_featured").default(false),
   isActive: boolean("is_active").default(true),
 
@@ -297,10 +297,10 @@ export const clientResources = pgTable("client_resources", {
  */
 export const clientAgreements = pgTable("client_agreements", {
   id: serial("id").primaryKey(),
-  clientId: serial("client_id")
+  clientId: integer("client_id")
     .notNull()
     .references(() => clients.id, { onDelete: "cascade" }),
-  projectId: serial("project_id").references(() => clientProjects.id),
+  projectId: integer("project_id").references(() => clientProjects.id),
   title: text("title").notNull(),
   content: text("content").notNull(),
   status: text("status").notNull().default("draft"), // draft | sent | signed | declined
