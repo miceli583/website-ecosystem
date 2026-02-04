@@ -32,7 +32,6 @@ import {
   TrendingUp,
   Search,
   ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -1029,23 +1028,19 @@ export default function PortalBillingPage({
                         onClick={() => toggleGroup(group.label)}
                         className="mb-2 mt-4 flex w-full items-center gap-2 text-left first:mt-0"
                       >
-                        {collapsedGroups.has(group.label) ? (
-                          <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
-                        ) : (
-                          <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
-                        )}
+                        <div className="h-4 w-0.5 rounded-full" style={{ backgroundColor: "#D4AF37" }} />
                         <h3 className="text-sm font-medium text-gray-400">
                           {group.label}
                         </h3>
-                        <span className="rounded-full bg-white/5 px-1.5 py-0.5 text-xs text-gray-500">
+                        <span className="text-xs text-gray-600">
                           {group.items.length}
                         </span>
                         <div
-                          className="h-px flex-1"
-                          style={{
-                            background:
-                              "linear-gradient(to right, rgba(212, 175, 55, 0.2), transparent)",
-                          }}
+                          className="flex-1 border-b"
+                          style={{ borderColor: "rgba(255, 255, 255, 0.12)" }}
+                        />
+                        <ChevronDown
+                          className={`h-4 w-4 text-gray-600 transition-transform ${collapsedGroups.has(group.label) ? "-rotate-90" : ""}`}
                         />
                       </button>
                       {!collapsedGroups.has(group.label) && (

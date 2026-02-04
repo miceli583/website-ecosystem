@@ -10,16 +10,23 @@ _None currently_
 
 ## Tech Debt (code quality issues)
 
-- [ ] Improve site efficiency and reduce lag/response times (bundle size, caching, queries)
+- [ ] Standardize query staleTime to 5 minutes across portal (notes: 30s→5m, demos: 2m→5m)
+- [ ] Remove redundant `stripe.customers.retrieve()` in getBillingInfo `portal.ts:585`
+- [ ] Add Stripe product name caching (24hr TTL) to reduce API calls
+- [ ] Implement optimistic updates for notes mutations (reduce flash on rapid actions)
 
 ## Enhancements (prioritized)
 
 ### High Priority
-- [ ] Stress test portal flows (manual QA)
+- [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
+- [ ] Add toast notifications for mutation feedback (sonner)
+- [ ] Add loading skeletons to replace spinner states
+- [ ] Add aria-labels to all icon-only buttons (accessibility)
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
 
 ### Medium Priority
+- [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
 - [ ] Add Gamma API integration for slide automation
 - [ ] Populate Matti demo content for client portal
 - [ ] Research device-independent magic links (Supabase auth)
