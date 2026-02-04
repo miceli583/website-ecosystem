@@ -220,8 +220,10 @@ export default function PortalNotesPage({
     });
   }, []);
 
-  const canDelete = (note: Note) =>
-    isAdmin || note.createdByAuthId === profile?.authUserId;
+  const canDelete = useCallback(
+    (note: Note) => isAdmin || note.createdByAuthId === profile?.authUserId,
+    [isAdmin, profile?.authUserId],
+  );
 
   // Split active/archived
   const activeNotes = useMemo(() => (notes ?? []).filter((n: Note) => !n.isArchived), [notes]);
@@ -308,37 +310,7 @@ export default function PortalNotesPage({
     setSortOrder("newest");
   };
 
-  // ── Loading / Error states ──
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4 text-white">
-        <AlertCircle className="mb-4 h-12 w-12 text-red-500" />
-        <h1 className="mb-2 text-xl font-bold">Access Denied</h1>
-        <p className="text-gray-400">{error.message}</p>
-      </div>
-    );
-  }
-
-  if (!client) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        Portal not found
-      </div>
-    );
-  }
-
-  // ── Note card renderer ──
-
-  // Admin actions for a note (three-dot menu)
+  // Admin actions for a note (three-dot menu) - must be before early returns
   const getNoteActions = useCallback(
     (note: Note): AdminAction[] => [
       {
@@ -387,6 +359,36 @@ export default function PortalNotesPage({
     ],
     [slug, togglePin, archiveNote, canDelete],
   );
+
+  // ── Loading / Error states ──
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4 text-white">
+        <AlertCircle className="mb-4 h-12 w-12 text-red-500" />
+        <h1 className="mb-2 text-xl font-bold">Access Denied</h1>
+        <p className="text-gray-400">{error.message}</p>
+      </div>
+    );
+  }
+
+  if (!client) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        Portal not found
+      </div>
+    );
+  }
+
+  // ── Note card renderer ──
 
   function renderNote(note: Note) {
     const isExpanded = expandedNoteId === note.id;
