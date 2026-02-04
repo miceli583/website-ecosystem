@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.5.0
-**Last Updated:** 2026-02-03
-**Commits:** 114
+**Version:** 0.5.1
+**Last Updated:** 2026-02-04
+**Commits:** 125
 
 ## Feature Status
 
@@ -41,10 +41,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 04 | fb540a8 | Portal quick wins: toasts, cache standardization, accessibility |
+| Feb 04 | 6057ca1 | Billing chevron fix, QA checklist, improvement docs |
+| Feb 04 | 1f76aad | Notes archive, filter persistence, billing refactor, orphan filtering |
+| Feb 04 | 6c823d2 | Portal admin controls, unified filter UX across all tabs |
 | Feb 03 | 0ecedf5 | Rebrand admin login, standardize demo hubs, polish portal UI |
-| Feb 03 | dc5fd6c | Add collaborative notes tab with TipTap rich text editor |
-| Feb 02 | c3b0ce1 | Subscription tracking in webhooks, proposal linking in billing |
-| Feb 02 | 702c7c5 | Link payments to proposal names in billing history |
-| Feb 02 | ba8fc6c | Add one-time payments to billing history |
 
 See `git log --oneline` for full history.
