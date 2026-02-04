@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useCallback } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
@@ -8,6 +8,7 @@ type ClientProject = ClientBySlug["projects"][number];
 type ClientUpdate = ClientProject["updates"][number];
 type ClientAgreement = ClientBySlug["agreements"][number];
 type Proposal = RouterOutputs["portal"]["getProposals"][number];
+type Resource = RouterOutputs["portal"]["getResources"][number];
 
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import { Card, CardContent } from "~/components/ui/card";
@@ -16,8 +17,16 @@ import {
   SearchFilterBar,
   ListItem,
   ListContainer,
+  StatusTabs,
+  AdminActionMenu,
+  ProjectGroupHeader,
+  ProjectAssignDialog,
+  ConfirmDialog,
   ProposalModal,
   type SortOrder,
+  type ViewMode,
+  type FilterOption,
+  type AdminAction,
   type ProposalMetadata,
 } from "~/components/portal";
 import {
@@ -28,21 +37,18 @@ import {
   Check,
   Clock,
   X,
+  Archive,
+  ArchiveRestore,
+  FolderOpen,
+  Trash2,
 } from "lucide-react";
-
-function formatCurrency(amount: number, currency: string) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(amount);
-}
 
 function getStatusIcon(status: string) {
   switch (status) {
     case "accepted":
       return <Check className="h-4 w-4 text-green-400" />;
     case "sent":
-      return <Clock className="h-4 w-4 text-yellow-400" />;
+      return <Clock className="h-4 w-4" style={{ color: "#D4AF37" }} />;
     case "declined":
       return <X className="h-4 w-4 text-red-400" />;
     default:
@@ -63,105 +69,200 @@ function getStatusLabel(status: string) {
   }
 }
 
+interface NormalizedProposal {
+  id: string;
+  resourceId: number | null;
+  title: string;
+  description: string | null;
+  status: string;
+  projectId: number | null;
+  projectName: string;
+  createdAt: Date | string;
+  isActive: boolean;
+  isLegacy: boolean;
+  metadata: ProposalMetadata | null;
+  originalId: number; // for modal lookup
+}
+
 export default function PortalProposalsPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const utils = api.useUtils();
+
+  // Data queries
   const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
     { slug },
-    { staleTime: 5 * 60 * 1000 } // 5 minutes
+    { staleTime: 5 * 60 * 1000 }
   );
-  const {
-    data: proposals,
-    isLoading: proposalsLoading,
-  } = api.portal.getProposals.useQuery(
+  const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const isAdmin = profile?.role === "admin";
+
+  // Admin sees all resources; clients see only active
+  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
+    { slug, section: "proposals", ...(isAdmin ? {} : { isActive: true }) },
+    { staleTime: 2 * 60 * 1000 }
+  );
+  const { data: proposals } = api.portal.getProposals.useQuery(
     { slug },
-    { staleTime: 2 * 60 * 1000 } // 2 minutes
+    { staleTime: 2 * 60 * 1000 }
+  );
+  const { data: projects } = api.portal.getProjects.useQuery(
+    { slug },
+    { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
   );
 
-  // Modal state
+  // Mutations
+  const updateResource = api.portal.updateResource.useMutation({
+    onSuccess: () => {
+      void utils.portal.getResources.invalidate();
+      void utils.portal.getProposals.invalidate();
+    },
+  });
+  const deleteResource = api.portal.deleteResource.useMutation({
+    onSuccess: () => {
+      void utils.portal.getResources.invalidate();
+      void utils.portal.getProposals.invalidate();
+    },
+  });
+  const createProject = api.portal.createProject.useMutation({
+    onSuccess: () => void utils.portal.getProjects.invalidate(),
+  });
+
+  // UI state
+  const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [viewMode, setViewMode] = useState<ViewMode>("grouped");
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
 
-  // Filter state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  // Collapsed project groups
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = useCallback((groupName: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupName)) next.delete(groupName);
+      else next.add(groupName);
+      return next;
+    });
+  }, []);
 
-  // Check for success/cancel from Stripe redirect
+  // Dialog state
+  const [assignDialog, setAssignDialog] = useState<{ open: boolean; proposal: NormalizedProposal | null }>({
+    open: false,
+    proposal: null,
+  });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; proposal: NormalizedProposal | null }>({
+    open: false,
+    proposal: null,
+  });
+
+  // Check for Stripe redirect
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const checkoutSuccess = searchParams?.get("success") === "true";
   const checkoutCanceled = searchParams?.get("canceled") === "true";
 
-  // Normalize proposals for display (new system from clientResources)
-  const newProposals = useMemo(() => {
-    if (!proposals) return [];
-    return proposals.map((p: Proposal) => {
-      const metadata = p.metadata as ProposalMetadata | null;
-      const packages = metadata?.packages ?? [];
-      const total = packages.reduce((sum, pkg) => sum + pkg.price, 0) || metadata?.total || 0;
-      const currency = metadata?.currency ?? "usd";
-      const status = metadata?.status ?? "draft";
-
-      return {
-        id: p.id,
-        type: "new" as const,
-        title: p.title,
-        description: p.description,
-        status,
-        total,
-        currency,
-        createdAt: p.createdAt,
-        project: p.project,
-        metadata,
-        packageCount: packages.length,
-      };
-    });
-  }, [proposals]);
-
-  // Legacy proposals from clientUpdates
+  // Legacy proposals
   const legacyProposals = useMemo(() => {
     if (!client) return [];
-    return client.projects
-      .flatMap((p: ClientProject) =>
-        p.updates
-          .filter((u: ClientUpdate) => u.type === "proposal")
-          .map((u: ClientUpdate) => ({
-            id: u.id,
-            type: "legacy" as const,
-            title: u.title,
-            description: u.content,
-            status: "sent" as const,
-            total: 0,
-            currency: "usd",
-            createdAt: u.createdAt,
-            project: { name: p.name },
-            metadata: null,
-            packageCount: 0,
-          }))
-      );
+    return client.projects.flatMap((p: ClientProject) =>
+      p.updates
+        .filter((u: ClientUpdate) => u.type === "proposal")
+        .map((u: ClientUpdate) => ({ ...u, projectName: p.name, projectId: p.id }))
+    );
   }, [client]);
 
-  // Combine all proposals
-  const allProposals = useMemo(() => {
-    return [...newProposals, ...legacyProposals];
-  }, [newProposals, legacyProposals]);
+  // Combine and normalize all proposals
+  const allProposals: NormalizedProposal[] = useMemo(() => {
+    const items: NormalizedProposal[] = [];
 
-  // Filter proposals
+    resources?.forEach((r: Resource) => {
+      const metadata = r.metadata as ProposalMetadata | null;
+      items.push({
+        id: `r-${r.id}`,
+        resourceId: r.id,
+        title: r.title,
+        description: r.description,
+        status: metadata?.status ?? "draft",
+        projectId: r.project?.id ?? null,
+        projectName: r.project?.name ?? "",
+        createdAt: r.createdAt,
+        isActive: r.isActive ?? true,
+        isLegacy: false,
+        metadata,
+        originalId: r.id,
+      });
+    });
+
+    legacyProposals.forEach((d: ClientUpdate & { projectName: string; projectId: number }) => {
+      items.push({
+        id: `d-${d.id}`,
+        resourceId: null,
+        title: d.title,
+        description: d.content,
+        status: "sent",
+        projectId: d.projectId,
+        projectName: d.projectName,
+        createdAt: d.createdAt,
+        isActive: true,
+        isLegacy: true,
+        metadata: null,
+        originalId: d.id,
+      });
+    });
+
+    return items;
+  }, [resources, legacyProposals]);
+
+  // Get project filters
+  const projectFilters: FilterOption[] = useMemo(() => {
+    if (!client) return [];
+    const projectMap = new Map<number, string>();
+
+    resources?.forEach((r: Resource) => {
+      if (r.project) projectMap.set(r.project.id, r.project.name);
+    });
+    client.projects.forEach((p: ClientProject) => {
+      projectMap.set(p.id, p.name);
+    });
+    projects?.forEach((p: { id: number; name: string }) => {
+      projectMap.set(p.id, p.name);
+    });
+
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    if (allProposals.some((p) => p.projectId === null)) {
+      filters.push({ id: "unassigned", name: "Unassigned" });
+    }
+    return filters;
+  }, [client, resources, projects, allProposals]);
+
+  // Split by active/archived
+  const activeProposals = useMemo(() => allProposals.filter((p) => p.isActive), [allProposals]);
+  const archivedProposals = useMemo(() => allProposals.filter((p) => !p.isActive), [allProposals]);
+  const currentProposals = activeTab === "active" ? activeProposals : archivedProposals;
+
+  // Filter
   const filteredProposals = useMemo(() => {
-    return allProposals.filter((proposal: typeof allProposals[number]) => {
+    return currentProposals.filter((proposal) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesTitle = proposal.title.toLowerCase().includes(query);
         const matchesDesc = proposal.description?.toLowerCase().includes(query);
-        const matchesProject = proposal.project?.name.toLowerCase().includes(query);
+        const matchesProject = proposal.projectName.toLowerCase().includes(query);
         if (!matchesTitle && !matchesDesc && !matchesProject) return false;
       }
+      if (selectedProject === "unassigned") return proposal.projectId === null;
+      if (selectedProject !== "all" && proposal.projectId !== selectedProject) return false;
       return true;
     });
-  }, [allProposals, searchQuery]);
+  }, [currentProposals, searchQuery, selectedProject]);
 
-  // Sort proposals
+  // Sort
   const sortedProposals = useMemo(() => {
     return [...filteredProposals].sort((a, b) => {
       if (sortOrder === "name") {
@@ -173,19 +274,102 @@ export default function PortalProposalsPage({
     });
   }, [filteredProposals, sortOrder]);
 
+  // Group by project
+  const groupedProposals = useMemo(() => {
+    const groups = new Map<string, NormalizedProposal[]>();
+    for (const proposal of sortedProposals) {
+      const key = proposal.projectName || "Unassigned";
+      const group = groups.get(key) ?? [];
+      group.push(proposal);
+      groups.set(key, group);
+    }
+    const sorted = Array.from(groups.entries()).sort(([a], [b]) => {
+      if (a === "Unassigned") return 1;
+      if (b === "Unassigned") return -1;
+      return a.localeCompare(b);
+    });
+    return sorted;
+  }, [sortedProposals]);
+
+  // Admin actions
+  const handleArchive = useCallback(
+    (proposal: NormalizedProposal) => {
+      if (!proposal.resourceId) return;
+      updateResource.mutate({ id: proposal.resourceId, isActive: !proposal.isActive });
+    },
+    [updateResource]
+  );
+
+  const handleDelete = useCallback(
+    (proposal: NormalizedProposal) => {
+      if (!proposal.resourceId) return;
+      deleteResource.mutate({ id: proposal.resourceId });
+      setDeleteDialog({ open: false, proposal: null });
+    },
+    [deleteResource]
+  );
+
+  const handleAssign = useCallback(
+    (projectId: number | null) => {
+      if (!assignDialog.proposal?.resourceId) return;
+      updateResource.mutate({ id: assignDialog.proposal.resourceId, projectId });
+    },
+    [assignDialog.proposal, updateResource]
+  );
+
+  const handleCreateProject = useCallback(
+    (name: string) => {
+      createProject.mutate({ slug, name });
+    },
+    [createProject, slug]
+  );
+
+  const getAdminActions = useCallback(
+    (proposal: NormalizedProposal): AdminAction[] => {
+      if (proposal.isLegacy) return [];
+      return [
+        {
+          label: proposal.isActive ? "Archive" : "Unarchive",
+          icon: proposal.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+          onClick: () => handleArchive(proposal),
+        },
+        {
+          label: "Assign to Project",
+          icon: <FolderOpen className="h-4 w-4" />,
+          onClick: () => setAssignDialog({ open: true, proposal }),
+        },
+        {
+          label: "Delete",
+          icon: <Trash2 className="h-4 w-4" />,
+          onClick: () => setDeleteDialog({ open: true, proposal }),
+          variant: "danger" as const,
+        },
+      ];
+    },
+    [handleArchive]
+  );
+
+  // Handle proposal click for modal
+  const handleProposalClick = useCallback(
+    (proposal: NormalizedProposal) => {
+      if (proposal.isLegacy) return;
+      const found = proposals?.find((p: Proposal) => p.id === proposal.originalId);
+      if (found) setSelectedProposal(found);
+    },
+    [proposals]
+  );
+
+  // Expand/collapse all
+  const handleExpandAll = useCallback(() => setCollapsedGroups(new Set()), []);
+  const handleCollapseAll = useCallback(() => {
+    setCollapsedGroups(new Set(groupedProposals.map(([name]) => name)));
+  }, [groupedProposals]);
+
   // Clear filters
   const clearFilters = () => {
     setSearchQuery("");
+    setSelectedProject("all");
     setSortOrder("newest");
-  };
-
-  // Handle proposal click (only for new-style proposals with modal)
-  const handleProposalClick = (proposalId: number, type: "new" | "legacy") => {
-    if (type === "legacy") return; // Legacy proposals don't have modal
-    const proposal = proposals?.find((p: Proposal) => p.id === proposalId);
-    if (proposal) {
-      setSelectedProposal(proposal);
-    }
   };
 
   if (isLoading) {
@@ -214,10 +398,43 @@ export default function PortalProposalsPage({
     );
   }
 
-  const hasProposals = allProposals.length > 0;
+  const hasContent = allProposals.length > 0;
   const hasAgreements = client.agreements.length > 0;
-  const hasContent = hasProposals || hasAgreements;
-  const hasActiveFilters = Boolean(searchQuery) || sortOrder !== "newest";
+  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const showGrouping =
+    viewMode === "grouped" &&
+    selectedProject === "all" &&
+    (groupedProposals.length > 1 ||
+      (groupedProposals.length === 1 && groupedProposals[0]![0] !== "Unassigned"));
+
+  // Render a proposal row
+  const renderProposal = (proposal: NormalizedProposal) => (
+    <div
+      key={proposal.id}
+      onClick={() => handleProposalClick(proposal)}
+      className={!proposal.isLegacy ? "cursor-pointer" : ""}
+    >
+      <ListItem
+        icon={<FileText className="h-5 w-5" />}
+        title={proposal.title}
+        description={proposal.projectName || "Unassigned"}
+        date={proposal.createdAt}
+        badge={
+          <span className="flex items-center gap-1 text-xs">
+            {getStatusIcon(proposal.status)}
+            <span className="text-gray-500">{getStatusLabel(proposal.status)}</span>
+          </span>
+        }
+        actions={
+          isAdmin && !proposal.isLegacy ? (
+            <div onClick={(e) => e.stopPropagation()}>
+              <AdminActionMenu actions={getAdminActions(proposal)} />
+            </div>
+          ) : undefined
+        }
+      />
+    </div>
+  );
 
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
@@ -242,26 +459,51 @@ export default function PortalProposalsPage({
       )}
 
       {checkoutCanceled && (
-        <div className="mb-6 flex items-center gap-3 rounded-md bg-yellow-900/30 p-4 text-yellow-400">
+        <div className="mb-6 flex items-center gap-3 rounded-md p-4" style={{ backgroundColor: "rgba(212, 175, 55, 0.1)", color: "#D4AF37" }}>
           <AlertCircle className="h-5 w-5" />
           <p>Checkout was canceled. You can try again when you&apos;re ready.</p>
         </div>
       )}
 
-      {/* Search/Filter Bar - always visible */}
+      {/* Admin tabs */}
+      {isAdmin && hasContent && (
+        <StatusTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeCount={activeProposals.length}
+          archivedCount={archivedProposals.length}
+        />
+      )}
+
+      {/* Search/Filter Bar */}
       <SearchFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder="Search proposals..."
         sortOrder={sortOrder}
         onSortChange={setSortOrder}
+        filterOptions={projectFilters}
+        selectedFilter={selectedProject}
+        onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
+        filterLabel="Project"
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onExpandAll={handleExpandAll}
+        onCollapseAll={handleCollapseAll}
+        collapseState={
+          collapsedGroups.size === 0
+            ? "all-expanded"
+            : collapsedGroups.size >= groupedProposals.length
+              ? "all-collapsed"
+              : "mixed"
+        }
       />
 
-      {proposalsLoading ? (
+      {resourcesLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
         </div>
-      ) : !hasContent ? (
+      ) : !hasContent && !hasAgreements ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <FileText className="mb-4 h-12 w-12 text-gray-600" />
           <p className="text-gray-500">No proposals yet.</p>
@@ -272,52 +514,40 @@ export default function PortalProposalsPage({
       ) : (
         <div className="space-y-8">
           {/* Proposals section */}
-          {hasProposals && (
+          {hasContent && (
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-gray-300">Proposals</h2>
+              {hasAgreements && (
+                <h2 className="mb-4 text-lg font-semibold text-gray-300">Proposals</h2>
+              )}
 
               <ListContainer
                 emptyIcon={<Search className="h-12 w-12" />}
-                emptyMessage="No proposals match your search."
+                emptyMessage={
+                  activeTab === "archived"
+                    ? "No archived proposals."
+                    : "No proposals match your search."
+                }
                 onClearFilters={clearFilters}
                 showClearFilters={hasActiveFilters}
               >
-                {sortedProposals.map((proposal) => (
-                  <div
-                    key={`${proposal.type}-${proposal.id}`}
-                    onClick={() => handleProposalClick(proposal.id, proposal.type)}
-                    className={proposal.type === "new" ? "cursor-pointer" : ""}
-                  >
-                    <div className="flex items-center justify-between gap-4 rounded-md border border-gray-800 bg-white/5 px-4 py-4 transition-colors hover:border-[#D4AF37]/50 hover:bg-white/10">
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex-shrink-0" style={{ color: "#D4AF37" }}>
-                          <FileText className="h-5 w-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="truncate font-medium text-white">{proposal.title}</p>
-                            <span className="flex items-center gap-1 text-xs">
-                              {getStatusIcon(proposal.status)}
-                              <span className="text-gray-500">{getStatusLabel(proposal.status)}</span>
-                            </span>
-                          </div>
-                          {proposal.project && (
-                            <p className="truncate text-sm text-gray-500">{proposal.project.name}</p>
-                          )}
-                        </div>
+                {showGrouping
+                  ? groupedProposals.map(([groupName, proposalGroup]) => (
+                      <div key={groupName}>
+                        <ProjectGroupHeader
+                          projectName={groupName}
+                          itemCount={proposalGroup.length}
+                          collapsed={collapsedGroups.has(groupName)}
+                          onToggle={() => toggleGroup(groupName)}
+                        />
+                        {!collapsedGroups.has(groupName) &&
+                          proposalGroup.map((proposal) => (
+                            <div key={proposal.id} className="mb-3">
+                              {renderProposal(proposal)}
+                            </div>
+                          ))}
                       </div>
-                      <div className="flex flex-shrink-0 items-center gap-4">
-                        <span className="text-sm text-gray-500">
-                          {new Date(proposal.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    ))
+                  : sortedProposals.map((proposal) => renderProposal(proposal))}
               </ListContainer>
             </div>
           )}
@@ -352,8 +582,8 @@ export default function PortalProposalsPage({
                           agreement.status === "signed"
                             ? "bg-green-900/50 text-green-400"
                             : agreement.status === "sent"
-                              ? "bg-yellow-900/50 text-yellow-400"
-                              : "bg-gray-800 text-gray-400"
+                              ? "bg-[#D4AF37]/15 text-[#D4AF37]"
+                              : "bg-white/10 text-gray-400"
                         }
                       >
                         {agreement.status}
@@ -383,6 +613,29 @@ export default function PortalProposalsPage({
           slug={slug}
         />
       )}
+
+      {/* Project Assignment Dialog */}
+      <ProjectAssignDialog
+        open={assignDialog.open}
+        onOpenChange={(open) => setAssignDialog({ open, proposal: open ? assignDialog.proposal : null })}
+        currentProjectId={assignDialog.proposal?.projectId ?? null}
+        projects={projects ?? []}
+        onAssign={handleAssign}
+        onCreateProject={handleCreateProject}
+        isLoading={updateResource.isPending || createProject.isPending}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, proposal: open ? deleteDialog.proposal : null })}
+        title="Delete Proposal"
+        description={`Are you sure you want to permanently delete "${deleteDialog.proposal?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={() => deleteDialog.proposal && handleDelete(deleteDialog.proposal)}
+        isLoading={deleteResource.isPending}
+      />
     </ClientPortalLayout>
   );
 }

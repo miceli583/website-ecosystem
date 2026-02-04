@@ -54,6 +54,7 @@ export const portalNotesRouter = createTRPCRouter({
       const notes = await db.query.clientNotes.findMany({
         where: eq(clientNotes.clientId, client.id),
         orderBy: [desc(clientNotes.isPinned), desc(clientNotes.updatedAt)],
+        with: { project: true },
       });
 
       return notes;
@@ -103,6 +104,7 @@ export const portalNotesRouter = createTRPCRouter({
         title: z.string().min(1).max(200).optional(),
         content: z.string().optional(),
         isPinned: z.boolean().optional(),
+        projectId: z.number().nullable().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -129,6 +131,7 @@ export const portalNotesRouter = createTRPCRouter({
       if (input.title !== undefined) updateData.title = input.title;
       if (input.content !== undefined) updateData.content = input.content;
       if (input.isPinned !== undefined) updateData.isPinned = input.isPinned;
+      if (input.projectId !== undefined) updateData.projectId = input.projectId;
 
       const [updated] = await db
         .update(clientNotes)

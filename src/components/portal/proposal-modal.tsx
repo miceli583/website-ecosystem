@@ -155,16 +155,16 @@ function PackageCard({
     <div
       className={`rounded-lg border p-4 transition-all ${
         selected
-          ? "border-yellow-500 bg-yellow-900/20"
+          ? "border-[#D4AF37] bg-[#D4AF37]/10"
           : "border-gray-700 bg-white/5 hover:border-gray-600"
-      } ${pkg.required ? "ring-1 ring-yellow-600/30" : ""}`}
+      } ${pkg.required ? "ring-1 ring-[#D4AF37]/30" : ""}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h4 className="font-semibold text-white">{pkg.name}</h4>
             {pkg.required && (
-              <span className="rounded bg-yellow-900/50 px-2 py-0.5 text-xs text-yellow-400">
+              <span className="rounded bg-[#D4AF37]/15 px-2 py-0.5 text-xs text-[#D4AF37]">
                 Required
               </span>
             )}
@@ -192,7 +192,7 @@ function PackageCard({
           disabled={disabled || pkg.required}
           className={`flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
             selected
-              ? "border-yellow-500 bg-yellow-500 text-black"
+              ? "border-[#D4AF37] bg-[#D4AF37] text-black"
               : "border-gray-600 text-transparent hover:border-gray-500"
           } ${pkg.required ? "cursor-not-allowed opacity-50" : ""}`}
         >
@@ -202,7 +202,7 @@ function PackageCard({
 
       {/* Line items toggle */}
       {hasLineItems && (
-        <div className="mt-3 border-t border-gray-800 pt-3">
+        <div className="mt-3 border-t pt-3" style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}>
           <button
             onClick={() => setShowDetails(!showDetails)}
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300"
@@ -222,8 +222,8 @@ function PackageCard({
                   {hasMultipleGroups && (
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Layers className="h-3.5 w-3.5 text-yellow-500/70" />
-                        <span className="text-xs font-medium uppercase tracking-wide text-yellow-500/70">
+                        <Layers className="h-3.5 w-3.5 text-[#D4AF37]/70" />
+                        <span className="text-xs font-medium uppercase tracking-wide text-[#D4AF37]/70">
                           {group.name}
                         </span>
                       </div>
@@ -232,7 +232,7 @@ function PackageCard({
                       </span>
                     </div>
                   )}
-                  <div className={`space-y-1 ${hasMultipleGroups ? "ml-5 border-l border-gray-800 pl-3" : ""}`}>
+                  <div className={`space-y-1 ${hasMultipleGroups ? "ml-5 border-l border-white/10 pl-3" : ""}`}>
                     {group.items!.map((item, idx) => (
                       <div
                         key={idx}
@@ -354,9 +354,12 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
       />
 
       {/* Modal */}
-      <div className="relative max-h-[95vh] w-full overflow-y-auto rounded-t-2xl border border-gray-800 bg-gray-950 shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl md:max-w-3xl lg:max-w-4xl">
+      <div
+        className="relative max-h-[95vh] w-full overflow-y-auto rounded-t-2xl border shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl md:max-w-3xl lg:max-w-4xl"
+        style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(5, 5, 5, 0.98)" }}
+      >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-gray-800 bg-gray-950 p-4 sm:p-6">
+        <div className="sticky top-0 z-10 flex items-start justify-between border-b p-4 sm:p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(5, 5, 5, 0.98)" }}>
           <div>
             <h2 className="text-lg font-bold text-white sm:text-xl md:text-2xl">{proposal.title}</h2>
             <p className="mt-1 text-xs text-gray-500 sm:text-sm">
@@ -400,7 +403,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
 
           {/* Customer Info */}
           {customerInfo && (customerInfo.name || customerInfo.email || customerInfo.company) && (
-            <div className="mb-6 rounded-lg border border-gray-800 bg-white/5 p-4 sm:p-5">
+            <div className="mb-6 rounded-lg border bg-white/5 p-4 sm:p-5" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
               <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
                 <User className="h-4 w-4" />
                 Prepared For
@@ -501,7 +504,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
 
           {/* Notes */}
           {metadata?.notes && (
-            <div className="mb-6 rounded-lg border border-gray-800 bg-white/5 p-4 sm:p-5 md:p-6">
+            <div className="mb-6 rounded-lg border bg-white/5 p-4 sm:p-5 md:p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
               <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
                 <FileText className="h-4 w-4" />
                 Terms & Details
@@ -521,7 +524,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
         </div>
 
         {/* Footer with total and checkout */}
-        <div className="sticky bottom-0 border-t border-gray-800 bg-gray-950 p-4 sm:p-6">
+        <div className="sticky bottom-0 border-t p-4 sm:p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(5, 5, 5, 0.98)" }}>
           {checkoutError && (
             <div className="mb-4 rounded-lg bg-red-900/30 p-3 text-sm text-red-400">
               {checkoutError}

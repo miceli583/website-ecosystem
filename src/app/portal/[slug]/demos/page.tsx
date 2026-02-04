@@ -20,6 +20,7 @@ import {
   ProjectAssignDialog,
   ConfirmDialog,
   type SortOrder,
+  type ViewMode,
   type FilterOption,
   type AdminAction,
 } from "~/components/portal";
@@ -80,8 +81,9 @@ export default function PortalDemosPage({
   // UI state
   const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProject, setSelectedProject] = useState<number | "all">("all");
+  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [viewMode, setViewMode] = useState<ViewMode>("grouped");
 
   // Collapsed project groups
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
@@ -103,28 +105,6 @@ export default function PortalDemosPage({
     open: false,
     demo: null,
   });
-
-  // Get all unique projects for filter options
-  const projectFilters: FilterOption[] = useMemo(() => {
-    if (!client) return [];
-    const projectMap = new Map<number, string>();
-
-    resources?.forEach((r: Resource) => {
-      if (r.project) {
-        projectMap.set(r.project.id, r.project.name);
-      }
-    });
-
-    client.projects.forEach((p: ClientProject) => {
-      projectMap.set(p.id, p.name);
-    });
-
-    projects?.forEach((p: { id: number; name: string }) => {
-      projectMap.set(p.id, p.name);
-    });
-
-    return Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
-  }, [client, resources, projects]);
 
   // Process legacy demos
   const legacyDemos = useMemo(() => {
@@ -165,7 +145,7 @@ export default function PortalDemosPage({
         projectId: d.projectId,
         projectName: d.projectName,
         createdAt: d.createdAt,
-        isActive: true, // Legacy demos are always "active"
+        isActive: true,
         isLegacy: true,
       });
     });
@@ -178,6 +158,29 @@ export default function PortalDemosPage({
   const archivedDemos = useMemo(() => allDemos.filter((d) => !d.isActive), [allDemos]);
   const currentDemos = activeTab === "active" ? activeDemos : archivedDemos;
 
+  // Project filters — include "Unassigned" when there are unassigned items
+  const hasUnassigned = currentDemos.some((d) => d.projectId === null);
+  const projectFilters: FilterOption[] = useMemo(() => {
+    if (!client) return [];
+    const projectMap = new Map<number, string>();
+
+    resources?.forEach((r: Resource) => {
+      if (r.project) projectMap.set(r.project.id, r.project.name);
+    });
+    client.projects.forEach((p: ClientProject) => {
+      projectMap.set(p.id, p.name);
+    });
+    projects?.forEach((p: { id: number; name: string }) => {
+      projectMap.set(p.id, p.name);
+    });
+
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    if (hasUnassigned) {
+      filters.push({ id: "unassigned", name: "Unassigned" });
+    }
+    return filters;
+  }, [client, resources, projects, hasUnassigned]);
+
   // Filter demos
   const filteredDemos = useMemo(() => {
     return currentDemos.filter((demo) => {
@@ -188,9 +191,8 @@ export default function PortalDemosPage({
         const matchesProject = demo.projectName.toLowerCase().includes(query);
         if (!matchesTitle && !matchesDesc && !matchesProject) return false;
       }
-      if (selectedProject !== "all" && demo.projectId !== selectedProject) {
-        return false;
-      }
+      if (selectedProject === "unassigned") return demo.projectId === null;
+      if (selectedProject !== "all" && demo.projectId !== selectedProject) return false;
       return true;
     });
   }, [currentDemos, searchQuery, selectedProject]);
@@ -198,9 +200,7 @@ export default function PortalDemosPage({
   // Sort demos
   const sortedDemos = useMemo(() => {
     return [...filteredDemos].sort((a, b) => {
-      if (sortOrder === "name") {
-        return a.title.localeCompare(b.title);
-      }
+      if (sortOrder === "name") return a.title.localeCompare(b.title);
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
@@ -216,14 +216,25 @@ export default function PortalDemosPage({
       group.push(demo);
       groups.set(key, group);
     }
-    // Sort groups: named projects first (alphabetical), "Unassigned" last
-    const sorted = Array.from(groups.entries()).sort(([a], [b]) => {
+    return Array.from(groups.entries()).sort(([a], [b]) => {
       if (a === "Unassigned") return 1;
       if (b === "Unassigned") return -1;
       return a.localeCompare(b);
     });
-    return sorted;
   }, [sortedDemos]);
+
+  // Show grouping: grouped mode + "all" filter + multiple groups (or single named group)
+  const showGrouping =
+    viewMode === "grouped" &&
+    selectedProject === "all" &&
+    (groupedDemos.length > 1 ||
+      (groupedDemos.length === 1 && groupedDemos[0]![0] !== "Unassigned"));
+
+  // Expand/collapse all
+  const handleExpandAll = useCallback(() => setCollapsedGroups(new Set()), []);
+  const handleCollapseAll = useCallback(() => {
+    setCollapsedGroups(new Set(groupedDemos.map(([name]) => name)));
+  }, [groupedDemos]);
 
   // Admin actions
   const handleArchive = useCallback(
@@ -260,7 +271,7 @@ export default function PortalDemosPage({
 
   const getAdminActions = useCallback(
     (demo: NormalizedDemo): AdminAction[] => {
-      if (demo.isLegacy) return []; // Can't manage legacy demos
+      if (demo.isLegacy) return [];
       return [
         {
           label: demo.isActive ? "Archive" : "Unarchive",
@@ -290,6 +301,9 @@ export default function PortalDemosPage({
     setSortOrder("newest");
   };
 
+  const hasContent = allDemos.length > 0;
+  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
@@ -316,13 +330,6 @@ export default function PortalDemosPage({
     );
   }
 
-  const hasContent = allDemos.length > 0;
-  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
-  // Show project headers unless every demo is unassigned
-  const showGrouping =
-    groupedDemos.length > 1 ||
-    (groupedDemos.length === 1 && groupedDemos[0]![0] !== "Unassigned");
-
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
       <div className="mb-6">
@@ -346,13 +353,24 @@ export default function PortalDemosPage({
       <SearchFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="Search demos by name..."
+        searchPlaceholder="Search demos..."
         sortOrder={sortOrder}
         onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
-        onFilterChange={(id) => setSelectedProject(id as number | "all")}
+        onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
         filterLabel="Project"
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onExpandAll={handleExpandAll}
+        onCollapseAll={handleCollapseAll}
+        collapseState={
+          collapsedGroups.size === 0
+            ? "all-expanded"
+            : collapsedGroups.size >= groupedDemos.length
+              ? "all-collapsed"
+              : "mixed"
+        }
       />
 
       {resourcesLoading ? (
@@ -392,7 +410,7 @@ export default function PortalDemosPage({
                           title={demo.title}
                           description={demo.description}
                           date={demo.createdAt}
-                          secondaryText={demo.projectName}
+                          secondaryText={demo.projectName || "Unassigned"}
                           href={demo.url}
                           actions={
                             isAdmin && !demo.isLegacy ? (
@@ -411,7 +429,7 @@ export default function PortalDemosPage({
                   title={demo.title}
                   description={demo.description}
                   date={demo.createdAt}
-                  secondaryText={demo.projectName}
+                  secondaryText={demo.projectName || "Unassigned"}
                   href={demo.url}
                   actions={
                     isAdmin && !demo.isLegacy ? (

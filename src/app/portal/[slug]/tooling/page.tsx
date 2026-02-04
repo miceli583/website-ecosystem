@@ -1,14 +1,21 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useCallback } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   SearchFilterBar,
   ListItem,
   ListContainer,
+  StatusTabs,
+  AdminActionMenu,
+  ProjectGroupHeader,
+  ProjectAssignDialog,
+  ConfirmDialog,
   type SortOrder,
+  type ViewMode,
   type FilterOption,
+  type AdminAction,
 } from "~/components/portal";
 import {
   Wrench,
@@ -20,12 +27,32 @@ import {
   Link as LinkIcon,
   FileText,
   Search,
+  Archive,
+  ArchiveRestore,
+  FolderOpen,
+  Trash2,
 } from "lucide-react";
 
+type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
+type ClientProject = ClientBySlug["projects"][number];
 type Resource = RouterOutputs["portal"]["getResources"][number];
 
-// Get icon for resource type
-function getResourceIcon(resource: Resource) {
+interface NormalizedTool {
+  id: string;
+  resourceId: number;
+  title: string;
+  description: string | null;
+  url: string | null;
+  icon: string | null;
+  type: string | null;
+  projectId: number | null;
+  projectName: string;
+  createdAt: Date | string;
+  isActive: boolean;
+  subscriptionActive: boolean;
+}
+
+function getResourceIcon(tool: NormalizedTool) {
   const iconMap: Record<string, React.ReactNode> = {
     link: <LinkIcon className="h-5 w-5" />,
     key: <Key className="h-5 w-5" />,
@@ -35,12 +62,11 @@ function getResourceIcon(resource: Resource) {
     wrench: <Wrench className="h-5 w-5" />,
   };
 
-  if (resource.icon && iconMap[resource.icon]) {
-    return iconMap[resource.icon];
+  if (tool.icon && iconMap[tool.icon]) {
+    return iconMap[tool.icon];
   }
 
-  // Default icons by type
-  switch (resource.type) {
+  switch (tool.type) {
     case "credential":
       return <Key className="h-5 w-5" />;
     case "embed":
@@ -58,60 +84,132 @@ export default function PortalToolingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const utils = api.useUtils();
+
+  // Data queries
   const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
     { slug },
-    { staleTime: 5 * 60 * 1000 } // 5 minutes
+    { staleTime: 5 * 60 * 1000 }
   );
+  const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const isAdmin = profile?.role === "admin";
+
+  // Admin sees all resources; clients see only active
   const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
-    { slug, section: "tooling" },
-    { staleTime: 2 * 60 * 1000 } // 2 minutes
+    { slug, section: "tooling", ...(isAdmin ? {} : { isActive: true }) },
+    { staleTime: 2 * 60 * 1000 }
+  );
+  const { data: projects } = api.portal.getProjects.useQuery(
+    { slug },
+    { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
   );
 
-  // Filter state
+  // Mutations
+  const updateResource = api.portal.updateResource.useMutation({
+    onSuccess: () => void utils.portal.getResources.invalidate(),
+  });
+  const deleteResource = api.portal.deleteResource.useMutation({
+    onSuccess: () => void utils.portal.getResources.invalidate(),
+  });
+  const createProject = api.portal.createProject.useMutation({
+    onSuccess: () => void utils.portal.getProjects.invalidate(),
+  });
+
+  // UI state
+  const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProject, setSelectedProject] = useState<number | "all">("all");
+  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [viewMode, setViewMode] = useState<ViewMode>("grouped");
 
-  // Get unique projects for filter
-  const projectFilters: FilterOption[] = useMemo(() => {
-    if (!resources) return [];
-    const projectMap = new Map<number, string>();
-
-    resources.forEach((r: Resource) => {
-      if (r.project) {
-        projectMap.set(r.project.id, r.project.name);
-      }
+  // Collapsed project groups
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = useCallback((groupName: string) => {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupName)) next.delete(groupName);
+      else next.add(groupName);
+      return next;
     });
+  }, []);
 
-    return Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+  // Dialog state
+  const [assignDialog, setAssignDialog] = useState<{ open: boolean; tool: NormalizedTool | null }>({
+    open: false,
+    tool: null,
+  });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; tool: NormalizedTool | null }>({
+    open: false,
+    tool: null,
+  });
+
+  // Normalize resources
+  const allTools: NormalizedTool[] = useMemo(() => {
+    if (!resources) return [];
+    return resources.map((r: Resource) => ({
+      id: `r-${r.id}`,
+      resourceId: r.id,
+      title: r.title,
+      description: r.description,
+      url: r.url,
+      icon: r.icon,
+      type: r.type,
+      projectId: r.project?.id ?? null,
+      projectName: r.project?.name ?? "",
+      createdAt: r.createdAt,
+      isActive: r.isActive ?? true,
+      subscriptionActive: r.subscriptionActive ?? true,
+    }));
   }, [resources]);
 
-  // Filter resources
-  const filteredResources = useMemo(() => {
-    if (!resources) return [];
+  // Get project filters
+  const projectFilters: FilterOption[] = useMemo(() => {
+    if (!client) return [];
+    const projectMap = new Map<number, string>();
 
-    return resources.filter((r: Resource) => {
-      // Search filter
+    resources?.forEach((r: Resource) => {
+      if (r.project) projectMap.set(r.project.id, r.project.name);
+    });
+    client.projects.forEach((p: ClientProject) => {
+      projectMap.set(p.id, p.name);
+    });
+    projects?.forEach((p: { id: number; name: string }) => {
+      projectMap.set(p.id, p.name);
+    });
+
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    if (allTools.some((t) => t.projectId === null)) {
+      filters.push({ id: "unassigned", name: "Unassigned" });
+    }
+    return filters;
+  }, [client, resources, projects, allTools]);
+
+  // Split by active/archived
+  const activeTools = useMemo(() => allTools.filter((t) => t.isActive), [allTools]);
+  const archivedTools = useMemo(() => allTools.filter((t) => !t.isActive), [allTools]);
+  const currentTools = activeTab === "active" ? activeTools : archivedTools;
+
+  // Filter
+  const filteredTools = useMemo(() => {
+    return currentTools.filter((tool) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matchesTitle = r.title.toLowerCase().includes(query);
-        const matchesDesc = r.description?.toLowerCase().includes(query);
-        const matchesProject = r.project?.name.toLowerCase().includes(query);
+        const matchesTitle = tool.title.toLowerCase().includes(query);
+        const matchesDesc = tool.description?.toLowerCase().includes(query);
+        const matchesProject = tool.projectName.toLowerCase().includes(query);
         if (!matchesTitle && !matchesDesc && !matchesProject) return false;
       }
-
-      // Project filter
-      if (selectedProject !== "all" && r.project?.id !== selectedProject) {
-        return false;
-      }
-
+      if (selectedProject === "unassigned") return tool.projectId === null;
+      if (selectedProject !== "all" && tool.projectId !== selectedProject) return false;
       return true;
     });
-  }, [resources, searchQuery, selectedProject]);
+  }, [currentTools, searchQuery, selectedProject]);
 
-  // Sort resources
-  const sortedResources = useMemo(() => {
-    return [...filteredResources].sort((a, b) => {
+  // Sort
+  const sortedTools = useMemo(() => {
+    return [...filteredTools].sort((a, b) => {
       if (sortOrder === "name") {
         return a.title.localeCompare(b.title);
       }
@@ -119,7 +217,85 @@ export default function PortalToolingPage({
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
-  }, [filteredResources, sortOrder]);
+  }, [filteredTools, sortOrder]);
+
+  // Group by project
+  const groupedTools = useMemo(() => {
+    const groups = new Map<string, NormalizedTool[]>();
+    for (const tool of sortedTools) {
+      const key = tool.projectName || "Unassigned";
+      const group = groups.get(key) ?? [];
+      group.push(tool);
+      groups.set(key, group);
+    }
+    const sorted = Array.from(groups.entries()).sort(([a], [b]) => {
+      if (a === "Unassigned") return 1;
+      if (b === "Unassigned") return -1;
+      return a.localeCompare(b);
+    });
+    return sorted;
+  }, [sortedTools]);
+
+  // Admin actions
+  const handleArchive = useCallback(
+    (tool: NormalizedTool) => {
+      updateResource.mutate({ id: tool.resourceId, isActive: !tool.isActive });
+    },
+    [updateResource]
+  );
+
+  const handleDelete = useCallback(
+    (tool: NormalizedTool) => {
+      deleteResource.mutate({ id: tool.resourceId });
+      setDeleteDialog({ open: false, tool: null });
+    },
+    [deleteResource]
+  );
+
+  const handleAssign = useCallback(
+    (projectId: number | null) => {
+      if (!assignDialog.tool) return;
+      updateResource.mutate({ id: assignDialog.tool.resourceId, projectId });
+    },
+    [assignDialog.tool, updateResource]
+  );
+
+  const handleCreateProject = useCallback(
+    (name: string) => {
+      createProject.mutate({ slug, name });
+    },
+    [createProject, slug]
+  );
+
+  const getAdminActions = useCallback(
+    (tool: NormalizedTool): AdminAction[] => {
+      return [
+        {
+          label: tool.isActive ? "Archive" : "Unarchive",
+          icon: tool.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+          onClick: () => handleArchive(tool),
+        },
+        {
+          label: "Assign to Project",
+          icon: <FolderOpen className="h-4 w-4" />,
+          onClick: () => setAssignDialog({ open: true, tool }),
+        },
+        {
+          label: "Delete",
+          icon: <Trash2 className="h-4 w-4" />,
+          onClick: () => setDeleteDialog({ open: true, tool }),
+          variant: "danger" as const,
+        },
+      ];
+    },
+    [handleArchive]
+  );
+
+  // Expand/collapse all
+  const handleExpandAll = useCallback(() => setCollapsedGroups(new Set()), []);
+  const handleCollapseAll = useCallback(() => {
+    setCollapsedGroups(new Set(groupedTools.map(([name]) => name)));
+  }, [groupedTools]);
 
   // Clear filters
   const clearFilters = () => {
@@ -154,8 +330,13 @@ export default function PortalToolingPage({
     );
   }
 
-  const hasContent = (resources?.length ?? 0) > 0;
+  const hasContent = allTools.length > 0;
   const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const showGrouping =
+    viewMode === "grouped" &&
+    selectedProject === "all" &&
+    (groupedTools.length > 1 ||
+      (groupedTools.length === 1 && groupedTools[0]![0] !== "Unassigned"));
 
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
@@ -166,6 +347,16 @@ export default function PortalToolingPage({
         </p>
       </div>
 
+      {/* Admin tabs */}
+      {isAdmin && hasContent && (
+        <StatusTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeCount={activeTools.length}
+          archivedCount={archivedTools.length}
+        />
+      )}
+
       {/* Search/Filter Bar */}
       <SearchFilterBar
         searchQuery={searchQuery}
@@ -175,8 +366,19 @@ export default function PortalToolingPage({
         onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
-        onFilterChange={(id) => setSelectedProject(id as number | "all")}
+        onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
         filterLabel="Project"
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onExpandAll={handleExpandAll}
+        onCollapseAll={handleCollapseAll}
+        collapseState={
+          collapsedGroups.size === 0
+            ? "all-expanded"
+            : collapsedGroups.size >= groupedTools.length
+              ? "all-collapsed"
+              : "mixed"
+        }
       />
 
       {resourcesLoading ? (
@@ -194,25 +396,88 @@ export default function PortalToolingPage({
       ) : (
         <ListContainer
           emptyIcon={<Search className="h-12 w-12" />}
-          emptyMessage="No tools match your search."
+          emptyMessage={
+            activeTab === "archived"
+              ? "No archived tools."
+              : "No tools match your search."
+          }
           onClearFilters={clearFilters}
           showClearFilters={hasActiveFilters}
         >
-          {sortedResources.map((resource) => (
-            <ListItem
-              key={resource.id}
-              icon={getResourceIcon(resource)}
-              title={resource.title}
-              description={resource.description}
-              date={resource.createdAt}
-              secondaryText={resource.project?.name}
-              href={resource.url}
-              disabled={!resource.subscriptionActive}
-              disabledMessage="Subscription required"
-            />
-          ))}
+          {showGrouping
+            ? groupedTools.map(([groupName, tools]) => (
+                <div key={groupName}>
+                  <ProjectGroupHeader
+                    projectName={groupName}
+                    itemCount={tools.length}
+                    collapsed={collapsedGroups.has(groupName)}
+                    onToggle={() => toggleGroup(groupName)}
+                  />
+                  {!collapsedGroups.has(groupName) &&
+                    tools.map((tool) => (
+                      <div key={tool.id} className="mb-3">
+                        <ListItem
+                          icon={getResourceIcon(tool)}
+                          title={tool.title}
+                          description={tool.description}
+                          date={tool.createdAt}
+                          secondaryText={tool.projectName || "Unassigned"}
+                          href={tool.url}
+                          disabled={!tool.subscriptionActive}
+                          disabledMessage="Subscription required"
+                          actions={
+                            isAdmin ? (
+                              <AdminActionMenu actions={getAdminActions(tool)} />
+                            ) : undefined
+                          }
+                        />
+                      </div>
+                    ))}
+                </div>
+              ))
+            : sortedTools.map((tool) => (
+                <ListItem
+                  key={tool.id}
+                  icon={getResourceIcon(tool)}
+                  title={tool.title}
+                  description={tool.description}
+                  date={tool.createdAt}
+                  secondaryText={tool.projectName || "Unassigned"}
+                  href={tool.url}
+                  disabled={!tool.subscriptionActive}
+                  disabledMessage="Subscription required"
+                  actions={
+                    isAdmin ? (
+                      <AdminActionMenu actions={getAdminActions(tool)} />
+                    ) : undefined
+                  }
+                />
+              ))}
         </ListContainer>
       )}
+
+      {/* Project Assignment Dialog */}
+      <ProjectAssignDialog
+        open={assignDialog.open}
+        onOpenChange={(open) => setAssignDialog({ open, tool: open ? assignDialog.tool : null })}
+        currentProjectId={assignDialog.tool?.projectId ?? null}
+        projects={projects ?? []}
+        onAssign={handleAssign}
+        onCreateProject={handleCreateProject}
+        isLoading={updateResource.isPending || createProject.isPending}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, tool: open ? deleteDialog.tool : null })}
+        title="Delete Tool"
+        description={`Are you sure you want to permanently delete "${deleteDialog.tool?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={() => deleteDialog.tool && handleDelete(deleteDialog.tool)}
+        isLoading={deleteResource.isPending}
+      />
     </ClientPortalLayout>
   );
 }
