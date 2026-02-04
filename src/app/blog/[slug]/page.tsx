@@ -78,7 +78,7 @@ const blogPosts: Record<string, BlogPost> = {
         </p>
 
         <p className="text-sm italic" style={{ color: '#D4AF37' }}>
-          For a deeper dive into these threats and the science behind them, see <span className="inline-flex items-center gap-1"><a href="/blog/current-threats-modern-technology" className="underline hover:no-underline">The Hidden Costs: Current Threats of Modern Technology</a> <span className="text-xs opacity-60">(Coming Soon)</span></span>.
+          For a deeper dive into these threats and the science behind them, see <span className="inline-flex items-center gap-1"><Link href="/blog/current-threats-modern-technology" className="underline hover:no-underline">The Hidden Costs: Current Threats of Modern Technology</Link> <span className="text-xs opacity-60">(Coming Soon)</span></span>.
         </p>
 
         <h2>What We&apos;re Building Toward</h2>
@@ -108,7 +108,7 @@ const blogPosts: Record<string, BlogPost> = {
         </p>
 
         <p className="text-sm italic" style={{ color: '#D4AF37' }}>
-          To explore these solutions in depth, see <span className="inline-flex items-center gap-1"><a href="/blog/web5-data-sovereignty" className="underline hover:no-underline">Web5: Reclaiming Digital Sovereignty</a> <span className="text-xs opacity-60">(Coming Soon)</span></span>, <span className="inline-flex items-center gap-1"><a href="/blog/regenerative-land-systems" className="underline hover:no-underline">Regenerative Land Systems</a> <span className="text-xs opacity-60">(Coming Soon)</span></span>, and <span className="inline-flex items-center gap-1"><a href="/blog/what-is-the-new-earth" className="underline hover:no-underline">What is the New Earth?</a> <span className="text-xs opacity-60">(Coming Soon)</span></span>
+          To explore these solutions in depth, see <span className="inline-flex items-center gap-1"><Link href="/blog/web5-data-sovereignty" className="underline hover:no-underline">Web5: Reclaiming Digital Sovereignty</Link> <span className="text-xs opacity-60">(Coming Soon)</span></span>, <span className="inline-flex items-center gap-1"><Link href="/blog/regenerative-land-systems" className="underline hover:no-underline">Regenerative Land Systems</Link> <span className="text-xs opacity-60">(Coming Soon)</span></span>, and <span className="inline-flex items-center gap-1"><Link href="/blog/what-is-the-new-earth" className="underline hover:no-underline">What is the New Earth?</Link> <span className="text-xs opacity-60">(Coming Soon)</span></span>
         </p>
 
         <h2>The Work Ahead</h2>
@@ -147,10 +147,10 @@ const blogPosts: Record<string, BlogPost> = {
             }}
             asChild
           >
-            <a href="/#contact">
+            <Link href="/#contact">
               <Mail className="mr-2 h-4 w-4" />
               Get In Touch
-            </a>
+            </Link>
           </Button>
         </div>
       </>

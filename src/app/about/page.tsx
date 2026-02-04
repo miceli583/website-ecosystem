@@ -300,8 +300,8 @@ function AboutContent() {
               Ready to Build Together?
             </h2>
             <p className="mb-8 text-gray-300">
-              Whether you're launching a new venture or modernizing an existing system,
-              let's explore how we can help.
+              Whether you&apos;re launching a new venture or modernizing an existing system,
+              let&apos;s explore how we can help.
             </p>
             <Link href={buildHref("/contact")}>
               <Button

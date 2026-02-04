@@ -25,12 +25,12 @@ export function BanyanConfirmationEmail({
           <Heading style={heading}>Welcome to BANYAN</Heading>
           <Text style={text}>Hi {fullName},</Text>
           <Text style={text}>
-            Thank you for signing up for early access to BANYAN LifeOS. We're
-            building something special, and we're thrilled to have you along for
+            Thank you for signing up for early access to BANYAN LifeOS. We&apos;re
+            building something special, and we&apos;re thrilled to have you along for
             the journey.
           </Text>
           <Text style={text}>
-            We'll reach out as soon as your spot is ready. In the meantime, keep
+            We&apos;ll reach out as soon as your spot is ready. In the meantime, keep
             an eye on your inbox for updates.
           </Text>
           <Section style={footer}>

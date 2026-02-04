@@ -169,7 +169,7 @@ function ServicesContent() {
               Ready to Start?
             </h2>
             <p className="mb-8 text-gray-300">
-              Tell us about your project and let's explore how we can help.
+              Tell us about your project and let&apos;s explore how we can help.
             </p>
             <Link href={buildHref("/contact")}>
               <Button

@@ -339,7 +339,7 @@ function BlogManagementContent() {
                 About Blog Seeds
               </h3>
               <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                Seeds are placeholder blog posts that outline future content. They serve as a roadmap for content creation and help organize ideas before writing begins. When you're ready to write a seed post, work with Claude to develop the full content, then update its status to "draft" for review before publishing.
+                Seeds are placeholder blog posts that outline future content. They serve as a roadmap for content creation and help organize ideas before writing begins. When you&apos;re ready to write a seed post, work with Claude to develop the full content, then update its status to &quot;draft&quot; for review before publishing.
               </p>
               <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 These seeds can also help reduce density in existing posts by moving detailed content into dedicated topic-specific articles.

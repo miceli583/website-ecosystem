@@ -167,7 +167,7 @@ export function MiracleMindDevHomePage() {
                 className="mx-auto mb-8 max-w-3xl px-4 text-base leading-relaxed text-gray-300 sm:mb-12 sm:text-lg"
                 style={{ fontFamily: "var(--font-geist-sans)" }}
               >
-                You're optimizing individual areas—health, work, relationships,
+                You&apos;re optimizing individual areas—health, work, relationships,
                 finances—but they compete for your time and attention instead of supporting each other.
                 You have goals but lack the systems to make them sustainable.
               </p>
@@ -298,7 +298,7 @@ export function MiracleMindDevHomePage() {
                 className="mt-6 px-4 text-base text-gray-400 sm:mt-8 sm:text-lg"
                 style={{ fontFamily: "var(--font-geist-sans)", fontStyle: "italic" }}
               >
-                Each tool is powerful on its own. Together, they're transformative.
+                Each tool is powerful on its own. Together, they&apos;re transformative.
               </p>
             </div>
           </section>
@@ -348,14 +348,14 @@ export function MiracleMindDevHomePage() {
                     className="mx-auto max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
                     style={{ fontFamily: "var(--font-geist-sans)" }}
                   >
-                    BANYAN's AI doesn't just track—it <strong style={{ color: "#D4AF37" }}>connects</strong>. It sees your morning run improving your work focus. Your creative practice deepening your relationships. Your financial clarity creating space for rest.
+                    BANYAN&apos;s AI doesn&apos;t just track—it <strong style={{ color: "#D4AF37" }}>connects</strong>. It sees your morning run improving your work focus. Your creative practice deepening your relationships. Your financial clarity creating space for rest.
                   </p>
 
                   <p
                     className="mx-auto mt-4 max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:mt-6 sm:text-base md:text-lg"
                     style={{ fontFamily: "var(--font-geist-sans)" }}
                   >
-                    The system accesses data across all five life domains, surfaces patterns you'd never spot alone, and provides insights on how changes in one area ripple through your entire ecosystem. Over time, it learns what balance looks like <em>for you</em>—and guides you back when life pulls you off course.
+                    The system accesses data across all five life domains, surfaces patterns you&apos;d never spot alone, and provides insights on how changes in one area ripple through your entire ecosystem. Over time, it learns what balance looks like <em>for you</em>—and guides you back when life pulls you off course.
                   </p>
                 </div>
               </CardContent>
@@ -449,7 +449,7 @@ export function MiracleMindDevHomePage() {
                     Review & Adapt
                   </h3>
                   <p className="text-sm text-gray-300 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
-                    Life changes. You change. Our review system shows you what's working, recommends adjustments, and keeps you aligned over years, not just weeks.
+                    Life changes. You change. Our review system shows you what&apos;s working, recommends adjustments, and keeps you aligned over years, not just weeks.
                   </p>
                 </CardContent>
               </Card>
@@ -664,7 +664,7 @@ export function MiracleMindDevHomePage() {
                   className="mx-auto max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
                   style={{ fontFamily: "var(--font-geist-sans)" }}
                 >
-                  BANYAN isn't another productivity hack or 30-day challenge. It's infrastructure for a life that compounds—where today's small choices become next year's transformation. Where your deepest values aren't aspirations, but the ground you stand on.
+                  BANYAN isn&apos;t another productivity hack or 30-day challenge. It&apos;s infrastructure for a life that compounds—where today&apos;s small choices become next year&apos;s transformation. Where your deepest values aren&apos;t aspirations, but the ground you stand on.
                 </p>
               </CardContent>
             </Card>

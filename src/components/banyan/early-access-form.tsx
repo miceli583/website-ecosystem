@@ -67,10 +67,10 @@ export function BanyanEarlyAccessForm() {
             className="mb-4 text-3xl font-bold text-white"
             style={{ fontFamily: "var(--font-quattrocento-sans)" }}
           >
-            You're on the List!
+            You&apos;re on the List!
           </h3>
           <p className="mb-6 text-lg text-gray-300" style={{ fontFamily: "var(--font-geist-sans)" }}>
-            Thank you for your interest in Banyan. We'll reach out within 48 hours
+            Thank you for your interest in Banyan. We&apos;ll reach out within 48 hours
             to get you started.
           </p>
           <Button
@@ -242,7 +242,7 @@ export function BanyanEarlyAccessForm() {
               className="text-sm text-gray-300"
               style={{ fontFamily: "var(--font-geist-sans)" }}
             >
-              I'm interested in beta testing and providing feedback on early builds
+              I&apos;m interested in beta testing and providing feedback on early builds
             </label>
           </div>
 
@@ -301,7 +301,7 @@ export function BanyanEarlyAccessForm() {
           </Button>
 
           <p className="text-center text-sm text-gray-400">
-            Limited spots available. We'll reach out within 48 hours.
+            Limited spots available. We&apos;ll reach out within 48 hours.
           </p>
         </form>
       </CardContent>

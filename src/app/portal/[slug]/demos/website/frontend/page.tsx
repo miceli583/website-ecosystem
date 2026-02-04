@@ -692,7 +692,7 @@ export default function CHW360WebsiteDemoPage({
                     className="mb-6 text-sm italic leading-relaxed"
                     style={{ color: "#4A5568" }}
                   >
-                    "{testimonial.quote}"
+                    &quot;{testimonial.quote}&quot;
                   </p>
                   <div className="flex items-center gap-3">
                     <div
@@ -811,7 +811,7 @@ export default function CHW360WebsiteDemoPage({
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-gray-600">
                 Join 150+ organizations that have transformed their community health
-                outcomes with CHW360's comprehensive training solutions.
+                outcomes with CHW360&apos;s comprehensive training solutions.
               </p>
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button
@@ -848,7 +848,7 @@ export default function CHW360WebsiteDemoPage({
                 className="mb-4 text-3xl font-extrabold sm:text-4xl"
                 style={{ color: "#0D7377" }}
               >
-                Let's Start a Conversation
+                Let&apos;s Start a Conversation
               </h2>
               <p className="mb-8 text-lg" style={{ color: "#4A5568" }}>
                 Ready to strengthen your community health workforce? Our team is
@@ -972,7 +972,7 @@ export default function CHW360WebsiteDemoPage({
                   </Button>
 
                   <p className="text-center text-xs text-gray-500">
-                    We'll respond within 24 hours. Your information is secure.
+                    We&apos;ll respond within 24 hours. Your information is secure.
                   </p>
                 </form>
               </CardContent>

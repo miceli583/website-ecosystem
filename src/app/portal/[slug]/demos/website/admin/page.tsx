@@ -469,7 +469,7 @@ export default function CHW360AdminDemoPage({ params }: { params: Promise<{ slug
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-lg font-bold">Recent Activity</CardTitle>
-                    <p className="text-sm text-gray-500">What's happening on your site</p>
+                    <p className="text-sm text-gray-500">What&apos;s happening on your site</p>
                   </div>
                   <div className="flex items-center gap-2 rounded-lg bg-gray-100 p-1">
                     <button className="rounded-md bg-white px-3 py-1 text-sm font-medium text-gray-900 shadow-sm">
