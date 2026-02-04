@@ -28,6 +28,7 @@ _None currently_
 - [ ] Research device-independent magic links (Supabase auth)
 
 ### Lower Priority
+- [ ] Evaluate Turso for demo data isolation (SQLite for serverless, per-client DBs)
 - [ ] Create next blog post
 - [ ] Bundle size optimization pass
 - [ ] Privacy policies and ToS improvements

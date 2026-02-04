@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.5.2
+**Version:** 0.5.3
 **Last Updated:** 2026-02-04
-**Commits:** 146
+**Commits:** 148
 
 ## Feature Status
 
@@ -41,10 +41,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 04 | 3030101 | Fix all ESLint errors (escape entities, use Next.js Link) |
 | Feb 04 | 2159390 | Fix React hooks violation in notes page |
 | Feb 04 | fb540a8 | Portal quick wins: toasts, cache standardization, accessibility |
-| Feb 04 | 6057ca1 | Billing chevron fix, QA checklist, improvement docs |
-| Feb 04 | 1f76aad | Notes archive, filter persistence, billing refactor, orphan filtering |
-| Feb 04 | 6c823d2 | Portal admin controls, unified filter UX across all tabs |
+| Feb 04 | 1f76aad | Notes archive, filter persistence, billing refactor |
+| Feb 04 | 6c823d2 | Portal admin controls, unified filter UX |
 
 _Older changes: `git log --oneline`_
