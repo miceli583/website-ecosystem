@@ -330,6 +330,7 @@ export const clientNotes = pgTable("client_notes", {
   title: text("title").notNull(),
   content: text("content").notNull().default(""),
   isPinned: boolean("is_pinned").notNull().default(false),
+  isArchived: boolean("is_archived").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

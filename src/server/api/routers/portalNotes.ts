@@ -104,6 +104,7 @@ export const portalNotesRouter = createTRPCRouter({
         title: z.string().min(1).max(200).optional(),
         content: z.string().optional(),
         isPinned: z.boolean().optional(),
+        isArchived: z.boolean().optional(),
         projectId: z.number().nullable().optional(),
       }),
     )
@@ -131,6 +132,7 @@ export const portalNotesRouter = createTRPCRouter({
       if (input.title !== undefined) updateData.title = input.title;
       if (input.content !== undefined) updateData.content = input.content;
       if (input.isPinned !== undefined) updateData.isPinned = input.isPinned;
+      if (input.isArchived !== undefined) updateData.isArchived = input.isArchived;
       if (input.projectId !== undefined) updateData.projectId = input.projectId;
 
       const [updated] = await db

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo, useCallback } from "react";
+import { use, useState, useEffect, useMemo, useCallback } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
@@ -16,6 +16,7 @@ import {
   type ViewMode,
   type FilterOption,
   type AdminAction,
+  useTabFilters,
 } from "~/components/portal";
 import {
   Wrench,
@@ -117,15 +118,30 @@ export default function PortalToolingPage({
     onSuccess: () => void utils.portal.getProjects.invalidate(),
   });
 
+  // Persisted filter state
+  const { getState, setState: persistState } = useTabFilters("tooling");
+  const saved = getState();
+
   // UI state
-  const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
-  const [viewMode, setViewMode] = useState<ViewMode>("grouped");
+  const [activeTab, setActiveTab] = useState<"active" | "archived">(saved.activeTab ?? "active");
+  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
+  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">(
+    saved.selectedProject as number | "all" | "unassigned",
+  );
+  const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
+  const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
 
   // Collapsed project groups
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set(saved.collapsedGroups),
+  );
+
+  useEffect(() => {
+    persistState({
+      searchQuery, sortOrder, selectedProject, viewMode,
+      collapsedGroups: Array.from(collapsedGroups), activeTab,
+    });
+  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
   const toggleGroup = useCallback((groupName: string) => {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);

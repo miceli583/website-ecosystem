@@ -1,15 +1,19 @@
 "use client";
 
-import { use, useState, useMemo, useCallback } from "react";
+import { use, useState, useEffect, useMemo, useCallback } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   SearchFilterBar,
+  StatusTabs,
   NoteEditor,
   ProjectGroupHeader,
   ProjectAssignDialog,
   ConfirmDialog,
+  AdminActionMenu,
+  useTabFilters,
   type SortOrder,
+  type AdminAction,
   type ViewMode,
   type FilterOption,
 } from "~/components/portal";
@@ -19,13 +23,13 @@ import {
   AlertCircle,
   Plus,
   Pin,
-  ChevronDown,
-  ChevronRight,
   Pencil,
   Trash2,
   Search,
   FolderOpen,
-  Clock,
+  Archive,
+  ArchiveRestore,
+  ChevronsUp,
 } from "lucide-react";
 
 type Note = RouterOutputs["portalNotes"]["getNotes"][number];
@@ -149,15 +153,24 @@ export default function PortalNotesPage({
     onSuccess: () => void utils.portal.getProjects.invalidate({ slug }),
   });
 
+  // Persisted filter state
+  const { getState, setState: persistState } = useTabFilters("notes");
+  const saved = getState();
+
   // UI state
   const [showEditor, setShowEditor] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
-  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("grouped");
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<"active" | "archived">(saved.activeTab ?? "active");
+  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
+  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">(
+    saved.selectedProject as number | "all" | "unassigned",
+  );
+  const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set(saved.collapsedGroups),
+  );
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; note: Note | null }>({
     open: false,
     note: null,
@@ -165,6 +178,23 @@ export default function PortalNotesPage({
   const [assignDialog, setAssignDialog] = useState<{ open: boolean; note: Note | null }>({
     open: false,
     note: null,
+  });
+
+  // Persist filter state on change
+  useEffect(() => {
+    persistState({
+      searchQuery,
+      sortOrder,
+      selectedProject,
+      viewMode,
+      collapsedGroups: Array.from(collapsedGroups),
+      activeTab,
+    });
+  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
+
+  // Archive mutation
+  const archiveNote = api.portalNotes.updateNote.useMutation({
+    onSuccess: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
 
   const toggleGroup = useCallback((groupName: string) => {
@@ -179,12 +209,17 @@ export default function PortalNotesPage({
   const canDelete = (note: Note) =>
     isAdmin || note.createdByAuthId === profile?.authUserId;
 
-  // Project filters
-  const hasUnassigned = (notes ?? []).some((n: Note) => n.projectId === null);
+  // Split active/archived
+  const activeNotes = useMemo(() => (notes ?? []).filter((n: Note) => !n.isArchived), [notes]);
+  const archivedNotes = useMemo(() => (notes ?? []).filter((n: Note) => n.isArchived), [notes]);
+  const currentNotes = activeTab === "active" ? activeNotes : archivedNotes;
+
+  // Project filters (from current tab's notes)
+  const hasUnassigned = currentNotes.some((n: Note) => n.projectId === null);
   const projectFilters: FilterOption[] = useMemo(() => {
-    if (!notes) return [];
+    if (!currentNotes.length) return [];
     const projectMap = new Map<number, string>();
-    notes.forEach((n: Note) => {
+    currentNotes.forEach((n: Note) => {
       if (n.project) projectMap.set(n.project.id, n.project.name);
     });
     projects?.forEach((p: { id: number; name: string }) => {
@@ -193,12 +228,11 @@ export default function PortalNotesPage({
     const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
     if (hasUnassigned) filters.push({ id: "unassigned", name: "Unassigned" });
     return filters;
-  }, [notes, projects, hasUnassigned]);
+  }, [currentNotes, projects, hasUnassigned]);
 
   // Filter + sort notes
   const filteredNotes = useMemo(() => {
-    if (!notes) return [];
-    return notes.filter((n: Note) => {
+    return currentNotes.filter((n: Note) => {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const matchTitle = n.title.toLowerCase().includes(q);
@@ -211,7 +245,7 @@ export default function PortalNotesPage({
       if (selectedProject !== "all" && n.projectId !== selectedProject) return false;
       return true;
     });
-  }, [notes, searchQuery, selectedProject]);
+  }, [currentNotes, searchQuery, selectedProject]);
 
   const sortedNotes = useMemo(() => {
     return [...filteredNotes].sort((a, b) => {
@@ -290,165 +324,194 @@ export default function PortalNotesPage({
 
   // ── Note card renderer ──
 
+  // Admin actions for a note (three-dot menu)
+  const getNoteActions = useCallback(
+    (note: Note): AdminAction[] => [
+      {
+        label: note.isPinned ? "Unpin" : "Pin",
+        icon: <Pin className="h-4 w-4" />,
+        onClick: () =>
+          togglePin.mutate({ slug, noteId: note.id, isPinned: !note.isPinned }),
+      },
+      {
+        label: "Edit",
+        icon: <Pencil className="h-4 w-4" />,
+        onClick: () => {
+          setEditingNoteId(note.id);
+          setExpandedNoteId(null);
+        },
+      },
+      {
+        label: note.isArchived ? "Restore" : "Archive",
+        icon: note.isArchived ? (
+          <ArchiveRestore className="h-4 w-4" />
+        ) : (
+          <Archive className="h-4 w-4" />
+        ),
+        onClick: () =>
+          archiveNote.mutate({
+            slug,
+            noteId: note.id,
+            isArchived: !note.isArchived,
+          }),
+      },
+      {
+        label: "Assign to Project",
+        icon: <FolderOpen className="h-4 w-4" />,
+        onClick: () => setAssignDialog({ open: true, note }),
+      },
+      ...(canDelete(note)
+        ? [
+            {
+              label: "Delete",
+              icon: <Trash2 className="h-4 w-4" />,
+              onClick: () => setDeleteDialog({ open: true, note }),
+              variant: "danger" as const,
+            },
+          ]
+        : []),
+    ],
+    [slug, togglePin, archiveNote, canDelete],
+  );
+
   function renderNote(note: Note) {
     const isExpanded = expandedNoteId === note.id;
     const isEditing = editingNoteId === note.id;
     const preview = truncate(stripHtml(note.content), 120);
     const edited = wasEdited(note);
 
+    if (isEditing) {
+      return (
+        <div
+          key={note.id}
+          className="rounded-md border p-1"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.3)",
+            backgroundColor: "rgba(212, 175, 55, 0.04)",
+          }}
+        >
+          <NoteEditor
+            initialTitle={note.title}
+            initialContent={note.content}
+            onSave={(title, content) =>
+              updateNote.mutate({ slug, noteId: note.id, title, content })
+            }
+            onCancel={() => setEditingNoteId(null)}
+            saving={updateNote.isPending}
+            compact
+          />
+        </div>
+      );
+    }
+
     return (
       <div
         key={note.id}
-        className="rounded-lg border transition-all"
+        className="rounded-md border bg-white/5 transition-colors hover:bg-white/10"
         style={{
-          borderColor: isEditing
-            ? "rgba(212, 175, 55, 0.35)"
-            : isExpanded
-              ? "rgba(212, 175, 55, 0.3)"
-              : "rgba(212, 175, 55, 0.12)",
-          backgroundColor: isEditing
-            ? "rgba(212, 175, 55, 0.04)"
-            : isExpanded
-              ? "rgba(212, 175, 55, 0.03)"
-              : "transparent",
+          borderColor: isExpanded
+            ? "rgba(212, 175, 55, 0.3)"
+            : "rgba(212, 175, 55, 0.15)",
         }}
       >
-        {isEditing ? (
-          /* Inline editor — stays within the card */
-          <div className="p-1">
-            <NoteEditor
-              initialTitle={note.title}
-              initialContent={note.content}
-              onSave={(title, content) =>
-                updateNote.mutate({ slug, noteId: note.id, title, content })
-              }
-              onCancel={() => setEditingNoteId(null)}
-              saving={updateNote.isPending}
-              compact
-            />
-          </div>
-        ) : (
-          <>
-            {/* Note header — click to expand */}
-            <button
-              onClick={() => setExpandedNoteId(isExpanded ? null : note.id)}
-              className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
-            >
-              {isExpanded ? (
-                <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
-              ) : (
-                <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
-              )}
-
-              <div className="min-w-0 flex-1">
-                {/* Title row */}
-                <div className="flex items-center gap-2">
-                  <span className="truncate font-medium text-white">{note.title}</span>
-                  {note.isPinned && (
-                    <Pin className="h-3.5 w-3.5 shrink-0" style={{ color: "#D4AF37" }} />
-                  )}
-                </div>
-
-                {/* Content preview (collapsed only) */}
-                {!isExpanded && preview && preview !== "No content." && (
-                  <p className="mt-1 truncate text-sm text-gray-500">{preview}</p>
+        {/* Header row — matches ListItem layout */}
+        <div className="flex items-center justify-between gap-4 px-4 py-3">
+          <button
+            onClick={() => setExpandedNoteId(isExpanded ? null : note.id)}
+            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          >
+            <div className="flex-shrink-0" style={{ color: "#D4AF37" }}>
+              <StickyNote className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="truncate font-medium text-white">{note.title}</p>
+                {note.isPinned && (
+                  <Pin className="h-3.5 w-3.5 shrink-0" style={{ color: "#D4AF37" }} />
                 )}
-
-                {/* Meta row: author badge + timestamp + edited + project */}
-                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                  {/* Author initials badge */}
-                  <span
-                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${authorColor(note.createdByName)}`}
-                  >
-                    {getInitials(note.createdByName)}
-                  </span>
-                  <span>{note.createdByName}</span>
-                  <span className="text-gray-700">&middot;</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {relativeTime(note.updatedAt)}
-                  </span>
-                  {edited && (
-                    <span className="italic text-gray-600">(edited)</span>
-                  )}
-                  <span className="text-gray-700">&middot;</span>
-                  <span className="flex items-center gap-1 text-gray-500">
-                    <FolderOpen className="h-3 w-3" />
-                    {note.project?.name ?? "Unassigned"}
-                  </span>
-                </div>
               </div>
+              {!isExpanded && preview && preview !== "No content." && (
+                <p className="truncate text-sm text-gray-500">{preview}</p>
+              )}
+            </div>
+          </button>
+          <div className="flex flex-shrink-0 items-center gap-4 text-sm text-gray-500">
+            <span className="hidden sm:inline">{note.project?.name ?? "Unassigned"}</span>
+            <span className="flex items-center gap-1 text-xs">
+              <span
+                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${authorColor(note.createdByName)}`}
+              >
+                {getInitials(note.createdByName)}
+              </span>
+            </span>
+            <span className="text-xs">
+              {relativeTime(note.updatedAt)}
+              {edited && <span className="ml-1 italic text-gray-600">(edited)</span>}
+            </span>
+            {isAdmin && <AdminActionMenu actions={getNoteActions(note)} />}
+          </div>
+        </div>
+
+        {/* Expanded content */}
+        {isExpanded && (
+          <div
+            className="border-t"
+            style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+          >
+            {/* Collapse indicator */}
+            <button
+              onClick={() => setExpandedNoteId(null)}
+              className="flex w-full items-center justify-center gap-1.5 py-1.5 text-xs text-gray-500 transition-colors hover:bg-white/5 hover:text-gray-300"
+            >
+              <ChevronsUp className="h-3.5 w-3.5" />
+              <span>Collapse</span>
             </button>
 
-            {/* Expanded content */}
-            {isExpanded && (
+            <div className="px-4 pb-4">
+            {note.content && note.content !== "<p></p>" ? (
               <div
-                className="border-t px-4 py-4"
-                style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
-              >
-                {note.content && note.content !== "<p></p>" ? (
-                  <div
-                    className="prose prose-invert max-w-none text-sm"
-                    dangerouslySetInnerHTML={{ __html: note.content }}
-                  />
-                ) : (
-                  <p className="text-sm italic text-gray-500">No content.</p>
-                )}
-
-                {/* Actions */}
-                <div
-                  className="mt-4 flex items-center gap-2 border-t pt-3"
-                  style={{ borderColor: "rgba(255, 255, 255, 0.06)" }}
-                >
-                  <button
-                    onClick={() =>
-                      togglePin.mutate({
-                        slug,
-                        noteId: note.id,
-                        isPinned: !note.isPinned,
-                      })
-                    }
-                    className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs transition-colors hover:bg-white/5 ${
-                      note.isPinned
-                        ? "text-[#D4AF37]"
-                        : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    <Pin className="h-3.5 w-3.5" />
-                    {note.isPinned ? "Unpin" : "Pin"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditingNoteId(note.id);
-                      setExpandedNoteId(null);
-                    }}
-                    className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Edit
-                  </button>
-                  {isAdmin && (
-                    <button
-                      onClick={() => setAssignDialog({ open: true, note })}
-                      className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-                    >
-                      <FolderOpen className="h-3.5 w-3.5" />
-                      Assign
-                    </button>
-                  )}
-                  {canDelete(note) && (
-                    <button
-                      onClick={() => setDeleteDialog({ open: true, note })}
-                      className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </div>
+                className="prose prose-invert max-w-none text-sm"
+                dangerouslySetInnerHTML={{ __html: note.content }}
+              />
+            ) : (
+              <p className="text-sm italic text-gray-500">No content.</p>
             )}
-          </>
+
+            {/* Inline actions — pin + edit for quick access */}
+            <div
+              className="mt-4 flex items-center gap-2 border-t pt-3"
+              style={{ borderColor: "rgba(255, 255, 255, 0.06)" }}
+            >
+              <button
+                onClick={() =>
+                  togglePin.mutate({
+                    slug,
+                    noteId: note.id,
+                    isPinned: !note.isPinned,
+                  })
+                }
+                className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs transition-colors hover:bg-white/5 ${
+                  note.isPinned
+                    ? "text-[#D4AF37]"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <Pin className="h-3.5 w-3.5" />
+                {note.isPinned ? "Unpin" : "Pin"}
+              </button>
+              <button
+                onClick={() => {
+                  setEditingNoteId(note.id);
+                  setExpandedNoteId(null);
+                }}
+                className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit
+              </button>
+            </div>
+            </div>
+          </div>
         )}
       </div>
     );
@@ -490,8 +553,18 @@ export default function PortalNotesPage({
         </div>
       )}
 
+      {/* Active / Archived tabs */}
+      {isAdmin && (notes?.length ?? 0) > 0 && !showEditor && editingNoteId === null && (
+        <StatusTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeCount={activeNotes.length}
+          archivedCount={archivedNotes.length}
+        />
+      )}
+
       {/* Search + Filter Bar */}
-      {(notes?.length ?? 0) > 0 && !showEditor && editingNoteId === null && (
+      {currentNotes.length > 0 && !showEditor && editingNoteId === null && (
         <SearchFilterBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -527,6 +600,13 @@ export default function PortalNotesPage({
           <p className="text-gray-500">No notes yet.</p>
           <p className="mt-2 text-sm text-gray-600">
             Create a note to start collaborating.
+          </p>
+        </div>
+      ) : currentNotes.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Archive className="mb-4 h-12 w-12 text-gray-600" />
+          <p className="text-gray-500">
+            {activeTab === "archived" ? "No archived notes." : "No active notes."}
           </p>
         </div>
       ) : sortedNotes.length === 0 ? (

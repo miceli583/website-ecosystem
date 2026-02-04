@@ -577,6 +577,7 @@ export const portalRouter = createTRPCRouter({
               eq(clientResources.clientId, client.id),
               eq(clientResources.section, "proposals"),
             ),
+            with: { project: true },
           }),
         ]);
 
@@ -587,14 +588,29 @@ export const portalRouter = createTRPCRouter({
         const balance = "balance" in customer ? customer.balance : null;
 
         // Build dual lookup maps from proposals
-        const piToProposal = new Map<string, string>();
-        const subToProposal = new Map<string, string>();
+        interface ProposalLink {
+          proposalId: number;
+          proposalTitle: string;
+          projectId: number | null;
+          projectName: string | null;
+        }
+        const piToProposal = new Map<string, ProposalLink>();
+        const subToProposal = new Map<string, ProposalLink>();
+        const invToProposal = new Map<string, ProposalLink>();
         for (const p of proposals) {
           const meta = p.metadata as Record<string, unknown> | null;
+          const link: ProposalLink = {
+            proposalId: p.id,
+            proposalTitle: p.title,
+            projectId: p.project?.id ?? null,
+            projectName: p.project?.name ?? null,
+          };
           const piId = meta?.stripePaymentIntentId as string | undefined;
-          if (piId) piToProposal.set(piId, p.title);
+          if (piId) piToProposal.set(piId, link);
           const subId = meta?.stripeSubscriptionId as string | undefined;
-          if (subId) subToProposal.set(subId, p.title);
+          if (subId) subToProposal.set(subId, link);
+          const invId = meta?.stripeInvoiceId as string | undefined;
+          if (invId) invToProposal.set(invId, link);
         }
 
         // Collect unique product IDs from subscriptions to fetch names
@@ -622,97 +638,131 @@ export const portalRouter = createTRPCRouter({
           }
         }
 
+        // Build a set of subscription IDs that are linked to proposals
+        const linkedSubIds = new Set(subToProposal.keys());
+
         return {
           hasStripeCustomer: true,
-          invoices: invoices.data.map((inv) => {
-            const lineItemDescriptions = inv.lines?.data
-              ?.map((line) => line.description)
-              .filter(Boolean)
-              .slice(0, 3);
+          invoices: invoices.data
+            .map((inv) => {
+              const lineItemDescriptions = inv.lines?.data
+                ?.map((line) => line.description)
+                .filter(Boolean)
+                .slice(0, 3);
 
-            // Resolve proposal name via subscription link
-            const invSubDetails = inv.parent?.subscription_details;
-            const invSubscriptionId = invSubDetails
-              ? typeof invSubDetails.subscription === "string"
-                ? invSubDetails.subscription
-                : invSubDetails.subscription?.id ?? null
-              : null;
-            const proposalName = invSubscriptionId
-              ? subToProposal.get(invSubscriptionId) ?? null
-              : null;
+              // Resolve proposal link via invoice ID, subscription, or payment intent
+              const invSubDetails = inv.parent?.subscription_details;
+              const invSubscriptionId = invSubDetails
+                ? typeof invSubDetails.subscription === "string"
+                  ? invSubDetails.subscription
+                  : invSubDetails.subscription?.id ?? null
+                : null;
+              const proposalLink =
+                invToProposal.get(inv.id) ??
+                (invSubscriptionId ? subToProposal.get(invSubscriptionId) ?? null : null);
 
-            const derivedDescription =
-              proposalName ??
-              inv.description ??
-              (lineItemDescriptions?.length
-                ? lineItemDescriptions.join(", ")
-                : null);
+              const proposalName = proposalLink?.proposalTitle ?? null;
 
-            return {
-              id: inv.id,
-              number: inv.number,
-              status: inv.status,
-              amountDue: inv.amount_due,
-              amountPaid: inv.amount_paid,
-              currency: inv.currency,
-              dueDate: inv.due_date,
-              paidAt: inv.status_transitions?.paid_at,
-              hostedInvoiceUrl: inv.hosted_invoice_url,
-              invoicePdf: inv.invoice_pdf,
-              created: inv.created,
-              description: derivedDescription,
-              proposalName,
-            };
-          }),
-          // One-time payments (from Checkout) - exclude subscription-related charges
+              const derivedDescription =
+                proposalName ??
+                inv.description ??
+                (lineItemDescriptions?.length
+                  ? lineItemDescriptions.join(", ")
+                  : null);
+
+              return {
+                id: inv.id,
+                number: inv.number,
+                status: inv.status,
+                amountDue: inv.amount_due,
+                amountPaid: inv.amount_paid,
+                currency: inv.currency,
+                dueDate: inv.due_date,
+                paidAt: inv.status_transitions?.paid_at,
+                hostedInvoiceUrl: inv.hosted_invoice_url,
+                invoicePdf: inv.invoice_pdf,
+                created: inv.created,
+                description: derivedDescription,
+                proposalName,
+                proposalId: proposalLink?.proposalId ?? null,
+                projectId: proposalLink?.projectId ?? null,
+                projectName: proposalLink?.projectName ?? null,
+                _hasProposalLink: !!proposalLink,
+                _parentSubscriptionLinked: invSubscriptionId
+                  ? linkedSubIds.has(invSubscriptionId)
+                  : false,
+              };
+            })
+            // Only show invoices linked to a proposal (directly or via subscription)
+            .filter((inv) => inv._hasProposalLink || inv._parentSubscriptionLinked)
+            .map(({ _hasProposalLink, _parentSubscriptionLinked, ...inv }) => inv),
+          // One-time payments (from Checkout) - only show proposal-linked payments
           payments: (() => {
             const filteredPayments = paymentIntents.data
               .filter((pi) => pi.status === "succeeded")
               .filter((pi) => {
                 const desc = pi.description?.toLowerCase() ?? "";
                 return !desc.includes("subscription") && !desc.includes("invoice");
-              });
+              })
+              // Only include payments linked to a proposal
+              .filter((pi) => piToProposal.has(pi.id));
 
-            return filteredPayments.map((pi) => ({
-              id: pi.id,
-              amount: pi.amount,
-              currency: pi.currency,
-              status: pi.status,
-              created: pi.created,
-              description: piToProposal.get(pi.id) ?? pi.description ?? "Payment",
-              receiptUrl: pi.latest_charge && typeof pi.latest_charge !== "string"
-                ? pi.latest_charge.receipt_url ?? null
-                : null,
-            }));
-          })(),
-          subscriptions: subscriptions.data.map((sub) => ({
-            id: sub.id,
-            status: sub.status,
-            startDate: sub.start_date,
-            billingCycleAnchor: sub.billing_cycle_anchor,
-            cancelAtPeriodEnd: sub.cancel_at_period_end,
-            canceledAt: sub.canceled_at,
-            trialEnd: sub.trial_end,
-            proposalName: subToProposal.get(sub.id) ?? null,
-            items: sub.items.data.map((item) => {
-              const productId =
-                typeof item.price.product === "string"
-                  ? item.price.product
-                  : item.price.product?.id;
-
+            return filteredPayments.map((pi) => {
+              const piLink = piToProposal.get(pi.id) ?? null;
               return {
-                id: item.id,
-                priceId: item.price.id,
-                productId,
-                productName: productId ? productMap.get(productId) : null,
-                unitAmount: item.price.unit_amount,
-                currency: item.price.currency,
-                interval: item.price.recurring?.interval,
-                intervalCount: item.price.recurring?.interval_count,
-                nickname: item.price.nickname,
+                id: pi.id,
+                amount: pi.amount,
+                currency: pi.currency,
+                status: pi.status,
+                created: pi.created,
+                description: piLink?.proposalTitle ?? pi.description ?? "Payment",
+                receiptUrl: pi.latest_charge && typeof pi.latest_charge !== "string"
+                  ? pi.latest_charge.receipt_url ?? null
+                  : null,
+                proposalId: piLink?.proposalId ?? null,
+                projectId: piLink?.projectId ?? null,
+                projectName: piLink?.projectName ?? null,
+              };
+            });
+          })(),
+          // Only show subscriptions linked to a proposal
+          subscriptions: subscriptions.data
+            .filter((sub) => subToProposal.has(sub.id))
+            .map((sub) => {
+              const subLink = subToProposal.get(sub.id) ?? null;
+              return {
+                id: sub.id,
+                status: sub.status,
+                startDate: sub.start_date,
+                currentPeriodEnd: sub.items.data[0]?.current_period_end ?? null,
+                billingCycleAnchor: sub.billing_cycle_anchor,
+                cancelAtPeriodEnd: sub.cancel_at_period_end,
+                canceledAt: sub.canceled_at,
+                trialEnd: sub.trial_end,
+                proposalName: subLink?.proposalTitle ?? null,
+                proposalId: subLink?.proposalId ?? null,
+                projectId: subLink?.projectId ?? null,
+                projectName: subLink?.projectName ?? null,
+                items: sub.items.data.map((item) => {
+                  const productId =
+                    typeof item.price.product === "string"
+                      ? item.price.product
+                      : item.price.product?.id;
+
+                  return {
+                    id: item.id,
+                    priceId: item.price.id,
+                    productId,
+                    productName: productId ? productMap.get(productId) : null,
+                    unitAmount: item.price.unit_amount,
+                    currency: item.price.currency,
+                    interval: item.price.recurring?.interval,
+                    intervalCount: item.price.recurring?.interval_count,
+                    nickname: item.price.nickname,
+                  };
+                }),
               };
             }),
-          })),
           balance,
         };
       } catch (error) {
