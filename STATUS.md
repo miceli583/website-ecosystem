@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.5.1
+**Version:** 0.5.2
 **Last Updated:** 2026-02-04
-**Commits:** 125
+**Commits:** 146
 
 ## Feature Status
 
@@ -41,10 +41,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 04 | 2159390 | Fix React hooks violation in notes page |
 | Feb 04 | fb540a8 | Portal quick wins: toasts, cache standardization, accessibility |
 | Feb 04 | 6057ca1 | Billing chevron fix, QA checklist, improvement docs |
 | Feb 04 | 1f76aad | Notes archive, filter persistence, billing refactor, orphan filtering |
 | Feb 04 | 6c823d2 | Portal admin controls, unified filter UX across all tabs |
-| Feb 03 | 0ecedf5 | Rebrand admin login, standardize demo hubs, polish portal UI |
 
-See `git log --oneline` for full history.
+_Older changes: `git log --oneline`_
