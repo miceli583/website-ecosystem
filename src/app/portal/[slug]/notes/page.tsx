@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState, useEffect, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
@@ -113,7 +114,7 @@ export default function PortalNotesPage({
 
   const { data: notes, isLoading: notesLoading } = api.portalNotes.getNotes.useQuery(
     { slug },
-    { staleTime: 30 * 1000 },
+    { staleTime: 5 * 60 * 1000 },
   );
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
@@ -123,34 +124,44 @@ export default function PortalNotesPage({
   // Mutations
   const createNote = api.portalNotes.createNote.useMutation({
     onSuccess: () => {
+      toast.success("Note created");
       void utils.portalNotes.getNotes.invalidate({ slug });
       setShowEditor(false);
     },
   });
   const updateNote = api.portalNotes.updateNote.useMutation({
     onSuccess: () => {
+      toast.success("Note updated");
       void utils.portalNotes.getNotes.invalidate({ slug });
       setEditingNoteId(null);
     },
   });
   const deleteNote = api.portalNotes.deleteNote.useMutation({
     onSuccess: () => {
+      toast.success("Note deleted");
       void utils.portalNotes.getNotes.invalidate({ slug });
       setDeleteDialog({ open: false, note: null });
       setExpandedNoteId(null);
     },
   });
   const togglePin = api.portalNotes.updateNote.useMutation({
-    onSuccess: () => void utils.portalNotes.getNotes.invalidate({ slug }),
+    onSuccess: (_, variables) => {
+      toast.success(variables.isPinned ? "Note pinned" : "Note unpinned");
+      void utils.portalNotes.getNotes.invalidate({ slug });
+    },
   });
   const assignNote = api.portalNotes.updateNote.useMutation({
     onSuccess: () => {
+      toast.success("Project assigned");
       void utils.portalNotes.getNotes.invalidate({ slug });
       void utils.portal.getProjects.invalidate({ slug });
     },
   });
   const createProject = api.portal.createProject.useMutation({
-    onSuccess: () => void utils.portal.getProjects.invalidate({ slug }),
+    onSuccess: () => {
+      toast.success("Project created");
+      void utils.portal.getProjects.invalidate({ slug });
+    },
   });
 
   // Persisted filter state
@@ -194,7 +205,10 @@ export default function PortalNotesPage({
 
   // Archive mutation
   const archiveNote = api.portalNotes.updateNote.useMutation({
-    onSuccess: () => void utils.portalNotes.getNotes.invalidate({ slug }),
+    onSuccess: (_, variables) => {
+      toast.success(variables.isArchived ? "Note archived" : "Note restored");
+      void utils.portalNotes.getNotes.invalidate({ slug });
+    },
   });
 
   const toggleGroup = useCallback((groupName: string) => {

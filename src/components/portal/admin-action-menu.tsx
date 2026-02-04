@@ -39,6 +39,8 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
           e.stopPropagation();
           setOpen(!open);
         }}
+        aria-label="Open actions menu"
+        aria-expanded={open}
         className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
       >
         <MoreHorizontal className="h-4 w-4" />

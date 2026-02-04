@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState, useEffect, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 import { api } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
@@ -243,13 +244,17 @@ export default function PortalBillingPage({
   // Mutations
   const cancelMutation = api.portal.cancelSubscription.useMutation({
     onSuccess: () => {
+      toast.success("Subscription will cancel at period end");
       setCancelDialog({ open: false, subscriptionId: null });
       void refetchBilling();
     },
   });
 
   const reactivateMutation = api.portal.reactivateSubscription.useMutation({
-    onSuccess: () => void refetchBilling(),
+    onSuccess: () => {
+      toast.success("Subscription reactivated");
+      void refetchBilling();
+    },
   });
 
   const resubscribeMutation = api.portal.resubscribe.useMutation({
@@ -875,8 +880,8 @@ export default function PortalBillingPage({
         </div>
         <button
           onClick={() => refetchBilling()}
+          aria-label="Refresh billing data"
           className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-          title="Refresh billing data"
         >
           <RefreshCw className="h-5 w-5" />
         </button>

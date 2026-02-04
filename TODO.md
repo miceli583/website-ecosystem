@@ -10,8 +10,8 @@ _None currently_
 
 ## Tech Debt (code quality issues)
 
-- [ ] Standardize query staleTime to 5 minutes across portal (notes: 30s→5m, demos: 2m→5m)
-- [ ] Remove redundant `stripe.customers.retrieve()` in getBillingInfo `portal.ts:585`
+- [x] ~~Standardize query staleTime to 5 minutes across portal~~ ✓
+- [x] ~~Remove redundant `stripe.customers.retrieve()` in getBillingInfo~~ ✓
 - [ ] Add Stripe product name caching (24hr TTL) to reduce API calls
 - [ ] Implement optimistic updates for notes mutations (reduce flash on rapid actions)
 
@@ -19,9 +19,9 @@ _None currently_
 
 ### High Priority
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
-- [ ] Add toast notifications for mutation feedback (sonner)
+- [x] ~~Add toast notifications for mutation feedback (sonner)~~ ✓
 - [ ] Add loading skeletons to replace spinner states
-- [ ] Add aria-labels to all icon-only buttons (accessibility)
+- [x] ~~Add aria-labels to all icon-only buttons (accessibility)~~ ✓
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
 

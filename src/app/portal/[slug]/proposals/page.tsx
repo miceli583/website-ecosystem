@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState, useEffect, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
@@ -106,11 +107,11 @@ export default function PortalProposalsPage({
   // Admin sees all resources; clients see only active
   const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
     { slug, section: "proposals", ...(isAdmin ? {} : { isActive: true }) },
-    { staleTime: 2 * 60 * 1000 }
+    { staleTime: 5 * 60 * 1000 }
   );
   const { data: proposals } = api.portal.getProposals.useQuery(
     { slug },
-    { staleTime: 2 * 60 * 1000 }
+    { staleTime: 5 * 60 * 1000 }
   );
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
@@ -119,19 +120,26 @@ export default function PortalProposalsPage({
 
   // Mutations
   const updateResource = api.portal.updateResource.useMutation({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      if (variables.isActive === false) toast.success("Proposal archived");
+      else if (variables.isActive === true) toast.success("Proposal restored");
+      else if (variables.projectId !== undefined) toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
       void utils.portal.getProposals.invalidate();
     },
   });
   const deleteResource = api.portal.deleteResource.useMutation({
     onSuccess: () => {
+      toast.success("Proposal deleted");
       void utils.portal.getResources.invalidate();
       void utils.portal.getProposals.invalidate();
     },
   });
   const createProject = api.portal.createProject.useMutation({
-    onSuccess: () => void utils.portal.getProjects.invalidate(),
+    onSuccess: () => {
+      toast.success("Project created");
+      void utils.portal.getProjects.invalidate();
+    },
   });
 
   // Persisted filter state

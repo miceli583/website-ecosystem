@@ -538,10 +538,11 @@ export const portalRouter = createTRPCRouter({
       }
 
       try {
-        // Verify customer exists in current Stripe environment (handles test/live key mismatch)
+        // Verify customer exists and get balance in one call
         let validCustomerId = client.stripeCustomerId;
+        let customer;
         try {
-          await stripe.customers.retrieve(validCustomerId);
+          customer = await stripe.customers.retrieve(validCustomerId);
         } catch {
           // Customer doesn't exist in current Stripe environment (test/live key mismatch)
           // Don't clear the ID — it may be valid in the production environment
@@ -556,6 +557,9 @@ export const portalRouter = createTRPCRouter({
             balance: null,
           };
         }
+
+        // Get balance from customer object (already fetched above)
+        const balance = "balance" in customer ? customer.balance : null;
 
         // Fetch Stripe data and proposals in parallel
         const [invoices, subscriptions, paymentIntents, proposals] = await Promise.all([
@@ -580,12 +584,6 @@ export const portalRouter = createTRPCRouter({
             with: { project: true },
           }),
         ]);
-
-        // Get balance (already verified customer above)
-        const customer = await stripe.customers.retrieve(validCustomerId);
-
-        // Get balance from customer object
-        const balance = "balance" in customer ? customer.balance : null;
 
         // Build dual lookup maps from proposals
         interface ProposalLink {

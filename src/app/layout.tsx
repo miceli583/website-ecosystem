@@ -4,6 +4,7 @@ import "./fonts.css";
 import { type Metadata } from "next";
 import { Geist, Montserrat, Quattrocento_Sans, Barlow } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -83,7 +84,20 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="theme"
         >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            {children}
+            <Toaster
+              theme="dark"
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: "rgba(0, 0, 0, 0.9)",
+                  border: "1px solid rgba(212, 175, 55, 0.2)",
+                  color: "#fff",
+                },
+              }}
+            />
+          </TRPCReactProvider>
         </ThemeProvider>
       </body>
     </html>

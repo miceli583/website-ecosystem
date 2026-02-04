@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import { toast } from "sonner";
 import { api } from "~/trpc/react";
 import { createClient } from "~/lib/supabase/client";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
@@ -75,6 +76,7 @@ export default function PortalProfilePage({
 
   const updateProfile = api.portal.updateMyProfile.useMutation({
     onSuccess: () => {
+      toast.success("Profile updated");
       void utils.portal.getMyProfile.invalidate();
       void utils.portal.getClientPortalUser.invalidate({ slug });
       void utils.portal.getClientBySlug.invalidate({ slug });
@@ -268,6 +270,7 @@ export default function PortalProfilePage({
                     {canEdit && (
                       <button
                         onClick={handleStartEditName}
+                        aria-label="Edit name"
                         className="text-gray-500 hover:text-white"
                       >
                         <Pencil className="h-4 w-4" />
@@ -329,6 +332,7 @@ export default function PortalProfilePage({
                     {canEdit && (
                       <button
                         onClick={handleStartEditPhone}
+                        aria-label="Edit phone"
                         className="text-gray-500 hover:text-white"
                       >
                         <Pencil className="h-4 w-4" />
@@ -408,6 +412,7 @@ export default function PortalProfilePage({
                     {canEdit && (
                       <button
                         onClick={handleStartEditCompany}
+                        aria-label="Edit company"
                         className="text-gray-500 hover:text-white"
                       >
                         <Pencil className="h-4 w-4" />
@@ -489,6 +494,7 @@ export default function PortalProfilePage({
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
+                        aria-label={showNewPassword ? "Hide password" : "Show password"}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showNewPassword ? (
@@ -514,6 +520,7 @@ export default function PortalProfilePage({
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showConfirmPassword ? (
