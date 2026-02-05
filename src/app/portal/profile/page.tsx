@@ -9,6 +9,7 @@ import { createClient } from "~/lib/supabase/client";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { ProfilePageSkeleton } from "~/components/portal";
 import {
   User,
   Loader2,
@@ -136,8 +137,36 @@ export default function AdminProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+      <div className="min-h-screen bg-black text-white">
+        {/* Header skeleton */}
+        <header
+          className="border-b px-4 py-4 sm:px-6"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div className="mx-auto flex max-w-6xl items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative h-8 w-8">
+                <Image
+                  src="/brand/miracle-mind-orbit-star-v3.svg"
+                  alt="Miracle Mind"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Admin Portal</p>
+                <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+              </div>
+            </div>
+          </div>
+        </header>
+        {/* Content skeleton */}
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <div className="mb-2 h-4 w-28 animate-pulse rounded bg-white/10" />
+          <div className="mb-2 h-8 w-40 animate-pulse rounded bg-white/10" />
+          <div className="mb-8 h-4 w-52 animate-pulse rounded bg-white/10" />
+          <ProfilePageSkeleton />
+        </main>
       </div>
     );
   }

@@ -19,21 +19,23 @@ _None currently_
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
-- [ ] Add skeletons to remaining P2 pages (tooling, billing, profile)
+- [ ] Integrate Stripe revenue data into `/admin/finance/revenue`
+- [ ] Set up PostHog analytics for portal usage tracking
 
 ### Medium Priority
 - [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
 - [ ] Add Gamma API integration for slide automation
 - [ ] Populate Matti demo content for client portal
 - [ ] Research device-independent magic links (Supabase auth)
+- [ ] Dynamic route scanning for ecosystem map (currently static list)
 
 ### Lower Priority
 - [ ] Evaluate Turso for demo data isolation (SQLite for serverless, per-client DBs)
 - [ ] Create next blog post
 - [ ] Bundle size optimization pass
 - [ ] Privacy policies and ToS improvements
-- [ ] Legal agreements for portal onboarding
-- [ ] Email/text marketing opt-in management
+- [ ] Mercury API integration for expense tracking
+- [ ] Sentry error tracking setup
 
 ## Design Questions (needs decision)
 

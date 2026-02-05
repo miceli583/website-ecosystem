@@ -3,11 +3,11 @@ import {
   Users,
   FileText,
   Palette,
-  Zap,
-  Code2,
   Rocket,
-  CalendarClock,
-  BookOpen,
+  Map,
+  Wrench,
+  DollarSign,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,6 +64,34 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
       { title: "Waitlist", href: "/admin/join-community-1" },
       { title: "Launch", href: "/admin/launch-landing-1" },
     ],
+  },
+  {
+    title: "Ecosystem",
+    href: "/admin/ecosystem",
+    icon: Map,
+  },
+  {
+    title: "Tooling",
+    icon: Wrench,
+    items: [
+      { title: "Service Inventory", href: "/admin/tooling" },
+      { title: "Database Health", href: "/admin/tooling/database" },
+    ],
+  },
+  {
+    title: "Finance",
+    icon: DollarSign,
+    items: [
+      { title: "Overview", href: "/admin/finance" },
+      { title: "Revenue", href: "/admin/finance/revenue", badge: "Soon" },
+      { title: "Expenses", href: "/admin/finance/expenses", badge: "Soon" },
+    ],
+  },
+  {
+    title: "Analytics",
+    href: "/admin/analytics",
+    icon: BarChart3,
+    badge: "Soon",
   },
 ];
 

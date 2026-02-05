@@ -13,6 +13,7 @@ import {
   ProjectGroupHeader,
   ProjectAssignDialog,
   ConfirmDialog,
+  ListItemSkeletonGroup,
   type SortOrder,
   type ViewMode,
   type FilterOption,
@@ -428,9 +429,7 @@ export default function PortalToolingPage({
       />
 
       {resourcesLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
-        </div>
+        <ListItemSkeletonGroup count={5} />
       ) : !hasContent ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Wrench className="mb-4 h-12 w-12 text-gray-600" />

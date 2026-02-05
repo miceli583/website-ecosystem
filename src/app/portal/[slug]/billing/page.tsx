@@ -10,6 +10,7 @@ import {
   ProjectGroupHeader,
   ListContainer,
   ProposalModal,
+  BillingPageSkeleton,
   type SortOrder,
   type ViewMode,
   type FilterOption,
@@ -888,12 +889,7 @@ export default function PortalBillingPage({
       </div>
 
       {billingLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2
-            className="h-8 w-8 animate-spin"
-            style={{ color: "#D4AF37" }}
-          />
-        </div>
+        <BillingPageSkeleton />
       ) : !billing?.hasStripeCustomer ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <DollarSign className="mb-4 h-12 w-12 text-gray-600" />

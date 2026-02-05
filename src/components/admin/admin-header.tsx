@@ -1,18 +1,97 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, ChevronRight } from "lucide-react";
 import { api } from "~/trpc/react";
 import { createClient } from "~/lib/supabase/client";
 import { AdminSidebarMobileToggle } from "./admin-sidebar";
 import { useAdminSidebar } from "./admin-sidebar-context";
 import { SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from "./admin-sidebar";
+import { ADMIN_SIDEBAR_NAV } from "./admin-nav";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+
+/**
+ * Build breadcrumb items from current pathname
+ */
+function useBreadcrumbs() {
+  const pathname = usePathname();
+
+  // Find matching nav item and sub-item
+  for (const item of ADMIN_SIDEBAR_NAV) {
+    // Direct match (e.g., /admin)
+    if (item.href === pathname) {
+      return [{ label: item.title, href: item.href, isCurrent: true }];
+    }
+
+    // Check sub-items
+    if (item.items) {
+      for (const subItem of item.items) {
+        if (pathname.startsWith(subItem.href)) {
+          // Check for deeper routes (e.g., /admin/shaders/orbit-star)
+          const isExactMatch = pathname === subItem.href;
+          const deeperPath = pathname.slice(subItem.href.length);
+          const deeperSegments = deeperPath.split("/").filter(Boolean);
+
+          const crumbs = [
+            { label: item.title, href: undefined, isCurrent: false },
+            { label: subItem.title, href: subItem.href, isCurrent: isExactMatch },
+          ];
+
+          // Add deeper segments as additional breadcrumbs
+          if (deeperSegments.length > 0) {
+            let currentPath = subItem.href;
+            for (let i = 0; i < deeperSegments.length; i++) {
+              const segment = deeperSegments[i]!;
+              currentPath = `${currentPath}/${segment}`;
+              const isLast = i === deeperSegments.length - 1;
+              crumbs.push({
+                label: formatSegment(segment),
+                href: isLast ? undefined : currentPath,
+                isCurrent: isLast,
+              });
+            }
+          }
+
+          return crumbs;
+        }
+      }
+    }
+  }
+
+  // Fallback for routes not in nav (like /admin/clients/edit/123)
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments[0] === "admin") {
+    return segments.slice(1).map((seg, idx, arr) => ({
+      label: formatSegment(seg),
+      href: idx < arr.length - 1 ? `/admin/${arr.slice(0, idx + 1).join("/")}` : undefined,
+      isCurrent: idx === arr.length - 1,
+    }));
+  }
+
+  return [];
+}
+
+function formatSegment(segment: string): string {
+  // Convert slug format to title case
+  return segment
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 export function AdminHeader() {
   const router = useRouter();
   const { isCollapsed } = useAdminSidebar();
   const utils = api.useUtils();
+  const breadcrumbs = useBreadcrumbs();
 
   const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
@@ -33,9 +112,40 @@ export function AdminHeader() {
         borderColor: "rgba(212, 175, 55, 0.2)",
       }}
     >
-      {/* Mobile: show hamburger, Desktop: empty space or breadcrumb could go here */}
+      {/* Left: Mobile hamburger + Breadcrumbs */}
       <div className="flex items-center gap-4">
         <AdminSidebarMobileToggle />
+
+        {/* Breadcrumbs - hidden on mobile */}
+        {breadcrumbs.length > 0 && (
+          <Breadcrumb className="hidden sm:block">
+            <BreadcrumbList>
+              {breadcrumbs.map((crumb, idx) => (
+                <BreadcrumbItem key={idx}>
+                  {idx > 0 && (
+                    <BreadcrumbSeparator>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </BreadcrumbSeparator>
+                  )}
+                  {crumb.isCurrent ? (
+                    <BreadcrumbPage className="text-white">
+                      {crumb.label}
+                    </BreadcrumbPage>
+                  ) : crumb.href ? (
+                    <BreadcrumbLink
+                      href={crumb.href}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      {crumb.label}
+                    </BreadcrumbLink>
+                  ) : (
+                    <span className="text-gray-500">{crumb.label}</span>
+                  )}
+                </BreadcrumbItem>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        )}
       </div>
 
       {/* Right side: user info + sign out */}
