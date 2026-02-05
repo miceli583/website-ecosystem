@@ -15,26 +15,24 @@ _None currently_
 
 ## Enhancements (prioritized)
 
-### High Priority
+### High Priority — RESUME HERE
+- [ ] **Wire finance dashboard UI** to `finance.*` tRPC procedures (MRR, revenue, balances)
+- [ ] **Test Mercury OAuth** — restart Claude Code, use Mercury MCP to verify connection
+- [ ] **Test Stripe Live** — verify read-only key returns real revenue data
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
-- [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
-- [ ] Integrate Stripe revenue data into `/admin/finance/revenue`
-- [ ] Set up PostHog analytics for portal usage tracking
 
 ### Medium Priority
+- [ ] Set up PostHog analytics for portal usage tracking
 - [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
 - [ ] Add Gamma API integration for slide automation
-- [ ] Populate Matti demo content for client portal
-- [ ] Research device-independent magic links (Supabase auth)
 - [ ] Dynamic route scanning for ecosystem map (currently static list)
+- [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
 
 ### Lower Priority
-- [ ] Evaluate Turso for demo data isolation (SQLite for serverless, per-client DBs)
-- [ ] Create next blog post
+- [ ] Populate Matti demo content for client portal
+- [ ] Evaluate Turso for demo data isolation
 - [ ] Bundle size optimization pass
-- [ ] Privacy policies and ToS improvements
-- [ ] Mercury API integration for expense tracking
 - [ ] Sentry error tracking setup
 
 ## Design Questions (needs decision)

@@ -14,6 +14,8 @@ export const env = createEnv({
     CRON_SECRET: z.string().min(1, "Cron secret is required"),
     STRIPE_SECRET_KEY: z.string().min(1).optional(),
     STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+    STRIPE_LIVE_READ_KEY: z.string().min(1).optional(),
+    MERCURY_API_KEY: z.string().min(1).optional(),
     RESEND_API_KEY: z.string().min(1).optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -40,6 +42,8 @@ export const env = createEnv({
     CRON_SECRET: process.env.CRON_SECRET,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    STRIPE_LIVE_READ_KEY: process.env.STRIPE_LIVE_READ_KEY,
+    MERCURY_API_KEY: process.env.MERCURY_API_KEY,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

@@ -11,7 +11,9 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
+import { portalUsers } from "~/server/db/schema";
 import { createClient } from "~/lib/supabase/server";
 
 /**
@@ -143,3 +145,45 @@ const authMiddleware = t.middleware(async ({ ctx, next }) => {
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(authMiddleware);
+
+/**
+ * Admin middleware - ensures the user is an admin
+ */
+const adminMiddleware = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to perform this action",
+    });
+  }
+
+  // Get profile to check role
+  const profile = await ctx.db.query.portalUsers.findFirst({
+    where: eq(portalUsers.authUserId, ctx.user.id),
+  });
+
+  if (!profile || profile.role !== "admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access required",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      user: ctx.user,
+      profile,
+    },
+  });
+});
+
+/**
+ * Admin procedure
+ *
+ * Ensures the user is logged in AND is an admin. Use this for
+ * admin-only operations like finance dashboard data.
+ */
+export const adminProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(adminMiddleware);
