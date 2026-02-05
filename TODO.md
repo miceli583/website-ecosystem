@@ -16,7 +16,6 @@ _None currently_
 ## Enhancements (prioritized)
 
 ### High Priority
-- [ ] Add "under development" flag for demos/proposals/tooling (hide WIP from clients)
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
 - [ ] Add loading skeletons to replace spinner states
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
