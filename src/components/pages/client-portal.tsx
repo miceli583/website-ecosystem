@@ -140,11 +140,15 @@ export function ClientPortalLayout({
 
       {/* Mobile menu */}
       <div
-        className={`fixed right-0 top-0 z-50 h-full w-64 transform border-l border-gray-800 bg-gray-950 transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed right-0 top-0 z-50 h-full w-64 transform bg-black transition-transform duration-300 ease-in-out md:hidden ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{ borderLeft: "1px solid rgba(212, 175, 55, 0.2)" }}
       >
-        <div className="flex items-center justify-between border-b border-gray-800 p-4">
+        <div
+          className="flex items-center justify-between p-4"
+          style={{ borderBottom: "1px solid rgba(212, 175, 55, 0.2)" }}
+        >
           <span className="font-medium text-white">Menu</span>
           <button
             onClick={() => setMobileMenuOpen(false)}
@@ -168,7 +172,10 @@ export function ClientPortalLayout({
               {item.name}
             </Link>
           ))}
-          <hr className="my-3 border-gray-800" />
+          <hr
+            className="my-3 border-0"
+            style={{ borderTop: "1px solid rgba(212, 175, 55, 0.2)" }}
+          />
           <button
             onClick={() => {
               setMobileMenuOpen(false);
