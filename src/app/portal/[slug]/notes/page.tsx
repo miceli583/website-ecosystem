@@ -13,6 +13,7 @@ import {
   ConfirmDialog,
   AdminActionMenu,
   useTabFilters,
+  NoteItemSkeletonGroup,
   type SortOrder,
   type AdminAction,
   type ViewMode,
@@ -607,9 +608,7 @@ export default function PortalNotesPage({
 
       {/* Notes list */}
       {notesLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
-        </div>
+        <NoteItemSkeletonGroup count={5} />
       ) : (notes?.length ?? 0) === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <StickyNote className="mb-4 h-12 w-12 text-gray-600" />

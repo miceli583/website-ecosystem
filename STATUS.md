@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.5.5
+**Version:** 0.5.6
 **Last Updated:** 2026-02-05
-**Commits:** 151
+**Commits:** 152+
 
 ## Feature Status
 
@@ -10,7 +10,7 @@
 |---------|--------|-------|
 | Multi-domain routing | Working | matthewmiceli.com, miraclemind.dev, miraclemind.live |
 | Authentication (Supabase) | Working | Email/password, magic links, tRPC protectedProcedure |
-| Admin dashboard | Working | Protected routes at `/admin/*`, includes CRM |
+| Admin dashboard v2 | Working | Collapsible sidebar, dashboard layout, overview page |
 | Client portal v2 | Working | `/portal/[slug]` with role-based auth, magic link claim flow |
 | Portal pages | Working | Dashboard, Demos, Proposals, Tooling, Notes, Billing, Profile |
 | Portal notes | Working | TipTap rich text, collaborative (admin + client), pin/search |
@@ -42,10 +42,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 05 | 0220c8a | Loading skeletons + Admin dashboard refactor with sidebar |
 | Feb 05 | 85a6f45 | Add under_development flag to hide WIP items from clients |
 | Feb 05 | e98954b | Add TAPCHW demo site with visual enhancements |
 | Feb 04 | 809dc48 | Update STATUS.md and TODO.md for session handoff |
 | Feb 04 | 3030101 | Fix all ESLint errors (escape entities, use Next.js Link) |
-| Feb 04 | 2159390 | Fix React hooks violation in notes page |
 
 _Older changes: `git log --oneline`_

@@ -1,31 +1,29 @@
-import { DevHub } from "~/components/pages/dev-hub";
+import { AdminOverview } from "~/components/admin";
 import { Suspense } from "react";
-import { DomainLayout } from "~/components/domain-layout";
+import { Loader2 } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Development Hub | Miracle Mind",
+  title: "Admin Dashboard | Miracle Mind",
   description: "Admin dashboard for managing Miracle Mind ecosystem",
 };
 
 /**
- * Admin Dashboard - Development Hub
+ * Admin Dashboard - Overview
  *
  * Authentication is handled by middleware (src/middleware.ts)
  * All /admin/* routes are protected and redirect to /admin/login if not authenticated
  */
-function AdminPageContent() {
-  return (
-    <DomainLayout>
-      <DevHub />
-    </DomainLayout>
-  );
-}
-
 export default function AdminPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
-      <AdminPageContent />
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        </div>
+      }
+    >
+      <AdminOverview />
     </Suspense>
   );
 }

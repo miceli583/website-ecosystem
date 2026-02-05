@@ -17,9 +17,9 @@ _None currently_
 
 ### High Priority
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
-- [ ] Add loading skeletons to replace spinner states
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
+- [ ] Add skeletons to remaining P2 pages (tooling, billing, profile)
 
 ### Medium Priority
 - [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)

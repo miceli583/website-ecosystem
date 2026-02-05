@@ -10,3 +10,13 @@ export { ProjectGroupHeader } from "./project-group-header";
 export { ProjectAssignDialog } from "./project-assign-dialog";
 export { ConfirmDialog } from "./confirm-dialog";
 export { PortalFilterProvider, useTabFilters, type TabFilterState } from "./filter-context";
+
+// Skeletons
+export {
+  ListItemSkeleton,
+  ListItemSkeletonGroup,
+  ClientCardSkeleton,
+  ClientCardSkeletonGrid,
+  NoteItemSkeleton,
+  NoteItemSkeletonGroup,
+} from "./skeletons";

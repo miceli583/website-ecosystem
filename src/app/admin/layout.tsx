@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
+import { AdminDashboardLayout } from "~/components/admin";
 
 /**
  * Admin Layout
  *
- * This is a pass-through layout that provides a grouping for all admin routes.
+ * Provides the dashboard shell (sidebar + header) for all admin routes
+ * except the login page, which uses its own standalone layout.
+ *
  * Authentication is handled globally by middleware (src/middleware.ts).
  *
  * All routes under /admin/* are:
@@ -12,5 +15,5 @@ import type { ReactNode } from "react";
  * - Redirect to /admin/login if not authenticated
  */
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return <AdminDashboardLayout>{children}</AdminDashboardLayout>;
 }

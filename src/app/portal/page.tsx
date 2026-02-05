@@ -8,6 +8,7 @@ import { api, type RouterOutputs } from "~/trpc/react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
+import { ClientCardSkeletonGrid } from "~/components/portal";
 import { Search, Users, LogOut, Loader2 } from "lucide-react";
 import { createClient } from "~/lib/supabase/client";
 
@@ -170,12 +171,7 @@ export default function PortalPage() {
 
         {/* Client list */}
         {clientsLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2
-              className="h-8 w-8 animate-spin"
-              style={{ color: "#D4AF37" }}
-            />
-          </div>
+          <ClientCardSkeletonGrid count={6} />
         ) : filteredClients?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Users className="mb-4 h-12 w-12 text-gray-600" />
