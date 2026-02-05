@@ -35,6 +35,9 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     title: "CRM",
     icon: Users,
     items: [
+      { title: "Dashboard", href: "/admin/crm" },
+      { title: "Contacts", href: "/admin/crm/contacts" },
+      { title: "Leads", href: "/admin/crm/leads" },
       { title: "Clients", href: "/admin/clients" },
     ],
   },
@@ -83,15 +86,14 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     icon: DollarSign,
     items: [
       { title: "Overview", href: "/admin/finance" },
-      { title: "Revenue", href: "/admin/finance/revenue", badge: "Soon" },
-      { title: "Expenses", href: "/admin/finance/expenses", badge: "Soon" },
+      { title: "Revenue", href: "/admin/finance/revenue" },
+      { title: "Expenses", href: "/admin/finance/expenses" },
     ],
   },
   {
     title: "Analytics",
     href: "/admin/analytics",
     icon: BarChart3,
-    badge: "Soon",
   },
 ];
 
