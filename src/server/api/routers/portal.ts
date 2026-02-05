@@ -321,6 +321,11 @@ export const portalRouter = createTRPCRouter({
         conditions.push(eq(clientResources.isActive, activeFilter));
       }
 
+      // Clients cannot see resources under development; admins see all
+      if (profile.role === "client") {
+        conditions.push(eq(clientResources.underDevelopment, false));
+      }
+
       if (input.section) {
         conditions.push(eq(clientResources.section, input.section));
       }
@@ -814,13 +819,20 @@ export const portalRouter = createTRPCRouter({
         });
       }
 
+      // Build conditions - clients cannot see proposals under development
+      const conditions = [
+        eq(clientResources.clientId, client.id),
+        eq(clientResources.section, "proposals"),
+        eq(clientResources.isActive, true),
+      ];
+
+      if (profile.role === "client") {
+        conditions.push(eq(clientResources.underDevelopment, false));
+      }
+
       // Fetch proposals from resources
       const proposals = await db.query.clientResources.findMany({
-        where: and(
-          eq(clientResources.clientId, client.id),
-          eq(clientResources.section, "proposals"),
-          eq(clientResources.isActive, true)
-        ),
+        where: and(...conditions),
         orderBy: [desc(clientResources.createdAt)],
         with: {
           project: true,
@@ -1418,6 +1430,7 @@ export const portalRouter = createTRPCRouter({
         title: z.string().min(1).optional(),
         description: z.string().nullable().optional(),
         isActive: z.boolean().optional(),
+        underDevelopment: z.boolean().optional(), // Hide from clients when true
         sortOrder: z.number().optional(),
         isFeatured: z.boolean().optional(),
         url: z.string().nullable().optional(),

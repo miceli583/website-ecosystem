@@ -26,7 +26,7 @@ import {
   type AdminAction,
   useTabFilters,
 } from "~/components/portal";
-import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2 } from "lucide-react";
+import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye } from "lucide-react";
 
 interface NormalizedDemo {
   id: string;
@@ -38,6 +38,7 @@ interface NormalizedDemo {
   projectName: string;
   createdAt: Date | string;
   isActive: boolean;
+  underDevelopment: boolean;
   isLegacy: boolean;
 }
 
@@ -74,6 +75,8 @@ export default function PortalDemosPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Demo archived");
       else if (variables.isActive === true) toast.success("Demo restored");
+      else if (variables.underDevelopment === true) toast.success("Demo marked as under development");
+      else if (variables.underDevelopment === false) toast.success("Demo is now visible to clients");
       else if (variables.projectId !== undefined) toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
     },
@@ -159,6 +162,7 @@ export default function PortalDemosPage({
         projectName: r.project?.name ?? "",
         createdAt: r.createdAt,
         isActive: r.isActive ?? true,
+        underDevelopment: r.underDevelopment ?? false,
         isLegacy: false,
       });
     });
@@ -174,6 +178,7 @@ export default function PortalDemosPage({
         projectName: d.projectName,
         createdAt: d.createdAt,
         isActive: true,
+        underDevelopment: false,
         isLegacy: true,
       });
     });
@@ -297,10 +302,23 @@ export default function PortalDemosPage({
     [createProject, slug]
   );
 
+  const handleToggleUnderDevelopment = useCallback(
+    (demo: NormalizedDemo) => {
+      if (!demo.resourceId) return;
+      updateResource.mutate({ id: demo.resourceId, underDevelopment: !demo.underDevelopment });
+    },
+    [updateResource]
+  );
+
   const getAdminActions = useCallback(
     (demo: NormalizedDemo): AdminAction[] => {
       if (demo.isLegacy) return [];
       return [
+        {
+          label: demo.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
+          icon: demo.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+          onClick: () => handleToggleUnderDevelopment(demo),
+        },
         {
           label: demo.isActive ? "Archive" : "Unarchive",
           icon: demo.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
@@ -319,7 +337,7 @@ export default function PortalDemosPage({
         },
       ];
     },
-    [handleArchive]
+    [handleArchive, handleToggleUnderDevelopment]
   );
 
   // Clear all filters
@@ -440,6 +458,14 @@ export default function PortalDemosPage({
                           date={demo.createdAt}
                           secondaryText={demo.projectName || "Unassigned"}
                           href={demo.url}
+                          badge={
+                            isAdmin && demo.underDevelopment ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                                <Construction className="h-3 w-3" />
+                                WIP
+                              </span>
+                            ) : undefined
+                          }
                           actions={
                             isAdmin && !demo.isLegacy ? (
                               <AdminActionMenu actions={getAdminActions(demo)} />
@@ -459,6 +485,14 @@ export default function PortalDemosPage({
                   date={demo.createdAt}
                   secondaryText={demo.projectName || "Unassigned"}
                   href={demo.url}
+                  badge={
+                    isAdmin && demo.underDevelopment ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                        <Construction className="h-3 w-3" />
+                        WIP
+                      </span>
+                    ) : undefined
+                  }
                   actions={
                     isAdmin && !demo.isLegacy ? (
                       <AdminActionMenu actions={getAdminActions(demo)} />

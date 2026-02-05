@@ -276,6 +276,7 @@ export const clientResources = pgTable("client_resources", {
   sortOrder: integer("sort_order").default(0),
   isFeatured: boolean("is_featured").default(false),
   isActive: boolean("is_active").default(true),
+  underDevelopment: boolean("under_development").default(false), // Hide from clients when true
 
   // Content (use based on type)
   url: text("url"), // for links, embeds, files, microapps

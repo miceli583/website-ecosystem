@@ -33,6 +33,8 @@ import {
   ArchiveRestore,
   FolderOpen,
   Trash2,
+  Construction,
+  Eye,
 } from "lucide-react";
 
 type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
@@ -51,6 +53,7 @@ interface NormalizedTool {
   projectName: string;
   createdAt: Date | string;
   isActive: boolean;
+  underDevelopment: boolean;
   subscriptionActive: boolean;
 }
 
@@ -113,6 +116,8 @@ export default function PortalToolingPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Tool archived");
       else if (variables.isActive === true) toast.success("Tool restored");
+      else if (variables.underDevelopment === true) toast.success("Tool marked as under development");
+      else if (variables.underDevelopment === false) toast.success("Tool is now visible to clients");
       else if (variables.projectId !== undefined) toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
     },
@@ -188,6 +193,7 @@ export default function PortalToolingPage({
       projectName: r.project?.name ?? "",
       createdAt: r.createdAt,
       isActive: r.isActive ?? true,
+      underDevelopment: r.underDevelopment ?? false,
       subscriptionActive: r.subscriptionActive ?? true,
     }));
   }, [resources]);
@@ -295,9 +301,21 @@ export default function PortalToolingPage({
     [createProject, slug]
   );
 
+  const handleToggleUnderDevelopment = useCallback(
+    (tool: NormalizedTool) => {
+      updateResource.mutate({ id: tool.resourceId, underDevelopment: !tool.underDevelopment });
+    },
+    [updateResource]
+  );
+
   const getAdminActions = useCallback(
     (tool: NormalizedTool): AdminAction[] => {
       return [
+        {
+          label: tool.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
+          icon: tool.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+          onClick: () => handleToggleUnderDevelopment(tool),
+        },
         {
           label: tool.isActive ? "Archive" : "Unarchive",
           icon: tool.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
@@ -316,7 +334,7 @@ export default function PortalToolingPage({
         },
       ];
     },
-    [handleArchive]
+    [handleArchive, handleToggleUnderDevelopment]
   );
 
   // Expand/collapse all
@@ -451,6 +469,14 @@ export default function PortalToolingPage({
                           date={tool.createdAt}
                           secondaryText={tool.projectName || "Unassigned"}
                           href={tool.url}
+                          badge={
+                            isAdmin && tool.underDevelopment ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                                <Construction className="h-3 w-3" />
+                                WIP
+                              </span>
+                            ) : undefined
+                          }
                           disabled={!tool.subscriptionActive}
                           disabledMessage="Subscription required"
                           actions={
@@ -472,6 +498,14 @@ export default function PortalToolingPage({
                   date={tool.createdAt}
                   secondaryText={tool.projectName || "Unassigned"}
                   href={tool.url}
+                  badge={
+                    isAdmin && tool.underDevelopment ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                        <Construction className="h-3 w-3" />
+                        WIP
+                      </span>
+                    ) : undefined
+                  }
                   disabled={!tool.subscriptionActive}
                   disabledMessage="Subscription required"
                   actions={

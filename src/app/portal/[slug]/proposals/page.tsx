@@ -43,6 +43,8 @@ import {
   ArchiveRestore,
   FolderOpen,
   Trash2,
+  Construction,
+  Eye,
 } from "lucide-react";
 
 function getStatusIcon(status: string) {
@@ -81,6 +83,7 @@ interface NormalizedProposal {
   projectName: string;
   createdAt: Date | string;
   isActive: boolean;
+  underDevelopment: boolean;
   isLegacy: boolean;
   metadata: ProposalMetadata | null;
   originalId: number; // for modal lookup
@@ -123,6 +126,8 @@ export default function PortalProposalsPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Proposal archived");
       else if (variables.isActive === true) toast.success("Proposal restored");
+      else if (variables.underDevelopment === true) toast.success("Proposal marked as under development");
+      else if (variables.underDevelopment === false) toast.success("Proposal is now visible to clients");
       else if (variables.projectId !== undefined) toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
       void utils.portal.getProposals.invalidate();
@@ -217,6 +222,7 @@ export default function PortalProposalsPage({
         projectName: r.project?.name ?? "",
         createdAt: r.createdAt,
         isActive: r.isActive ?? true,
+        underDevelopment: r.underDevelopment ?? false,
         isLegacy: false,
         metadata,
         originalId: r.id,
@@ -234,6 +240,7 @@ export default function PortalProposalsPage({
         projectName: d.projectName,
         createdAt: d.createdAt,
         isActive: true,
+        underDevelopment: false,
         isLegacy: true,
         metadata: null,
         originalId: d.id,
@@ -348,10 +355,23 @@ export default function PortalProposalsPage({
     [createProject, slug]
   );
 
+  const handleToggleUnderDevelopment = useCallback(
+    (proposal: NormalizedProposal) => {
+      if (!proposal.resourceId) return;
+      updateResource.mutate({ id: proposal.resourceId, underDevelopment: !proposal.underDevelopment });
+    },
+    [updateResource]
+  );
+
   const getAdminActions = useCallback(
     (proposal: NormalizedProposal): AdminAction[] => {
       if (proposal.isLegacy) return [];
       return [
+        {
+          label: proposal.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
+          icon: proposal.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+          onClick: () => handleToggleUnderDevelopment(proposal),
+        },
         {
           label: proposal.isActive ? "Archive" : "Unarchive",
           icon: proposal.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
@@ -370,7 +390,7 @@ export default function PortalProposalsPage({
         },
       ];
     },
-    [handleArchive]
+    [handleArchive, handleToggleUnderDevelopment]
   );
 
   // Handle proposal click for modal
@@ -444,9 +464,17 @@ export default function PortalProposalsPage({
         description={proposal.projectName || "Unassigned"}
         date={proposal.createdAt}
         badge={
-          <span className="flex items-center gap-1 text-xs">
-            {getStatusIcon(proposal.status)}
-            <span className="text-gray-500">{getStatusLabel(proposal.status)}</span>
+          <span className="flex items-center gap-2 text-xs">
+            {isAdmin && proposal.underDevelopment && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 font-medium text-amber-400">
+                <Construction className="h-3 w-3" />
+                WIP
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              {getStatusIcon(proposal.status)}
+              <span className="text-gray-500">{getStatusLabel(proposal.status)}</span>
+            </span>
           </span>
         }
         actions={
