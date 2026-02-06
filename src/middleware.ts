@@ -138,11 +138,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(portalUrl));
     }
 
-    // Allow admin access on miraclemind.dev, admin.* subdomains, or localhost with domain=dev
+    // Allow admin access on miraclemind.dev, admin.* subdomains, or localhost
+    // Note: localhost doesn't require ?domain=dev for admin routes — the domain
+    // param is only needed for homepage domain switching, not admin access.
     const isValidAdminDomain =
       hostname.includes("miraclemind.dev") ||
       hostParts[0] === "admin" ||
-      (hostname.includes("localhost") && searchParams.get("domain") === "dev");
+      hostname.includes("localhost");
 
     if (!isValidAdminDomain) {
       // Redirect admin attempts from other domains to miraclemind.dev

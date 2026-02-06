@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { LogOut, User, ChevronRight } from "lucide-react";
@@ -121,27 +122,29 @@ export function AdminHeader() {
           <Breadcrumb className="hidden sm:block">
             <BreadcrumbList>
               {breadcrumbs.map((crumb, idx) => (
-                <BreadcrumbItem key={idx}>
+                <React.Fragment key={idx}>
                   {idx > 0 && (
                     <BreadcrumbSeparator>
                       <ChevronRight className="h-3.5 w-3.5" />
                     </BreadcrumbSeparator>
                   )}
-                  {crumb.isCurrent ? (
-                    <BreadcrumbPage className="text-white">
-                      {crumb.label}
-                    </BreadcrumbPage>
-                  ) : crumb.href ? (
-                    <BreadcrumbLink
-                      href={crumb.href}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      {crumb.label}
-                    </BreadcrumbLink>
-                  ) : (
-                    <span className="text-gray-500">{crumb.label}</span>
-                  )}
-                </BreadcrumbItem>
+                  <BreadcrumbItem>
+                    {crumb.isCurrent ? (
+                      <BreadcrumbPage className="text-white">
+                        {crumb.label}
+                      </BreadcrumbPage>
+                    ) : crumb.href ? (
+                      <BreadcrumbLink
+                        href={crumb.href}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        {crumb.label}
+                      </BreadcrumbLink>
+                    ) : (
+                      <span className="text-gray-500">{crumb.label}</span>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>

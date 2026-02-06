@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -10,9 +10,455 @@ import {
   Mail,
   Phone,
   Tag,
+  ExternalLink,
+  MoreVertical,
+  X,
+  Building2,
+  UserPlus,
   ChevronDown,
+  Plus,
 } from "lucide-react";
 import { api } from "~/trpc/react";
+
+/* ── Shared styles ─────────────────────────────────────────────── */
+
+const inputClass =
+  "w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50";
+const selectClass =
+  "w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50";
+const labelClass =
+  "mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500";
+const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
+
+/* ── Tag Picker ────────────────────────────────────────────────── */
+
+function TagPicker({
+  selected,
+  onChange,
+}: {
+  selected: string[];
+  onChange: (tags: string[]) => void;
+}) {
+  const { data: suggestions = [] } = api.crm.getTagOptions.useQuery();
+  const [input, setInput] = useState("");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = suggestions.filter(
+    (t) =>
+      !selected.includes(t) &&
+      t.toLowerCase().includes(input.toLowerCase())
+  );
+
+  const addTag = (tag: string) => {
+    const trimmed = tag.trim();
+    if (trimmed && !selected.includes(trimmed)) {
+      onChange([...selected, trimmed]);
+    }
+    setInput("");
+  };
+
+  const removeTag = (tag: string) => {
+    onChange(selected.filter((t) => t !== tag));
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      <div
+        className="flex min-h-[38px] flex-wrap gap-1.5 rounded-lg border bg-white/5 px-2 py-1.5"
+        style={borderStyle}
+        onClick={() => setOpen(true)}
+      >
+        {selected.map((tag) => (
+          <span
+            key={tag}
+            className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs"
+            style={{
+              backgroundColor: "rgba(212, 175, 55, 0.15)",
+              color: "#D4AF37",
+            }}
+          >
+            <Tag className="h-2.5 w-2.5" />
+            {tag}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                removeTag(tag);
+              }}
+              className="ml-0.5 hover:text-white"
+            >
+              <X className="h-2.5 w-2.5" />
+            </button>
+          </span>
+        ))}
+        <input
+          className="min-w-[80px] flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none"
+          placeholder={selected.length === 0 ? "Search or add tags..." : "Add..."}
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+            setOpen(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && input.trim()) {
+              e.preventDefault();
+              addTag(input);
+            }
+            if (e.key === "Backspace" && !input && selected.length > 0) {
+              removeTag(selected[selected.length - 1]!);
+            }
+          }}
+          onFocus={() => setOpen(true)}
+        />
+      </div>
+      {open && (filtered.length > 0 || input.trim()) && (
+        <div
+          className="absolute z-10 mt-1 max-h-32 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          {filtered.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => addTag(tag)}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+            >
+              <Tag className="h-3 w-3 text-gray-500" />
+              {tag}
+            </button>
+          ))}
+          {input.trim() && !suggestions.includes(input.trim()) && (
+            <button
+              onClick={() => addTag(input)}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-white/10"
+              style={{ color: "#D4AF37" }}
+            >
+              <Plus className="h-3 w-3" />
+              Create &ldquo;{input.trim()}&rdquo;
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Referral Picker ───────────────────────────────────────────── */
+
+function ReferralPicker({
+  contactId,
+  referredBy,
+  referredByExternal,
+  onChange,
+}: {
+  contactId?: string;
+  referredBy: string | null;
+  referredByExternal: string | null;
+  onChange: (referredBy: string | null, referredByExternal: string | null) => void;
+}) {
+  const { data: contacts = [] } = api.crm.getContactOptions.useQuery();
+  const [search, setSearch] = useState(referredByExternal ?? "");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Resolve display name for selected internal contact
+  const selectedContact = referredBy
+    ? contacts.find((c: { id: string }) => c.id === referredBy)
+    : null;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = contacts.filter(
+    (c: { id: string; name: string; email: string }) =>
+      c.id !== contactId &&
+      (c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.email.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Selected display */}
+      {(referredBy || referredByExternal) && !open && (
+        <div
+          className="flex items-center justify-between rounded-lg border bg-white/5 px-3 py-2"
+          style={borderStyle}
+        >
+          <span className="text-sm text-white">
+            {selectedContact
+              ? `${(selectedContact as { name: string }).name} (contact)`
+              : referredByExternal}
+          </span>
+          <button
+            onClick={() => {
+              onChange(null, null);
+              setSearch("");
+            }}
+            className="text-gray-500 hover:text-white"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Search input */}
+      {!referredBy && !referredByExternal && (
+        <>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+            <input
+              className={inputClass + " pl-9"}
+              style={borderStyle}
+              placeholder="Search contacts or type external name..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setOpen(true);
+              }}
+              onFocus={() => setOpen(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && search.trim()) {
+                  e.preventDefault();
+                  onChange(null, search.trim());
+                  setOpen(false);
+                }
+              }}
+            />
+          </div>
+          {open && (filtered.length > 0 || search.trim()) && (
+            <div
+              className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              {filtered.map((c: { id: string; name: string; email: string }) => (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    onChange(c.id, null);
+                    setSearch("");
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+                >
+                  <UserPlus className="h-3 w-3 text-gray-500" />
+                  <span>{c.name}</span>
+                  <span className="ml-auto text-xs text-gray-600">{c.email}</span>
+                </button>
+              ))}
+              {search.trim() && (
+                <button
+                  onClick={() => {
+                    onChange(null, search.trim());
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-white/10"
+                  style={{ color: "#D4AF37" }}
+                >
+                  <Plus className="h-3 w-3" />
+                  Add external: &ldquo;{search.trim()}&rdquo;
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Clear button when open with selection */}
+      {(referredBy || referredByExternal) && open && (
+        <div className="relative">
+          <input
+            className={inputClass}
+            style={borderStyle}
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Company Picker ────────────────────────────────────────────── */
+
+function CompanyPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { data: suggestions = [] } = api.crm.getCompanyOptions.useQuery();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = suggestions.filter(
+    (c) => c.toLowerCase().includes(value.toLowerCase()) && c !== value,
+  );
+
+  const showCreate = value.trim() && !suggestions.some(
+    (c) => c.toLowerCase() === value.trim().toLowerCase(),
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="relative">
+        <Building2 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+        <input
+          className={inputClass + " pl-9"}
+          style={borderStyle}
+          placeholder="Search or create company..."
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+        />
+      </div>
+      {open && (filtered.length > 0 || showCreate) && (
+        <div
+          className="absolute z-10 mt-1 max-h-32 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          {filtered.map((company) => (
+            <button
+              key={company}
+              onClick={() => {
+                onChange(company);
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+            >
+              <Building2 className="h-3 w-3 text-gray-500" />
+              {company}
+            </button>
+          ))}
+          {showCreate && (
+            <button
+              onClick={() => {
+                onChange(value.trim());
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-white/10"
+              style={{ color: "#D4AF37" }}
+            >
+              <Plus className="h-3 w-3" />
+              Create &ldquo;{value.trim()}&rdquo;
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Account Manager Picker ────────────────────────────────────── */
+
+function AccountManagerPicker({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (id: string | null) => void;
+}) {
+  const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const selected = value ? team.find((m: { id: string }) => m.id === value) : null;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between rounded-lg border bg-white/5 px-3 py-2 text-left text-sm text-white"
+        style={borderStyle}
+      >
+        <span className={selected ? "text-white" : "text-gray-500"}>
+          {selected ? selected.name : "Select account manager..."}
+        </span>
+        {value ? (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                onChange(null);
+              }
+            }}
+            className="text-gray-500 hover:text-white"
+          >
+            <X className="h-3.5 w-3.5" />
+          </span>
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
+        )}
+      </button>
+      {open && (
+        <div
+          className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          {team.map((member: { id: string; name: string; email: string }) => (
+            <button
+              key={member.id}
+              onClick={() => {
+                onChange(member.id);
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+            >
+              <Users className="h-3 w-3 text-gray-500" />
+              <span>{member.name}</span>
+              <span className="ml-auto text-xs text-gray-600">{member.email}</span>
+            </button>
+          ))}
+          {team.length === 0 && (
+            <p className="px-3 py-2 text-xs text-gray-500">No team members found</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Skeleton ──────────────────────────────────────────────────── */
 
 function TableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
@@ -28,6 +474,8 @@ function TableSkeleton({ rows = 8 }: { rows?: number }) {
     </div>
   );
 }
+
+/* ── Constants ─────────────────────────────────────────────────── */
 
 const STATUS_CONFIG: Record<
   string,
@@ -56,18 +504,519 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const SOURCE_LABELS: Record<string, string> = {
-  personal_site: "matthewmiceli.com",
-  miracle_mind: "miraclemind.dev",
-  banyan_waitlist: "Banyan Waitlist",
-  referral: "Referral",
+const SOURCE_OPTIONS = [
+  { value: "personal_site", label: "matthewmiceli.com" },
+  { value: "miracle_mind", label: "miraclemind.dev" },
+  { value: "banyan_waitlist", label: "Banyan Waitlist" },
+  { value: "referral", label: "Referral" },
+  { value: "portal", label: "Portal" },
+];
+
+type ContactRow = {
+  id: string;
+  email: string;
+  name: string;
+  phone: string | null;
+  company: string | null;
+  status: string;
+  source: string;
+  referredBy: string | null;
+  referredByExternal: string | null;
+  accountManagerId: string | null;
+  accountManagerName: string | null;
+  createdBy: string | null;
+  tags: string[] | null;
+  notes: string | null;
+  lastContactAt: Date;
+  submissionSources: string[];
+  portalClient: {
+    id: number;
+    slug: string;
+    name: string;
+    company: string | null;
+  } | null;
 };
+
+/* ── Edit Modal ────────────────────────────────────────────────── */
+
+function EditContactModal({
+  contact,
+  onClose,
+}: {
+  contact: ContactRow;
+  onClose: () => void;
+}) {
+  const utils = api.useUtils();
+  const updateContact = api.crm.updateContact.useMutation({
+    onSuccess: () => {
+      void utils.crm.getContacts.invalidate();
+      void utils.crm.getTagOptions.invalidate();
+      onClose();
+    },
+  });
+
+  const [form, setForm] = useState({
+    name: contact.name,
+    email: contact.email,
+    phone: contact.phone ?? "",
+    company: contact.company ?? "",
+    status: contact.status,
+    source: contact.source,
+    referredBy: contact.referredBy,
+    referredByExternal: contact.referredByExternal,
+    accountManagerId: contact.accountManagerId,
+    createdBy: contact.createdBy ?? "",
+    tags: contact.tags ?? [],
+    notes: contact.notes ?? "",
+  });
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const handleSave = () => {
+    updateContact.mutate({
+      id: contact.id,
+      name: form.name,
+      email: form.email,
+      phone: form.phone || null,
+      company: form.company || null,
+      status: form.status as "lead" | "prospect" | "client" | "inactive" | "churned",
+      source: form.source,
+      referredBy: form.referredBy,
+      referredByExternal: form.referredByExternal,
+      accountManagerId: form.accountManagerId,
+      createdBy: form.createdBy || null,
+      tags: form.tags,
+      notes: form.notes || null,
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="relative mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
+        style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">Edit Contact</h2>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Name</label>
+              <input
+                className={inputClass}
+                style={borderStyle}
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Email</label>
+              <input
+                className={inputClass}
+                style={borderStyle}
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Phone</label>
+              <input
+                className={inputClass}
+                style={borderStyle}
+                placeholder="(555) 123-4567"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Company</label>
+              <CompanyPicker
+                value={form.company}
+                onChange={(v) => setForm((f) => ({ ...f, company: v }))}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Status</label>
+              <div className="relative">
+                <select
+                  className={selectClass}
+                  style={borderStyle}
+                  value={form.status}
+                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                >
+                  {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                    <option key={key} value={key}>
+                      {cfg.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+              </div>
+            </div>
+            <div>
+              <label className={labelClass}>Source</label>
+              <div className="relative">
+                <select
+                  className={selectClass}
+                  style={borderStyle}
+                  value={form.source}
+                  onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))}
+                >
+                  {SOURCE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+              </div>
+            </div>
+          </div>
+
+          {form.source === "referral" && (
+            <div>
+              <label className={labelClass}>
+                <span className="flex items-center gap-1">
+                  <UserPlus className="h-3 w-3" />
+                  Referred By
+                </span>
+              </label>
+              <ReferralPicker
+                contactId={contact.id}
+                referredBy={form.referredBy}
+                referredByExternal={form.referredByExternal}
+                onChange={(rb, rbe) =>
+                  setForm((f) => ({ ...f, referredBy: rb, referredByExternal: rbe }))
+                }
+              />
+            </div>
+          )}
+
+          <div>
+            <label className={labelClass}>Account Manager</label>
+            <AccountManagerPicker
+              value={form.accountManagerId}
+              onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Created By</label>
+            <input
+              className={inputClass}
+              style={borderStyle}
+              placeholder="Who created this contact"
+              value={form.createdBy}
+              onChange={(e) => setForm((f) => ({ ...f, createdBy: e.target.value }))}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Tags</label>
+            <TagPicker
+              selected={form.tags}
+              onChange={(tags) => setForm((f) => ({ ...f, tags }))}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Notes</label>
+            <textarea
+              className={inputClass + " resize-none"}
+              style={borderStyle}
+              rows={3}
+              placeholder="Internal notes about this contact..."
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            style={borderStyle}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={updateContact.isPending || !form.name || !form.email}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            {updateContact.isPending ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Create Modal ──────────────────────────────────────────────── */
+
+function CreateContactModal({ onClose }: { onClose: () => void }) {
+  const utils = api.useUtils();
+  const createContact = api.crm.createContact.useMutation({
+    onSuccess: () => {
+      void utils.crm.getContacts.invalidate();
+      void utils.crm.getTagOptions.invalidate();
+      onClose();
+    },
+  });
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    status: "lead",
+    source: "referral",
+    referredBy: null as string | null,
+    referredByExternal: null as string | null,
+    accountManagerId: null as string | null,
+    tags: [] as string[],
+    notes: "",
+  });
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const handleCreate = () => {
+    createContact.mutate({
+      name: form.name,
+      email: form.email,
+      phone: form.phone || null,
+      company: form.company || null,
+      status: form.status as "lead" | "prospect" | "client" | "inactive" | "churned",
+      source: form.source,
+      referredBy: form.referredBy,
+      referredByExternal: form.referredByExternal,
+      accountManagerId: form.accountManagerId,
+      tags: form.tags.length > 0 ? form.tags : undefined,
+      notes: form.notes || null,
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="relative mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
+        style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">New Contact</h2>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Name</label>
+              <input
+                className={inputClass}
+                style={borderStyle}
+                placeholder="Full name"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Email</label>
+              <input
+                className={inputClass}
+                style={borderStyle}
+                type="email"
+                placeholder="email@example.com"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Phone</label>
+              <input
+                className={inputClass}
+                style={borderStyle}
+                placeholder="(555) 123-4567"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Company</label>
+              <CompanyPicker
+                value={form.company}
+                onChange={(v) => setForm((f) => ({ ...f, company: v }))}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Status</label>
+              <div className="relative">
+                <select
+                  className={selectClass}
+                  style={borderStyle}
+                  value={form.status}
+                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                >
+                  {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                    <option key={key} value={key}>
+                      {cfg.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+              </div>
+            </div>
+            <div>
+              <label className={labelClass}>Source</label>
+              <div className="relative">
+                <select
+                  className={selectClass}
+                  style={borderStyle}
+                  value={form.source}
+                  onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))}
+                >
+                  {SOURCE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+              </div>
+            </div>
+          </div>
+
+          {form.source === "referral" && (
+            <div>
+              <label className={labelClass}>
+                <span className="flex items-center gap-1">
+                  <UserPlus className="h-3 w-3" />
+                  Referred By
+                </span>
+              </label>
+              <ReferralPicker
+                referredBy={form.referredBy}
+                referredByExternal={form.referredByExternal}
+                onChange={(rb, rbe) =>
+                  setForm((f) => ({ ...f, referredBy: rb, referredByExternal: rbe }))
+                }
+              />
+            </div>
+          )}
+
+          <div>
+            <label className={labelClass}>Account Manager</label>
+            <AccountManagerPicker
+              value={form.accountManagerId}
+              onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Tags</label>
+            <TagPicker
+              selected={form.tags}
+              onChange={(tags) => setForm((f) => ({ ...f, tags }))}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Notes</label>
+            <textarea
+              className={inputClass + " resize-none"}
+              style={borderStyle}
+              rows={3}
+              placeholder="Internal notes about this contact..."
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            style={borderStyle}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={createContact.isPending || !form.name || !form.email}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            {createContact.isPending ? "Creating..." : "Create Contact"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main Page ─────────────────────────────────────────────────── */
 
 export default function CrmContactsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [sourceFilter, setSourceFilter] = useState<string | undefined>();
   const [page, setPage] = useState(0);
+  const [editingContact, setEditingContact] = useState<ContactRow | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
   const limit = 25;
 
   const { data, isLoading } = api.crm.getContacts.useQuery({
@@ -77,17 +1026,6 @@ export default function CrmContactsPage() {
     limit,
     offset: page * limit,
   });
-
-  const updateContact = api.crm.updateContact.useMutation();
-
-  const handleStatusChange = (id: string, newStatus: string) => {
-    updateContact.mutate(
-      {
-        id,
-        status: newStatus as "lead" | "prospect" | "client" | "inactive" | "churned",
-      },
-    );
-  };
 
   return (
     <div className="space-y-6">
@@ -110,7 +1048,10 @@ export default function CrmContactsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1" style={{ minWidth: "200px", maxWidth: "320px" }}>
+        <div
+          className="relative flex-1"
+          style={{ minWidth: "200px", maxWidth: "320px" }}
+        >
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
@@ -125,44 +1066,61 @@ export default function CrmContactsPage() {
           />
         </div>
 
-        <select
-          value={statusFilter ?? ""}
-          onChange={(e) => {
-            setStatusFilter(e.target.value || undefined);
-            setPage(0);
-          }}
-          className="rounded-lg border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none"
-          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-        >
-          <option value="">All Statuses</option>
-          <option value="lead">Lead</option>
-          <option value="prospect">Prospect</option>
-          <option value="client">Client</option>
-          <option value="inactive">Inactive</option>
-          <option value="churned">Churned</option>
-        </select>
+        <div className="relative">
+          <select
+            value={statusFilter ?? ""}
+            onChange={(e) => {
+              setStatusFilter(e.target.value || undefined);
+              setPage(0);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pl-3 pr-8 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="">All Statuses</option>
+            <option value="lead">Lead</option>
+            <option value="prospect">Prospect</option>
+            <option value="client">Client</option>
+            <option value="inactive">Inactive</option>
+            <option value="churned">Churned</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+        </div>
 
-        <select
-          value={sourceFilter ?? ""}
-          onChange={(e) => {
-            setSourceFilter(e.target.value || undefined);
-            setPage(0);
-          }}
-          className="rounded-lg border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none"
-          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-        >
-          <option value="">All Sources</option>
-          <option value="personal_site">matthewmiceli.com</option>
-          <option value="miracle_mind">miraclemind.dev</option>
-          <option value="banyan_waitlist">Banyan Waitlist</option>
-          <option value="referral">Referral</option>
-        </select>
+        <div className="relative">
+          <select
+            value={sourceFilter ?? ""}
+            onChange={(e) => {
+              setSourceFilter(e.target.value || undefined);
+              setPage(0);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pl-3 pr-8 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="">All Sources</option>
+            <option value="personal_site">matthewmiceli.com</option>
+            <option value="miracle_mind">miraclemind.dev</option>
+            <option value="banyan_waitlist">Banyan Waitlist</option>
+            <option value="referral">Referral</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+        </div>
 
         {data && (
           <span className="text-sm text-gray-500">
             {data.total} contact{data.total !== 1 ? "s" : ""}
           </span>
         )}
+
+        <button
+          onClick={() => setShowCreate(true)}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+          style={{
+            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          New Contact
+        </button>
       </div>
 
       {/* Contacts Table */}
@@ -190,14 +1148,15 @@ export default function CrmContactsPage() {
               >
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Source</th>
+                <th className="px-4 py-3">Sources</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Tags</th>
                 <th className="px-4 py-3">Last Contact</th>
+                <th className="w-10 px-2 py-3" />
               </tr>
             </thead>
             <tbody>
-              {data.contacts.map((contact: { id: string; email: string; name: string; phone: string | null; status: string; source: string; tags: string[] | null; notes: string | null; firstContactAt: Date; lastContactAt: Date; createdAt: Date; updatedAt: Date; communicationPreferences: { email?: boolean; sms?: boolean; phone?: boolean } | null }) => {
+              {data.contacts.map((contact: ContactRow) => {
                 const config =
                   STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.lead!;
                 return (
@@ -207,7 +1166,28 @@ export default function CrmContactsPage() {
                     style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
                   >
                     <td className="px-4 py-3">
-                      <p className="font-medium text-white">{contact.name}</p>
+                      <Link
+                        href={`/admin/crm/contacts/${contact.id}`}
+                        className="font-medium text-white transition-colors hover:text-[#D4AF37]"
+                      >
+                        {contact.name}
+                      </Link>
+                      {contact.company && (
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
+                          <Building2 className="h-3 w-3" />
+                          {contact.company}
+                        </p>
+                      )}
+                      {contact.portalClient && (
+                        <Link
+                          href={`/admin/clients/${contact.portalClient.id}`}
+                          className="mt-0.5 flex items-center gap-1 text-xs transition-colors hover:text-white"
+                          style={{ color: "#4ade80" }}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Portal Client
+                        </Link>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="space-y-0.5">
@@ -223,33 +1203,36 @@ export default function CrmContactsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-400">
-                      {SOURCE_LABELS[contact.source] ?? contact.source}
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {contact.submissionSources.length > 0 ? (
+                          contact.submissionSources.map((src: string) => (
+                            <span
+                              key={src}
+                              className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                              style={{
+                                backgroundColor: "rgba(212, 175, 55, 0.1)",
+                                color: "#D4AF37",
+                              }}
+                            >
+                              {src}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-gray-600">—</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="relative">
-                        <select
-                          value={contact.status}
-                          onChange={(e) =>
-                            handleStatusChange(contact.id, e.target.value)
-                          }
-                          className="appearance-none rounded-full border-0 py-0.5 pl-2 pr-6 text-xs font-medium focus:outline-none"
-                          style={{
-                            backgroundColor: config.bg,
-                            color: config.color,
-                          }}
-                        >
-                          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                            <option key={key} value={key}>
-                              {cfg.label}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown
-                          className="pointer-events-none absolute right-1 top-1/2 h-3 w-3 -translate-y-1/2"
-                          style={{ color: config.color }}
-                        />
-                      </div>
+                      <span
+                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{
+                          backgroundColor: config.bg,
+                          color: config.color,
+                        }}
+                      >
+                        {config.label}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       {contact.tags?.length ? (
@@ -277,9 +1260,22 @@ export default function CrmContactsPage() {
                         <Clock className="h-3 w-3" />
                         {new Date(contact.lastContactAt).toLocaleDateString(
                           "en-US",
-                          { month: "short", day: "numeric", year: "numeric" }
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }
                         )}
                       </span>
+                    </td>
+                    <td className="px-2 py-3">
+                      <button
+                        onClick={() => setEditingContact(contact)}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+                        title="Edit contact"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
                     </td>
                   </tr>
                 );
@@ -315,6 +1311,17 @@ export default function CrmContactsPage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Modals */}
+      {editingContact && (
+        <EditContactModal
+          contact={editingContact}
+          onClose={() => setEditingContact(null)}
+        />
+      )}
+      {showCreate && (
+        <CreateContactModal onClose={() => setShowCreate(false)} />
       )}
     </div>
   );

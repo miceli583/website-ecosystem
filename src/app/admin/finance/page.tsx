@@ -185,7 +185,7 @@ export default function FinancePage() {
               </div>
               <p className="mt-2 text-2xl font-bold text-white">
                 {mercury?.connected
-                  ? `$${(mercury.totalAvailable / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                  ? `$${mercury.totalAvailable.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
                   : "—"}
               </p>
               <p className="mt-1 text-xs text-gray-500">

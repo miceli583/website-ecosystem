@@ -22,6 +22,7 @@ import {
   Eye,
   EyeOff,
   Lock,
+  UserCheck,
 } from "lucide-react";
 
 export default function PortalProfilePage({
@@ -442,6 +443,68 @@ export default function PortalProfilePage({
             </div>
           </CardContent>
         </Card>
+
+        {/* Account Manager */}
+        {client.accountManager && (
+          <Card
+            className="bg-white/5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <CardContent className="p-6">
+              <div className="mb-4 flex items-center gap-3">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-full"
+                  style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
+                >
+                  <UserCheck className="h-6 w-6" style={{ color: "#D4AF37" }} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">Your Account Manager</h2>
+                  <p className="text-sm text-gray-400">Your dedicated point of contact</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                    Name
+                  </label>
+                  <p className="text-white">{client.accountManager.name}</p>
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                    Email
+                  </label>
+                  <p className="flex items-center gap-2 text-white">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <a
+                      href={`mailto:${client.accountManager.email}`}
+                      className="transition-colors hover:text-[#D4AF37]"
+                    >
+                      {client.accountManager.email}
+                    </a>
+                  </p>
+                </div>
+                {client.accountManager.phone && (
+                  <div>
+                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                      Phone
+                    </label>
+                    <p className="flex items-center gap-2 text-white">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <a
+                        href={`tel:${client.accountManager.phone}`}
+                        className="transition-colors hover:text-[#D4AF37]"
+                      >
+                        {client.accountManager.phone}
+                      </a>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Security - only show for own profile */}
         {canEdit && (

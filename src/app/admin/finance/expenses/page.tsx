@@ -74,7 +74,7 @@ export default function ExpensesPage() {
             <p className="font-medium text-white">Mercury not connected</p>
             <p className="mt-1 text-sm text-gray-400">
               {(balances as { error?: string })?.error ??
-                "Mercury OAuth needs to be configured. Bank transactions will not be available until connected."}
+                "Add MERCURY_API_KEY to your environment. Get one from Mercury Settings → Tokens."}
             </p>
           </div>
         </div>
@@ -118,7 +118,7 @@ export default function ExpensesPage() {
                     </div>
                     <p className="mt-2 text-2xl font-bold text-white">
                       $
-                      {(account.available / 100).toLocaleString("en-US", {
+                      {account.available.toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                       })}
                     </p>
@@ -141,7 +141,7 @@ export default function ExpensesPage() {
                 </div>
                 <p className="mt-2 text-2xl font-bold text-white">
                   $
-                  {(balances.totalAvailable / 100).toLocaleString("en-US", {
+                  {balances.totalAvailable.toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                   })}
                 </p>
@@ -252,7 +252,7 @@ export default function ExpensesPage() {
                         className={`px-4 py-2.5 text-right font-medium ${tx.amount >= 0 ? "text-green-400" : "text-white"}`}
                       >
                         {tx.amount >= 0 ? "+" : ""}$
-                        {Math.abs(tx.amount / 100).toLocaleString("en-US", {
+                        {Math.abs(tx.amount).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                         })}
                       </td>

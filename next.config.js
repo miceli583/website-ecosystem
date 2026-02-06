@@ -29,13 +29,14 @@ const config = {
               "style-src 'self' 'unsafe-inline'", // Allow inline styles for styled-components, Tailwind, etc.
               "img-src 'self' data: blob: https:", // Allow images from HTTPS sources and data URIs
               "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co", // Supabase API and realtime
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co ws://localhost:*", // Supabase API/realtime + dev HMR
               "frame-src 'self'",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'self'", // Prevents your site from being embedded in iframes (clickjacking protection)
-              "upgrade-insecure-requests",
+              // upgrade-insecure-requests is added in production via Vercel/hosting headers.
+              // Including it here breaks localhost dev (upgrades http→https, killing RSC fetches).
             ].join("; "),
           },
           // Prevents browsers from incorrectly detecting non-scripts as scripts

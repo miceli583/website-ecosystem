@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Users,
+  Building2,
   FileText,
   Palette,
   Rocket,
@@ -32,6 +33,16 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
+    title: "Analytics",
+    href: "/admin/analytics",
+    icon: BarChart3,
+  },
+  {
+    title: "Organization",
+    href: "/admin/organization",
+    icon: Building2,
+  },
+  {
     title: "CRM",
     icon: Users,
     items: [
@@ -39,6 +50,15 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
       { title: "Contacts", href: "/admin/crm/contacts" },
       { title: "Leads", href: "/admin/crm/leads" },
       { title: "Clients", href: "/admin/clients" },
+    ],
+  },
+  {
+    title: "Finance",
+    icon: DollarSign,
+    items: [
+      { title: "Overview", href: "/admin/finance" },
+      { title: "Revenue", href: "/admin/finance/revenue" },
+      { title: "Expenses", href: "/admin/finance/expenses" },
     ],
   },
   {
@@ -80,20 +100,6 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
       { title: "Service Inventory", href: "/admin/tooling" },
       { title: "Database Health", href: "/admin/tooling/database" },
     ],
-  },
-  {
-    title: "Finance",
-    icon: DollarSign,
-    items: [
-      { title: "Overview", href: "/admin/finance" },
-      { title: "Revenue", href: "/admin/finance/revenue" },
-      { title: "Expenses", href: "/admin/finance/expenses" },
-    ],
-  },
-  {
-    title: "Analytics",
-    href: "/admin/analytics",
-    icon: BarChart3,
   },
 ];
 

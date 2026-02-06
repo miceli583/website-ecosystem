@@ -190,6 +190,8 @@ export const portalUsers = pgTable("portal_users", {
   name: text("name").notNull(),
   phone: text("phone"), // Optional phone number
   role: text("role").notNull().default("client"), // "admin" | "client"
+  isCompanyMember: boolean("is_company_member").notNull().default(false),
+  companyRoles: text("company_roles").array(), // e.g. ["admin", "account_manager"]
   clientSlug: text("client_slug"), // NULL for admin, required for clients
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -201,6 +203,8 @@ export const portalUsers = pgTable("portal_users", {
  */
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
+  crmId: uuid("crm_id").references(() => masterCrm.id, { onDelete: "set null" }),
+  accountManagerId: uuid("account_manager_id").references(() => portalUsers.id, { onDelete: "set null" }),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   slug: text("slug").notNull().unique(),
@@ -384,6 +388,11 @@ export const masterCrm = pgTable("master_crm", {
   }>().default({ email: true }),
   status: text("status").notNull().default("lead"), // lead | prospect | client | inactive | churned
   source: text("source").notNull(), // personal_site | miracle_mind | banyan_waitlist | referral | etc.
+  company: text("company"),
+  referredBy: uuid("referred_by"),
+  referredByExternal: text("referred_by_external"),
+  accountManagerId: uuid("account_manager_id").references(() => portalUsers.id, { onDelete: "set null" }),
+  createdBy: text("created_by"),
   tags: text("tags").array(),
   notes: text("notes"),
   firstContactAt: timestamp("first_contact_at", { withTimezone: true })
@@ -473,12 +482,15 @@ export const quotePostsRelations = relations(quotePosts, ({ one }) => ({
   }),
 }));
 
-export const portalUsersRelations = relations(portalUsers, ({ one }) => ({
+export const portalUsersRelations = relations(portalUsers, ({ one, many }) => ({
   // Client slug links to clients table
   client: one(clients, {
     fields: [portalUsers.clientSlug],
     references: [clients.slug],
+    relationName: "clientPortalUser",
   }),
+  managedClients: many(clients, { relationName: "clientAccountManager" }),
+  managedCrmContacts: many(masterCrm, { relationName: "crmAccountManager" }),
 }));
 
 export const clientsRelations = relations(clients, ({ many, one }) => ({
@@ -489,6 +501,16 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
   portalUser: one(portalUsers, {
     fields: [clients.slug],
     references: [portalUsers.clientSlug],
+    relationName: "clientPortalUser",
+  }),
+  crmContact: one(masterCrm, {
+    fields: [clients.crmId],
+    references: [masterCrm.id],
+  }),
+  accountManager: one(portalUsers, {
+    fields: [clients.accountManagerId],
+    references: [portalUsers.id],
+    relationName: "clientAccountManager",
   }),
 }));
 
@@ -546,10 +568,19 @@ export const clientNotesRelations = relations(clientNotes, ({ one }) => ({
   }),
 }));
 
-export const masterCrmRelations = relations(masterCrm, ({ many }) => ({
+export const masterCrmRelations = relations(masterCrm, ({ many, one }) => ({
   personalContactSubmissions: many(personalContactSubmissions),
   contactSubmissions: many(contactSubmissions),
   banyanEarlyAccessSignups: many(banyanEarlyAccess),
+  client: one(clients, {
+    fields: [masterCrm.id],
+    references: [clients.crmId],
+  }),
+  accountManager: one(portalUsers, {
+    fields: [masterCrm.accountManagerId],
+    references: [portalUsers.id],
+    relationName: "crmAccountManager",
+  }),
 }));
 
 export const banyanEarlyAccessRelations = relations(

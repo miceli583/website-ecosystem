@@ -15,9 +15,8 @@ _None currently_
 
 ## Enhancements (prioritized)
 
-### High Priority — RESUME HERE
-- [ ] **Wire finance dashboard UI** to `finance.*` tRPC procedures (MRR, revenue, balances)
-- [ ] **Test Mercury OAuth** — restart Claude Code, use Mercury MCP to verify connection
+### High Priority
+- [ ] **Test Mercury API** — set `MERCURY_API_KEY` and verify finance dashboard shows real bank data
 - [ ] **Test Stripe Live** — verify read-only key returns real revenue data
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)

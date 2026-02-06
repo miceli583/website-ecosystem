@@ -10,12 +10,27 @@ import {
   clientProjects,
   clientUpdates,
   clientAgreements,
+  masterCrm,
 } from "~/server/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
 
 export const clientsRouter = createTRPCRouter({
+  // Get distinct company names for picker
+  getCompanyOptions: protectedProcedure.query(async () => {
+    const result = await db.execute(
+      sql`SELECT DISTINCT company FROM clients WHERE company IS NOT NULL AND company != '' ORDER BY company`
+    );
+    const crmResult = await db.execute(
+      sql`SELECT DISTINCT company FROM master_crm WHERE company IS NOT NULL AND company != '' ORDER BY company`
+    );
+    const all = new Set<string>();
+    for (const row of result as unknown as { company: string }[]) all.add(row.company);
+    for (const row of crmResult as unknown as { company: string }[]) all.add(row.company);
+    return [...all].sort();
+  }),
+
   // List all clients
   list: protectedProcedure.query(async () => {
     return db.query.clients.findMany({
@@ -68,7 +83,7 @@ export const clientsRouter = createTRPCRouter({
       });
     }),
 
-  // Create client
+  // Create client (auto-links to master CRM)
   create: protectedProcedure
     .input(
       z.object({
@@ -77,17 +92,48 @@ export const clientsRouter = createTRPCRouter({
         slug: z.string().min(1),
         company: z.string().optional(),
         notes: z.string().optional(),
+        accountManagerId: z.string().uuid().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
+      // Look up or create master CRM record
+      const existingCrm = await db
+        .select({ id: masterCrm.id })
+        .from(masterCrm)
+        .where(eq(masterCrm.email, input.email))
+        .limit(1);
+
+      let crmId: string;
+
+      if (existingCrm[0]) {
+        crmId = existingCrm[0].id;
+        await db
+          .update(masterCrm)
+          .set({ status: "client", updatedAt: new Date() })
+          .where(eq(masterCrm.id, crmId));
+      } else {
+        const [newCrm] = await db
+          .insert(masterCrm)
+          .values({
+            email: input.email,
+            name: input.name,
+            source: "portal",
+            status: "client",
+          })
+          .returning({ id: masterCrm.id });
+        crmId = newCrm!.id;
+      }
+
       const [client] = await db
         .insert(clients)
         .values({
+          crmId,
           name: input.name,
           email: input.email,
           slug: input.slug,
           company: input.company ?? null,
           notes: input.notes ?? null,
+          accountManagerId: input.accountManagerId ?? null,
         })
         .returning();
       return client;

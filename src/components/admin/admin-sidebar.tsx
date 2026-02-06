@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Menu, ExternalLink } from "lucide-react";
 import {
   Sheet,
@@ -265,6 +265,23 @@ function SidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
 
 export function AdminSidebar() {
   const { isCollapsed, toggle, isMobileOpen, closeMobile } = useAdminSidebar();
+  // Defer entire Radix tree (Tooltip/Collapsible/Sheet) to after hydration
+  // to prevent ID mismatches between server and client renders.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    // Static placeholder matching the sidebar dimensions to prevent layout shift
+    return (
+      <aside
+        className="fixed inset-y-0 left-0 z-30 hidden border-r bg-black md:block"
+        style={{
+          width: SIDEBAR_WIDTH,
+          borderColor: "rgba(212, 175, 55, 0.2)",
+        }}
+      />
+    );
+  }
 
   return (
     <TooltipProvider>

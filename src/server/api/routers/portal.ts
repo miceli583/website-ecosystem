@@ -113,6 +113,14 @@ export const portalRouter = createTRPCRouter({
           agreements: {
             orderBy: [desc(clientAgreements.createdAt)],
           },
+          accountManager: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
       });
 

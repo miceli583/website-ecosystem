@@ -79,6 +79,8 @@ export default function CrmPage() {
     api.crm.getPipelineStats.useQuery();
   const { data: sources, isLoading: sourcesLoading } =
     api.crm.getSourceBreakdown.useQuery();
+  const { data: growth, isLoading: growthLoading } =
+    api.crm.getContactGrowth.useQuery();
   const { data: contactsData, isLoading: contactsLoading } =
     api.crm.getContacts.useQuery({ limit: 10 });
 
@@ -242,7 +244,7 @@ export default function CrmPage() {
         </Link>
       </div>
 
-      {/* Sources + Recent Contacts */}
+      {/* Sources + Contact Growth */}
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Source Breakdown */}
         <div>
@@ -296,7 +298,60 @@ export default function CrmPage() {
           </div>
         </div>
 
-        {/* Recent Contacts */}
+        {/* Contact Growth */}
+        <div>
+          <h2 className="mb-3 font-semibold text-white">Contact Growth</h2>
+          <div
+            className="rounded-lg border bg-white/5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            {growthLoading ? (
+              <TableSkeleton rows={4} />
+            ) : !growth?.length ? (
+              <div className="p-6 text-center text-sm text-gray-500">
+                No data yet
+              </div>
+            ) : (
+              <div className="divide-y" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+                {growth.map((month: { month: string; count: number }) => {
+                  const maxCount = Math.max(...growth.map((m: { month: string; count: number }) => m.count));
+                  const pct = maxCount > 0 ? (month.count / maxCount) * 100 : 0;
+                  const label = new Date(month.month + "-01").toLocaleDateString(
+                    "en-US",
+                    { month: "short", year: "numeric" }
+                  );
+                  return (
+                    <div
+                      key={month.month}
+                      className="flex items-center justify-between px-4 py-3"
+                    >
+                      <span className="text-sm text-gray-400">{label}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 overflow-hidden rounded-full bg-white/5">
+                          <div
+                            className="h-1.5 rounded-full"
+                            style={{
+                              width: `${pct}%`,
+                              background:
+                                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                            }}
+                          />
+                        </div>
+                        <span className="w-8 text-right text-sm font-medium text-white">
+                          {month.count}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Contacts */}
+      <div>
         <div>
           <h2 className="mb-3 font-semibold text-white">Recent Contacts</h2>
           <div
