@@ -15,7 +15,8 @@
 | Admin tooling pages | Working | Service inventory, database health dashboard |
 | Admin finance dashboard | Working | Overview, revenue, expenses — wired to Stripe Live + Mercury |
 | Admin analytics dashboard | Working | Internal metrics, revenue summary, contact growth, domain activity |
-| Admin CRM system | Working | Pipeline, contacts list, leads management, status tracking |
+| Admin CRM system | Working | Pipeline, contacts list/detail, leads, account managers, client sync |
+| Admin organization | Working | Team member CRUD, role management, account manager assignments |
 | Finance integrations | Working | Stripe Live (read-only) + Mercury API clients |
 | Client portal v2 | Working | `/portal/[slug]` with role-based auth |
 | Portal skeletons | Working | Loading skeletons for all portal pages |
@@ -31,10 +32,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 05 | f082ccd | CRM contact detail, organization/team management, account managers |
 | Feb 05 | 7e58bf9 | Finance UI wiring, analytics dashboard, CRM system |
 | Feb 05 | 13e3cd5 | Finance tRPC router, Stripe Live + Mercury API clients |
 | Feb 05 | 8376d18 | P2 skeletons, breadcrumbs, ecosystem map, admin pages |
 | Feb 05 | 9b6eb82 | Loading skeletons + Admin dashboard refactor with sidebar |
-| Feb 05 | 85a6f45 | Add under_development flag to hide WIP items |
 
 _Older changes: `git log --oneline`_

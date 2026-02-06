@@ -26,35 +26,47 @@
 
 ## Session 4+ — Admin Overhaul (Phased)
 
-### Phase 1: Foundation
-- [ ] Admin-only route protection
-- [ ] Dashboard layout + custom nav/footer
+### Phase 1: Foundation (DONE)
+- [x] Admin-only route protection
+- [x] Dashboard layout + custom nav/footer
 
-### Phase 2: CRM Core
-- [ ] Input customers
-- [ ] Search
-- [ ] Pipeline view
+### Phase 2: CRM Core (DONE)
+- [x] Input customers
+- [x] Search
+- [x] Pipeline view
 
 ### Phase 3: CRM Advanced
-- [ ] Source tracking from intake forms
+- [x] Source tracking from intake forms
 - [ ] Stripe lifetime spend per customer
 - [ ] Customer notes with todos
 - [ ] Link admin notes to portal client view
 
 ### Phase 4: Analytics
-- [ ] Site analytics
+- [x] Site analytics (internal submission metrics)
+- [ ] Full-stack analytics (Vercel Analytics + PostHog across ecosystem)
 - [ ] Login frequency
 - [ ] Email sends
 - [ ] Click tracking
+
+### Phase 5: Platform Expansion
+- [ ] Account manager role-based permissions (filter clients, scoped editing)
+- [ ] CRM notes management + project management + outreach scheduling
+- [ ] CMS email/text sequence builder
+- [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
+- [ ] Rename "Landing Pages" to "Web Design"; landing pages open in new tab
+- [ ] Remove Assets page nav/footer remnants
 
 ## Target Admin Structure
 
 - Admin Dashboard
 - CRM
+- Organization (team + account managers)
 - Ecosystem Map (centered around live sites)
+- Web Design (renamed from Landing Pages)
 - Design Assets
-- Tooling (future CMS)
-- Web Design Playground
+- CMS (blog + email/text sequences)
+- Tooling (service inventory, database health)
+- Sentry (error tracking)
 - Custom admin nav/footer
 
 ## Cross-Cutting / Ongoing
@@ -68,8 +80,6 @@
 ## Backlog
 
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
-- [ ] Gamma API integration for slide automation
-- [ ] Populate Matti demo content
 - [ ] Bundle size optimization pass
 - [ ] Site efficiency improvements (caching, queries)
 - [ ] Page templating architecture
@@ -78,4 +88,4 @@
 ## Low Priority
 
 - [ ] Blog automation system
-- [ ] Admin dashboard visual refactor
+- [ ] Audit service inventory for completeness
