@@ -3,6 +3,9 @@ import { type Metadata } from "next";
 import { api } from "~/trpc/server";
 import { DemoRenderer } from "./demo-renderer";
 
+// Prevent Next.js from caching this page — demo visibility can change at any time
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ token: string; path?: string[] }>;
 }

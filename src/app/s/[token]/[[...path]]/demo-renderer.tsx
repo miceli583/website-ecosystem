@@ -124,10 +124,26 @@ export function DemoRenderer({ demo, componentKey, basePath, backHref }: DemoRen
     );
   }
 
-  // Fallback
+  // Fallback — demo exists but has no renderable content
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <p className="text-gray-400">This demo type cannot be previewed publicly.</p>
+      <h1
+        className="mb-4 text-3xl font-bold"
+        style={{
+          fontFamily: "Quattrocento Sans, serif",
+          letterSpacing: "0.08em",
+          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        {demo.title}
+      </h1>
+      {demo.description && (
+        <p className="mb-4 max-w-lg text-gray-400">{demo.description}</p>
+      )}
+      <p className="text-sm text-gray-500">Shared by {demo.clientName}</p>
     </div>
   );
 }

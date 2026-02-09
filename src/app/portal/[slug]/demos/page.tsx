@@ -27,7 +27,7 @@ import {
   type AdminAction,
   useTabFilters,
 } from "~/components/portal";
-import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye, Share2, EyeOff, Link2, Globe } from "lucide-react";
+import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye, Share2, EyeOff, Link2, Globe, ExternalLink } from "lucide-react";
 
 interface NormalizedDemo {
   id: string;
@@ -386,6 +386,34 @@ export default function PortalDemosPage({
     [handleArchive, handleToggleUnderDevelopment, isAdmin, togglePublic]
   );
 
+  const renderDemoActions = useCallback(
+    (demo: NormalizedDemo) => {
+      if (demo.isLegacy) return undefined;
+      return (
+        <div className="flex items-center gap-2">
+          {demo.isPublic && demo.publicToken && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const shareUrl = `${window.location.origin}/s/${demo.publicToken}`;
+                void navigator.clipboard.writeText(shareUrl);
+                toast.success("Share link copied!");
+              }}
+              className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-white/10"
+              style={{ borderColor: "rgba(212, 175, 55, 0.3)", color: "#D4AF37" }}
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              Share
+            </button>
+          )}
+          <AdminActionMenu actions={getDemoActions(demo)} />
+        </div>
+      );
+    },
+    [getDemoActions]
+  );
+
   // Clear all filters
   const clearFilters = () => {
     setSearchQuery("");
@@ -518,11 +546,7 @@ export default function PortalDemosPage({
                               )}
                             </>
                           }
-                          actions={
-                            !demo.isLegacy ? (
-                              <AdminActionMenu actions={getDemoActions(demo)} />
-                            ) : undefined
-                          }
+                          actions={renderDemoActions(demo)}
                         />
                       </div>
                     ))}
@@ -553,11 +577,7 @@ export default function PortalDemosPage({
                       )}
                     </>
                   }
-                  actions={
-                    !demo.isLegacy ? (
-                      <AdminActionMenu actions={getDemoActions(demo)} />
-                    ) : undefined
-                  }
+                  actions={renderDemoActions(demo)}
                 />
               ))}
         </ListContainer>
