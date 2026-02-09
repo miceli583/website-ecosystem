@@ -94,14 +94,25 @@ export async function getMercuryAccount(accountId: string): Promise<MercuryAccou
  * @param accountId - Mercury account ID
  * @param limit - Number of transactions (default 100)
  * @param offset - Pagination offset
+ * @param start - Start date filter (YYYY-MM-DD)
+ * @param end - End date filter (YYYY-MM-DD)
  */
 export async function getMercuryTransactions(
   accountId: string,
   limit = 100,
-  offset = 0
+  offset = 0,
+  start?: string,
+  end?: string
 ): Promise<MercuryTransaction[]> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  if (start) params.set("start", start);
+  if (end) params.set("end", end);
+
   const data = await mercuryFetch<MercuryTransactionsResponse>(
-    `/account/${accountId}/transactions?limit=${limit}&offset=${offset}`
+    `/account/${accountId}/transactions?${params.toString()}`
   );
   return data?.transactions ?? [];
 }

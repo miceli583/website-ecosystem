@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, unique, serial, integer, boolean, uuid, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, unique, serial, integer, boolean, uuid, jsonb, date } from "drizzle-orm/pg-core";
 
 // ============================================================================
 // DAILY VALUE POST AUTOMATION TABLES
@@ -176,6 +176,61 @@ export const customers = pgTable("customers", {
 });
 
 // ============================================================================
+// FINANCE / EXPENSE TRACKING
+// ============================================================================
+
+/**
+ * Expense Categories - IRS Schedule C aligned categories
+ * Seeded via admin mutation, used for both manual expenses and Mercury tx categorization
+ */
+export const expenseCategories = pgTable("expense_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  irsCategory: text("irs_category"), // Schedule C line reference
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Expenses - Manual expense entries
+ * Amounts stored in cents for consistency with Stripe
+ */
+export const expenses = pgTable("expenses", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id")
+    .notNull()
+    .references(() => expenseCategories.id, { onDelete: "restrict" }),
+  amount: integer("amount").notNull(), // cents
+  vendor: text("vendor").notNull(),
+  description: text("description"),
+  date: date("date").notNull(),
+  isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
+  receiptUrl: text("receipt_url"),
+  createdByAuthId: uuid("created_by_auth_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Mercury Transaction Categories - Category overlay for Mercury transactions
+ * Links Mercury transaction IDs to expense categories for reporting
+ */
+export const mercuryTransactionCategories = pgTable("mercury_transaction_categories", {
+  id: serial("id").primaryKey(),
+  mercuryTransactionId: text("mercury_transaction_id").notNull().unique(),
+  categoryId: integer("category_id")
+    .notNull()
+    .references(() => expenseCategories.id, { onDelete: "restrict" }),
+  isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ============================================================================
 // CLIENT PORTAL / CRM
 // ============================================================================
 
@@ -292,6 +347,10 @@ export const clientResources = pgTable("client_resources", {
 
   // Flexible metadata for type-specific data
   metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
+
+  // Public sharing
+  isPublic: boolean("is_public").default(false),
+  publicToken: text("public_token").unique(),
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -613,6 +672,31 @@ export const personalContactSubmissionsRelations = relations(
   })
 );
 
+export const expenseCategoriesRelations = relations(
+  expenseCategories,
+  ({ many }) => ({
+    expenses: many(expenses),
+    mercuryTransactionCategories: many(mercuryTransactionCategories),
+  })
+);
+
+export const expensesRelations = relations(expenses, ({ one }) => ({
+  category: one(expenseCategories, {
+    fields: [expenses.categoryId],
+    references: [expenseCategories.id],
+  }),
+}));
+
+export const mercuryTransactionCategoriesRelations = relations(
+  mercuryTransactionCategories,
+  ({ one }) => ({
+    category: one(expenseCategories, {
+      fields: [mercuryTransactionCategories.categoryId],
+      references: [expenseCategories.id],
+    }),
+  })
+);
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
@@ -670,3 +754,12 @@ export type NewMasterCrm = typeof masterCrm.$inferInsert;
 
 export type PersonalContactSubmission = typeof personalContactSubmissions.$inferSelect;
 export type NewPersonalContactSubmission = typeof personalContactSubmissions.$inferInsert;
+
+export type ExpenseCategory = typeof expenseCategories.$inferSelect;
+export type NewExpenseCategory = typeof expenseCategories.$inferInsert;
+
+export type Expense = typeof expenses.$inferSelect;
+export type NewExpense = typeof expenses.$inferInsert;
+
+export type MercuryTransactionCategory = typeof mercuryTransactionCategories.$inferSelect;
+export type NewMercuryTransactionCategory = typeof mercuryTransactionCategories.$inferInsert;

@@ -59,6 +59,8 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
       { title: "Overview", href: "/admin/finance" },
       { title: "Revenue", href: "/admin/finance/revenue" },
       { title: "Expenses", href: "/admin/finance/expenses" },
+      { title: "Yearly Review", href: "/admin/finance/yearly" },
+      { title: "Tax & Deductions", href: "/admin/finance/tax" },
     ],
   },
   {

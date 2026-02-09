@@ -10,6 +10,8 @@ import {
   ExternalLink,
   Landmark,
   AlertCircle,
+  Calendar,
+  Shield,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -238,6 +240,50 @@ export default function FinancePage() {
               <div>
                 <h3 className="font-semibold text-white">Expenses</h3>
                 <p className="text-sm text-gray-400">Bank transactions & costs</p>
+              </div>
+            </div>
+            <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/finance/yearly"
+          className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
+              >
+                <Calendar className="h-5 w-5" style={{ color: "#D4AF37" }} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Yearly Review</h3>
+                <p className="text-sm text-gray-400">P&L, breakdown & YoY comparison</p>
+              </div>
+            </div>
+            <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/finance/tax"
+          className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
+              >
+                <Shield className="h-5 w-5" style={{ color: "#D4AF37" }} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Tax & Deductions</h3>
+                <p className="text-sm text-gray-400">IRS categories & CSV export</p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />

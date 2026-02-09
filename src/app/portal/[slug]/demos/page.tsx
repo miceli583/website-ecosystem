@@ -27,7 +27,7 @@ import {
   type AdminAction,
   useTabFilters,
 } from "~/components/portal";
-import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye } from "lucide-react";
+import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye, Share2, EyeOff, Link2, Globe } from "lucide-react";
 
 interface NormalizedDemo {
   id: string;
@@ -41,6 +41,8 @@ interface NormalizedDemo {
   isActive: boolean;
   underDevelopment: boolean;
   isLegacy: boolean;
+  isPublic: boolean;
+  publicToken: string | null;
 }
 
 export default function PortalDemosPage({
@@ -92,6 +94,18 @@ export default function PortalDemosPage({
     onSuccess: () => {
       toast.success("Project created");
       void utils.portal.getProjects.invalidate();
+    },
+  });
+  const togglePublic = api.portal.toggleDemoPublic.useMutation({
+    onSuccess: (data) => {
+      if (data.isPublic && data.publicToken) {
+        const shareUrl = `${window.location.origin}/s/${data.publicToken}`;
+        void navigator.clipboard.writeText(shareUrl);
+        toast.success("Demo is now public. Share link copied!");
+      } else {
+        toast.success("Demo is now private");
+      }
+      void utils.portal.getResources.invalidate();
     },
   });
 
@@ -165,6 +179,8 @@ export default function PortalDemosPage({
         isActive: r.isActive ?? true,
         underDevelopment: r.underDevelopment ?? false,
         isLegacy: false,
+        isPublic: r.isPublic ?? false,
+        publicToken: r.publicToken ?? null,
       });
     });
 
@@ -181,6 +197,8 @@ export default function PortalDemosPage({
         isActive: true,
         underDevelopment: false,
         isLegacy: true,
+        isPublic: false,
+        publicToken: null,
       });
     });
 
@@ -311,34 +329,61 @@ export default function PortalDemosPage({
     [updateResource]
   );
 
-  const getAdminActions = useCallback(
+  const getDemoActions = useCallback(
     (demo: NormalizedDemo): AdminAction[] => {
       if (demo.isLegacy) return [];
-      return [
-        {
-          label: demo.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
-          icon: demo.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
-          onClick: () => handleToggleUnderDevelopment(demo),
-        },
-        {
-          label: demo.isActive ? "Archive" : "Unarchive",
-          icon: demo.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
-          onClick: () => handleArchive(demo),
-        },
-        {
-          label: "Assign to Project",
-          icon: <FolderOpen className="h-4 w-4" />,
-          onClick: () => setAssignDialog({ open: true, demo }),
-        },
-        {
-          label: "Delete",
-          icon: <Trash2 className="h-4 w-4" />,
-          onClick: () => setDeleteDialog({ open: true, demo }),
-          variant: "danger" as const,
-        },
-      ];
+      const actions: AdminAction[] = [];
+
+      // Sharing actions — available to both admin and client
+      if (demo.resourceId) {
+        actions.push({
+          label: demo.isPublic ? "Make Private" : "Make Public",
+          icon: demo.isPublic ? <EyeOff className="h-4 w-4" /> : <Share2 className="h-4 w-4" />,
+          onClick: () => togglePublic.mutate({ resourceId: demo.resourceId!, isPublic: !demo.isPublic }),
+        });
+        if (demo.isPublic && demo.publicToken) {
+          actions.push({
+            label: "Copy Share Link",
+            icon: <Link2 className="h-4 w-4" />,
+            onClick: () => {
+              const shareUrl = `${window.location.origin}/s/${demo.publicToken}`;
+              void navigator.clipboard.writeText(shareUrl);
+              toast.success("Share link copied!");
+            },
+          });
+        }
+      }
+
+      // Admin-only actions
+      if (isAdmin) {
+        actions.push(
+          {
+            label: demo.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
+            icon: demo.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+            onClick: () => handleToggleUnderDevelopment(demo),
+          },
+          {
+            label: demo.isActive ? "Archive" : "Unarchive",
+            icon: demo.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+            onClick: () => handleArchive(demo),
+          },
+          {
+            label: "Assign to Project",
+            icon: <FolderOpen className="h-4 w-4" />,
+            onClick: () => setAssignDialog({ open: true, demo }),
+          },
+          {
+            label: "Delete",
+            icon: <Trash2 className="h-4 w-4" />,
+            onClick: () => setDeleteDialog({ open: true, demo }),
+            variant: "danger" as const,
+          },
+        );
+      }
+
+      return actions;
     },
-    [handleArchive, handleToggleUnderDevelopment]
+    [handleArchive, handleToggleUnderDevelopment, isAdmin, togglePublic]
   );
 
   // Clear all filters
@@ -458,16 +503,24 @@ export default function PortalDemosPage({
                           secondaryText={demo.projectName || "Unassigned"}
                           href={demo.url}
                           badge={
-                            isAdmin && demo.underDevelopment ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
-                                <Construction className="h-3 w-3" />
-                                WIP
-                              </span>
-                            ) : undefined
+                            <>
+                              {isAdmin && demo.underDevelopment && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                                  <Construction className="h-3 w-3" />
+                                  WIP
+                                </span>
+                              )}
+                              {demo.isPublic && (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: "rgba(212, 175, 55, 0.15)", color: "#D4AF37" }}>
+                                  <Globe className="h-3 w-3" />
+                                  Public
+                                </span>
+                              )}
+                            </>
                           }
                           actions={
-                            isAdmin && !demo.isLegacy ? (
-                              <AdminActionMenu actions={getAdminActions(demo)} />
+                            !demo.isLegacy ? (
+                              <AdminActionMenu actions={getDemoActions(demo)} />
                             ) : undefined
                           }
                         />
@@ -485,16 +538,24 @@ export default function PortalDemosPage({
                   secondaryText={demo.projectName || "Unassigned"}
                   href={demo.url}
                   badge={
-                    isAdmin && demo.underDevelopment ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
-                        <Construction className="h-3 w-3" />
-                        WIP
-                      </span>
-                    ) : undefined
+                    <>
+                      {isAdmin && demo.underDevelopment && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                          <Construction className="h-3 w-3" />
+                          WIP
+                        </span>
+                      )}
+                      {demo.isPublic && (
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: "rgba(212, 175, 55, 0.15)", color: "#D4AF37" }}>
+                          <Globe className="h-3 w-3" />
+                          Public
+                        </span>
+                      )}
+                    </>
                   }
                   actions={
-                    isAdmin && !demo.isLegacy ? (
-                      <AdminActionMenu actions={getAdminActions(demo)} />
+                    !demo.isLegacy ? (
+                      <AdminActionMenu actions={getDemoActions(demo)} />
                     ) : undefined
                   }
                 />

@@ -16,6 +16,7 @@ import {
 import { eq, desc, isNull, and, asc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
+import { nanoid } from "nanoid";
 
 export const portalRouter = createTRPCRouter({
   /**
@@ -177,6 +178,101 @@ export const portalRouter = createTRPCRouter({
       const canClaim = account.authUserId === null;
 
       return { exists: true, canClaim, name: account.name };
+    }),
+
+  /**
+   * Get a public demo by its share token (no auth required)
+   */
+  getPublicDemo: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ input }) => {
+      const resource = await db.query.clientResources.findFirst({
+        where: and(
+          eq(clientResources.publicToken, input.token),
+          eq(clientResources.isPublic, true),
+          eq(clientResources.isActive, true),
+        ),
+        with: {
+          client: {
+            columns: { name: true },
+          },
+        },
+      });
+
+      if (!resource) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Demo not found or no longer public",
+        });
+      }
+
+      return {
+        id: resource.id,
+        title: resource.title,
+        description: resource.description,
+        type: resource.type,
+        url: resource.url,
+        embedCode: resource.embedCode,
+        content: resource.content,
+        icon: resource.icon,
+        metadata: resource.metadata,
+        clientName: resource.client.name,
+      };
+    }),
+
+  /**
+   * Toggle a demo's public sharing status
+   * Admin can toggle any; client can only toggle their own client's resources
+   */
+  toggleDemoPublic: protectedProcedure
+    .input(z.object({ resourceId: z.number(), isPublic: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || !profile.isActive) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Portal access denied",
+        });
+      }
+
+      // Get the resource with client info
+      const resource = await db.query.clientResources.findFirst({
+        where: eq(clientResources.id, input.resourceId),
+        with: { client: true },
+      });
+
+      if (!resource) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Resource not found",
+        });
+      }
+
+      // Authorization: admin can toggle any; client only their own
+      if (profile.role === "client" && profile.clientSlug !== resource.client.slug) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only share your own demos",
+        });
+      }
+
+      // Generate token on first toggle-to-public; reuse existing token
+      const publicToken = resource.publicToken ?? (input.isPublic ? nanoid(12) : null);
+
+      const [updated] = await db
+        .update(clientResources)
+        .set({
+          isPublic: input.isPublic,
+          publicToken,
+          updatedAt: new Date(),
+        })
+        .where(eq(clientResources.id, input.resourceId))
+        .returning();
+
+      return updated!;
     }),
 
   /**

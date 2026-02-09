@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { eq, and, gte, lt, sql, desc, asc, inArray } from "drizzle-orm";
 import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { stripeLive } from "~/lib/stripe-live";
 import {
@@ -7,6 +8,125 @@ import {
   getMercuryTransactions,
   type MercuryTransaction,
 } from "~/lib/mercury";
+import {
+  expenseCategories,
+  expenses,
+  mercuryTransactionCategories,
+} from "~/server/db/schema";
+
+const IRS_CATEGORIES = [
+  { name: "Advertising & Marketing", irsCategory: "Line 8", sortOrder: 1 },
+  { name: "Car & Vehicle", irsCategory: "Line 9", sortOrder: 2 },
+  { name: "Commissions & Fees", irsCategory: "Line 10", sortOrder: 3 },
+  { name: "Contract Labor", irsCategory: "Line 11", sortOrder: 4 },
+  { name: "Insurance", irsCategory: "Line 15", sortOrder: 5 },
+  { name: "Legal & Professional", irsCategory: "Line 17", sortOrder: 6 },
+  { name: "Office Expenses", irsCategory: "Line 18", sortOrder: 7 },
+  { name: "Rent & Lease", irsCategory: "Line 20", sortOrder: 8 },
+  { name: "Software & Subscriptions", irsCategory: "Line 27a", sortOrder: 9 },
+  { name: "Meals & Entertainment", irsCategory: "Line 24b", sortOrder: 10 },
+  { name: "Travel", irsCategory: "Line 24a", sortOrder: 11 },
+  { name: "Utilities", irsCategory: "Line 25", sortOrder: 12 },
+  { name: "Education & Training", irsCategory: "Line 27a", sortOrder: 13 },
+  { name: "Bank & Finance Fees", irsCategory: "Line 27a", sortOrder: 14 },
+  { name: "Equipment & Hardware", irsCategory: "Line 13", sortOrder: 15 },
+  { name: "Taxes & Licenses", irsCategory: "Line 23", sortOrder: 16 },
+  { name: "Other", irsCategory: "Line 27a", sortOrder: 17 },
+] as const;
+
+/**
+ * Smart categorization rules: map counterparty name patterns to IRS categories.
+ * Pattern matching is case-insensitive. First match wins.
+ */
+const CATEGORIZATION_RULES: Array<{
+  pattern: RegExp;
+  categoryName: string;
+  isTaxDeductible: boolean;
+}> = [
+  // Software & Subscriptions
+  { pattern: /vercel/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /supabase/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /anthropic|claude/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /openai/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /github/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /figma/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /notion/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /slack/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /google\s*(cloud|workspace|domains)/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /aws|amazon web/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /netlify/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /heroku/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /digital\s*ocean/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /make\.com|integromat/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /zapier/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /postmark|resend|sendgrid|mailgun/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /adobe/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /canva/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /1password|lastpass|bitwarden/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  { pattern: /linear|jira|asana/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+
+  // Advertising & Marketing
+  { pattern: /namecheap|godaddy|cloudflare.*domain|porkbun/i, categoryName: "Advertising & Marketing", isTaxDeductible: true },
+  { pattern: /google\s*ads|facebook\s*ads|meta\s*ads/i, categoryName: "Advertising & Marketing", isTaxDeductible: true },
+  { pattern: /mailchimp|convertkit|beehiiv/i, categoryName: "Advertising & Marketing", isTaxDeductible: true },
+
+  // Commissions & Fees
+  { pattern: /stripe/i, categoryName: "Commissions & Fees", isTaxDeductible: true },
+  { pattern: /paypal/i, categoryName: "Commissions & Fees", isTaxDeductible: true },
+  { pattern: /square/i, categoryName: "Commissions & Fees", isTaxDeductible: true },
+
+  // Equipment & Hardware
+  { pattern: /apple|macbook|ipad|iphone/i, categoryName: "Equipment & Hardware", isTaxDeductible: true },
+  { pattern: /dell|lenovo|hp\b/i, categoryName: "Equipment & Hardware", isTaxDeductible: true },
+  { pattern: /amazon(?!\s*web)/i, categoryName: "Equipment & Hardware", isTaxDeductible: true },
+
+  // Education & Training
+  { pattern: /udemy|coursera|skillshare|linkedin\s*learning/i, categoryName: "Education & Training", isTaxDeductible: true },
+  { pattern: /conference|summit|workshop/i, categoryName: "Education & Training", isTaxDeductible: true },
+
+  // Bank & Finance Fees
+  { pattern: /mercury.*fee|bank\s*fee|wire\s*fee/i, categoryName: "Bank & Finance Fees", isTaxDeductible: true },
+
+  // Meals & Entertainment
+  { pattern: /uber\s*eats|doordash|grubhub/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+
+  // Travel
+  { pattern: /uber(?!\s*eats)|lyft/i, categoryName: "Travel", isTaxDeductible: true },
+  { pattern: /airbnb|hotel|airline|delta|united|american\s*air/i, categoryName: "Travel", isTaxDeductible: true },
+
+  // Utilities
+  { pattern: /comcast|xfinity|verizon|at&t|t-?mobile/i, categoryName: "Utilities", isTaxDeductible: true },
+
+  // Insurance
+  { pattern: /insurance|policy/i, categoryName: "Insurance", isTaxDeductible: true },
+
+  // Legal & Professional
+  { pattern: /attorney|law\s*firm|legal|accountant|cpa/i, categoryName: "Legal & Professional", isTaxDeductible: true },
+
+  // Contract Labor
+  { pattern: /fiverr|upwork|toptal|freelanc/i, categoryName: "Contract Labor", isTaxDeductible: true },
+
+  // Rent & Lease
+  { pattern: /wework|co-?working|regus/i, categoryName: "Rent & Lease", isTaxDeductible: true },
+
+  // Taxes & Licenses
+  { pattern: /irs|tax\s*payment|state\s*tax|license\s*fee/i, categoryName: "Taxes & Licenses", isTaxDeductible: false },
+];
+
+function suggestCategory(
+  counterparty: string | null,
+  description: string | null
+): { categoryName: string; isTaxDeductible: boolean } | null {
+  const text = [counterparty, description].filter(Boolean).join(" ");
+  if (!text) return null;
+
+  for (const rule of CATEGORIZATION_RULES) {
+    if (rule.pattern.test(text)) {
+      return { categoryName: rule.categoryName, isTaxDeductible: rule.isTaxDeductible };
+    }
+  }
+  return null;
+}
 
 /**
  * Finance Router
@@ -15,8 +135,13 @@ import {
  * Uses:
  * - Stripe Live (read-only) for revenue data
  * - Mercury API for bank account data
+ * - Local DB for expense tracking & categorization
  */
 export const financeRouter = createTRPCRouter({
+  // =========================================================================
+  // STRIPE / REVENUE (existing)
+  // =========================================================================
+
   /**
    * Get Stripe revenue overview
    * MRR, total revenue, subscription counts
@@ -159,6 +284,10 @@ export const financeRouter = createTRPCRouter({
       };
     }
   }),
+
+  // =========================================================================
+  // MERCURY / BANKING (existing)
+  // =========================================================================
 
   /**
    * Get Mercury bank account balances
@@ -317,4 +446,948 @@ export const financeRouter = createTRPCRouter({
           },
     };
   }),
+
+  // =========================================================================
+  // EXPENSE CATEGORIES
+  // =========================================================================
+
+  getExpenseCategories: adminProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select()
+      .from(expenseCategories)
+      .where(eq(expenseCategories.isActive, true))
+      .orderBy(asc(expenseCategories.sortOrder));
+  }),
+
+  seedExpenseCategories: adminProcedure.mutation(async ({ ctx }) => {
+    let upserted = 0;
+    for (const cat of IRS_CATEGORIES) {
+      await ctx.db
+        .insert(expenseCategories)
+        .values({
+          name: cat.name,
+          irsCategory: cat.irsCategory,
+          sortOrder: cat.sortOrder,
+        })
+        .onConflictDoUpdate({
+          target: expenseCategories.name,
+          set: {
+            irsCategory: cat.irsCategory,
+            sortOrder: cat.sortOrder,
+            updatedAt: new Date(),
+          },
+        });
+      upserted++;
+    }
+    return { upserted };
+  }),
+
+  // =========================================================================
+  // MANUAL EXPENSES CRUD
+  // =========================================================================
+
+  createExpense: adminProcedure
+    .input(
+      z.object({
+        categoryId: z.number(),
+        amount: z.number().int().positive(), // cents
+        vendor: z.string().min(1),
+        description: z.string().optional(),
+        date: z.string(), // YYYY-MM-DD
+        isTaxDeductible: z.boolean().default(false),
+        receiptUrl: z.string().url().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [expense] = await ctx.db
+        .insert(expenses)
+        .values({
+          categoryId: input.categoryId,
+          amount: input.amount,
+          vendor: input.vendor,
+          description: input.description,
+          date: input.date,
+          isTaxDeductible: input.isTaxDeductible,
+          receiptUrl: input.receiptUrl,
+          createdByAuthId: ctx.user.id,
+        })
+        .returning();
+      return expense;
+    }),
+
+  updateExpense: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        categoryId: z.number().optional(),
+        amount: z.number().int().positive().optional(),
+        vendor: z.string().min(1).optional(),
+        description: z.string().optional(),
+        date: z.string().optional(),
+        isTaxDeductible: z.boolean().optional(),
+        receiptUrl: z.string().url().nullish(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...updates } = input;
+      const [expense] = await ctx.db
+        .update(expenses)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(expenses.id, id))
+        .returning();
+      return expense;
+    }),
+
+  deleteExpense: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(expenses).where(eq(expenses.id, input.id));
+      return { success: true };
+    }),
+
+  getExpenses: adminProcedure
+    .input(
+      z.object({
+        year: z.number().optional(),
+        month: z.number().min(1).max(12).optional(),
+        categoryId: z.number().optional(),
+        search: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [];
+
+      if (input.year) {
+        const startDate = `${input.year}-01-01`;
+        const endDate = `${input.year + 1}-01-01`;
+        conditions.push(gte(expenses.date, startDate));
+        conditions.push(lt(expenses.date, endDate));
+      }
+
+      if (input.month && input.year) {
+        const startDate = `${input.year}-${String(input.month).padStart(2, "0")}-01`;
+        const endMonth = input.month === 12 ? 1 : input.month + 1;
+        const endYear = input.month === 12 ? input.year + 1 : input.year;
+        const endDate = `${endYear}-${String(endMonth).padStart(2, "0")}-01`;
+        // Override the year conditions with more specific month conditions
+        conditions.length = 0;
+        conditions.push(gte(expenses.date, startDate));
+        conditions.push(lt(expenses.date, endDate));
+      }
+
+      if (input.categoryId) {
+        conditions.push(eq(expenses.categoryId, input.categoryId));
+      }
+
+      if (input.search) {
+        conditions.push(
+          sql`(${expenses.vendor} ILIKE ${"%" + input.search + "%"} OR ${expenses.description} ILIKE ${"%" + input.search + "%"})`
+        );
+      }
+
+      const rows = await ctx.db
+        .select({
+          id: expenses.id,
+          categoryId: expenses.categoryId,
+          categoryName: expenseCategories.name,
+          amount: expenses.amount,
+          vendor: expenses.vendor,
+          description: expenses.description,
+          date: expenses.date,
+          isTaxDeductible: expenses.isTaxDeductible,
+          receiptUrl: expenses.receiptUrl,
+          createdAt: expenses.createdAt,
+        })
+        .from(expenses)
+        .leftJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(expenses.date));
+
+      return rows;
+    }),
+
+  // =========================================================================
+  // MERCURY TRANSACTION CATEGORIZATION
+  // =========================================================================
+
+  categorizeMercuryTransaction: adminProcedure
+    .input(
+      z.object({
+        mercuryTransactionId: z.string(),
+        categoryId: z.number(),
+        isTaxDeductible: z.boolean().default(false),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [result] = await ctx.db
+        .insert(mercuryTransactionCategories)
+        .values({
+          mercuryTransactionId: input.mercuryTransactionId,
+          categoryId: input.categoryId,
+          isTaxDeductible: input.isTaxDeductible,
+          notes: input.notes,
+        })
+        .onConflictDoUpdate({
+          target: mercuryTransactionCategories.mercuryTransactionId,
+          set: {
+            categoryId: input.categoryId,
+            isTaxDeductible: input.isTaxDeductible,
+            notes: input.notes,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return result;
+    }),
+
+  getMercuryTransactionCategories: adminProcedure
+    .input(z.object({ transactionIds: z.array(z.string()) }))
+    .query(async ({ ctx, input }) => {
+      if (input.transactionIds.length === 0) return [];
+
+      return ctx.db
+        .select({
+          id: mercuryTransactionCategories.id,
+          mercuryTransactionId: mercuryTransactionCategories.mercuryTransactionId,
+          categoryId: mercuryTransactionCategories.categoryId,
+          categoryName: expenseCategories.name,
+          isTaxDeductible: mercuryTransactionCategories.isTaxDeductible,
+          notes: mercuryTransactionCategories.notes,
+        })
+        .from(mercuryTransactionCategories)
+        .leftJoin(
+          expenseCategories,
+          eq(mercuryTransactionCategories.categoryId, expenseCategories.id)
+        )
+        .where(
+          inArray(
+            mercuryTransactionCategories.mercuryTransactionId,
+            input.transactionIds
+          )
+        );
+    }),
+
+  /**
+   * Auto-categorize uncategorized Mercury transactions using smart pattern matching.
+   * Returns suggestions for review, or applies them directly if confirmed.
+   */
+  autoCategorizeMercuryTransactions: adminProcedure
+    .input(
+      z.object({
+        accountId: z.string().optional(),
+        apply: z.boolean().default(false),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const accounts = await getMercuryAccounts();
+      if (accounts.length === 0) {
+        return { suggestions: [], applied: 0, skipped: 0 };
+      }
+
+      const accountId = input.accountId ?? accounts[0]!.id;
+      const txs = await getMercuryTransactions(accountId, 500);
+      const outflows = txs.filter((t) => t.amount < 0);
+
+      // Get existing categorizations
+      const txIds = outflows.map((t) => t.id);
+      const existing =
+        txIds.length > 0
+          ? await ctx.db
+              .select({
+                mercuryTransactionId:
+                  mercuryTransactionCategories.mercuryTransactionId,
+              })
+              .from(mercuryTransactionCategories)
+              .where(
+                inArray(
+                  mercuryTransactionCategories.mercuryTransactionId,
+                  txIds
+                )
+              )
+          : [];
+      const alreadyCategorized = new Set(
+        existing.map((e: { mercuryTransactionId: string }) => e.mercuryTransactionId)
+      );
+
+      // Get category name → id mapping
+      const allCategories = await ctx.db
+        .select({ id: expenseCategories.id, name: expenseCategories.name })
+        .from(expenseCategories)
+        .where(eq(expenseCategories.isActive, true));
+      const catNameToId = new Map(allCategories.map((c: { name: string; id: number }) => [c.name, c.id]));
+
+      const suggestions: Array<{
+        transactionId: string;
+        counterparty: string | null;
+        description: string | null;
+        amount: number;
+        suggestedCategory: string;
+        isTaxDeductible: boolean;
+        date: string | null;
+      }> = [];
+
+      let applied = 0;
+      let skipped = 0;
+
+      for (const tx of outflows) {
+        if (alreadyCategorized.has(tx.id)) {
+          skipped++;
+          continue;
+        }
+
+        const suggestion = suggestCategory(
+          tx.counterpartyName,
+          tx.bankDescription
+        );
+        if (!suggestion) continue;
+
+        const categoryId = catNameToId.get(suggestion.categoryName);
+        if (!categoryId) continue;
+
+        suggestions.push({
+          transactionId: tx.id,
+          counterparty: tx.counterpartyName,
+          description: tx.bankDescription,
+          amount: tx.amount,
+          suggestedCategory: suggestion.categoryName,
+          isTaxDeductible: suggestion.isTaxDeductible,
+          date: tx.postedAt ?? tx.createdAt,
+        });
+
+        if (input.apply) {
+          await ctx.db
+            .insert(mercuryTransactionCategories)
+            .values({
+              mercuryTransactionId: tx.id,
+              categoryId,
+              isTaxDeductible: suggestion.isTaxDeductible,
+              notes: `Auto-categorized: ${tx.counterpartyName ?? tx.bankDescription ?? "unknown"}`,
+            })
+            .onConflictDoNothing();
+          applied++;
+        }
+      }
+
+      return { suggestions, applied, skipped };
+    }),
+
+  // =========================================================================
+  // YEARLY REVIEW / P&L
+  // =========================================================================
+
+  getYearlyRevenue: adminProcedure
+    .input(z.object({ year: z.number() }))
+    .query(async ({ input }) => {
+      if (!stripeLive) {
+        return { connected: false, months: [], total: 0 };
+      }
+
+      try {
+        const startTs = Math.floor(new Date(input.year, 0, 1).getTime() / 1000);
+        const endTs = Math.floor(new Date(input.year + 1, 0, 1).getTime() / 1000);
+
+        // Fetch all charges for the year (paginate if needed)
+        let allCharges: Array<{ amount: number; created: number }> = [];
+        let hasMore = true;
+        let startingAfter: string | undefined;
+
+        while (hasMore) {
+          const params: Record<string, unknown> = {
+            limit: 100,
+            created: { gte: startTs, lt: endTs },
+          };
+          if (startingAfter) params.starting_after = startingAfter;
+
+          const charges = await stripeLive.charges.list(
+            params as Parameters<typeof stripeLive.charges.list>[0]
+          );
+
+          const successful = charges.data
+            .filter((c) => c.status === "succeeded")
+            .map((c) => ({ amount: c.amount, created: c.created }));
+
+          allCharges = [...allCharges, ...successful];
+          hasMore = charges.has_more;
+          if (charges.data.length > 0) {
+            startingAfter = charges.data[charges.data.length - 1]!.id;
+          }
+        }
+
+        // Group by month
+        const months = Array.from({ length: 12 }, (_, i) => ({
+          month: i + 1,
+          revenue: 0,
+        }));
+
+        for (const charge of allCharges) {
+          const d = new Date(charge.created * 1000);
+          const monthIdx = d.getMonth();
+          months[monthIdx]!.revenue += charge.amount;
+        }
+
+        const total = allCharges.reduce((sum, c) => sum + c.amount, 0);
+
+        return { connected: true, months, total };
+      } catch (error) {
+        console.error("Yearly revenue error:", error);
+        return { connected: false, months: [], total: 0 };
+      }
+    }),
+
+  getYearlyExpenses: adminProcedure
+    .input(z.object({ year: z.number() }))
+    .query(async ({ ctx, input }) => {
+      // Manual expenses from DB
+      const startDate = `${input.year}-01-01`;
+      const endDate = `${input.year + 1}-01-01`;
+
+      const manualExpenses = await ctx.db
+        .select({
+          amount: expenses.amount,
+          date: expenses.date,
+          categoryId: expenses.categoryId,
+          categoryName: expenseCategories.name,
+        })
+        .from(expenses)
+        .leftJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
+        .where(and(gte(expenses.date, startDate), lt(expenses.date, endDate)));
+
+      // Group manual by month and category
+      const months = Array.from({ length: 12 }, (_, i) => ({
+        month: i + 1,
+        expenses: 0,
+      }));
+
+      const categoryTotals: Record<string, { name: string; total: number }> = {};
+
+      for (const exp of manualExpenses) {
+        const d = new Date(exp.date);
+        const monthIdx = d.getMonth();
+        months[monthIdx]!.expenses += exp.amount;
+
+        const catName = exp.categoryName ?? "Uncategorized";
+        if (!categoryTotals[catName]) {
+          categoryTotals[catName] = { name: catName, total: 0 };
+        }
+        categoryTotals[catName].total += exp.amount;
+      }
+
+      // Mercury transactions (negative = outflow = expense)
+      try {
+        const accounts = await getMercuryAccounts();
+        if (accounts.length > 0) {
+          const accountId = accounts[0]!.id;
+          const txs = await getMercuryTransactions(
+            accountId,
+            500,
+            0,
+            startDate,
+            endDate
+          );
+
+          // Get categorizations for Mercury transactions
+          const txIds = txs.map((t) => t.id);
+          const categorizations =
+            txIds.length > 0
+              ? await ctx.db
+                  .select({
+                    mercuryTransactionId:
+                      mercuryTransactionCategories.mercuryTransactionId,
+                    categoryName: expenseCategories.name,
+                  })
+                  .from(mercuryTransactionCategories)
+                  .leftJoin(
+                    expenseCategories,
+                    eq(
+                      mercuryTransactionCategories.categoryId,
+                      expenseCategories.id
+                    )
+                  )
+                  .where(
+                    inArray(
+                      mercuryTransactionCategories.mercuryTransactionId,
+                      txIds
+                    )
+                  )
+              : [];
+
+          const catMap = new Map<string, string | null>(
+            categorizations.map((c: { mercuryTransactionId: string; categoryName: string | null }) => [c.mercuryTransactionId, c.categoryName])
+          );
+
+          for (const tx of txs) {
+            if (tx.amount >= 0) continue; // skip inflows
+            // Only count officially categorized Mercury transactions
+            const catName = catMap.get(tx.id);
+            if (!catName) continue;
+
+            const amountCents = Math.round(Math.abs(tx.amount) * 100);
+            const posted = tx.postedAt ?? tx.createdAt;
+            if (!posted) continue;
+            const d = new Date(posted);
+            const monthIdx = d.getMonth();
+            months[monthIdx]!.expenses += amountCents;
+
+            if (!categoryTotals[catName]) {
+              categoryTotals[catName] = { name: catName, total: 0 };
+            }
+            categoryTotals[catName]!.total += amountCents;
+          }
+        }
+      } catch {
+        // Mercury not connected, skip
+      }
+
+      const total = months.reduce((sum, m) => sum + m.expenses, 0);
+      const byCategory = Object.values(categoryTotals).sort(
+        (a, b) => b.total - a.total
+      );
+
+      return { months, total, byCategory };
+    }),
+
+  getYearlyProfitLoss: adminProcedure
+    .input(
+      z.object({
+        year: z.number(),
+        comparisonYear: z.number().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      // Use the caller-accessible procedures via direct logic
+      // (can't call self, so we duplicate the fetch logic inline)
+
+      // --- Revenue ---
+      let revenueMonths = Array.from({ length: 12 }, (_, i) => ({
+        month: i + 1,
+        revenue: 0,
+      }));
+      let totalRevenue = 0;
+
+      if (stripeLive) {
+        try {
+          const startTs = Math.floor(
+            new Date(input.year, 0, 1).getTime() / 1000
+          );
+          const endTs = Math.floor(
+            new Date(input.year + 1, 0, 1).getTime() / 1000
+          );
+
+          let allCharges: Array<{ amount: number; created: number }> = [];
+          let hasMore = true;
+          let startingAfter: string | undefined;
+
+          while (hasMore) {
+            const params: Record<string, unknown> = {
+              limit: 100,
+              created: { gte: startTs, lt: endTs },
+            };
+            if (startingAfter) params.starting_after = startingAfter;
+
+            const charges = await stripeLive.charges.list(
+              params as Parameters<typeof stripeLive.charges.list>[0]
+            );
+
+            const successful = charges.data
+              .filter((c) => c.status === "succeeded")
+              .map((c) => ({ amount: c.amount, created: c.created }));
+
+            allCharges = [...allCharges, ...successful];
+            hasMore = charges.has_more;
+            if (charges.data.length > 0) {
+              startingAfter = charges.data[charges.data.length - 1]!.id;
+            }
+          }
+
+          for (const charge of allCharges) {
+            const d = new Date(charge.created * 1000);
+            revenueMonths[d.getMonth()]!.revenue += charge.amount;
+          }
+
+          totalRevenue = allCharges.reduce((sum, c) => sum + c.amount, 0);
+        } catch {
+          // Stripe not available
+        }
+      }
+
+      // --- Expenses ---
+      const startDate = `${input.year}-01-01`;
+      const endDate = `${input.year + 1}-01-01`;
+
+      const manualExpenses = await ctx.db
+        .select({ amount: expenses.amount, date: expenses.date })
+        .from(expenses)
+        .where(and(gte(expenses.date, startDate), lt(expenses.date, endDate)));
+
+      const expenseMonths = Array.from({ length: 12 }, (_, i) => ({
+        month: i + 1,
+        expenses: 0,
+      }));
+
+      for (const exp of manualExpenses) {
+        const d = new Date(exp.date);
+        expenseMonths[d.getMonth()]!.expenses += exp.amount;
+      }
+
+      // Mercury expenses — only categorized transactions count as official expenses
+      try {
+        const accounts = await getMercuryAccounts();
+        if (accounts.length > 0) {
+          const txs = await getMercuryTransactions(
+            accounts[0]!.id,
+            500,
+            0,
+            startDate,
+            endDate
+          );
+
+          // Only include categorized Mercury transactions
+          const txIds = txs.filter((t) => t.amount < 0).map((t) => t.id);
+          const categorized =
+            txIds.length > 0
+              ? await ctx.db
+                  .select({
+                    mercuryTransactionId:
+                      mercuryTransactionCategories.mercuryTransactionId,
+                  })
+                  .from(mercuryTransactionCategories)
+                  .where(
+                    inArray(
+                      mercuryTransactionCategories.mercuryTransactionId,
+                      txIds
+                    )
+                  )
+              : [];
+          const categorizedIds = new Set(
+            categorized.map((c: { mercuryTransactionId: string }) => c.mercuryTransactionId)
+          );
+
+          for (const tx of txs) {
+            if (tx.amount >= 0) continue;
+            if (!categorizedIds.has(tx.id)) continue;
+            const posted = tx.postedAt ?? tx.createdAt;
+            if (!posted) continue;
+            const d = new Date(posted);
+            const amountCents = Math.round(Math.abs(tx.amount) * 100);
+            expenseMonths[d.getMonth()]!.expenses += amountCents;
+          }
+        }
+      } catch {
+        // Mercury not connected
+      }
+
+      const totalExpenses = expenseMonths.reduce(
+        (sum, m) => sum + m.expenses,
+        0
+      );
+
+      // --- Deductions ---
+      const deductibleExpenses = await ctx.db
+        .select({ amount: expenses.amount })
+        .from(expenses)
+        .where(
+          and(
+            gte(expenses.date, startDate),
+            lt(expenses.date, endDate),
+            eq(expenses.isTaxDeductible, true)
+          )
+        );
+
+      const totalDeductions = deductibleExpenses.reduce(
+        (sum: number, e: { amount: number }) => sum + e.amount,
+        0
+      );
+
+      // Combine into monthly P&L
+      const months = Array.from({ length: 12 }, (_, i) => {
+        const rev = revenueMonths[i]!.revenue;
+        const exp = expenseMonths[i]!.expenses;
+        const net = rev - exp;
+        return {
+          month: i + 1,
+          revenue: rev,
+          expenses: exp,
+          net,
+          margin: rev > 0 ? Math.round((net / rev) * 100) : 0,
+        };
+      });
+
+      // --- Comparison year (optional) ---
+      let comparison: {
+        revenue: number;
+        expenses: number;
+        profit: number;
+      } | null = null;
+
+      if (input.comparisonYear) {
+        let compRevenue = 0;
+        let compExpenses = 0;
+
+        if (stripeLive) {
+          try {
+            const cStartTs = Math.floor(
+              new Date(input.comparisonYear, 0, 1).getTime() / 1000
+            );
+            const cEndTs = Math.floor(
+              new Date(input.comparisonYear + 1, 0, 1).getTime() / 1000
+            );
+
+            const charges = await stripeLive.charges.list({
+              limit: 100,
+              created: { gte: cStartTs, lt: cEndTs },
+            } as Parameters<typeof stripeLive.charges.list>[0]);
+
+            compRevenue = charges.data
+              .filter((c) => c.status === "succeeded")
+              .reduce((sum, c) => sum + c.amount, 0);
+          } catch {
+            // skip
+          }
+        }
+
+        const cStartDate = `${input.comparisonYear}-01-01`;
+        const cEndDate = `${input.comparisonYear + 1}-01-01`;
+
+        const cExpenses = await ctx.db
+          .select({ amount: expenses.amount })
+          .from(expenses)
+          .where(
+            and(gte(expenses.date, cStartDate), lt(expenses.date, cEndDate))
+          );
+
+        compExpenses = cExpenses.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
+
+        comparison = {
+          revenue: compRevenue,
+          expenses: compExpenses,
+          profit: compRevenue - compExpenses,
+        };
+      }
+
+      return {
+        months,
+        totalRevenue,
+        totalExpenses,
+        totalDeductions,
+        netProfit: totalRevenue - totalExpenses,
+        comparison,
+      };
+    }),
+
+  // =========================================================================
+  // TAX & DEDUCTIONS
+  // =========================================================================
+
+  getTaxSummary: adminProcedure
+    .input(z.object({ year: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const startDate = `${input.year}-01-01`;
+      const endDate = `${input.year + 1}-01-01`;
+
+      // Gross income from Stripe
+      let grossIncome = 0;
+      if (stripeLive) {
+        try {
+          const startTs = Math.floor(
+            new Date(input.year, 0, 1).getTime() / 1000
+          );
+          const endTs = Math.floor(
+            new Date(input.year + 1, 0, 1).getTime() / 1000
+          );
+
+          let hasMore = true;
+          let startingAfter: string | undefined;
+
+          while (hasMore) {
+            const params: Record<string, unknown> = {
+              limit: 100,
+              created: { gte: startTs, lt: endTs },
+            };
+            if (startingAfter) params.starting_after = startingAfter;
+
+            const charges = await stripeLive.charges.list(
+              params as Parameters<typeof stripeLive.charges.list>[0]
+            );
+
+            grossIncome += charges.data
+              .filter((c) => c.status === "succeeded")
+              .reduce((sum, c) => sum + c.amount, 0);
+
+            hasMore = charges.has_more;
+            if (charges.data.length > 0) {
+              startingAfter = charges.data[charges.data.length - 1]!.id;
+            }
+          }
+        } catch {
+          // Stripe not available
+        }
+      }
+
+      // Deductible expenses by IRS category (manual)
+      const deductibleByCategory = await ctx.db
+        .select({
+          categoryName: expenseCategories.name,
+          irsCategory: expenseCategories.irsCategory,
+          count: sql<number>`count(*)::int`,
+          total: sql<number>`sum(${expenses.amount})::int`,
+        })
+        .from(expenses)
+        .leftJoin(
+          expenseCategories,
+          eq(expenses.categoryId, expenseCategories.id)
+        )
+        .where(
+          and(
+            gte(expenses.date, startDate),
+            lt(expenses.date, endDate),
+            eq(expenses.isTaxDeductible, true)
+          )
+        )
+        .groupBy(expenseCategories.name, expenseCategories.irsCategory);
+
+      // Deductible Mercury transactions
+      const deductibleMercury = await ctx.db
+        .select({
+          categoryName: expenseCategories.name,
+          irsCategory: expenseCategories.irsCategory,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(mercuryTransactionCategories)
+        .leftJoin(
+          expenseCategories,
+          eq(
+            mercuryTransactionCategories.categoryId,
+            expenseCategories.id
+          )
+        )
+        .where(eq(mercuryTransactionCategories.isTaxDeductible, true))
+        .groupBy(expenseCategories.name, expenseCategories.irsCategory);
+
+      const totalDeductions = deductibleByCategory.reduce(
+        (sum: number, c: { total: number | null }) => sum + (c.total ?? 0),
+        0
+      );
+
+      return {
+        grossIncome,
+        totalDeductions,
+        estimatedTaxableIncome: grossIncome - totalDeductions,
+        deductibleByCategory,
+        deductibleMercuryCount: deductibleMercury.reduce(
+          (sum: number, c: { count: number }) => sum + c.count,
+          0
+        ),
+      };
+    }),
+
+  exportTaxData: adminProcedure
+    .input(z.object({ year: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const startDate = `${input.year}-01-01`;
+      const endDate = `${input.year + 1}-01-01`;
+
+      // All deductible manual expenses
+      const manualDeductible = await ctx.db
+        .select({
+          date: expenses.date,
+          vendor: expenses.vendor,
+          categoryName: expenseCategories.name,
+          amount: expenses.amount,
+          description: expenses.description,
+        })
+        .from(expenses)
+        .leftJoin(
+          expenseCategories,
+          eq(expenses.categoryId, expenseCategories.id)
+        )
+        .where(
+          and(
+            gte(expenses.date, startDate),
+            lt(expenses.date, endDate),
+            eq(expenses.isTaxDeductible, true)
+          )
+        )
+        .orderBy(asc(expenses.date));
+
+      // All deductible Mercury transaction categorizations
+      const mercuryCats = await ctx.db
+        .select({
+          mercuryTransactionId:
+            mercuryTransactionCategories.mercuryTransactionId,
+          categoryName: expenseCategories.name,
+          notes: mercuryTransactionCategories.notes,
+        })
+        .from(mercuryTransactionCategories)
+        .leftJoin(
+          expenseCategories,
+          eq(
+            mercuryTransactionCategories.categoryId,
+            expenseCategories.id
+          )
+        )
+        .where(eq(mercuryTransactionCategories.isTaxDeductible, true));
+
+      // Build export rows
+      interface TaxExportRow {
+        date: string;
+        vendor: string;
+        category: string;
+        amount: number;
+        description: string;
+        source: "Manual" | "Mercury";
+        deductible: boolean;
+      }
+
+      const rows: TaxExportRow[] = manualDeductible.map((e: { date: string; vendor: string; categoryName: string | null; amount: number; description: string | null }) => ({
+        date: e.date,
+        vendor: e.vendor,
+        category: e.categoryName ?? "Uncategorized",
+        amount: e.amount, // cents
+        description: e.description ?? "",
+        source: "Manual" as const,
+        deductible: true,
+      }));
+
+      // Get Mercury tx details for categorized transactions
+      try {
+        const accounts = await getMercuryAccounts();
+        if (accounts.length > 0 && mercuryCats.length > 0) {
+          const txs = await getMercuryTransactions(accounts[0]!.id, 500);
+          const catMap = new Map<string, { categoryName: string | null; notes: string | null }>(
+            mercuryCats.map((c: { mercuryTransactionId: string; categoryName: string | null; notes: string | null }) => [
+              c.mercuryTransactionId,
+              { categoryName: c.categoryName, notes: c.notes },
+            ])
+          );
+
+          for (const tx of txs) {
+            const cat = catMap.get(tx.id);
+            if (!cat) continue;
+            if (tx.amount >= 0) continue;
+            const posted = tx.postedAt ?? tx.createdAt;
+            if (!posted) continue;
+            const d = new Date(posted);
+            if (d.getFullYear() !== input.year) continue;
+
+            rows.push({
+              date: d.toISOString().split("T")[0]!,
+              vendor: tx.counterpartyName ?? tx.bankDescription ?? "Mercury",
+              category: cat.categoryName ?? "Uncategorized",
+              amount: Math.round(Math.abs(tx.amount) * 100),
+              description: cat.notes ?? "",
+              source: "Mercury" as const,
+              deductible: true,
+            });
+          }
+        }
+      } catch {
+        // Mercury not connected
+      }
+
+      // Sort by date
+      rows.sort((a, b) => a.date.localeCompare(b.date));
+
+      return { rows, year: input.year };
+    }),
 });

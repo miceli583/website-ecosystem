@@ -32,11 +32,14 @@ export async function middleware(request: NextRequest) {
     (hostname.includes("localhost") && searchParams.get("domain") === "live");
 
   // Only check auth for routes that ACTUALLY need it
+  // /s/* routes are public demo share links — never require auth
   const needsAuth =
-    pathname.startsWith('/admin') ||
-    pathname.startsWith('/auth/callback') ||
-    pathname.startsWith('/portal') ||
-    isPortalDomain;
+    !pathname.startsWith('/s/') && (
+      pathname.startsWith('/admin') ||
+      pathname.startsWith('/auth/callback') ||
+      pathname.startsWith('/portal') ||
+      isPortalDomain
+    );
 
   // Subdomain routing - handle admin.* subdomains
   // admin.miraclemind.dev/templates → /admin/templates?domain=dev
@@ -205,8 +208,8 @@ export async function middleware(request: NextRequest) {
 
   // Handle portal routes on miraclemind.live domain
   if (isPortalDomain) {
-    // Allow public access to login page (root of portal domain)
-    if (pathname === "/" || pathname === "/portal/set-password") {
+    // Allow public access to login page, set-password, and shared demo links
+    if (pathname === "/" || pathname === "/portal/set-password" || pathname.startsWith("/s/")) {
       return supabaseResponse;
     }
 
