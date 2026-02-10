@@ -14,15 +14,12 @@
 
 - [x] Remove Matt M test profile from portal and login
 - [x] Add collaborative notes tab (admin + client can both edit/view, multiple notes)
-- [ ] Stress test portal flows (manual QA — checklist printed)
-- [ ] Research device-independent magic links (Supabase auth) — tabled
 
 ## Session 3 — Branding & Polish (DONE)
 
 - [x] Portal branding consistency — standardized demo hubs, gold accent colors
 - [x] Admin login page rebranded to gold/black Miracle Mind theme
 - [x] Proposal spacing and markdown rendering improved
-- [ ] Image carousel (continuous sliding) for matthewmiceli.com — deprioritized
 
 ## Session 4+ — Admin Overhaul (Phased)
 
@@ -84,6 +81,9 @@
 - [ ] Site efficiency improvements (caching, queries)
 - [ ] Page templating architecture
 - [ ] Shader creation skill
+- [ ] Image carousel (continuous sliding) for matthewmiceli.com
+- [ ] Research device-independent magic links (Supabase auth)
+- [ ] Stress test portal flows (manual QA — checklist in docs/)
 
 ## Low Priority
 

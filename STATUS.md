@@ -36,11 +36,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
-| Feb 09 | (uncommitted) | Finance: smart auto-categorize, official expense tracking, Mercury date filtering |
-| Feb 09 | (uncommitted) | Demo sharing: 4 missing slide sub-demo components created |
-| Feb 09 | (uncommitted) | Framework: Long Plan Context Management protocol added (v1.15.0) |
+| Feb 09 | dd65b40 | Finance overhaul: fix tax deductions, fuzzy auto-categorize, aggregate summary, optimistic UI |
+| Feb 09 | 957044c | Fix public demo sharing: metadata, caching, share button, fallback |
+| Feb 09 | 6e02cb5 | Finance expense tracking, smart categorization, public demo sharing, slide sub-demos |
 | Feb 05 | f082ccd | CRM contact detail, organization/team management, account managers |
 | Feb 05 | 7e58bf9 | Finance UI wiring, analytics dashboard, CRM system |
-| Feb 05 | 13e3cd5 | Finance tRPC router, Stripe Live + Mercury API clients |
 
 _Older changes: `git log --oneline`_
