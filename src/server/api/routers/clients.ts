@@ -31,12 +31,16 @@ export const clientsRouter = createTRPCRouter({
     return [...all].sort();
   }),
 
-  // List all clients
+  // List all clients with CRM contact + account manager
   list: protectedProcedure.query(async () => {
     return db.query.clients.findMany({
       orderBy: [desc(clients.createdAt)],
       with: {
         projects: true,
+        crmContact: true,
+        accountManager: {
+          columns: { id: true, name: true, email: true },
+        },
       },
     });
   }),
@@ -149,6 +153,8 @@ export const clientsRouter = createTRPCRouter({
         status: z.enum(["active", "inactive"]).optional(),
         company: z.string().nullable().optional(),
         notes: z.string().nullable().optional(),
+        accountManagerId: z.string().uuid().nullable().optional(),
+        slug: z.string().min(1).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -157,6 +163,26 @@ export const clientsRouter = createTRPCRouter({
         .update(clients)
         .set({ ...data, updatedAt: new Date() })
         .where(eq(clients.id, id))
+        .returning();
+      return updated;
+    }),
+
+  // Delete client (cascades to projects, updates, agreements, resources, notes)
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      await db.delete(clients).where(eq(clients.id, input.id));
+      return { success: true };
+    }),
+
+  // Archive client (set status to inactive)
+  archive: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const [updated] = await db
+        .update(clients)
+        .set({ status: "inactive", updatedAt: new Date() })
+        .where(eq(clients.id, input.id))
         .returning();
       return updated;
     }),

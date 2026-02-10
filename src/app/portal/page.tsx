@@ -124,6 +124,12 @@ export default function PortalPage() {
           </div>
           <div className="flex items-center gap-4">
             <Link
+              href="/admin"
+              className="text-sm text-gray-400 transition-colors hover:text-white"
+            >
+              Admin Hub
+            </Link>
+            <Link
               href="/portal/profile?domain=live"
               className="text-sm text-gray-400 transition-colors hover:text-white"
             >

@@ -25,7 +25,17 @@ import {
   Lock,
   LogOut,
   ArrowLeft,
+  Building2,
 } from "lucide-react";
+
+const ROLE_LABELS: Record<string, string> = {
+  founder: "Founder",
+  admin: "Admin",
+  account_manager: "Account Manager",
+  project_manager: "Project Manager",
+  developer: "Developer",
+  designer: "Designer",
+};
 
 export default function AdminProfilePage() {
   const router = useRouter();
@@ -217,6 +227,12 @@ export default function AdminProfilePage() {
           </div>
           <div className="flex items-center gap-4">
             <Link
+              href="/admin"
+              className="text-sm text-gray-400 transition-colors hover:text-white"
+            >
+              Admin Hub
+            </Link>
+            <Link
               href="/portal?domain=live"
               className="text-sm text-gray-400 transition-colors hover:text-white"
             >
@@ -252,7 +268,9 @@ export default function AdminProfilePage() {
           </Link>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold">Admin Profile</h1>
+        <h1 className="mb-2 text-3xl font-bold">
+          {profile.isCompanyMember ? "My Profile" : "Admin Profile"}
+        </h1>
         <p className="mb-8 text-gray-400">Manage your account settings.</p>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -407,21 +425,57 @@ export default function AdminProfilePage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-xs uppercase tracking-wide text-gray-500">
-                    Role
+                    Portal Role
                   </label>
                   <p className="text-white capitalize">{profile.role}</p>
                 </div>
-                <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
-                    Permissions
-                  </label>
-                  <ul className="mt-1 space-y-1 text-sm text-gray-400">
-                    <li>• View all client portals</li>
-                    <li>• Manage client resources</li>
-                    <li>• Create proposals & demos</li>
-                    <li>• Access billing information</li>
-                  </ul>
-                </div>
+
+                {profile.isCompanyMember && (
+                  <div>
+                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                      Organization Member
+                    </label>
+                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-400">
+                      <Building2 className="h-4 w-4" style={{ color: "#D4AF37" }} />
+                      <span>Miracle Mind</span>
+                    </div>
+                  </div>
+                )}
+
+                {profile.companyRoles && profile.companyRoles.length > 0 ? (
+                  <div>
+                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                      Company Roles
+                    </label>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {profile.companyRoles.map((role: string) => (
+                        <span
+                          key={role}
+                          className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                          style={{
+                            backgroundColor: "rgba(212, 175, 55, 0.1)",
+                            color: "#D4AF37",
+                            border: "1px solid rgba(212, 175, 55, 0.2)",
+                          }}
+                        >
+                          {ROLE_LABELS[role] ?? role}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                      Permissions
+                    </label>
+                    <ul className="mt-1 space-y-1 text-sm text-gray-400">
+                      <li>• View all client portals</li>
+                      <li>• Manage client resources</li>
+                      <li>• Create proposals & demos</li>
+                      <li>• Access billing information</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

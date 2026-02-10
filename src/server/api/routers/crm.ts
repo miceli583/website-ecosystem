@@ -352,6 +352,29 @@ export const crmRouter = createTRPCRouter({
         .set({ ...data, updatedAt: new Date() })
         .where(eq(masterCrm.id, id))
         .returning();
+
+      // Sync contact-info fields to linked client (CRM is source of truth)
+      const syncFields = ["name", "email", "company", "accountManagerId"] as const;
+      const hasSyncField = syncFields.some((f) => f in data);
+      if (hasSyncField) {
+        const linkedClient = await db
+          .select({ id: clients.id })
+          .from(clients)
+          .where(eq(clients.crmId, id))
+          .limit(1);
+
+        if (linkedClient[0]) {
+          const clientUpdate: Record<string, unknown> = { updatedAt: new Date() };
+          for (const f of syncFields) {
+            if (f in data) clientUpdate[f] = data[f as keyof typeof data];
+          }
+          await db
+            .update(clients)
+            .set(clientUpdate)
+            .where(eq(clients.id, linkedClient[0].id));
+        }
+      }
+
       return updated;
     }),
 
@@ -581,6 +604,125 @@ export const crmRouter = createTRPCRouter({
           .returning();
         return updated;
       }
+    }),
+
+  /**
+   * Check if a CRM contact has a linked client portal record
+   */
+  checkClientStatus: adminProcedure
+    .input(z.object({ crmId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      const linkedClient = await db
+        .select({
+          id: clients.id,
+          slug: clients.slug,
+          status: clients.status,
+          name: clients.name,
+        })
+        .from(clients)
+        .where(eq(clients.crmId, input.crmId))
+        .limit(1);
+
+      return {
+        hasClient: linkedClient.length > 0,
+        client: linkedClient[0] ?? undefined,
+      };
+    }),
+
+  /**
+   * Promote a CRM contact to a portal client — creates client record + sets CRM status
+   */
+  promoteToClient: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        slug: z.string().min(1),
+        company: z.string().optional(),
+        accountManagerId: z.string().uuid().nullable().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const contact = await db
+        .select()
+        .from(masterCrm)
+        .where(eq(masterCrm.id, input.crmId))
+        .limit(1);
+
+      if (!contact[0]) {
+        throw new Error("CRM contact not found");
+      }
+
+      // Guard against duplicate client by email
+      const existingClient = await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(eq(clients.email, contact[0].email))
+        .limit(1);
+
+      if (existingClient[0]) {
+        throw new Error("A client with this email already exists");
+      }
+
+      // Create client record
+      const [newClient] = await db
+        .insert(clients)
+        .values({
+          crmId: input.crmId,
+          name: contact[0].name,
+          email: contact[0].email,
+          slug: input.slug,
+          company: input.company ?? contact[0].company ?? undefined,
+          accountManagerId: input.accountManagerId ?? contact[0].accountManagerId ?? undefined,
+        })
+        .returning();
+
+      // Set CRM status to client
+      await db
+        .update(masterCrm)
+        .set({ status: "client", updatedAt: new Date() })
+        .where(eq(masterCrm.id, input.crmId));
+
+      return newClient;
+    }),
+
+  /**
+   * Demote a client contact — handles portal cleanup + CRM status update
+   */
+  demoteClient: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        newStatus: z.enum(["lead", "prospect", "inactive", "churned"]),
+        portalAction: z.enum(["archive", "remove"]),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const linkedClient = await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(eq(clients.crmId, input.crmId))
+        .limit(1);
+
+      if (linkedClient[0]) {
+        if (input.portalAction === "archive") {
+          await db
+            .update(clients)
+            .set({ status: "inactive", updatedAt: new Date() })
+            .where(eq(clients.id, linkedClient[0].id));
+        } else {
+          await db
+            .delete(clients)
+            .where(eq(clients.id, linkedClient[0].id));
+        }
+      }
+
+      const [updated] = await db
+        .update(masterCrm)
+        .set({ status: input.newStatus, updatedAt: new Date() })
+        .where(eq(masterCrm.id, input.crmId))
+        .returning();
+
+      return updated;
     }),
 
   /**
