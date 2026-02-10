@@ -1,18 +1,9 @@
-import { Card, CardContent } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
-import { DomainLayout } from "~/components/domain-layout";
-import { PlaygroundLayout } from "~/components/playground/playground-layout";
-import { BackButton } from "~/components/back-button";
+"use client";
+
 import Link from "next/link";
-import { Suspense } from "react";
-
-export const dynamic = "force-dynamic";
-
 import {
   Sparkles,
-  Code,
-  Eye,
-  ArrowRight,
+  ExternalLink,
   Waves,
   Star,
   Heart,
@@ -21,15 +12,20 @@ import {
   Sun,
   Zap,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-// Animation showcase items
-const ANIMATIONS = [
+const ANIMATIONS: {
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  href: string;
+}[] = [
   {
     id: "golden-sunrays",
     title: "Golden Sunrays",
     description: "Radial ray burst effects with golden glow",
     icon: Sun,
-    color: "amber",
     href: "/admin/playground/golden-sunrays",
   },
   {
@@ -37,7 +33,6 @@ const ANIMATIONS = [
     title: "Meteor Effects",
     description: "Particle systems with beautiful meteor animations",
     icon: Star,
-    color: "emerald",
     href: "/admin/playground/meteor-effect",
   },
   {
@@ -45,7 +40,6 @@ const ANIMATIONS = [
     title: "Quantum Orbital",
     description: "Atomic orbital visualization with particle physics",
     icon: Zap,
-    color: "orange",
     href: "/admin/playground/quantum-orbital",
   },
   {
@@ -53,7 +47,6 @@ const ANIMATIONS = [
     title: "Gradient Orbs",
     description: "Layered waves with floating orbs and smooth animations",
     icon: Waves,
-    color: "blue",
     href: "/admin/playground/gradient-waves",
   },
   {
@@ -61,7 +54,6 @@ const ANIMATIONS = [
     title: "Particle Field",
     description: "Floating particles with mesmerizing glow effects",
     icon: Sparkles,
-    color: "purple",
     href: "/admin/playground/particle-field",
   },
   {
@@ -69,7 +61,6 @@ const ANIMATIONS = [
     title: "Morphing Buttons",
     description: "Interactive buttons with dynamic state morphing",
     icon: MousePointer,
-    color: "indigo",
     href: "/admin/playground/morphing-buttons",
   },
   {
@@ -77,7 +68,6 @@ const ANIMATIONS = [
     title: "Text Shimmer",
     description: "Gradient text animations with shimmer effects",
     icon: Type,
-    color: "violet",
     href: "/admin/playground/text-shimmer",
   },
   {
@@ -85,7 +75,6 @@ const ANIMATIONS = [
     title: "Liquid Morph",
     description: "Smooth blob morphing and liquid animations",
     icon: Heart,
-    color: "pink",
     href: "/admin/playground/liquid-morph",
   },
   {
@@ -93,166 +82,102 @@ const ANIMATIONS = [
     title: "Geometric Shapes",
     description: "Animated SVG patterns and shape morphing",
     icon: Star,
-    color: "orange",
     href: "/admin/playground/geometric-shapes",
   },
 ];
 
-/**
- * Playground Index - UI Component Showcase
- *
- * Authentication is handled by middleware (src/middleware.ts)
- * This route was moved from /playground to /admin/playground to restrict access
- */
-export default async function PlaygroundPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ domain?: string }>;
-}) {
-  const params = await searchParams;
-  const domainParam = params.domain ? `?domain=${params.domain}` : "";
-
+export default function PlaygroundPage() {
   return (
-    <DomainLayout>
-      <BackButton href="/admin" label="Back to Hub" />
-      <Suspense fallback={<div>Loading...</div>}>
-        <PlaygroundLayout>
-          <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-violet-50 to-purple-50 p-6 dark:from-violet-950/20 dark:to-purple-950/20">
-            <div className="mx-auto max-w-7xl space-y-12">
-              {/* Header */}
-              <div className="space-y-4 text-center">
-                <div className="mb-4 flex items-center justify-center gap-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
-                    <Sparkles className="h-6 w-6 text-white" />
-                  </div>
-                  <h1 className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent dark:from-violet-400 dark:to-purple-400">
-                    UI Playground
-                  </h1>
-                </div>
-                <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-                  Interactive UI components, animations, and experimental design
-                  patterns
-                </p>
-                <div className="flex items-center justify-center gap-2">
-                  <Badge
-                    variant="secondary"
-                    className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-200"
-                  >
-                    <Code className="mr-1 h-3 w-3" />
-                    Experimental
-                  </Badge>
-                  <Badge
-                    variant="secondary"
-                    className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200"
-                  >
-                    <Eye className="mr-1 h-3 w-3" />
-                    Interactive
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Animation Grid */}
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {ANIMATIONS.map((animation) => {
-                  const Icon = animation.icon;
-
-                  // Color mappings for borders
-                  const colorMap: Record<
-                    string,
-                    { light: string; dark: string; gradient: string }
-                  > = {
-                    amber: {
-                      light: "#fcd34d",
-                      dark: "#f59e0b",
-                      gradient: "from-amber-500 to-amber-600",
-                    },
-                    emerald: {
-                      light: "#34d399",
-                      dark: "#10b981",
-                      gradient: "from-emerald-500 to-emerald-600",
-                    },
-                    orange: {
-                      light: "#fb923c",
-                      dark: "#f97316",
-                      gradient: "from-orange-500 to-orange-600",
-                    },
-                    blue: {
-                      light: "#60a5fa",
-                      dark: "#3b82f6",
-                      gradient: "from-blue-500 to-blue-600",
-                    },
-                    purple: {
-                      light: "#a78bfa",
-                      dark: "#8b5cf6",
-                      gradient: "from-purple-500 to-purple-600",
-                    },
-                    indigo: {
-                      light: "#818cf8",
-                      dark: "#6366f1",
-                      gradient: "from-indigo-500 to-indigo-600",
-                    },
-                    violet: {
-                      light: "#a78bfa",
-                      dark: "#8b5cf6",
-                      gradient: "from-violet-500 to-violet-600",
-                    },
-                    pink: {
-                      light: "#f472b6",
-                      dark: "#ec4899",
-                      gradient: "from-pink-500 to-pink-600",
-                    },
-                  };
-
-                  const colors = colorMap[animation.color] ?? colorMap.violet!;
-
-                  return (
-                    <Link
-                      key={animation.id}
-                      href={`${animation.href}${domainParam}`}
-                    >
-                      <Card
-                        className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                        style={{
-                          borderColor: colors.dark,
-                          borderWidth: "1px",
-                        }}
-                      >
-                        <CardContent className="flex h-full flex-col p-6">
-                          <div className="mb-4 flex items-center gap-3">
-                            <div
-                              className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${colors.gradient}`}
-                            >
-                              <Icon className="h-5 w-5 text-white" />
-                            </div>
-                            <h3 className="text-lg font-semibold">
-                              {animation.title}
-                            </h3>
-                          </div>
-                          <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
-                            {animation.description}
-                          </p>
-                          <div className="flex items-center gap-2 text-sm font-medium text-violet-600 dark:text-violet-400">
-                            <span>Explore</span>
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {/* Footer Note */}
-              <div className="text-muted-foreground pt-8 text-center text-sm">
-                <p>
-                  All components are built with modern CSS, React, and
-                  TypeScript. More GLSL shader animations coming soon!
-                </p>
-              </div>
-            </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <div className="mb-2 flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(246,230,193,0.15) 0%, rgba(212,175,55,0.25) 100%)",
+            }}
+          >
+            <Sparkles className="h-5 w-5" style={{ color: "#D4AF37" }} />
           </div>
-        </PlaygroundLayout>
-      </Suspense>
-    </DomainLayout>
+          <h1
+            className="text-3xl font-bold"
+            style={{
+              fontFamily: "'Quattrocento Sans', serif",
+              letterSpacing: "0.08em",
+              background:
+                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            UI Playground
+          </h1>
+        </div>
+        <p className="text-sm text-white/50">
+          Interactive UI components and animations — each opens in a new tab
+        </p>
+      </div>
+
+      {/* Animation Grid */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {ANIMATIONS.map((animation) => {
+          const Icon = animation.icon;
+          return (
+            <Link
+              key={animation.id}
+              href={animation.href}
+              target="_blank"
+            >
+              <div
+                className="group flex h-full cursor-pointer flex-col rounded-xl p-5 transition-colors"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(212,175,55,0.2)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background =
+                    "rgba(255,255,255,0.05)";
+                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)";
+                }}
+              >
+                <div className="mb-3 flex items-center gap-3">
+                  <div
+                    className="flex h-9 w-9 items-center justify-center rounded-lg"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                    }}
+                  >
+                    <Icon
+                      className="h-4 w-4"
+                      style={{ color: "#D4AF37" }}
+                    />
+                  </div>
+                </div>
+                <h3 className="mb-1 text-sm font-semibold text-white">
+                  {animation.title}
+                </h3>
+                <p className="mb-4 flex-1 text-xs leading-relaxed text-white/40">
+                  {animation.description}
+                </p>
+                <div className="flex items-center gap-1.5 text-xs font-medium">
+                  <ExternalLink
+                    className="h-3 w-3"
+                    style={{ color: "#D4AF37" }}
+                  />
+                  <span style={{ color: "#D4AF37" }}>Open Demo</span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }

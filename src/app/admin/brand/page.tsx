@@ -3,8 +3,6 @@
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { DomainLayout } from "~/components/domain-layout";
-import { BackButton } from "~/components/back-button";
 import {
   Download,
   Palette,
@@ -663,8 +661,7 @@ function BrandPageContent() {
   };
 
   return (
-    <DomainLayout>
-      <BackButton href="/admin" />
+    <>
       <div className="min-h-screen bg-gradient-to-br from-white via-neutral-50 to-white dark:from-black dark:via-neutral-950 dark:to-black">
         <div className="container mx-auto px-4 py-16">
           {/* Hero Section */}
@@ -1267,7 +1264,7 @@ function BrandPageContent() {
           </section>
         </div>
       </div>
-    </DomainLayout>
+    </>
   );
 }
 

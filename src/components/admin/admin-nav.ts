@@ -4,7 +4,6 @@ import {
   Building2,
   FileText,
   Palette,
-  Rocket,
   Map,
   Wrench,
   DollarSign,
@@ -76,18 +75,9 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     icon: Palette,
     items: [
       { title: "Brand", href: "/admin/brand" },
-      { title: "Templates", href: "/admin/templates" },
+      { title: "Web Design", href: "/admin/web-design" },
       { title: "Shaders", href: "/admin/shaders" },
-      { title: "Playground", href: "/admin/playground" },
-    ],
-  },
-  {
-    title: "Landing Pages",
-    icon: Rocket,
-    items: [
-      { title: "Countdown", href: "/admin/dope-ass-landing" },
-      { title: "Waitlist", href: "/admin/join-community-1" },
-      { title: "Launch", href: "/admin/launch-landing-1" },
+      { title: "UI Playground", href: "/admin/playground" },
     ],
   },
   {

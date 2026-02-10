@@ -122,11 +122,11 @@ function BlogManagementContent() {
   const getStatusColor = (status: BlogSeed["status"]) => {
     switch (status) {
       case "published":
-        return "bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400";
+        return "bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30";
       case "draft":
-        return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:text-yellow-400";
+        return "bg-white/10 text-white/60 border-white/20";
       case "seed":
-        return "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400";
+        return "bg-[#D4AF37]/5 text-[#D4AF37]/60 border-[#D4AF37]/15";
     }
   };
 
@@ -152,7 +152,7 @@ function BlogManagementContent() {
               <h1
                 className="mb-2 text-5xl font-bold text-black dark:text-white"
                 style={{
-                  fontFamily: "var(--font-cinzel)",
+                  fontFamily: "'Quattrocento Sans', serif",
                   letterSpacing: "0.1em",
                 }}
               >
@@ -163,13 +163,13 @@ function BlogManagementContent() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+              <Badge className="bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30">
                 {publishedPosts.length} Published
               </Badge>
-              <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+              <Badge className="bg-white/10 text-white/60 border-white/20">
                 {draftPosts.length} Drafts
               </Badge>
-              <Badge className="bg-purple-500/10 text-purple-600 border-purple-500/20">
+              <Badge className="bg-[#D4AF37]/5 text-[#D4AF37]/60 border-[#D4AF37]/15">
                 {seedPosts.length} Seeds
               </Badge>
             </div>
@@ -177,24 +177,24 @@ function BlogManagementContent() {
         </div>
 
         {/* Automation Reminder Card */}
-        <Card className="mb-12 border-2 border-amber-500/30 bg-gradient-to-br from-amber-50 to-amber-100 shadow-lg dark:from-amber-950/20 dark:to-amber-900/20">
+        <Card className="mb-12 border-2 border-[#D4AF37]/30 bg-gradient-to-br from-[#D4AF37]/5 to-[#D4AF37]/10 shadow-lg">
           <CardContent className="p-8">
             <div className="space-y-4">
               <h3
-                className="flex items-center gap-2 text-xl font-bold text-amber-900 dark:text-amber-100"
+                className="flex items-center gap-2 text-xl font-bold text-white"
                 style={{
-                  fontFamily: "var(--font-cinzel)",
+                  fontFamily: "'Quattrocento Sans', serif",
                   letterSpacing: "0.05em",
                 }}
               >
                 <span className="text-2xl">⚡</span>
                 TODO: Automation & Queue System
               </h3>
-              <div className="space-y-3 rounded-lg border border-amber-500/30 bg-white/50 p-4 dark:bg-black/20">
-                <p className="font-semibold text-amber-900 dark:text-amber-100">
+              <div className="space-y-3 rounded-lg border border-[#D4AF37]/20 bg-black/20 p-4">
+                <p className="font-semibold text-white/90">
                   Implementation Priorities:
                 </p>
-                <ul className="ml-6 list-disc space-y-2 text-sm leading-relaxed text-amber-800 dark:text-amber-200">
+                <ul className="ml-6 list-disc space-y-2 text-sm leading-relaxed text-white/60">
                   <li>Add Zapier automation for automatic posting to Substack when blog posts are published</li>
                   <li>Integrate email newsletter signup feature</li>
                   <li>Implement queue system for scheduled blog post publishing</li>
@@ -207,38 +207,38 @@ function BlogManagementContent() {
 
         {/* Stats Overview */}
         <div className="mb-12 grid gap-6 md:grid-cols-3">
-          <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-green-500/10 dark:from-green-500/10 dark:to-green-500/5">
+          <Card className="border-2 border-[#D4AF37]/30 bg-[#D4AF37]/5">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Published</p>
-                  <p className="text-4xl font-bold text-green-600 dark:text-green-400">{publishedPosts.length}</p>
+                  <p className="text-sm text-white/50">Published</p>
+                  <p className="text-4xl font-bold text-[#D4AF37]">{publishedPosts.length}</p>
                 </div>
-                <BookOpen className="h-12 w-12 text-green-500/30" />
+                <BookOpen className="h-12 w-12 text-[#D4AF37]/20" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-yellow-500/10 dark:from-yellow-500/10 dark:to-yellow-500/5">
+          <Card className="border-2 border-white/10 bg-white/5">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Drafts</p>
-                  <p className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">{draftPosts.length}</p>
+                  <p className="text-sm text-white/50">Drafts</p>
+                  <p className="text-4xl font-bold text-white/60">{draftPosts.length}</p>
                 </div>
-                <Edit className="h-12 w-12 text-yellow-500/30" />
+                <Edit className="h-12 w-12 text-white/10" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-purple-500/10 dark:from-purple-500/10 dark:to-purple-500/5">
+          <Card className="border-2 border-[#D4AF37]/15 bg-[#D4AF37]/[0.03]">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Seeds</p>
-                  <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">{seedPosts.length}</p>
+                  <p className="text-sm text-white/50">Seeds</p>
+                  <p className="text-4xl font-bold text-[#D4AF37]/60">{seedPosts.length}</p>
                 </div>
-                <BookOpen className="h-12 w-12 text-purple-500/30" />
+                <BookOpen className="h-12 w-12 text-[#D4AF37]/10" />
               </div>
             </CardContent>
           </Card>
@@ -258,7 +258,7 @@ function BlogManagementContent() {
                       <h3
                         className="text-xl font-bold text-black dark:text-white"
                         style={{
-                          fontFamily: "var(--font-cinzel)",
+                          fontFamily: "'Quattrocento Sans', serif",
                           letterSpacing: "0.02em",
                         }}
                       >
@@ -332,7 +332,7 @@ function BlogManagementContent() {
               <h3
                 className="text-xl font-bold text-black dark:text-white"
                 style={{
-                  fontFamily: "var(--font-cinzel)",
+                  fontFamily: "'Quattrocento Sans', serif",
                   letterSpacing: "0.05em",
                 }}
               >

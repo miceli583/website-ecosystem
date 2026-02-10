@@ -25,7 +25,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "~/components/ui/dialog";
-import { BackButton } from "~/components/back-button";
 import {
   Heart,
   Lightbulb,
@@ -1688,22 +1687,22 @@ Living with an embodied value system means letting principles like ${valueName} 
         {/* Buffer Station */}
         {bufferActive && (
           <div className="animate-in slide-in-from-top mb-6 duration-300">
-            <Card className="border-indigo-500/50 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50">
+            <Card className="border-[#D4AF37]/40 bg-[#D4AF37]/5">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-1 items-center gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
-                      <Loader2 className="h-6 w-6 animate-spin text-indigo-600 dark:text-indigo-400" />
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#D4AF37]/20">
+                      <Loader2 className="h-6 w-6 animate-spin text-[#D4AF37]" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
+                      <h3 className="text-sm font-semibold text-white">
                         Buffer Station Active
                       </h3>
-                      <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                      <p className="text-xs text-white/60">
                         Preparing to post to Instagram
                       </p>
                       {bufferPayload?.metadata && (
-                        <div className="mt-2 space-y-1 text-xs text-indigo-600 dark:text-indigo-400">
+                        <div className="mt-2 space-y-1 text-xs text-[#D4AF37]/80">
                           <div className="font-medium">
                             {bufferPayload.metadata.value}
                           </div>
@@ -1714,7 +1713,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                           </div>
                           {bufferPayload.metadata.author &&
                             bufferPayload.metadata.author !== "Unknown" && (
-                              <div className="text-indigo-500 dark:text-indigo-500">
+                              <div className="text-[#D4AF37]/60">
                                 — {bufferPayload.metadata.author}
                               </div>
                             )}
@@ -1724,17 +1723,17 @@ Living with an embodied value system means letting principles like ${valueName} 
                   </div>
                   <div className="flex flex-shrink-0 items-center gap-4">
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-indigo-900 tabular-nums dark:text-indigo-100">
+                      <div className="text-2xl font-bold text-[#D4AF37] tabular-nums">
                         {Math.floor(bufferTimeRemaining / 60)}:
                         {String(bufferTimeRemaining % 60).padStart(2, "0")}
                       </div>
-                      <div className="text-xs text-indigo-700 dark:text-indigo-300">
+                      <div className="text-xs text-white/50">
                         until post
                       </div>
                     </div>
-                    <div className="h-12 w-1 overflow-hidden rounded-full bg-indigo-200 dark:bg-indigo-800">
+                    <div className="h-12 w-1 overflow-hidden rounded-full bg-[#D4AF37]/20">
                       <div
-                        className="h-full bg-indigo-500 transition-all duration-1000 ease-linear"
+                        className="h-full bg-[#D4AF37] transition-all duration-1000 ease-linear"
                         style={{
                           height: `${(bufferTimeRemaining / 120) * 100}%`,
                           transition: "height 1s linear",
@@ -1751,11 +1750,10 @@ Living with an embodied value system means letting principles like ${valueName} 
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <BackButton href={`/admin${domainParam}`} />
             <h1
               className="mt-4 mb-2 text-4xl font-bold text-black dark:text-white"
               style={{
-                fontFamily: "var(--font-cinzel)",
+                fontFamily: "'Quattrocento Sans', serif",
                 letterSpacing: "0.05em",
               }}
             >
@@ -1766,13 +1764,13 @@ Living with an embodied value system means letting principles like ${valueName} 
             </p>
           </div>
           <div className="flex gap-2">
-            <Badge className="border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">
+            <Badge className="border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37]">
               {stats?.coreValues ?? 0} Core Values
             </Badge>
-            <Badge className="border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300">
+            <Badge className="border-[#D4AF37]/20 bg-[#D4AF37]/5 text-[#D4AF37]/70">
               {stats?.supportingValues ?? 0} Supporting Values
             </Badge>
-            <Badge className="border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300">
+            <Badge className="border-white/20 bg-white/5 text-white/60">
               {stats?.quotes ?? 0} Quotes
             </Badge>
           </div>
@@ -1967,7 +1965,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                               {isCore && (
                                 <Badge
                                   variant="outline"
-                                  className="mt-1 border-indigo-500/30 bg-indigo-500/10 text-xs"
+                                  className="mt-1 border-[#D4AF37]/30 bg-[#D4AF37]/10 text-xs"
                                 >
                                   Used as Core Value
                                 </Badge>
@@ -2442,7 +2440,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                       size="sm"
                       onClick={handlePopAndPost}
                       disabled={!postQueue || postQueue.length === 0}
-                      className="flex items-center gap-2 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10"
+                      className="flex items-center gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/5 hover:bg-[#D4AF37]/10"
                     >
                       <Send className="h-3 w-3" />
                       Pop & Post
@@ -2452,7 +2450,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                       size="sm"
                       onClick={handleRotateAndPost}
                       disabled={!postQueue || postQueue.length === 0}
-                      className="flex items-center gap-2 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10"
+                      className="flex items-center gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/5 hover:bg-[#D4AF37]/10"
                     >
                       <Send className="h-3 w-3" />
                       Rotate & Post
@@ -2501,7 +2499,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                           key={post.id}
                           className={`rounded-lg border p-4 ${
                             index === 0
-                              ? "border-2 border-indigo-500/30 bg-indigo-500/5"
+                              ? "border-2 border-[#D4AF37]/30 bg-[#D4AF37]/5"
                               : ""
                           }`}
                         >
@@ -2512,7 +2510,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                                 <Badge
                                   className={
                                     index === 0
-                                      ? "bg-indigo-500 text-white"
+                                      ? "bg-[#D4AF37] text-black"
                                       : "bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200"
                                   }
                                 >
@@ -2521,7 +2519,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                                 </Badge>
                                 <Badge
                                   variant="outline"
-                                  className="bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                  className="bg-[#D4AF37]/10 text-[#D4AF37]/70"
                                 >
                                   <Palette className="mr-1 h-3 w-3" />
                                   {theme.name}
@@ -2662,7 +2660,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                                         }
                                         className={`rounded-lg border p-3 text-left transition-all hover:border-neutral-400 ${
                                           theme.name === t.name
-                                            ? "border-indigo-500 bg-indigo-500/5 ring-2 ring-indigo-500/20"
+                                            ? "border-[#D4AF37] bg-[#D4AF37]/5 ring-2 ring-[#D4AF37]/20"
                                             : "border-neutral-200 dark:border-neutral-700"
                                         }`}
                                       >
@@ -3183,7 +3181,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                         )
                           ? "border-red-500 pr-8"
                           : quoteForm.newAuthorName.trim()
-                            ? "border-green-500 pr-8"
+                            ? "border-[#D4AF37] pr-8"
                             : "pr-8"
                       }
                     />
@@ -3196,7 +3194,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                         ) ? (
                           <XIcon className="h-4 w-4 text-red-500" />
                         ) : (
-                          <Check className="h-4 w-4 text-green-500" />
+                          <Check className="h-4 w-4 text-[#D4AF37]" />
                         )}
                       </div>
                     )}
@@ -3380,7 +3378,7 @@ Living with an embodied value system means letting principles like ${valueName} 
           />
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              <AlertTriangle className="h-5 w-5 text-[#D4AF37]" />
               Confirm Delete
             </DialogTitle>
             <DialogDescription>

@@ -8,7 +8,15 @@ import { AdminSidebar, SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from "./admin-si
 import { AdminHeader } from "./admin-header";
 
 // Pages that should NOT get the dashboard shell
-const STANDALONE_PAGES = ["/admin/login"];
+const STANDALONE_PAGES = [
+  "/admin/login",
+  "/admin/templates/",
+  "/admin/shaders/",
+  "/admin/playground/",
+  "/admin/dope-ass-landing",
+  "/admin/join-community-1",
+  "/admin/launch-landing-1",
+];
 
 function DashboardContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
