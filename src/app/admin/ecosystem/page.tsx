@@ -9,7 +9,7 @@ import {
   Search,
   ChevronDown,
   ChevronRight,
-  ExternalLink,
+  ArrowRight,
 } from "lucide-react";
 import { Input } from "~/components/ui/input";
 
@@ -20,29 +20,26 @@ interface RouteInfo {
   path: string;
   domain: "all" | "matthew" | "dev" | "live";
   access: "public" | "auth" | "admin";
-  status: "live" | "dev" | "deprecated";
+  status: "live" | "dev" | "deprecated" | "redirect";
   description?: string;
+  redirectTo?: string;
 }
 
 /**
- * Known routes in the ecosystem
- * In a production setup, this could be generated from the file system
+ * Complete route inventory for the ecosystem.
+ * Last audited: 2026-02-10
  */
 const ECOSYSTEM_ROUTES: RouteInfo[] = [
-  // Public Routes - All Domains
+  // ── Public Routes - All Domains ──────────────────────────────────
   { path: "/", domain: "all", access: "public", status: "live", description: "Domain-specific homepage" },
   { path: "/privacy", domain: "all", access: "public", status: "live", description: "Privacy policy" },
   { path: "/terms", domain: "all", access: "public", status: "live", description: "Terms of service" },
 
-  // matthewmiceli.com
+  // ── matthewmiceli.com ────────────────────────────────────────────
+  { path: "/about", domain: "matthew", access: "public", status: "live", description: "About page" },
   { path: "/resume", domain: "matthew", access: "public", status: "live", description: "Interactive resume" },
-  { path: "/templates", domain: "matthew", access: "public", status: "live", description: "Template gallery" },
-  { path: "/templates/developer-profile", domain: "matthew", access: "public", status: "live" },
-  { path: "/templates/portfolio", domain: "matthew", access: "public", status: "live" },
-  { path: "/templates/saas-business", domain: "matthew", access: "public", status: "live" },
-  { path: "/templates/startup", domain: "matthew", access: "public", status: "live" },
 
-  // miraclemind.dev
+  // ── miraclemind.dev ──────────────────────────────────────────────
   { path: "/services", domain: "dev", access: "public", status: "live", description: "Service offerings" },
   { path: "/stewardship", domain: "dev", access: "public", status: "live", description: "Stewardship program" },
   { path: "/contact", domain: "dev", access: "public", status: "live", description: "Contact form" },
@@ -50,14 +47,33 @@ const ECOSYSTEM_ROUTES: RouteInfo[] = [
   { path: "/blog/[slug]", domain: "dev", access: "public", status: "live", description: "Blog post" },
   { path: "/banyan", domain: "dev", access: "public", status: "live", description: "BANYAN waitlist" },
 
-  // Shaders (Public embeds)
+  // ── Templates (public, matthewmiceli.com) ────────────────────────
+  { path: "/templates", domain: "matthew", access: "public", status: "live", description: "Template gallery" },
+  { path: "/templates/developer-profile", domain: "matthew", access: "public", status: "live" },
+  { path: "/templates/portfolio", domain: "matthew", access: "public", status: "live" },
+  { path: "/templates/saas-business", domain: "matthew", access: "public", status: "live" },
+  { path: "/templates/startup", domain: "matthew", access: "public", status: "live" },
+
+  // ── Playground (public, matthewmiceli.com) ───────────────────────
+  { path: "/playground", domain: "matthew", access: "public", status: "live", description: "UI playground gallery" },
+  { path: "/playground/geometric-shapes", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/golden-sunrays", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/gradient-waves", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/liquid-morph", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/meteor-effect", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/morphing-buttons", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/particle-field", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/quantum-orbital", domain: "matthew", access: "public", status: "live" },
+  { path: "/playground/text-shimmer", domain: "matthew", access: "public", status: "live" },
+
+  // ── Shaders (public, all domains) ────────────────────────────────
   { path: "/shaders", domain: "all", access: "public", status: "live", description: "Shader gallery" },
   { path: "/shaders/orbit-star", domain: "all", access: "public", status: "live" },
   { path: "/shaders/orbit-star/embed", domain: "all", access: "public", status: "live", description: "Embeddable iframe" },
   { path: "/shaders/flower-of-life", domain: "all", access: "public", status: "live" },
-  { path: "/shaders/flower-of-life/embed", domain: "all", access: "public", status: "live" },
+  { path: "/shaders/flower-of-life/embed", domain: "all", access: "public", status: "live", description: "Embeddable iframe" },
   { path: "/shaders/neural-net", domain: "all", access: "public", status: "live" },
-  { path: "/shaders/neural-net/embed", domain: "all", access: "public", status: "live" },
+  { path: "/shaders/neural-net/embed", domain: "all", access: "public", status: "live", description: "Embeddable iframe" },
   { path: "/shaders/fractal-noise", domain: "all", access: "public", status: "live" },
   { path: "/shaders/fractal-pyramid", domain: "all", access: "public", status: "live" },
   { path: "/shaders/icosahedron", domain: "all", access: "public", status: "live" },
@@ -65,42 +81,139 @@ const ECOSYSTEM_ROUTES: RouteInfo[] = [
   { path: "/shaders/north-star", domain: "all", access: "public", status: "live" },
   { path: "/shaders/the-way", domain: "all", access: "public", status: "live" },
 
-  // Portal (Auth required)
+  // ── Public Share Links ───────────────────────────────────────────
+  { path: "/s/[token]/[[...path]]", domain: "all", access: "public", status: "live", description: "Public demo share links" },
+
+  // ── Auth ─────────────────────────────────────────────────────────
+  { path: "/auth/callback", domain: "all", access: "public", status: "live", description: "OAuth callback handler" },
+  { path: "/auth/auth-code-error", domain: "all", access: "public", status: "live", description: "Auth error page" },
+
+  // ── Portal (miraclemind.live, auth required) ─────────────────────
   { path: "/portal", domain: "live", access: "auth", status: "live", description: "Client portal hub" },
-  { path: "/portal/login", domain: "live", access: "public", status: "live", description: "Portal login" },
   { path: "/portal/set-password", domain: "live", access: "public", status: "live", description: "Set password flow" },
   { path: "/portal/profile", domain: "live", access: "auth", status: "live", description: "User profile" },
   { path: "/portal/[slug]", domain: "live", access: "auth", status: "live", description: "Client dashboard" },
-  { path: "/portal/[slug]/demos", domain: "live", access: "auth", status: "live", description: "Client demos" },
+  { path: "/portal/[slug]/demos", domain: "live", access: "auth", status: "live", description: "Client demos hub" },
   { path: "/portal/[slug]/proposals", domain: "live", access: "auth", status: "live", description: "Proposals" },
   { path: "/portal/[slug]/notes", domain: "live", access: "auth", status: "live", description: "Shared notes" },
   { path: "/portal/[slug]/tooling", domain: "live", access: "auth", status: "live", description: "Dev resources" },
   { path: "/portal/[slug]/billing", domain: "live", access: "auth", status: "live", description: "Billing history" },
   { path: "/portal/[slug]/profile", domain: "live", access: "auth", status: "live", description: "Client profile" },
 
-  // Admin
+  // ── Portal Demos (sub-routes under /portal/[slug]/demos) ─────────
+  { path: "/portal/[slug]/demos/mockup", domain: "live", access: "auth", status: "live", description: "Mockup hub" },
+  { path: "/portal/[slug]/demos/mockup/assets", domain: "live", access: "auth", status: "live", description: "Mockup assets" },
+  { path: "/portal/[slug]/demos/mockup/frontend", domain: "live", access: "auth", status: "live", description: "Mockup frontend" },
+  { path: "/portal/[slug]/demos/slides", domain: "live", access: "auth", status: "live", description: "Slides hub" },
+  { path: "/portal/[slug]/demos/slides/gamma", domain: "live", access: "auth", status: "live", description: "Gamma export" },
+  { path: "/portal/[slug]/demos/slides/inputs", domain: "live", access: "auth", status: "live", description: "Slide inputs" },
+  { path: "/portal/[slug]/demos/slides/presentation", domain: "live", access: "auth", status: "live", description: "Presentation view" },
+  { path: "/portal/[slug]/demos/slides/talking-tracks", domain: "live", access: "auth", status: "live", description: "Talking tracks" },
+  { path: "/portal/[slug]/demos/tapchw", domain: "live", access: "auth", status: "live", description: "TAPCHW demo" },
+  { path: "/portal/[slug]/demos/website", domain: "live", access: "auth", status: "live", description: "Website demo hub" },
+  { path: "/portal/[slug]/demos/website/admin", domain: "live", access: "auth", status: "live", description: "Website admin demo" },
+  { path: "/portal/[slug]/demos/website/frontend", domain: "live", access: "auth", status: "live", description: "Website frontend demo" },
+
+  // ── Admin Core (miraclemind.dev) ─────────────────────────────────
   { path: "/admin", domain: "all", access: "admin", status: "live", description: "Admin dashboard" },
   { path: "/admin/login", domain: "all", access: "public", status: "live", description: "Admin login" },
   { path: "/admin/clients", domain: "all", access: "admin", status: "live", description: "Client management" },
   { path: "/admin/clients/[id]", domain: "all", access: "admin", status: "live", description: "Client details" },
+  { path: "/admin/clients/[id]/push-update", domain: "all", access: "admin", status: "live", description: "Push client update" },
+  { path: "/admin/crm", domain: "all", access: "admin", status: "live", description: "CRM dashboard" },
+  { path: "/admin/crm/contacts", domain: "all", access: "admin", status: "live", description: "CRM contacts list" },
+  { path: "/admin/crm/contacts/[id]", domain: "all", access: "admin", status: "live", description: "CRM contact detail" },
+  { path: "/admin/crm/leads", domain: "all", access: "admin", status: "live", description: "Lead pipeline" },
+  { path: "/admin/organization", domain: "all", access: "admin", status: "live", description: "Team & roles management" },
   { path: "/admin/daily-values", domain: "all", access: "admin", status: "live", description: "Daily values CMS" },
   { path: "/admin/blog", domain: "all", access: "admin", status: "live", description: "Blog CMS" },
   { path: "/admin/brand", domain: "all", access: "admin", status: "live", description: "Brand assets" },
-  { path: "/admin/templates", domain: "all", access: "admin", status: "live", description: "Template management" },
-  { path: "/admin/shaders", domain: "all", access: "admin", status: "live", description: "Shader gallery" },
-  { path: "/admin/playground", domain: "all", access: "admin", status: "live", description: "UI playground" },
+  { path: "/admin/web-design", domain: "all", access: "admin", status: "live", description: "Web design gallery" },
   { path: "/admin/ecosystem", domain: "all", access: "admin", status: "live", description: "Route map (this page)" },
   { path: "/admin/tooling", domain: "all", access: "admin", status: "live", description: "Service inventory" },
-  { path: "/admin/tooling/database", domain: "all", access: "admin", status: "dev", description: "Database health" },
-  { path: "/admin/finance", domain: "all", access: "admin", status: "dev", description: "Finance overview" },
-  { path: "/admin/finance/revenue", domain: "all", access: "admin", status: "dev", description: "Revenue tracking" },
-  { path: "/admin/finance/expenses", domain: "all", access: "admin", status: "dev", description: "Expense tracking" },
-  { path: "/admin/analytics", domain: "all", access: "admin", status: "dev", description: "Site analytics" },
+  { path: "/admin/tooling/database", domain: "all", access: "admin", status: "live", description: "Database health" },
+  { path: "/admin/analytics", domain: "all", access: "admin", status: "live", description: "Site analytics" },
+  { path: "/admin/finance", domain: "all", access: "admin", status: "live", description: "Finance overview" },
+  { path: "/admin/finance/revenue", domain: "all", access: "admin", status: "live", description: "Revenue tracking" },
+  { path: "/admin/finance/expenses", domain: "all", access: "admin", status: "live", description: "Expense tracking" },
+  { path: "/admin/finance/tax", domain: "all", access: "admin", status: "live", description: "Tax & deductions" },
+  { path: "/admin/finance/yearly", domain: "all", access: "admin", status: "live", description: "Yearly P&L" },
 
-  // Landing Pages
+  // ── Admin Shaders ────────────────────────────────────────────────
+  { path: "/admin/shaders", domain: "all", access: "admin", status: "live", description: "Shader gallery" },
+  { path: "/admin/shaders/flower-of-life", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/flower-of-life/embed", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/fractal-noise", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/fractal-pyramid", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/icosahedron", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/metatrons-cube", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/neural-net", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/neural-net/embed", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/north-star", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/shaders/the-way", domain: "all", access: "admin", status: "live" },
+
+  // ── Admin Playground ─────────────────────────────────────────────
+  { path: "/admin/playground", domain: "all", access: "admin", status: "live", description: "UI playground" },
+  { path: "/admin/playground/geometric-shapes", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/golden-sunrays", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/gradient-waves", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/liquid-morph", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/meteor-effect", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/morphing-buttons", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/particle-field", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/quantum-orbital", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/playground/text-shimmer", domain: "all", access: "admin", status: "live" },
+
+  // ── Admin Templates (redirects to /admin/web-design) ─────────────
+  { path: "/admin/templates", domain: "all", access: "admin", status: "redirect", description: "Redirects to web-design", redirectTo: "/admin/web-design" },
+  { path: "/admin/templates/developer-profile", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/templates/portfolio", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/templates/saas-business", domain: "all", access: "admin", status: "live" },
+  { path: "/admin/templates/startup", domain: "all", access: "admin", status: "live" },
+
+  // ── Landing Pages (admin, with color variants) ───────────────────
   { path: "/admin/dope-ass-landing", domain: "all", access: "admin", status: "live", description: "Countdown landing" },
+  { path: "/admin/dope-ass-landing/blue-cyan", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/cosmic-blue", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/deep-ocean", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/earth-sky", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/emerald", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/emerald-teal", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/forest-green", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/dope-ass-landing/teal", domain: "all", access: "admin", status: "live", description: "Color variant" },
   { path: "/admin/join-community-1", domain: "all", access: "admin", status: "live", description: "Waitlist landing" },
+  { path: "/admin/join-community-1/blue-cyan", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/cosmic-blue", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/deep-ocean", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/earth-sky", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/emerald", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/emerald-teal", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/forest-green", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/join-community-1/teal", domain: "all", access: "admin", status: "live", description: "Color variant" },
   { path: "/admin/launch-landing-1", domain: "all", access: "admin", status: "live", description: "Launch landing" },
+  { path: "/admin/launch-landing-1/blue-cyan", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/cosmic-blue", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/deep-ocean", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/earth-sky", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/emerald", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/emerald-teal", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/forest-green", domain: "all", access: "admin", status: "live", description: "Color variant" },
+  { path: "/admin/launch-landing-1/teal", domain: "all", access: "admin", status: "live", description: "Color variant" },
+
+  // ── API Routes ───────────────────────────────────────────────────
+  { path: "/api/trpc/[trpc]", domain: "all", access: "auth", status: "live", description: "tRPC handler" },
+  { path: "/api/webhooks/stripe", domain: "all", access: "public", status: "live", description: "Stripe webhook" },
+  { path: "/api/banyan/early-access", domain: "dev", access: "public", status: "live", description: "BANYAN signup" },
+  { path: "/api/auto-rotate-and-post", domain: "all", access: "admin", status: "live", description: "Auto-post rotation" },
+  { path: "/api/post-to-instagram", domain: "all", access: "admin", status: "live", description: "Instagram posting" },
+  { path: "/api/process-pending-post", domain: "all", access: "admin", status: "live", description: "Process pending post" },
+  { path: "/api/send-to-zapier", domain: "all", access: "admin", status: "live", description: "Zapier integration" },
+
+  // ── Legacy Redirects (middleware) ────────────────────────────────
+  { path: "/client/[slug]", domain: "live", access: "auth", status: "redirect", description: "Legacy client route", redirectTo: "/portal/[slug]" },
+  { path: "/client/[slug]/billing", domain: "live", access: "auth", status: "redirect", redirectTo: "/portal/[slug]/billing" },
+  { path: "/client/[slug]/demos", domain: "live", access: "auth", status: "redirect", redirectTo: "/portal/[slug]/demos" },
+  { path: "/client/[slug]/proposals", domain: "live", access: "auth", status: "redirect", redirectTo: "/portal/[slug]/proposals" },
 ];
 
 const DOMAIN_LABELS: Record<RouteInfo["domain"], string> = {
@@ -120,6 +233,7 @@ const STATUS_COLORS: Record<RouteInfo["status"], string> = {
   live: "bg-green-900/50 text-green-400",
   dev: "bg-[#D4AF37]/15 text-[#D4AF37]",
   deprecated: "bg-gray-800 text-gray-400",
+  redirect: "bg-blue-900/50 text-blue-400",
 };
 
 export default function EcosystemPage() {
@@ -154,7 +268,9 @@ export default function EcosystemPage() {
       Portal: [],
       "Landing Pages": [],
       Shaders: [],
+      Playground: [],
       Templates: [],
+      API: [],
       Public: [],
     };
 
@@ -163,12 +279,16 @@ export default function EcosystemPage() {
         groups["Landing Pages"]!.push(route);
       } else if (route.path.startsWith("/admin")) {
         groups["Admin"]!.push(route);
-      } else if (route.path.startsWith("/portal")) {
+      } else if (route.path.startsWith("/portal") || route.path.startsWith("/client")) {
         groups["Portal"]!.push(route);
       } else if (route.path.startsWith("/shaders")) {
         groups["Shaders"]!.push(route);
+      } else if (route.path.startsWith("/playground")) {
+        groups["Playground"]!.push(route);
       } else if (route.path.startsWith("/templates")) {
         groups["Templates"]!.push(route);
+      } else if (route.path.startsWith("/api")) {
+        groups["API"]!.push(route);
       } else {
         groups["Public"]!.push(route);
       }
@@ -190,6 +310,7 @@ export default function EcosystemPage() {
     total: ECOSYSTEM_ROUTES.length,
     live: ECOSYSTEM_ROUTES.filter((r) => r.status === "live").length,
     dev: ECOSYSTEM_ROUTES.filter((r) => r.status === "dev").length,
+    redirect: ECOSYSTEM_ROUTES.filter((r) => r.status === "redirect").length,
     public: ECOSYSTEM_ROUTES.filter((r) => r.access === "public").length,
     auth: ECOSYSTEM_ROUTES.filter((r) => r.access === "auth").length,
     admin: ECOSYSTEM_ROUTES.filter((r) => r.access === "admin").length,
@@ -206,7 +327,7 @@ export default function EcosystemPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
         <div
           className="rounded-lg border bg-white/5 p-4 text-center"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -227,6 +348,13 @@ export default function EcosystemPage() {
         >
           <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>{stats.dev}</p>
           <p className="text-xs text-gray-500">In Development</p>
+        </div>
+        <div
+          className="rounded-lg border bg-white/5 p-4 text-center"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <p className="text-2xl font-bold text-blue-400">{stats.redirect}</p>
+          <p className="text-xs text-gray-500">Redirects</p>
         </div>
         <div
           className="rounded-lg border bg-white/5 p-4 text-center"
@@ -290,6 +418,7 @@ export default function EcosystemPage() {
           <option value="all">All Status</option>
           <option value="live">Live</option>
           <option value="dev">Development</option>
+          <option value="redirect">Redirect</option>
           <option value="deprecated">Deprecated</option>
         </select>
       </div>
@@ -358,8 +487,15 @@ export default function EcosystemPage() {
                             {route.status}
                           </span>
                         </td>
-                        <td className="hidden px-4 py-2 text-gray-500 lg:table-cell">
-                          {route.description ?? "—"}
+                        <td className="hidden px-4 py-2 lg:table-cell">
+                          {route.redirectTo ? (
+                            <span className="flex items-center gap-1 text-blue-400">
+                              <ArrowRight className="h-3 w-3" />
+                              <code className="text-xs">{route.redirectTo}</code>
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">{route.description ?? "—"}</span>
+                          )}
                         </td>
                       </tr>
                     ))}

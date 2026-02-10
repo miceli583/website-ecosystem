@@ -14,7 +14,7 @@ _None currently_
 - [ ] Implement optimistic updates for notes mutations (reduce flash on rapid actions)
 - [ ] CMS UI: refactor to follow brand guidelines (gold/black theme)
 - [ ] Rename "Landing Pages" nav section to "Web Design"; landing page links open in new tab
-- [ ] Audit service inventory to ensure nothing was missed
+
 
 ## Enhancements (prioritized)
 
@@ -26,6 +26,7 @@ _None currently_
 
 ### Medium Priority
 - [ ] **Account manager permissions**: Role-based access so account managers can filter by their clients, only edit projects for their assigned clients
+- [ ] **CRM contact import**: Bulk upload contacts from phone via VCF file — client-side vCard parser, preview table with duplicate detection (match by email), bulk `crm.importContacts` mutation
 - [ ] **CRM enhancements**: Notes management, deeper project management, in-site scheduling of emails/updates/outreach
 - [ ] **CMS email/text sequences**: Add email and text sequence builder to CMS
 - [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)

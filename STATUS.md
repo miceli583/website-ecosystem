@@ -11,8 +11,8 @@
 | Multi-domain routing | Working | matthewmiceli.com, miraclemind.dev, miraclemind.live |
 | Authentication (Supabase) | Working | Email/password, magic links, tRPC protectedProcedure |
 | Admin dashboard v2 | Working | Collapsible sidebar, breadcrumbs, expanded navigation |
-| Admin ecosystem map | Working | Route inventory with domain/access/status filtering |
-| Admin tooling pages | Working | Service inventory, database health dashboard |
+| Admin ecosystem map | Working | 151 routes, redirects, API routes, all domains/statuses |
+| Admin tooling pages | Working | 47 tools across 14 categories, 22 tables across 6 domains |
 | Admin finance dashboard | Working | Overview, revenue, expenses, yearly P&L, tax & deductions |
 | Admin analytics dashboard | Working | Internal metrics, revenue summary, contact growth, domain activity |
 | Admin CRM system | Working | Pipeline, contacts list/detail, leads, account managers, CRM→client sync |
@@ -38,10 +38,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 10 | pending | Ecosystem map audit (74→151 routes), tooling audit (10→47 tools), DB audit (11→22 tables), `/inventory` skill |
 | Feb 10 | db2b163 | CRM-client sync, hybrid edit modal, delete/archive, role-based portal profile |
 | Feb 09 | dd65b40 | Finance overhaul: fix tax deductions, fuzzy auto-categorize, aggregate summary, optimistic UI |
 | Feb 09 | 957044c | Fix public demo sharing: metadata, caching, share button, fallback |
 | Feb 09 | 6e02cb5 | Finance expense tracking, smart categorization, public demo sharing, slide sub-demos |
-| Feb 05 | f082ccd | CRM contact detail, organization/team management, account managers |
 
 _Older changes: `git log --oneline`_
