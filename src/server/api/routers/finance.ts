@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, gte, lt, sql, desc, asc, inArray } from "drizzle-orm";
+import { eq, and, gte, lt, sql, desc, asc, inArray, isNotNull } from "drizzle-orm";
 import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { stripeLive } from "~/lib/stripe-live";
 import {
@@ -88,11 +88,22 @@ const CATEGORIZATION_RULES: Array<{
   { pattern: /mercury.*fee|bank\s*fee|wire\s*fee/i, categoryName: "Bank & Finance Fees", isTaxDeductible: true },
 
   // Meals & Entertainment
-  { pattern: /uber\s*eats|doordash|grubhub/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /uber\s*eats|doordash|grubhub|postmates/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /h-?e-?b\b|heb\b|h\.e\.b/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /walmart|target|costco|sam'?s\s*club/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /starbucks|dunkin|coffee|cafe|bakery/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /restaurant|grill|pizza|burger|taco|sushi|diner|bistro|kitchen/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /chipotle|chick-?fil-?a|whataburger|panera|subway/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  { pattern: /cabana|bar\s|lounge|pub\b|brewery/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+
+  // Car & Vehicle
+  { pattern: /shell\b|exxon|chevron|texaco|valero|gas\s*station|fuel|bp\b|citgo/i, categoryName: "Car & Vehicle", isTaxDeductible: true },
+  { pattern: /car\s*wash|jiffy\s*lube|autozone|o'?reilly/i, categoryName: "Car & Vehicle", isTaxDeductible: true },
+  { pattern: /parking|toll|ez-?pass/i, categoryName: "Car & Vehicle", isTaxDeductible: true },
 
   // Travel
   { pattern: /uber(?!\s*eats)|lyft/i, categoryName: "Travel", isTaxDeductible: true },
-  { pattern: /airbnb|hotel|airline|delta|united|american\s*air/i, categoryName: "Travel", isTaxDeductible: true },
+  { pattern: /airbnb|hotel|airline|delta|united|american\s*air|southwest|jetblue/i, categoryName: "Travel", isTaxDeductible: true },
 
   // Utilities
   { pattern: /comcast|xfinity|verizon|at&t|t-?mobile/i, categoryName: "Utilities", isTaxDeductible: true },
@@ -111,7 +122,17 @@ const CATEGORIZATION_RULES: Array<{
 
   // Taxes & Licenses
   { pattern: /irs|tax\s*payment|state\s*tax|license\s*fee/i, categoryName: "Taxes & Licenses", isTaxDeductible: false },
+
+  // Office Expenses
+  { pattern: /office\s*depot|staples|usps|fedex|ups\b/i, categoryName: "Office Expenses", isTaxDeductible: true },
 ];
+
+/**
+ * Filter out failed/cancelled Mercury transactions from all calculations
+ */
+function filterActiveMercuryTransactions(txs: MercuryTransaction[]): MercuryTransaction[] {
+  return txs.filter((t) => t.status !== "failed" && t.status !== "cancelled");
+}
 
 function suggestCategory(
   counterparty: string | null,
@@ -125,6 +146,37 @@ function suggestCategory(
       return { categoryName: rule.categoryName, isTaxDeductible: rule.isTaxDeductible };
     }
   }
+  return null;
+}
+
+/**
+ * Suggest category from DB history by matching counterparty name.
+ * Uses fuzzy matching: exact match first, then substring/contains match.
+ */
+function suggestCategoryFromDb(
+  counterpartyName: string | null,
+  bankDescription: string | null,
+  dbMappings: Map<string, { categoryId: number; isTaxDeductible: boolean }>
+): { categoryId: number; isTaxDeductible: boolean } | null {
+  if (!counterpartyName && !bankDescription) return null;
+
+  const candidates = [counterpartyName, bankDescription].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const normalized = candidate.toLowerCase().trim();
+
+    // 1. Exact match
+    const exact = dbMappings.get(normalized);
+    if (exact) return exact;
+
+    // 2. Check if any DB counterparty is contained in this name or vice versa
+    for (const [dbName, mapping] of dbMappings) {
+      if (normalized.includes(dbName) || dbName.includes(normalized)) {
+        return mapping;
+      }
+    }
+  }
+
   return null;
 }
 
@@ -329,6 +381,9 @@ export const financeRouter = createTRPCRouter({
       z.object({
         accountId: z.string().optional(),
         limit: z.number().min(1).max(500).default(50),
+        offset: z.number().min(0).default(0),
+        start: z.string().optional(), // YYYY-MM-DD
+        end: z.string().optional(), // YYYY-MM-DD
       })
     )
     .query(async ({ input }) => {
@@ -336,17 +391,27 @@ export const financeRouter = createTRPCRouter({
         const accounts = await getMercuryAccounts();
 
         if (accounts.length === 0) {
-          return { connected: false, transactions: [] };
+          return { connected: false, transactions: [], hasMore: false };
         }
 
         // Use specified account or first account
         const accountId = input.accountId ?? accounts[0]?.id;
 
         if (!accountId) {
-          return { connected: false, transactions: [] };
+          return { connected: false, transactions: [], hasMore: false };
         }
 
-        const transactions = await getMercuryTransactions(accountId, input.limit);
+        // Fetch one extra to determine hasMore
+        const rawTransactions = await getMercuryTransactions(
+          accountId,
+          input.limit + 1,
+          input.offset,
+          input.start,
+          input.end
+        );
+        const filtered = filterActiveMercuryTransactions(rawTransactions);
+        const hasMore = filtered.length > input.limit;
+        const transactions = hasMore ? filtered.slice(0, input.limit) : filtered;
 
         const formatted = transactions.map((t: MercuryTransaction) => ({
           id: t.id,
@@ -359,14 +424,58 @@ export const financeRouter = createTRPCRouter({
           kind: t.kind,
         }));
 
-        return { connected: true, transactions: formatted };
+        return { connected: true, transactions: formatted, hasMore };
       } catch (error) {
         console.error("Mercury transactions error:", error);
         return {
           connected: false,
           transactions: [],
+          hasMore: false,
           error: error instanceof Error ? error.message : "Unknown error",
         };
+      }
+    }),
+
+  /**
+   * Get summary totals for Mercury transactions across the full date range
+   * (not paginated — fetches all to compute accurate totals)
+   */
+  getMercuryTransactionSummary: adminProcedure
+    .input(
+      z.object({
+        start: z.string().optional(),
+        end: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const accounts = await getMercuryAccounts();
+        if (accounts.length === 0) {
+          return { totalIncome: 0, totalExpenses: 0, net: 0, count: 0 };
+        }
+
+        const accountId = accounts[0]!.id;
+        const rawTxs = await getMercuryTransactions(accountId, 500, 0, input.start, input.end);
+        const txs = filterActiveMercuryTransactions(rawTxs);
+
+        let totalIncome = 0;
+        let totalExpenses = 0;
+        for (const tx of txs) {
+          if (tx.amount >= 0) {
+            totalIncome += tx.amount;
+          } else {
+            totalExpenses += Math.abs(tx.amount);
+          }
+        }
+
+        return {
+          totalIncome,
+          totalExpenses,
+          net: totalIncome - totalExpenses,
+          count: txs.length,
+        };
+      } catch {
+        return { totalIncome: 0, totalExpenses: 0, net: 0, count: 0 };
       }
     }),
 
@@ -486,6 +595,32 @@ export const financeRouter = createTRPCRouter({
   // MANUAL EXPENSES CRUD
   // =========================================================================
 
+  createExpenseCategory: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100),
+        irsCategory: z.string().optional(),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const maxSort = await ctx.db
+        .select({ max: sql<number>`coalesce(max(${expenseCategories.sortOrder}), 0)` })
+        .from(expenseCategories);
+      const nextSort = (maxSort[0]?.max ?? 0) + 1;
+
+      const [category] = await ctx.db
+        .insert(expenseCategories)
+        .values({
+          name: input.name,
+          irsCategory: input.irsCategory ?? null,
+          description: input.description,
+          sortOrder: nextSort,
+        })
+        .returning();
+      return category;
+    }),
+
   createExpense: adminProcedure
     .input(
       z.object({
@@ -494,6 +629,7 @@ export const financeRouter = createTRPCRouter({
         vendor: z.string().min(1),
         description: z.string().optional(),
         date: z.string(), // YYYY-MM-DD
+        type: z.enum(["expense", "revenue"]).default("expense"),
         isTaxDeductible: z.boolean().default(false),
         receiptUrl: z.string().url().optional(),
       })
@@ -507,6 +643,7 @@ export const financeRouter = createTRPCRouter({
           vendor: input.vendor,
           description: input.description,
           date: input.date,
+          type: input.type,
           isTaxDeductible: input.isTaxDeductible,
           receiptUrl: input.receiptUrl,
           createdByAuthId: ctx.user.id,
@@ -594,6 +731,7 @@ export const financeRouter = createTRPCRouter({
           vendor: expenses.vendor,
           description: expenses.description,
           date: expenses.date,
+          type: expenses.type,
           isTaxDeductible: expenses.isTaxDeductible,
           receiptUrl: expenses.receiptUrl,
           createdAt: expenses.createdAt,
@@ -616,6 +754,7 @@ export const financeRouter = createTRPCRouter({
         mercuryTransactionId: z.string(),
         categoryId: z.number(),
         isTaxDeductible: z.boolean().default(false),
+        counterpartyName: z.string().optional(),
         notes: z.string().optional(),
       })
     )
@@ -626,6 +765,7 @@ export const financeRouter = createTRPCRouter({
           mercuryTransactionId: input.mercuryTransactionId,
           categoryId: input.categoryId,
           isTaxDeductible: input.isTaxDeductible,
+          counterpartyName: input.counterpartyName,
           notes: input.notes,
         })
         .onConflictDoUpdate({
@@ -633,6 +773,7 @@ export const financeRouter = createTRPCRouter({
           set: {
             categoryId: input.categoryId,
             isTaxDeductible: input.isTaxDeductible,
+            counterpartyName: input.counterpartyName,
             notes: input.notes,
             updatedAt: new Date(),
           },
@@ -686,7 +827,8 @@ export const financeRouter = createTRPCRouter({
       }
 
       const accountId = input.accountId ?? accounts[0]!.id;
-      const txs = await getMercuryTransactions(accountId, 500);
+      const rawTxs = await getMercuryTransactions(accountId, 500);
+      const txs = filterActiveMercuryTransactions(rawTxs);
       const outflows = txs.filter((t) => t.amount < 0);
 
       // Get existing categorizations
@@ -697,6 +839,7 @@ export const financeRouter = createTRPCRouter({
               .select({
                 mercuryTransactionId:
                   mercuryTransactionCategories.mercuryTransactionId,
+                counterpartyName: mercuryTransactionCategories.counterpartyName,
               })
               .from(mercuryTransactionCategories)
               .where(
@@ -710,12 +853,55 @@ export const financeRouter = createTRPCRouter({
         existing.map((e: { mercuryTransactionId: string }) => e.mercuryTransactionId)
       );
 
+      // Backfill missing counterparty names on existing categorizations
+      const txCounterpartyMap = new Map(
+        outflows
+          .filter((t) => t.counterpartyName)
+          .map((t) => [t.id, t.counterpartyName!])
+      );
+      for (const ex of existing) {
+        if (!ex.counterpartyName) {
+          const cp = txCounterpartyMap.get(ex.mercuryTransactionId);
+          if (cp) {
+            await ctx.db
+              .update(mercuryTransactionCategories)
+              .set({ counterpartyName: cp, updatedAt: new Date() })
+              .where(
+                eq(
+                  mercuryTransactionCategories.mercuryTransactionId,
+                  ex.mercuryTransactionId
+                )
+              );
+          }
+        }
+      }
+
       // Get category name → id mapping
       const allCategories = await ctx.db
         .select({ id: expenseCategories.id, name: expenseCategories.name })
         .from(expenseCategories)
         .where(eq(expenseCategories.isActive, true));
-      const catNameToId = new Map(allCategories.map((c: { name: string; id: number }) => [c.name, c.id]));
+      const catNameToId = new Map<string, number>(allCategories.map((c: { name: string; id: number }) => [c.name, c.id]));
+      const catIdToName = new Map<number, string>(allCategories.map((c: { name: string; id: number }) => [c.id, c.name]));
+
+      // Batch-load DB counterparty → category mappings (learned from past categorizations)
+      const dbMappingRows = await ctx.db
+        .select({
+          counterpartyName: mercuryTransactionCategories.counterpartyName,
+          categoryId: mercuryTransactionCategories.categoryId,
+          isTaxDeductible: mercuryTransactionCategories.isTaxDeductible,
+        })
+        .from(mercuryTransactionCategories)
+        .where(sql`${mercuryTransactionCategories.counterpartyName} IS NOT NULL`);
+
+      const dbMappings = new Map<string, { categoryId: number; isTaxDeductible: boolean }>();
+      for (const row of dbMappingRows) {
+        if (row.counterpartyName) {
+          const key = row.counterpartyName.toLowerCase().trim();
+          // Keep the most recent mapping (last wins since we iterate in order)
+          dbMappings.set(key, { categoryId: row.categoryId, isTaxDeductible: row.isTaxDeductible });
+        }
+      }
 
       const suggestions: Array<{
         transactionId: string;
@@ -725,6 +911,7 @@ export const financeRouter = createTRPCRouter({
         suggestedCategory: string;
         isTaxDeductible: boolean;
         date: string | null;
+        source: "db" | "rules";
       }> = [];
 
       let applied = 0;
@@ -736,6 +923,40 @@ export const financeRouter = createTRPCRouter({
           continue;
         }
 
+        // 1. Check DB history first (learned from past user categorizations)
+        const dbSuggestion = suggestCategoryFromDb(tx.counterpartyName, tx.bankDescription, dbMappings);
+        if (dbSuggestion) {
+          const categoryName = catIdToName.get(dbSuggestion.categoryId);
+          if (categoryName) {
+            suggestions.push({
+              transactionId: tx.id,
+              counterparty: tx.counterpartyName,
+              description: tx.bankDescription,
+              amount: tx.amount,
+              suggestedCategory: categoryName,
+              isTaxDeductible: dbSuggestion.isTaxDeductible,
+              date: tx.postedAt ?? tx.createdAt,
+              source: "db",
+            });
+
+            if (input.apply) {
+              await ctx.db
+                .insert(mercuryTransactionCategories)
+                .values({
+                  mercuryTransactionId: tx.id,
+                  categoryId: dbSuggestion.categoryId,
+                  isTaxDeductible: dbSuggestion.isTaxDeductible,
+                  counterpartyName: tx.counterpartyName,
+                  notes: `Auto-categorized (learned): ${tx.counterpartyName ?? "unknown"}`,
+                })
+                .onConflictDoNothing();
+              applied++;
+            }
+            continue;
+          }
+        }
+
+        // 2. Fall back to regex rules
         const suggestion = suggestCategory(
           tx.counterpartyName,
           tx.bankDescription
@@ -753,6 +974,7 @@ export const financeRouter = createTRPCRouter({
           suggestedCategory: suggestion.categoryName,
           isTaxDeductible: suggestion.isTaxDeductible,
           date: tx.postedAt ?? tx.createdAt,
+          source: "rules",
         });
 
         if (input.apply) {
@@ -762,6 +984,7 @@ export const financeRouter = createTRPCRouter({
               mercuryTransactionId: tx.id,
               categoryId,
               isTaxDeductible: suggestion.isTaxDeductible,
+              counterpartyName: tx.counterpartyName,
               notes: `Auto-categorized: ${tx.counterpartyName ?? tx.bankDescription ?? "unknown"}`,
             })
             .onConflictDoNothing();
@@ -878,13 +1101,14 @@ export const financeRouter = createTRPCRouter({
         const accounts = await getMercuryAccounts();
         if (accounts.length > 0) {
           const accountId = accounts[0]!.id;
-          const txs = await getMercuryTransactions(
+          const rawTxs = await getMercuryTransactions(
             accountId,
             500,
             0,
             startDate,
             endDate
           );
+          const txs = filterActiveMercuryTransactions(rawTxs);
 
           // Get categorizations for Mercury transactions
           const txIds = txs.map((t) => t.id);
@@ -1034,13 +1258,14 @@ export const financeRouter = createTRPCRouter({
       try {
         const accounts = await getMercuryAccounts();
         if (accounts.length > 0) {
-          const txs = await getMercuryTransactions(
+          const rawTxs = await getMercuryTransactions(
             accounts[0]!.id,
             500,
             0,
             startDate,
             endDate
           );
+          const txs = filterActiveMercuryTransactions(rawTxs);
 
           // Only include categorized Mercury transactions
           const txIds = txs.filter((t) => t.amount < 0).map((t) => t.id);
@@ -1082,7 +1307,7 @@ export const financeRouter = createTRPCRouter({
         0
       );
 
-      // --- Deductions ---
+      // --- Deductions (manual + Mercury) ---
       const deductibleExpenses = await ctx.db
         .select({ amount: expenses.amount })
         .from(expenses)
@@ -1094,10 +1319,40 @@ export const financeRouter = createTRPCRouter({
           )
         );
 
-      const totalDeductions = deductibleExpenses.reduce(
+      let totalDeductions = deductibleExpenses.reduce(
         (sum: number, e: { amount: number }) => sum + e.amount,
         0
       );
+
+      // Add Mercury deductible amounts — any categorized into an IRS category
+      try {
+        const deductibleMercuryCats = await ctx.db
+          .select({
+            mercuryTransactionId: mercuryTransactionCategories.mercuryTransactionId,
+          })
+          .from(mercuryTransactionCategories)
+          .innerJoin(
+            expenseCategories,
+            eq(mercuryTransactionCategories.categoryId, expenseCategories.id)
+          )
+          .where(isNotNull(expenseCategories.irsCategory));
+
+        if (deductibleMercuryCats.length > 0) {
+          const mercAccounts = await getMercuryAccounts();
+          if (mercAccounts.length > 0) {
+            const deductibleRawTxs = await getMercuryTransactions(mercAccounts[0]!.id, 500, 0, startDate, endDate);
+            const deductibleTxs = filterActiveMercuryTransactions(deductibleRawTxs);
+            const deductibleIds = new Set(deductibleMercuryCats.map((c: { mercuryTransactionId: string }) => c.mercuryTransactionId));
+            for (const tx of deductibleTxs) {
+              if (tx.amount >= 0) continue;
+              if (!deductibleIds.has(tx.id)) continue;
+              totalDeductions += Math.round(Math.abs(tx.amount) * 100);
+            }
+          }
+        }
+      } catch {
+        // Mercury not connected
+      }
 
       // Combine into monthly P&L
       const months = Array.from({ length: 12 }, (_, i) => {
@@ -1246,25 +1501,70 @@ export const financeRouter = createTRPCRouter({
         )
         .groupBy(expenseCategories.name, expenseCategories.irsCategory);
 
-      // Deductible Mercury transactions
-      const deductibleMercury = await ctx.db
+      // Deductible Mercury transactions — any categorized into an IRS category is deductible
+      const deductibleMercuryCats = await ctx.db
         .select({
+          mercuryTransactionId: mercuryTransactionCategories.mercuryTransactionId,
           categoryName: expenseCategories.name,
           irsCategory: expenseCategories.irsCategory,
-          count: sql<number>`count(*)::int`,
         })
         .from(mercuryTransactionCategories)
-        .leftJoin(
+        .innerJoin(
           expenseCategories,
           eq(
             mercuryTransactionCategories.categoryId,
             expenseCategories.id
           )
         )
-        .where(eq(mercuryTransactionCategories.isTaxDeductible, true))
-        .groupBy(expenseCategories.name, expenseCategories.irsCategory);
+        .where(isNotNull(expenseCategories.irsCategory));
 
-      const totalDeductions = deductibleByCategory.reduce(
+      // Fetch Mercury transactions for this year to get actual dollar amounts
+      let mercuryDeductionTotal = 0;
+      const mercuryDeductionsByCategory: Record<string, { name: string; irsCategory: string | null; count: number; total: number }> = {};
+
+      try {
+        const accounts = await getMercuryAccounts();
+        if (accounts.length > 0 && deductibleMercuryCats.length > 0) {
+          const rawTxs = await getMercuryTransactions(accounts[0]!.id, 500, 0, startDate, endDate);
+          const txs = filterActiveMercuryTransactions(rawTxs);
+          const txAmountMap = new Map(txs.map((t) => [t.id, t.amount]));
+
+          for (const cat of deductibleMercuryCats) {
+            const txAmount = txAmountMap.get(cat.mercuryTransactionId);
+            if (txAmount === undefined || txAmount >= 0) continue;
+            const amountCents = Math.round(Math.abs(txAmount) * 100);
+            mercuryDeductionTotal += amountCents;
+
+            const catName = cat.categoryName ?? "Uncategorized";
+            if (!mercuryDeductionsByCategory[catName]) {
+              mercuryDeductionsByCategory[catName] = { name: catName, irsCategory: cat.irsCategory, count: 0, total: 0 };
+            }
+            mercuryDeductionsByCategory[catName].count++;
+            mercuryDeductionsByCategory[catName].total += amountCents;
+          }
+        }
+      } catch {
+        // Mercury not connected
+      }
+
+      // Merge manual + Mercury deductions by category
+      const mergedDeductions = [...deductibleByCategory];
+      for (const mercCat of Object.values(mercuryDeductionsByCategory)) {
+        const existing = mergedDeductions.find((d) => d.categoryName === mercCat.name);
+        if (existing) {
+          existing.count += mercCat.count;
+          existing.total = (existing.total ?? 0) + mercCat.total;
+        } else {
+          mergedDeductions.push({
+            categoryName: mercCat.name,
+            irsCategory: mercCat.irsCategory,
+            count: mercCat.count,
+            total: mercCat.total,
+          });
+        }
+      }
+
+      const totalDeductions = mergedDeductions.reduce(
         (sum: number, c: { total: number | null }) => sum + (c.total ?? 0),
         0
       );
@@ -1273,9 +1573,9 @@ export const financeRouter = createTRPCRouter({
         grossIncome,
         totalDeductions,
         estimatedTaxableIncome: grossIncome - totalDeductions,
-        deductibleByCategory,
-        deductibleMercuryCount: deductibleMercury.reduce(
-          (sum: number, c: { count: number }) => sum + c.count,
+        deductibleByCategory: mergedDeductions,
+        deductibleMercuryCount: Object.values(mercuryDeductionsByCategory).reduce(
+          (sum, c) => sum + c.count,
           0
         ),
       };
@@ -1310,7 +1610,7 @@ export const financeRouter = createTRPCRouter({
         )
         .orderBy(asc(expenses.date));
 
-      // All deductible Mercury transaction categorizations
+      // All deductible Mercury transaction categorizations — IRS category = deductible
       const mercuryCats = await ctx.db
         .select({
           mercuryTransactionId:
@@ -1319,14 +1619,14 @@ export const financeRouter = createTRPCRouter({
           notes: mercuryTransactionCategories.notes,
         })
         .from(mercuryTransactionCategories)
-        .leftJoin(
+        .innerJoin(
           expenseCategories,
           eq(
             mercuryTransactionCategories.categoryId,
             expenseCategories.id
           )
         )
-        .where(eq(mercuryTransactionCategories.isTaxDeductible, true));
+        .where(isNotNull(expenseCategories.irsCategory));
 
       // Build export rows
       interface TaxExportRow {
@@ -1353,7 +1653,8 @@ export const financeRouter = createTRPCRouter({
       try {
         const accounts = await getMercuryAccounts();
         if (accounts.length > 0 && mercuryCats.length > 0) {
-          const txs = await getMercuryTransactions(accounts[0]!.id, 500);
+          const rawTxs = await getMercuryTransactions(accounts[0]!.id, 500);
+          const txs = filterActiveMercuryTransactions(rawTxs);
           const catMap = new Map<string, { categoryName: string | null; notes: string | null }>(
             mercuryCats.map((c: { mercuryTransactionId: string; categoryName: string | null; notes: string | null }) => [
               c.mercuryTransactionId,

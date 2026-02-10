@@ -29,6 +29,8 @@ interface DeductibleCategory {
 }
 
 const currentYear = new Date().getFullYear();
+// Default to previous year if early in the current year (before April = tax season)
+const defaultYear = new Date().getMonth() < 3 ? currentYear - 1 : currentYear;
 const yearOptions = Array.from({ length: 4 }, (_, i) => currentYear - i);
 
 function formatCents(cents: number) {
@@ -51,7 +53,7 @@ function MetricSkeleton() {
 }
 
 export default function TaxPage() {
-  const [year, setYear] = useState(currentYear);
+  const [year, setYear] = useState(defaultYear);
 
   const { data: taxSummary, isLoading: summaryLoading } =
     api.finance.getTaxSummary.useQuery({ year });

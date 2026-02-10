@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Receipt,
@@ -18,8 +18,65 @@ import {
   CheckCircle2,
   Sparkles,
   Check,
+  ChevronDown,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Filter,
 } from "lucide-react";
 import { api } from "~/trpc/react";
+
+// ---------------------------------------------------------------------------
+// Date range presets
+// ---------------------------------------------------------------------------
+type DatePreset = "all" | "week" | "month" | "quarter" | "year" | "custom";
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 4 }, (_, i) => CURRENT_YEAR - i);
+
+function getDateRange(
+  preset: DatePreset,
+  selectedYear?: number
+): { start: string; end: string } {
+  const now = new Date();
+  const fmt = (d: Date) => d.toISOString().split("T")[0]!;
+  const today = fmt(now);
+
+  switch (preset) {
+    case "all":
+      return { start: "", end: "" };
+    case "week": {
+      const d = new Date(now);
+      d.setDate(d.getDate() - 7);
+      return { start: fmt(d), end: today };
+    }
+    case "month": {
+      const d = new Date(now.getFullYear(), now.getMonth(), 1);
+      return { start: fmt(d), end: today };
+    }
+    case "quarter": {
+      const q = Math.floor(now.getMonth() / 3) * 3;
+      const d = new Date(now.getFullYear(), q, 1);
+      return { start: fmt(d), end: today };
+    }
+    case "year": {
+      const yr = selectedYear ?? now.getFullYear();
+      const start = fmt(new Date(yr, 0, 1));
+      // If selected year is current year, end = today; otherwise end of that year
+      const end =
+        yr === now.getFullYear()
+          ? today
+          : fmt(new Date(yr + 1, 0, 1));
+      return { start, end };
+    }
+    case "custom":
+      return { start: "", end: "" };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—";
@@ -32,6 +89,13 @@ function formatDate(dateStr: string | null) {
 
 function formatCents(cents: number) {
   return (cents / 100).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function formatDollars(dollars: number) {
+  return Math.abs(dollars).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -51,13 +115,19 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Expense / Revenue Form
+// ---------------------------------------------------------------------------
+
 function ExpenseForm({
   categories,
   onClose,
+  onCategoryCreated,
   editExpense,
 }: {
   categories: Array<{ id: number; name: string }>;
   onClose: () => void;
+  onCategoryCreated: () => void;
   editExpense?: {
     id: number;
     categoryId: number;
@@ -65,6 +135,7 @@ function ExpenseForm({
     vendor: string;
     description: string | null;
     date: string;
+    type: string;
     isTaxDeductible: boolean;
     receiptUrl: string | null;
   };
@@ -82,9 +153,16 @@ function ExpenseForm({
   const [description, setDescription] = useState(
     editExpense?.description ?? ""
   );
+  const [entryType, setEntryType] = useState<"expense" | "revenue">(
+    (editExpense?.type as "expense" | "revenue") ?? "expense"
+  );
   const [isTaxDeductible, setIsTaxDeductible] = useState(
     editExpense?.isTaxDeductible ?? false
   );
+
+  // Inline category creation
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const utils = api.useUtils();
   const createExpense = api.finance.createExpense.useMutation({
@@ -99,6 +177,16 @@ function ExpenseForm({
       onClose();
     },
   });
+  const createCategory = api.finance.createExpenseCategory.useMutation({
+    onSuccess: (data) => {
+      if (data) {
+        setCategoryId(data.id.toString());
+        setShowNewCategory(false);
+        setNewCategoryName("");
+        onCategoryCreated();
+      }
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +199,7 @@ function ExpenseForm({
       vendor,
       description: description || undefined,
       date,
+      type: entryType,
       isTaxDeductible,
     };
 
@@ -131,7 +220,9 @@ function ExpenseForm({
     >
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-white">
-          {editExpense ? "Edit Expense" : "Add Expense"}
+          {editExpense
+            ? `Edit ${entryType === "revenue" ? "Revenue" : "Expense"}`
+            : `Add ${entryType === "revenue" ? "Revenue" : "Expense"}`}
         </h3>
         <button
           type="button"
@@ -141,16 +232,46 @@ function ExpenseForm({
           <X className="h-4 w-4" />
         </button>
       </div>
+
+      {/* Type toggle */}
+      <div className="mb-3 flex gap-1 rounded-lg bg-white/5 p-0.5" style={{ width: "fit-content" }}>
+        <button
+          type="button"
+          onClick={() => setEntryType("expense")}
+          className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+            entryType === "expense"
+              ? "bg-white/10 text-white"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Expense
+        </button>
+        <button
+          type="button"
+          onClick={() => setEntryType("revenue")}
+          className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+            entryType === "revenue"
+              ? "text-green-400"
+              : "text-gray-400 hover:text-white"
+          }`}
+          style={entryType === "revenue" ? { backgroundColor: "rgba(74, 222, 128, 0.1)" } : undefined}
+        >
+          Revenue
+        </button>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div>
-          <label className="mb-1 block text-xs text-gray-400">Vendor</label>
+          <label className="mb-1 block text-xs text-gray-400">
+            {entryType === "revenue" ? "Source" : "Vendor"}
+          </label>
           <input
             type="text"
             value={vendor}
             onChange={(e) => setVendor(e.target.value)}
             className="w-full rounded border bg-white/5 px-3 py-1.5 text-sm text-white placeholder:text-gray-500"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            placeholder="e.g. Vercel"
+            placeholder={entryType === "revenue" ? "e.g. Client payment" : "e.g. Vercel"}
             required
           />
         </div>
@@ -172,20 +293,64 @@ function ExpenseForm({
         </div>
         <div>
           <label className="mb-1 block text-xs text-gray-400">Category</label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full rounded border bg-white/5 px-3 py-1.5 text-sm text-white"
-            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            required
-          >
-            <option value="">Select category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          {showNewCategory ? (
+            <div className="flex gap-1">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                className="w-full rounded border bg-white/5 px-3 py-1.5 text-sm text-white placeholder:text-gray-500"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                placeholder="Category name"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    createCategory.mutate({ name: newCategoryName.trim() });
+                  }
+                }}
+                disabled={createCategory.isPending || !newCategoryName.trim()}
+                className="rounded px-2 text-xs font-medium disabled:opacity-50"
+                style={{ color: "#D4AF37" }}
+              >
+                {createCategory.isPending ? "..." : "Add"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewCategory(false);
+                  setNewCategoryName("");
+                }}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <select
+              value={categoryId}
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setShowNewCategory(true);
+                } else {
+                  setCategoryId(e.target.value);
+                }
+              }}
+              className="w-full rounded border bg-white/5 px-3 py-1.5 text-sm text-white"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              required
+            >
+              <option value="">Select category</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+              <option value="__new__">+ Add new category</option>
+            </select>
+          )}
         </div>
         <div>
           <label className="mb-1 block text-xs text-gray-400">Date</label>
@@ -242,32 +407,105 @@ function ExpenseForm({
           {isPending
             ? "Saving..."
             : editExpense
-              ? "Update Expense"
-              : "Add Expense"}
+              ? "Update"
+              : `Add ${entryType === "revenue" ? "Revenue" : "Expense"}`}
         </button>
       </div>
     </form>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Mercury Category Cell (inline categorization)
+// ---------------------------------------------------------------------------
+
 function MercuryCategoryCell({
   txId,
+  counterpartyName,
   categories,
   currentCategory,
+  onCategorize,
+  onCategoryCreated,
 }: {
   txId: string;
+  counterpartyName?: string | null;
   categories: Array<{ id: number; name: string }>;
   currentCategory?: {
     categoryId: number;
     isTaxDeductible: boolean;
   };
+  onCategorize: (params: {
+    mercuryTransactionId: string;
+    categoryId: number;
+    isTaxDeductible: boolean;
+    counterpartyName?: string;
+  }) => void;
+  onCategoryCreated: () => void;
 }) {
-  const utils = api.useUtils();
-  const categorize = api.finance.categorizeMercuryTransaction.useMutation({
-    onSuccess: () => {
-      void utils.finance.getMercuryTransactionCategories.invalidate();
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
+  const createCategory = api.finance.createExpenseCategory.useMutation({
+    onSuccess: (data) => {
+      if (data) {
+        onCategorize({
+          mercuryTransactionId: txId,
+          categoryId: data.id,
+          isTaxDeductible: true,
+          counterpartyName: counterpartyName ?? undefined,
+        });
+        setShowNewCategory(false);
+        setNewCategoryName("");
+        onCategoryCreated();
+      }
     },
   });
+
+  if (showNewCategory) {
+    return (
+      <div className="flex items-center gap-1">
+        <input
+          type="text"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+          className="w-24 rounded border bg-white/5 px-2 py-0.5 text-xs text-white placeholder:text-gray-500"
+          style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+          placeholder="Name"
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && newCategoryName.trim()) {
+              createCategory.mutate({ name: newCategoryName.trim() });
+            }
+            if (e.key === "Escape") {
+              setShowNewCategory(false);
+              setNewCategoryName("");
+            }
+          }}
+        />
+        <button
+          onClick={() => {
+            if (newCategoryName.trim()) {
+              createCategory.mutate({ name: newCategoryName.trim() });
+            }
+          }}
+          disabled={createCategory.isPending}
+          className="text-xs"
+          style={{ color: "#D4AF37" }}
+        >
+          {createCategory.isPending ? "..." : "Add"}
+        </button>
+        <button
+          onClick={() => {
+            setShowNewCategory(false);
+            setNewCategoryName("");
+          }}
+          className="text-gray-400 hover:text-white"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -275,11 +513,16 @@ function MercuryCategoryCell({
         value={currentCategory?.categoryId ?? ""}
         onChange={(e) => {
           const val = e.target.value;
+          if (val === "__new__") {
+            setShowNewCategory(true);
+            return;
+          }
           if (!val) return;
-          categorize.mutate({
+          onCategorize({
             mercuryTransactionId: txId,
             categoryId: parseInt(val),
-            isTaxDeductible: currentCategory?.isTaxDeductible ?? false,
+            isTaxDeductible: currentCategory?.isTaxDeductible ?? true,
+            counterpartyName: counterpartyName ?? undefined,
           });
         }}
         className="rounded border bg-white/5 px-2 py-1 text-xs text-gray-300"
@@ -291,14 +534,16 @@ function MercuryCategoryCell({
             {c.name}
           </option>
         ))}
+        <option value="__new__">+ New category</option>
       </select>
       {currentCategory && (
         <button
           onClick={() => {
-            categorize.mutate({
+            onCategorize({
               mercuryTransactionId: txId,
               categoryId: currentCategory.categoryId,
               isTaxDeductible: !currentCategory.isTaxDeductible,
+              counterpartyName: counterpartyName ?? undefined,
             });
           }}
           title={
@@ -319,6 +564,24 @@ function MercuryCategoryCell({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Mercury Transaction type
+// ---------------------------------------------------------------------------
+interface MercuryTx {
+  id: string;
+  amount: number;
+  description: string;
+  counterparty: string | null;
+  status: string;
+  postedAt: string | null;
+  createdAt: string | null;
+  kind: string;
+}
+
+// ---------------------------------------------------------------------------
+// Main Page
+// ---------------------------------------------------------------------------
+
 export default function ExpensesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<{
@@ -328,43 +591,169 @@ export default function ExpensesPage() {
     vendor: string;
     description: string | null;
     date: string;
+    type: string;
     isTaxDeductible: boolean;
     receiptUrl: string | null;
   } | null>(null);
 
+  // Date range state
+  const [datePreset, setDatePreset] = useState<DatePreset>("year");
+  const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+
+  const dateRange = useMemo(() => {
+    if (datePreset === "custom") {
+      return { start: customStart || undefined, end: customEnd || undefined };
+    }
+    const range = getDateRange(datePreset, selectedYear);
+    return { start: range.start || undefined, end: range.end || undefined };
+  }, [datePreset, selectedYear, customStart, customEnd]);
+
+  // Income/expense filter for Mercury
+  const [txFilter, setTxFilter] = useState<"all" | "income" | "expenses">("all");
+
+  // Pagination
+  const txLimit = 50;
+  const [allTransactions, setAllTransactions] = useState<MercuryTx[]>([]);
+  const [txOffset, setTxOffset] = useState(0);
+  // Track the dateRange key to detect when filters change
+  const dateRangeKey = `${dateRange.start ?? ""}-${dateRange.end ?? ""}`;
+  const prevDateRangeKeyRef = useRef(dateRangeKey);
+
   const { data: balances, isLoading: balancesLoading } =
     api.finance.getMercuryBalances.useQuery();
-  const { data: txData, isLoading: txLoading } =
-    api.finance.getMercuryTransactions.useQuery({ limit: 50 });
+
+  const { data: txData, isLoading: txLoading, isFetching: txFetching } =
+    api.finance.getMercuryTransactions.useQuery({
+      limit: txLimit,
+      offset: txOffset,
+      start: dateRange.start,
+      end: dateRange.end,
+    });
+
+  // Server-side summary for accurate totals across full date range
+  const { data: txSummary } = api.finance.getMercuryTransactionSummary.useQuery({
+    start: dateRange.start,
+    end: dateRange.end,
+  });
+
+  // Sync fetched data into allTransactions — reset on date change, append on pagination
+  useEffect(() => {
+    if (!txData) return;
+    const dateChanged = prevDateRangeKeyRef.current !== dateRangeKey;
+    prevDateRangeKeyRef.current = dateRangeKey;
+
+    if (dateChanged || txOffset === 0) {
+      // Fresh data for new date range
+      setAllTransactions(txData.transactions);
+    } else {
+      // Append paginated results
+      setAllTransactions((prev) => {
+        const existingIds = new Set(prev.map((t) => t.id));
+        const newTxs = txData.transactions.filter(
+          (t: MercuryTx) => !existingIds.has(t.id)
+        );
+        return [...prev, ...newTxs];
+      });
+    }
+  }, [txData, txOffset, dateRangeKey]);
+
   const { data: categories } = api.finance.getExpenseCategories.useQuery();
   const { data: manualExpenses, isLoading: expensesLoading } =
     api.finance.getExpenses.useQuery({});
 
   // Get Mercury transaction categorizations
-  const txIds = txData?.transactions?.map(
-    (tx: { id: string }) => tx.id
-  ) ?? [];
+  const txIds = allTransactions.map((tx) => tx.id);
   const { data: txCategories } =
     api.finance.getMercuryTransactionCategories.useQuery(
       { transactionIds: txIds },
       { enabled: txIds.length > 0 }
     );
 
-  const txCatMap = new Map<
-    string,
-    { categoryId: number; isTaxDeductible: boolean }
-  >(
-    txCategories?.map(
-      (c: {
-        mercuryTransactionId: string;
-        categoryId: number;
-        isTaxDeductible: boolean;
-      }) => [
-        c.mercuryTransactionId,
-        { categoryId: c.categoryId, isTaxDeductible: c.isTaxDeductible },
-      ]
-    )
-  );
+  // Local optimistic overrides for categorizations (instant UI feedback)
+  const [localCatOverrides, setLocalCatOverrides] = useState<
+    Map<string, { categoryId: number; isTaxDeductible: boolean }>
+  >(new Map());
+
+  const txCatMap = useMemo(() => {
+    const base = new Map<
+      string,
+      { categoryId: number; isTaxDeductible: boolean }
+    >(
+      txCategories?.map(
+        (c: {
+          mercuryTransactionId: string;
+          categoryId: number;
+          isTaxDeductible: boolean;
+        }) => [
+          c.mercuryTransactionId,
+          { categoryId: c.categoryId, isTaxDeductible: c.isTaxDeductible },
+        ]
+      )
+    );
+    // Apply local overrides on top
+    for (const [txId, override] of localCatOverrides) {
+      base.set(txId, override);
+    }
+    return base;
+  }, [txCategories, localCatOverrides]);
+
+  // Filter transactions client-side by income/expense
+  const filteredTransactions = useMemo(() => {
+    if (txFilter === "all") return allTransactions;
+    if (txFilter === "income") return allTransactions.filter((t) => t.amount >= 0);
+    return allTransactions.filter((t) => t.amount < 0);
+  }, [allTransactions, txFilter]);
+
+  // Mercury summary totals from server (covers all transactions, not just loaded page)
+  const mercuryTotals = useMemo(() => {
+    if (txSummary) {
+      return {
+        totalIncome: txSummary.totalIncome,
+        totalExpenses: txSummary.totalExpenses,
+        net: txSummary.net,
+        count: txSummary.count,
+      };
+    }
+    return { totalIncome: 0, totalExpenses: 0, net: 0, count: 0 };
+  }, [txSummary]);
+
+  // Manual entry totals (amounts in cents)
+  const manualTotals = useMemo(() => {
+    if (!manualExpenses?.length) return { expenses: 0, revenue: 0, count: 0 };
+    let expenses = 0;
+    let revenue = 0;
+    for (const exp of manualExpenses as Array<{ amount: number; type: string }>) {
+      if (exp.type === "revenue") {
+        revenue += exp.amount;
+      } else {
+        expenses += exp.amount;
+      }
+    }
+    return { expenses, revenue, count: manualExpenses.length };
+  }, [manualExpenses]);
+
+  // Combined aggregate (convert manual cents to dollars for unified view)
+  const aggregateTotals = useMemo(() => {
+    const mercExpenses = mercuryTotals.totalExpenses;
+    const mercIncome = mercuryTotals.totalIncome;
+    const manualExpensesDollars = manualTotals.expenses / 100;
+    const manualRevenueDollars = manualTotals.revenue / 100;
+
+    const totalExpenses = mercExpenses + manualExpensesDollars;
+    const totalIncome = mercIncome + manualRevenueDollars;
+    return {
+      totalExpenses,
+      totalIncome,
+      net: totalIncome - totalExpenses,
+      mercuryExpenses: mercExpenses,
+      mercuryIncome: mercIncome,
+      manualExpenses: manualExpensesDollars,
+      manualRevenue: manualRevenueDollars,
+      totalEntries: mercuryTotals.count + manualTotals.count,
+    };
+  }, [mercuryTotals, manualTotals]);
 
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -376,18 +765,68 @@ export default function ExpensesPage() {
     onSuccess: () => void utils.finance.getExpenseCategories.invalidate(),
   });
 
-  // Auto-categorization
-  const autoCategorizeDry = api.finance.autoCategorizeMercuryTransactions.useMutation({
-    onSuccess: () => setShowSuggestions(true),
-  });
-  const autoCategorizeApply = api.finance.autoCategorizeMercuryTransactions.useMutation({
+  // Parent-level categorize mutation — instant optimistic update
+  const categorizeMutation = api.finance.categorizeMercuryTransaction.useMutation({
     onSuccess: () => {
-      setShowSuggestions(false);
+      // Background refetch, don't block UI
       void utils.finance.getMercuryTransactionCategories.invalidate();
     },
   });
 
+  const handleCategorize = (params: {
+    mercuryTransactionId: string;
+    categoryId: number;
+    isTaxDeductible: boolean;
+    counterpartyName?: string;
+  }) => {
+    // Instant optimistic update
+    setLocalCatOverrides((prev) => {
+      const next = new Map(prev);
+      next.set(params.mercuryTransactionId, {
+        categoryId: params.categoryId,
+        isTaxDeductible: params.isTaxDeductible,
+      });
+      return next;
+    });
+    // Fire mutation in background
+    categorizeMutation.mutate(params);
+  };
+
+  const handleCategoryCreated = () => {
+    void utils.finance.getExpenseCategories.invalidate();
+  };
+
+  // Auto-categorization
+  const autoCategorizeDry =
+    api.finance.autoCategorizeMercuryTransactions.useMutation({
+      onSuccess: () => setShowSuggestions(true),
+    });
+  const autoCategorizeApply =
+    api.finance.autoCategorizeMercuryTransactions.useMutation({
+      onSuccess: () => {
+        setShowSuggestions(false);
+        void utils.finance.getMercuryTransactionCategories.invalidate();
+      },
+    });
+
   const cats = categories ?? [];
+
+  // Reset pagination when date range changes
+  const handleDatePresetChange = (preset: DatePreset) => {
+    setAllTransactions([]);
+    setTxOffset(0);
+    setDatePreset(preset);
+  };
+
+  const handleYearChange = (yr: number) => {
+    setAllTransactions([]);
+    setTxOffset(0);
+    setSelectedYear(yr);
+  };
+
+  const handleLoadMore = () => {
+    setTxOffset((prev) => prev + txLimit);
+  };
 
   return (
     <div className="space-y-6">
@@ -417,7 +856,10 @@ export default function ExpensesPage() {
                 onClick={() => seedCategories.mutate()}
                 disabled={seedCategories.isPending}
                 className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors hover:bg-white/5"
-                style={{ borderColor: "rgba(212, 175, 55, 0.2)", color: "#D4AF37" }}
+                style={{
+                  borderColor: "rgba(212, 175, 55, 0.2)",
+                  color: "#D4AF37",
+                }}
               >
                 Seed Categories
               </button>
@@ -426,7 +868,10 @@ export default function ExpensesPage() {
               onClick={() => autoCategorizeDry.mutate({ apply: false })}
               disabled={autoCategorizeDry.isPending}
               className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors hover:bg-white/5"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)", color: "#D4AF37" }}
+              style={{
+                borderColor: "rgba(212, 175, 55, 0.2)",
+                color: "#D4AF37",
+              }}
             >
               <Sparkles className="h-4 w-4" />
               {autoCategorizeDry.isPending ? "Scanning..." : "Auto-Categorize"}
@@ -443,7 +888,7 @@ export default function ExpensesPage() {
               }}
             >
               <Plus className="h-4 w-4" />
-              Add Expense
+              Add Entry
             </button>
           </div>
         </div>
@@ -454,6 +899,7 @@ export default function ExpensesPage() {
         <ExpenseForm
           categories={cats}
           editExpense={editingExpense ?? undefined}
+          onCategoryCreated={handleCategoryCreated}
           onClose={() => {
             setShowForm(false);
             setEditingExpense(null);
@@ -515,10 +961,14 @@ export default function ExpensesPage() {
             <div className="max-h-64 overflow-y-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-xs uppercase tracking-wider text-gray-500" style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}>
+                  <tr
+                    className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                    style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+                  >
                     <th className="px-3 py-2">Counterparty</th>
                     <th className="px-3 py-2">Date</th>
                     <th className="px-3 py-2">Suggested Category</th>
+                    <th className="px-3 py-2">Source</th>
                     <th className="px-3 py-2">Deductible</th>
                     <th className="px-3 py-2 text-right">Amount</th>
                   </tr>
@@ -533,6 +983,7 @@ export default function ExpensesPage() {
                       suggestedCategory: string;
                       isTaxDeductible: boolean;
                       date: string | null;
+                      source?: string;
                     }) => (
                       <tr
                         key={s.transactionId}
@@ -561,6 +1012,9 @@ export default function ExpensesPage() {
                           >
                             {s.suggestedCategory}
                           </span>
+                        </td>
+                        <td className="px-3 py-1.5 text-xs text-gray-500">
+                          {s.source === "db" ? "Learned" : "Rule"}
                         </td>
                         <td className="px-3 py-1.5">
                           {s.isTaxDeductible ? (
@@ -598,7 +1052,7 @@ export default function ExpensesPage() {
             <p className="font-medium text-white">Mercury not connected</p>
             <p className="mt-1 text-sm text-gray-400">
               {(balances as { error?: string })?.error ??
-                "Add MERCURY_API_KEY to your environment. Get one from Mercury Settings → Tokens."}
+                "Add MERCURY_API_KEY to your environment. Get one from Mercury Settings \u2192 Tokens."}
             </p>
           </div>
         </div>
@@ -686,9 +1140,86 @@ export default function ExpensesPage() {
         </div>
       </div>
 
+      {/* Aggregate Summary */}
+      <div>
+        <h2 className="mb-3 font-semibold text-white">Expense Summary</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Total Expenses */}
+          <div
+            className="rounded-lg border bg-white/5 p-5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <TrendingDown className="h-4 w-4 text-red-400" />
+              Total Expenses
+            </div>
+            <p className="mt-2 text-2xl font-bold text-white">
+              ${formatDollars(aggregateTotals.totalExpenses)}
+            </p>
+            <div className="mt-2 space-y-0.5 text-xs text-gray-500">
+              <p>Mercury: ${formatDollars(aggregateTotals.mercuryExpenses)}</p>
+              <p>Manual: ${formatDollars(aggregateTotals.manualExpenses)}</p>
+            </div>
+          </div>
+
+          {/* Total Income */}
+          <div
+            className="rounded-lg border bg-white/5 p-5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <TrendingUp className="h-4 w-4 text-green-400" />
+              Total Income
+            </div>
+            <p className="mt-2 text-2xl font-bold text-green-400">
+              ${formatDollars(aggregateTotals.totalIncome)}
+            </p>
+            <div className="mt-2 space-y-0.5 text-xs text-gray-500">
+              <p>Mercury: ${formatDollars(aggregateTotals.mercuryIncome)}</p>
+              <p>Manual: ${formatDollars(aggregateTotals.manualRevenue)}</p>
+            </div>
+          </div>
+
+          {/* Net */}
+          <div
+            className="rounded-lg border bg-white/5 p-5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <DollarSign className="h-4 w-4" style={{ color: "#D4AF37" }} />
+              Net
+            </div>
+            <p
+              className={`mt-2 text-2xl font-bold ${aggregateTotals.net >= 0 ? "text-green-400" : "text-red-400"}`}
+            >
+              {aggregateTotals.net >= 0 ? "+" : "-"}$
+              {formatDollars(aggregateTotals.net)}
+            </p>
+          </div>
+
+          {/* Entries Count */}
+          <div
+            className="rounded-lg border bg-white/5 p-5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <Receipt className="h-4 w-4" style={{ color: "#D4AF37" }} />
+              Total Entries
+            </div>
+            <p className="mt-2 text-2xl font-bold text-white">
+              {aggregateTotals.totalEntries}
+            </p>
+            <div className="mt-2 space-y-0.5 text-xs text-gray-500">
+              <p>Mercury: {mercuryTotals.count}</p>
+              <p>Manual: {manualTotals.count}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Manual Expenses */}
       <div>
-        <h2 className="mb-3 font-semibold text-white">Manual Expenses</h2>
+        <h2 className="mb-3 font-semibold text-white">Manual Entries</h2>
         <div
           className="rounded-lg border bg-white/5"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -697,7 +1228,7 @@ export default function ExpensesPage() {
             <TableSkeleton />
           ) : !manualExpenses?.length ? (
             <div className="p-6 text-center text-sm text-gray-500">
-              No manual expenses recorded. Click &quot;Add Expense&quot; to get
+              No manual entries recorded. Click &quot;Add Entry&quot; to get
               started.
             </div>
           ) : (
@@ -710,88 +1241,111 @@ export default function ExpensesPage() {
                   <th className="px-4 py-3">Vendor</th>
                   <th className="px-4 py-3">Category</th>
                   <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Type</th>
                   <th className="px-4 py-3">Deductible</th>
                   <th className="px-4 py-3 text-right">Amount</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {manualExpenses.map((exp: {
-                  id: number;
-                  categoryId: number;
-                  categoryName: string | null;
-                  amount: number;
-                  vendor: string;
-                  description: string | null;
-                  date: string;
-                  isTaxDeductible: boolean;
-                  receiptUrl: string | null;
-                  createdAt: Date | null;
-                }) => (
-                  <tr
-                    key={exp.id}
-                    className="border-b"
-                    style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
-                  >
-                    <td className="px-4 py-2.5 text-gray-300">
-                      <div>
-                        {exp.vendor}
-                        {exp.description && (
-                          <span className="ml-2 text-xs text-gray-500">
-                            {exp.description}
+                {manualExpenses.map(
+                  (exp: {
+                    id: number;
+                    categoryId: number;
+                    categoryName: string | null;
+                    amount: number;
+                    vendor: string;
+                    description: string | null;
+                    date: string;
+                    type: string;
+                    isTaxDeductible: boolean;
+                    receiptUrl: string | null;
+                    createdAt: Date | null;
+                  }) => (
+                    <tr
+                      key={exp.id}
+                      className="border-b"
+                      style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+                    >
+                      <td className="px-4 py-2.5 text-gray-300">
+                        <div>
+                          {exp.vendor}
+                          {exp.description && (
+                            <span className="ml-2 text-xs text-gray-500">
+                              {exp.description}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-gray-400">
+                        {exp.categoryName ?? "—"}
+                      </td>
+                      <td className="px-4 py-2.5 text-gray-400">
+                        {formatDate(exp.date)}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {exp.type === "revenue" ? (
+                          <span className="inline-flex items-center gap-1 text-xs text-green-400">
+                            <TrendingUp className="h-3 w-3" />
+                            Revenue
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                            <TrendingDown className="h-3 w-3" />
+                            Expense
                           </span>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5 text-gray-400">
-                      {exp.categoryName ?? "—"}
-                    </td>
-                    <td className="px-4 py-2.5 text-gray-400">
-                      {formatDate(exp.date)}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      {exp.isTaxDeductible ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-400" />
-                      ) : (
-                        <span className="text-xs text-gray-500">No</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2.5 text-right font-medium text-white">
-                      ${formatCents(exp.amount)}
-                    </td>
-                    <td className="px-4 py-2.5 text-right">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          onClick={() =>
-                            setEditingExpense({
-                              id: exp.id,
-                              categoryId: exp.categoryId,
-                              amount: exp.amount,
-                              vendor: exp.vendor,
-                              description: exp.description,
-                              date: exp.date,
-                              isTaxDeductible: exp.isTaxDeductible,
-                              receiptUrl: exp.receiptUrl,
-                            })
-                          }
-                          className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-white"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm("Delete this expense?")) {
-                              deleteExpense.mutate({ id: exp.id });
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {exp.isTaxDeductible ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <span className="text-xs text-gray-500">No</span>
+                        )}
+                      </td>
+                      <td
+                        className={`px-4 py-2.5 text-right font-medium ${
+                          exp.type === "revenue" ? "text-green-400" : "text-white"
+                        }`}
+                      >
+                        {exp.type === "revenue" ? "+" : ""}$
+                        {formatCents(exp.amount)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() =>
+                              setEditingExpense({
+                                id: exp.id,
+                                categoryId: exp.categoryId,
+                                amount: exp.amount,
+                                vendor: exp.vendor,
+                                description: exp.description,
+                                date: exp.date,
+                                type: exp.type,
+                                isTaxDeductible: exp.isTaxDeductible,
+                                receiptUrl: exp.receiptUrl,
+                              })
                             }
-                          }}
-                          className="rounded p-1 text-gray-400 hover:bg-red-500/10 hover:text-red-400"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                            className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-white"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm("Delete this entry?")) {
+                                deleteExpense.mutate({ id: exp.id });
+                              }
+                            }}
+                            className="rounded p-1 text-gray-400 hover:bg-red-500/10 hover:text-red-400"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
           )}
@@ -800,19 +1354,141 @@ export default function ExpensesPage() {
 
       {/* Mercury Transactions */}
       <div>
-        <h2 className="mb-3 font-semibold text-white">
-          Mercury Transactions
-        </h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-semibold text-white">Mercury Transactions</h2>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Date range presets */}
+            <div className="flex gap-0.5 rounded-lg bg-white/5 p-0.5">
+              {(["week", "month", "quarter", "year"] as DatePreset[]).map(
+                (preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => handleDatePresetChange(preset)}
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                      datePreset === preset
+                        ? "bg-white/10 text-white"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {preset.charAt(0).toUpperCase() + preset.slice(1)}
+                  </button>
+                )
+              )}
+              <button
+                onClick={() => handleDatePresetChange("custom")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  datePreset === "custom"
+                    ? "bg-white/10 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Custom
+              </button>
+            </div>
+
+            {/* Year selector */}
+            {datePreset === "year" && (
+              <select
+                value={selectedYear}
+                onChange={(e) => handleYearChange(parseInt(e.target.value))}
+                className="rounded-lg border bg-white/5 px-2 py-1 text-xs text-white"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                {YEAR_OPTIONS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {/* Custom date inputs */}
+            {datePreset === "custom" && (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="date"
+                  value={customStart}
+                  onChange={(e) => {
+                    setCustomStart(e.target.value);
+                    setTxOffset(0);
+                    setAllTransactions([]);
+                  }}
+                  className="rounded border bg-white/5 px-2 py-1 text-xs text-white"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                />
+                <span className="text-xs text-gray-500">to</span>
+                <input
+                  type="date"
+                  value={customEnd}
+                  onChange={(e) => {
+                    setCustomEnd(e.target.value);
+                    setTxOffset(0);
+                    setAllTransactions([]);
+                  }}
+                  className="rounded border bg-white/5 px-2 py-1 text-xs text-white"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                />
+              </div>
+            )}
+
+            {/* Income/expense filter */}
+            <div className="flex gap-0.5 rounded-lg bg-white/5 p-0.5">
+              <button
+                onClick={() => setTxFilter("all")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  txFilter === "all"
+                    ? "bg-white/10 text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <Filter className="mr-1 inline h-3 w-3" />
+                All
+              </button>
+              <button
+                onClick={() => setTxFilter("income")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  txFilter === "income"
+                    ? "text-green-400"
+                    : "text-gray-400 hover:text-white"
+                }`}
+                style={
+                  txFilter === "income"
+                    ? { backgroundColor: "rgba(74, 222, 128, 0.1)" }
+                    : undefined
+                }
+              >
+                Income
+              </button>
+              <button
+                onClick={() => setTxFilter("expenses")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  txFilter === "expenses"
+                    ? "text-red-400"
+                    : "text-gray-400 hover:text-white"
+                }`}
+                style={
+                  txFilter === "expenses"
+                    ? { backgroundColor: "rgba(248, 113, 113, 0.1)" }
+                    : undefined
+                }
+              >
+                Expenses
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div
           className="rounded-lg border bg-white/5"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
         >
-          {txLoading ? (
+          {txLoading && txOffset === 0 ? (
             <TableSkeleton />
-          ) : !txData?.connected || !txData?.transactions?.length ? (
+          ) : !txData?.connected || filteredTransactions.length === 0 ? (
             <div className="p-6 text-center text-sm text-gray-500">
               {txData?.connected
-                ? "No transactions found"
+                ? "No transactions found for this period"
                 : "Connect Mercury to view transactions"}
             </div>
           ) : (
@@ -832,84 +1508,94 @@ export default function ExpensesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {txData.transactions.map(
-                    (tx: {
-                      id: string;
-                      amount: number;
-                      description: string;
-                      counterparty: string | null;
-                      status: string;
-                      postedAt: string | null;
-                      createdAt: string | null;
-                      kind: string;
-                    }) => (
-                      <tr
-                        key={tx.id}
-                        className="border-b"
-                        style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
-                      >
-                        <td className="px-4 py-2.5 text-gray-300">
-                          <span className="flex items-center gap-1.5">
-                            {tx.amount >= 0 ? (
-                              <ArrowDownLeft className="h-3.5 w-3.5 text-green-400" />
-                            ) : (
-                              <ArrowUpRight className="h-3.5 w-3.5 text-red-400" />
-                            )}
-                            {tx.description}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 text-gray-400">
-                          {tx.counterparty ?? "—"}
-                        </td>
-                        <td className="px-4 py-2.5 text-gray-400">
-                          <span className="inline-flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {formatDate(tx.postedAt ?? tx.createdAt)}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <span
-                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                            style={{
-                              backgroundColor:
-                                tx.status === "sent" ||
-                                tx.status === "received"
-                                  ? "rgba(74, 222, 128, 0.1)"
-                                  : tx.status === "pending"
-                                    ? "rgba(250, 204, 21, 0.1)"
-                                    : "rgba(156, 163, 175, 0.1)",
-                              color:
-                                tx.status === "sent" ||
-                                tx.status === "received"
-                                  ? "#4ade80"
-                                  : tx.status === "pending"
-                                    ? "#facc15"
-                                    : "#9ca3af",
-                            }}
-                          >
-                            {tx.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <MercuryCategoryCell
-                            txId={tx.id}
-                            categories={cats}
-                            currentCategory={txCatMap.get(tx.id)}
-                          />
-                        </td>
-                        <td
-                          className={`px-4 py-2.5 text-right font-medium ${tx.amount >= 0 ? "text-green-400" : "text-white"}`}
+                  {filteredTransactions.map((tx) => (
+                    <tr
+                      key={tx.id}
+                      className="border-b"
+                      style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+                    >
+                      <td className="px-4 py-2.5 text-gray-300">
+                        <span className="flex items-center gap-1.5">
+                          {tx.amount >= 0 ? (
+                            <ArrowDownLeft className="h-3.5 w-3.5 text-green-400" />
+                          ) : (
+                            <ArrowUpRight className="h-3.5 w-3.5 text-red-400" />
+                          )}
+                          {tx.description}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-gray-400">
+                        {tx.counterparty ?? "—"}
+                      </td>
+                      <td className="px-4 py-2.5 text-gray-400">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatDate(tx.postedAt ?? tx.createdAt)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor:
+                              tx.status === "sent" ||
+                              tx.status === "received"
+                                ? "rgba(74, 222, 128, 0.1)"
+                                : tx.status === "pending"
+                                  ? "rgba(250, 204, 21, 0.1)"
+                                  : "rgba(156, 163, 175, 0.1)",
+                            color:
+                              tx.status === "sent" ||
+                              tx.status === "received"
+                                ? "#4ade80"
+                                : tx.status === "pending"
+                                  ? "#facc15"
+                                  : "#9ca3af",
+                          }}
                         >
-                          {tx.amount >= 0 ? "+" : ""}$
-                          {Math.abs(tx.amount).toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </td>
-                      </tr>
-                    )
-                  )}
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <MercuryCategoryCell
+                          txId={tx.id}
+                          counterpartyName={tx.counterparty}
+                          categories={cats}
+                          currentCategory={txCatMap.get(tx.id)}
+                          onCategorize={handleCategorize}
+                          onCategoryCreated={handleCategoryCreated}
+                        />
+                      </td>
+                      <td
+                        className={`px-4 py-2.5 text-right font-medium ${tx.amount >= 0 ? "text-green-400" : "text-white"}`}
+                      >
+                        {tx.amount >= 0 ? "+" : ""}$
+                        {Math.abs(tx.amount).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Load More button */}
+          {txData?.hasMore && (
+            <div className="border-t p-3 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}>
+              <button
+                onClick={handleLoadMore}
+                disabled={txFetching}
+                className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
+                style={{
+                  borderColor: "rgba(212, 175, 55, 0.2)",
+                  color: "#D4AF37",
+                }}
+              >
+                <ChevronDown className="h-4 w-4" />
+                {txFetching ? "Loading..." : "Load More"}
+              </button>
             </div>
           )}
         </div>

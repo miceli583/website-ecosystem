@@ -147,7 +147,7 @@ export function AdminOverview() {
             </div>
             <p className="mt-2 text-2xl font-bold text-white">
               {financeData?.mercury.connected
-                ? `$${(financeData.mercury.totalAvailable / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                ? `$${financeData.mercury.totalAvailable.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
                 : "—"}
             </p>
             <p className="mt-1 text-xs text-gray-500">

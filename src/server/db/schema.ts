@@ -207,6 +207,7 @@ export const expenses = pgTable("expenses", {
   vendor: text("vendor").notNull(),
   description: text("description"),
   date: date("date").notNull(),
+  type: text("type").notNull().default("expense"), // "expense" | "revenue"
   isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
   receiptUrl: text("receipt_url"),
   createdByAuthId: uuid("created_by_auth_id").notNull(),
@@ -225,6 +226,7 @@ export const mercuryTransactionCategories = pgTable("mercury_transaction_categor
     .notNull()
     .references(() => expenseCategories.id, { onDelete: "restrict" }),
   isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
+  counterpartyName: text("counterparty_name"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
