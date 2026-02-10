@@ -6,7 +6,7 @@ _None currently — all critical security items resolved_
 
 ## Bugs (broken functionality)
 
-- [ ] Assets pages: remove nav bars and footers (remnants of old dev hub view, not needed inside dashboard viewport)
+_None currently_
 
 ## Tech Debt (code quality issues)
 
