@@ -33,6 +33,15 @@ import {
   Award,
   MapPin,
   Heart,
+  LogOut,
+  BarChart3,
+  Lock,
+  ChevronUp,
+  Calendar,
+  UserCheck,
+  DollarSign,
+  Download,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -230,6 +239,46 @@ const MEMBERSHIP_TIERS = [
     popular: true,
   },
 ];
+
+// Demo users for login
+type DemoUser = { email: string; password: string; name: string; role: "member" | "admin"; tier: string; memberSince: string };
+
+const DEMO_USERS: DemoUser[] = [
+  { email: "maria@tapchw.org", password: "demo123", name: "Maria Garcia", role: "member", tier: "Individual", memberSince: "2023" },
+  { email: "admin@tapchw.org", password: "admin123", name: "Dr. Sarah Chen", role: "admin", tier: "Organization", memberSince: "2021" },
+];
+
+// Admin analytics sample data
+const ANALYTICS_DATA = {
+  totalMembers: 5247,
+  newMembersThisMonth: 142,
+  activeOrgs: 28,
+  monthlyRevenue: 8450,
+  eventRegistrations: 384,
+  resourceDownloads: 1923,
+  memberGrowth: [
+    { month: "Sep", value: 4200 },
+    { month: "Oct", value: 4450 },
+    { month: "Nov", value: 4680 },
+    { month: "Dec", value: 4890 },
+    { month: "Jan", value: 5100 },
+    { month: "Feb", value: 5247 },
+  ],
+  topResources: [
+    { name: "CHW Disaster Preparedness", downloads: 428 },
+    { name: "CDC CHW Toolkit", downloads: 356 },
+    { name: "Trauma Informed Care", downloads: 298 },
+    { name: "Sustainable Financing Report", downloads: 245 },
+    { name: "Misinformation Toolkit", downloads: 189 },
+  ],
+  recentMembers: [
+    { name: "Carlos Mendez", type: "Individual", date: "Feb 10, 2025" },
+    { name: "Austin Health Coalition", type: "Organization", date: "Feb 8, 2025" },
+    { name: "Lisa Nguyen", type: "Bi-Annual", date: "Feb 7, 2025" },
+    { name: "Rural Health Network", type: "Organization", date: "Feb 5, 2025" },
+    { name: "David Washington", type: "Individual", date: "Feb 3, 2025" },
+  ],
+};
 
 // Animated Counter Hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -483,7 +532,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
                   <Button
                     size="lg"
                     className="group w-full px-8 text-white shadow-2xl transition-all duration-500 hover:scale-105 sm:w-auto"
-                    style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
+                    style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)`, boxShadow: `0 0 30px ${COLORS.maroon}40, 0 0 60px ${COLORS.maroon}20` }}
                     onClick={() => setPage("membership")}
                   >
                     Join Now
@@ -557,6 +606,9 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
         </div>
       </section>
 
+      {/* Section Divider */}
+      <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
+
       {/* Stats Section */}
       <section
         className="relative overflow-hidden px-4 py-24"
@@ -596,7 +648,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       <section className="px-4 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="group overflow-hidden border-0 bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+            <Card className="group overflow-hidden border border-transparent bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl" style={{ borderImage: "none" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${COLORS.navy}25`; e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS.navy}15`; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = ""; }}>
               <CardContent className="p-8">
                 <div
                   className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-all duration-500 group-hover:scale-110"
@@ -612,7 +664,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
               </CardContent>
             </Card>
 
-            <Card className="group overflow-hidden border-0 bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+            <Card className="group overflow-hidden border border-transparent bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl" style={{ borderImage: "none" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${COLORS.maroon}25`; e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS.maroon}15`; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = ""; }}>
               <CardContent className="p-8">
                 <div
                   className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-all duration-500 group-hover:scale-110"
@@ -669,6 +721,9 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
         </div>
       </section>
 
+      {/* Section Divider */}
+      <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
+
       {/* Goals Section */}
       <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="mx-auto max-w-4xl">
@@ -713,6 +768,9 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
           <TestimonialCarousel />
         </div>
       </section>
+
+      {/* Section Divider */}
+      <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
 
       {/* Member Organizations Carousel */}
       <section className="border-y bg-white py-4" style={{ borderColor: "rgba(53, 79, 139, 0.1)" }}>
@@ -1274,17 +1332,414 @@ function ContactPage() {
   );
 }
 
+// Login Page Component
+function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setTimeout(() => {
+      const user = DEMO_USERS.find((u) => u.email === email && u.password === password);
+      if (user) {
+        onLogin(user);
+      } else {
+        setError("Invalid email or password. Try the demo credentials below.");
+      }
+      setLoading(false);
+    }, 800);
+  };
+
+  return (
+    <div className="flex min-h-[80vh] items-center justify-center px-4 py-20" style={{ backgroundColor: COLORS.cream }}>
+      <Card className="w-full max-w-md border-0 shadow-2xl">
+        <CardContent className="p-8">
+          <div className="mb-8 text-center">
+            <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={80} height={80} className="mx-auto mb-4 object-contain" />
+            <h2 className="font-serif text-2xl font-bold" style={{ color: COLORS.navy }}>Welcome Back</h2>
+            <p className="mt-1 text-sm text-gray-500">Sign in to your TAPCHW account</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 pl-10"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 pl-10"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                <X className="h-4 w-4 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="h-12 w-full text-white"
+              style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+              {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
+            </Button>
+          </form>
+
+          <div className="mt-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Demo Credentials</p>
+            <div className="space-y-1 text-xs text-gray-600">
+              <p><span className="font-medium">Member:</span> maria@tapchw.org / demo123</p>
+              <p><span className="font-medium">Admin:</span> admin@tapchw.org / admin123</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Member Dashboard Component
+function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: string) => void }) {
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: COLORS.cream }}>
+      <section className="px-4 py-12" style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}>
+        <div className="mx-auto max-w-6xl">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-2xl font-bold text-white backdrop-blur-sm">
+              {user.name.split(" ").map((n) => n[0]).join("")}
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Welcome back, {user.name.split(" ")[0]}!</h1>
+              <p className="text-white/70">{user.role === "admin" ? "Administrator" : "Member"} · Since {user.memberSince}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${COLORS.navy}15` }}>
+                    <UserCheck className="h-5 w-5" style={{ color: COLORS.navy }} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Membership</p>
+                    <p className="font-bold" style={{ color: COLORS.navy }}>{user.tier} Plan</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Active — Renews Jan 2026
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${COLORS.maroon}15` }}>
+                    <Award className="h-5 w-5" style={{ color: COLORS.maroon }} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">CEs Earned</p>
+                    <p className="font-bold" style={{ color: COLORS.maroon }}>12 / 20</p>
+                  </div>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                  <div className="h-full rounded-full" style={{ width: "60%", background: `linear-gradient(90deg, ${COLORS.maroon}, ${COLORS.maroonLight})` }} />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">8 more needed by Dec 2025</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <p className="mb-4 text-sm text-gray-500">Quick Actions</p>
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setPage("events")}>
+                    <Calendar className="mr-2 h-4 w-4" /> View Events
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setPage("resources")}>
+                    <BookOpen className="mr-2 h-4 w-4" /> Browse Resources
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setPage("training")}>
+                    <GraduationCap className="mr-2 h-4 w-4" /> Training Center
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-8">
+            <h2 className="mb-4 text-xl font-bold" style={{ color: COLORS.navy }}>Upcoming Events</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {EVENTS.slice(0, 2).map((event, i) => (
+                <Card key={i} className="group border-0 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+                  <CardContent className="flex items-center gap-0 p-0">
+                    <div className="flex w-20 flex-shrink-0 flex-col items-center justify-center py-6" style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}>
+                      <span className="text-xs font-semibold uppercase text-white/70">{event.month}</span>
+                      <span className="text-2xl font-bold text-white">{event.day}</span>
+                    </div>
+                    <div className="flex-1 p-4">
+                      <p className="font-semibold" style={{ color: COLORS.maroon }}>{event.title}</p>
+                      {event.speaker && <p className="text-sm text-gray-500">{event.speaker}</p>}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h2 className="mb-4 text-xl font-bold" style={{ color: COLORS.navy }}>Recent Activity</h2>
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-0">
+                {[
+                  { action: "Completed CE: Trauma Informed Care", time: "2 days ago", icon: CheckCircle2 },
+                  { action: "Registered for Heart Disease Prevention Meeting", time: "1 week ago", icon: Calendar },
+                  { action: "Downloaded: CDC CHW Toolkit", time: "2 weeks ago", icon: Download },
+                  { action: "Membership renewed for 2025", time: "1 month ago", icon: UserCheck },
+                ].map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={i} className={`flex items-center gap-4 px-6 py-4 ${i > 0 ? "border-t border-gray-100" : ""}`}>
+                      <Icon className="h-5 w-5 flex-shrink-0" style={{ color: i % 2 === 0 ? COLORS.navy : COLORS.maroon }} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-700">{item.action}</p>
+                        <p className="text-xs text-gray-400">{item.time}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// Admin Dashboard Component
+function AdminDashboard() {
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: COLORS.cream }}>
+      <section className="px-4 py-8" style={{ background: `linear-gradient(135deg, ${COLORS.maroonDark} 0%, ${COLORS.navyDark} 100%)` }}>
+        <div className="mx-auto max-w-6xl">
+          <div className="flex items-center gap-3">
+            <LayoutDashboard className="h-6 w-6 text-white" />
+            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+          </div>
+          <p className="mt-1 text-white/60">TAPCHW Site Analytics & Management</p>
+        </div>
+      </section>
+
+      <section className="px-4 py-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: "Total Members", value: ANALYTICS_DATA.totalMembers.toLocaleString(), change: "+142 this month", icon: Users, color: COLORS.navy },
+              { label: "Monthly Revenue", value: `$${ANALYTICS_DATA.monthlyRevenue.toLocaleString()}`, change: "+12% vs last month", icon: DollarSign, color: COLORS.maroon },
+              { label: "Event Registrations", value: ANALYTICS_DATA.eventRegistrations.toString(), change: "Next: Feb 14", icon: Calendar, color: COLORS.navyLight },
+              { label: "Resource Downloads", value: ANALYTICS_DATA.resourceDownloads.toLocaleString(), change: "+89 this week", icon: Download, color: COLORS.maroonLight },
+            ].map((kpi) => {
+              const Icon = kpi.icon;
+              return (
+                <Card key={kpi.label} className="border-0 shadow-lg">
+                  <CardContent className="p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm text-gray-500">{kpi.label}</p>
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${kpi.color}15` }}>
+                        <Icon className="h-4 w-4" style={{ color: kpi.color }} />
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold" style={{ color: kpi.color }}>{kpi.value}</p>
+                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-400">
+                      <TrendingUp className="h-3 w-3 text-green-500" />
+                      {kpi.change}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            <Card className="border-0 shadow-lg lg:col-span-2">
+              <CardContent className="p-6">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold" style={{ color: COLORS.navy }}>Member Growth</h3>
+                    <p className="text-sm text-gray-500">Last 6 months</p>
+                  </div>
+                  <Badge style={{ backgroundColor: `${COLORS.navy}15`, color: COLORS.navy }}>
+                    <TrendingUp className="mr-1 h-3 w-3" /> +24.9%
+                  </Badge>
+                </div>
+                <div className="flex h-48 items-end gap-3">
+                  {ANALYTICS_DATA.memberGrowth.map((item) => {
+                    const maxVal = Math.max(...ANALYTICS_DATA.memberGrowth.map((d) => d.value));
+                    const height = (item.value / maxVal) * 100;
+                    return (
+                      <div key={item.month} className="flex flex-1 flex-col items-center gap-2">
+                        <span className="text-xs font-medium text-gray-600">{item.value.toLocaleString()}</span>
+                        <div
+                          className="w-full rounded-t-lg transition-all duration-500 hover:opacity-80"
+                          style={{ height: `${height}%`, background: `linear-gradient(180deg, ${COLORS.navy} 0%, ${COLORS.navyLight} 100%)` }}
+                        />
+                        <span className="text-xs text-gray-400">{item.month}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <h3 className="mb-4 font-bold" style={{ color: COLORS.maroon }}>Top Resources</h3>
+                <div className="space-y-4">
+                  {ANALYTICS_DATA.topResources.map((resource, i) => (
+                    <div key={i}>
+                      <div className="mb-1 flex justify-between text-sm">
+                        <span className="mr-2 truncate text-gray-600">{resource.name}</span>
+                        <span className="flex-shrink-0 font-medium text-gray-800">{resource.downloads}</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${(resource.downloads / ANALYTICS_DATA.topResources[0]!.downloads) * 100}%`,
+                            background: `linear-gradient(90deg, ${COLORS.maroon}, ${COLORS.maroonLight})`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-8">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-bold" style={{ color: COLORS.navy }}>Recent Members</h3>
+                  <Badge variant="outline">Last 30 days</Badge>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="py-3 text-left font-medium text-gray-500">Name</th>
+                        <th className="py-3 text-left font-medium text-gray-500">Plan</th>
+                        <th className="py-3 text-left font-medium text-gray-500">Joined</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ANALYTICS_DATA.recentMembers.map((member, i) => (
+                        <tr key={i} className="border-b border-gray-50">
+                          <td className="py-3 font-medium text-gray-800">{member.name}</td>
+                          <td className="py-3">
+                            <Badge variant="outline" className="text-xs" style={{ borderColor: `${COLORS.navy}30`, color: COLORS.navy }}>
+                              {member.type}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-gray-500">{member.date}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            {MEMBERSHIP_TIERS.map((tier) => {
+              const memberCounts: Record<string, number> = { Organization: 28, Individual: 4830, "Bi-Annual": 389 };
+              const count = memberCounts[tier.name] ?? 0;
+              return (
+                <Card key={tier.name} className="border-0 shadow-lg">
+                  <CardContent className="p-5">
+                    <div className="mb-3 flex items-center gap-3">
+                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: tier.color }} />
+                      <p className="font-bold text-gray-800">{tier.name}</p>
+                    </div>
+                    <p className="text-3xl font-bold" style={{ color: tier.color }}>{count.toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">members</p>
+                    <p className="mt-2 text-xs text-gray-400">
+                      ${(count * tier.price).toLocaleString()} revenue / {tier.period}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 // Main Exported Component
 export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
   const [currentPage, setCurrentPage] = useState("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [currentUser, setCurrentUser] = useState<DemoUser | null>(null);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+
+  const handleLogin = (user: DemoUser) => {
+    setCurrentUser(user);
+    setCurrentPage("member-dashboard");
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setCurrentPage("home");
+  };
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+      setShowBackToTop(window.scrollY > 400);
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const isAuthPage = currentPage === "login" || currentPage === "member-dashboard" || currentPage === "admin-dashboard";
 
   const renderPage = () => {
     switch (currentPage) {
@@ -1295,6 +1750,9 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
       case "training": return <TrainingPage />;
       case "membership": return <MembershipPage />;
       case "contact": return <ContactPage />;
+      case "login": return <LoginPage onLogin={handleLogin} />;
+      case "member-dashboard": return currentUser ? <MemberDashboard user={currentUser} setPage={setCurrentPage} /> : <LoginPage onLogin={handleLogin} />;
+      case "admin-dashboard": return currentUser?.role === "admin" ? <AdminDashboard /> : <LoginPage onLogin={handleLogin} />;
       default: return <HomePage setPage={setCurrentPage} />;
     }
   };
@@ -1309,6 +1767,23 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
             <ArrowLeft className="h-4 w-4" />
             This is a design preview — Back to Demo Hub
           </Link>
+        </div>
+      )}
+
+      {/* Announcement Bar */}
+      {!announcementDismissed && !isAuthPage && (
+        <div className="relative z-40 px-4 py-2 text-center text-sm text-white" style={{ background: `linear-gradient(90deg, ${COLORS.navyDark} 0%, ${COLORS.navy} 50%, ${COLORS.navyDark} 100%)` }}>
+          <span className="mr-2 inline-flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-yellow-300" />
+            </span>
+            <span className="font-medium">Next Quarterly Meeting: May 9th</span>
+            <span className="hidden text-white/60 sm:inline">— Immunizations & Anti-Immunizations Movement</span>
+          </span>
+          <button onClick={() => setAnnouncementDismissed(true)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-white/50 transition-colors hover:text-white">
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
 
@@ -1336,13 +1811,55 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
             ))}
           </div>
 
-          <Button
-            size="sm"
-            className="hidden text-white lg:flex"
-            style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
-          >
-            Log In
-          </Button>
+          <div className="hidden items-center gap-2 lg:flex">
+            {currentUser ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                  style={{ borderColor: `${COLORS.navy}30`, color: COLORS.navy }}
+                  onClick={() => setCurrentPage("member-dashboard")}
+                >
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  Dashboard
+                </Button>
+                {currentUser.role === "admin" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    style={{ borderColor: `${COLORS.maroon}30`, color: COLORS.maroon }}
+                    onClick={() => setCurrentPage("admin-dashboard")}
+                  >
+                    <LayoutDashboard className="h-3.5 w-3.5" />
+                    Admin
+                  </Button>
+                )}
+                <div className="mx-1 h-5 w-px bg-gray-200" />
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                    style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.navy} 100%)` }}
+                  >
+                    {currentUser.name.split(" ").map((n) => n[0]).join("")}
+                  </div>
+                  <button onClick={handleLogout} className="text-sm text-gray-400 transition-colors hover:text-gray-600">
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                className="text-white"
+                style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
+                onClick={() => setCurrentPage("login")}
+              >
+                Log In
+              </Button>
+            )}
+          </div>
 
           <button className="rounded-lg p-2 lg:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: COLORS.navy }}>
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -1361,6 +1878,42 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
                 {item.label}
               </button>
             ))}
+            <div className="mt-2 border-t border-gray-100 pt-2">
+              {currentUser ? (
+                <>
+                  <button
+                    onClick={() => { setCurrentPage("member-dashboard"); setMobileMenuOpen(false); }}
+                    className="block w-full rounded-lg px-4 py-3 text-left text-sm font-medium"
+                    style={{ color: COLORS.navy }}
+                  >
+                    Dashboard
+                  </button>
+                  {currentUser.role === "admin" && (
+                    <button
+                      onClick={() => { setCurrentPage("admin-dashboard"); setMobileMenuOpen(false); }}
+                      className="block w-full rounded-lg px-4 py-3 text-left text-sm font-medium"
+                      style={{ color: COLORS.maroon }}
+                    >
+                      Admin Panel
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                    className="block w-full rounded-lg px-4 py-3 text-left text-sm font-medium text-gray-400"
+                  >
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setCurrentPage("login"); setMobileMenuOpen(false); }}
+                  className="block w-full rounded-lg px-4 py-3 text-left text-sm font-medium"
+                  style={{ color: COLORS.maroon }}
+                >
+                  Log In
+                </button>
+              )}
+            </div>
           </div>
         )}
       </nav>
@@ -1410,8 +1963,20 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
           <div className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-white/50">
             © 2025 Texas Association of Promotores & Community Health Workers. All rights reserved.
           </div>
+          <div className="mt-4 text-center text-xs text-white/30">
+            Website designed and developed in partnership with CHW360
+          </div>
         </div>
       </footer>
+
+      {/* Back to Top */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        className={`fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-2xl transition-all duration-300 ${showBackToTop ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"}`}
+        style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
+      >
+        <ChevronUp className="h-5 w-5" />
+      </button>
     </div>
   );
 }
