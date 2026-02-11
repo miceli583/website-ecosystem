@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 @variant dark (.dark &);
 
@@ -7,6 +8,17 @@
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* CargoWatch Demo Brand Colors (scoped to portal demo components) */
+  --color-cw-red: #D93025;
+  --color-cw-red-hover: #C72419;
+  --color-cw-navy: #1B202B;
+  --color-cw-navy-light: #242936;
+  --color-cw-navy-dark: #151822;
+  --color-cw-severity-critical: #D93025;
+  --color-cw-severity-high: #F97316;
+  --color-cw-severity-medium: #FBBF24;
+  --color-cw-severity-low: #10B981;
 }
 
 @theme inline {
@@ -114,6 +126,34 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* CargoWatch Demo gradient utilities */
+.cw-gradient-navy-section {
+  background: linear-gradient(to bottom, #080a0f 0%, #1b202b 100%);
+}
+
+.cw-gradient-navy-diagonal {
+  background: linear-gradient(135deg, #242936 0%, #1b202b 40%, #0f1219 100%);
+}
+
+.cw-gradient-navy-reverse {
+  background: linear-gradient(to top, #080a0f 0%, #1b202b 70%, #242936 100%);
+}
+
+/* Mapbox popup styling */
+.mapboxgl-popup-close-button {
+  font-size: 24px;
+  padding: 0 8px;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.mapboxgl-popup-close-button:hover {
+  color: #1f2937;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 @layer base {

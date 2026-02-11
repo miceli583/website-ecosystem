@@ -15,4 +15,11 @@ export const DEMO_REGISTRY: Record<string, () => Promise<{ default: ComponentTyp
   "mockup-assets": () => import("./mockup-assets").then((m) => ({ default: m.MockupAssetsDemo })),
   "wildflower-landing": () => import("./wildflower-landing").then((m) => ({ default: m.WildflowerLanding })),
   "wildflower-assets": () => import("./wildflower-assets").then((m) => ({ default: m.WildflowerAssets })),
+  "cargowatch-hub": () => import("./cargowatch-hub").then((m) => ({ default: m.CargoWatchHub })),
+  "cargowatch-landing": () => import("./cargowatch-landing").then((m) => ({ default: m.CargoWatchLanding })),
+  "cargowatch-about": () => import("./cargowatch-about").then((m) => ({ default: m.CargoWatchAbout })),
+  "cargowatch-resources": () => import("./cargowatch-resources").then((m) => ({ default: m.CargoWatchResources })),
+  "cargowatch-dashboard": () => import("./cargowatch-dashboard").then((m) => ({ default: m.CargoWatchDashboard })),
+  "cargowatch-alerts": () => import("./cargowatch-alerts").then((m) => ({ default: m.CargoWatchAlerts })),
+  "cargowatch-map": () => import("./cargowatch-map").then((m) => ({ default: m.CargoWatchMap })),
 };
