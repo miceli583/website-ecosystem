@@ -460,7 +460,7 @@ function TestimonialCarousel() {
       <div className="mx-auto max-w-3xl px-4 pb-8 text-center">
         <Quote className="mx-auto mb-8 h-16 w-16 opacity-10" style={{ color: COLORS.maroon }} />
 
-        <div className="relative h-[280px] overflow-visible sm:h-[240px]">
+        <div className="relative h-[280px] overflow-hidden sm:h-[240px]">
           {TESTIMONIALS.map((testimonial, i) => (
             <div
               key={i}
@@ -1347,12 +1347,12 @@ function ContactPage() {
               <h3 className="mb-6 text-xl font-bold" style={{ color: COLORS.navy }}>Send a Message</h3>
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Input placeholder="First Name" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
-                  <Input placeholder="Last Name" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
+                  <Input placeholder="First Name" className="h-12 text-base !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm" />
+                  <Input placeholder="Last Name" className="h-12 text-base !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm" />
                 </div>
-                <Input type="email" placeholder="Email" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
-                <Input placeholder="Subject" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
-                <Textarea placeholder="Your message..." className="min-h-[120px] !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
+                <Input type="email" placeholder="Email" className="h-12 text-base !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm" />
+                <Input placeholder="Subject" className="h-12 text-base !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm" />
+                <Textarea placeholder="Your message..." className="min-h-[120px] text-base !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm" />
                 <Button
                   className="h-12 w-full text-white shadow-lg transition-all duration-300 hover:shadow-xl"
                   style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
@@ -1411,7 +1411,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 !border-gray-200 !bg-white pl-10 !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0"
+                  className="h-12 text-base !border-gray-200 !bg-white pl-10 !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm"
                 />
               </div>
             </div>
@@ -1424,7 +1424,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 !border-gray-200 !bg-white pl-10 !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0"
+                  className="h-12 text-base !border-gray-200 !bg-white pl-10 !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0 sm:text-sm"
                 />
               </div>
             </div>
@@ -1641,17 +1641,19 @@ function AdminDashboard() {
                     <TrendingUp className="mr-1 h-3 w-3" /> +24.9%
                   </Badge>
                 </div>
-                <div className="flex h-48 items-end gap-3">
+                <div className="flex h-48 gap-3">
                   {ANALYTICS_DATA.memberGrowth.map((item) => {
                     const maxVal = Math.max(...ANALYTICS_DATA.memberGrowth.map((d) => d.value));
                     const height = (item.value / maxVal) * 100;
                     return (
                       <div key={item.month} className="flex flex-1 flex-col items-center gap-2">
                         <span className="text-xs font-medium text-gray-600">{item.value.toLocaleString()}</span>
-                        <div
-                          className="w-full rounded-t-lg transition-all duration-500 hover:opacity-80"
-                          style={{ height: `${height}%`, background: `linear-gradient(180deg, ${COLORS.navy} 0%, ${COLORS.navyLight} 100%)` }}
-                        />
+                        <div className="relative w-full flex-1">
+                          <div
+                            className="absolute bottom-0 left-1/2 w-3/5 -translate-x-1/2 rounded-t-lg transition-all duration-500 hover:opacity-80"
+                            style={{ height: `${height}%`, background: `linear-gradient(180deg, ${COLORS.navy} 0%, ${COLORS.navyLight} 100%)` }}
+                          />
+                        </div>
                         <span className="text-xs text-gray-400">{item.month}</span>
                       </div>
                     );
@@ -1795,7 +1797,7 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-white">
 
       {/* Demo Banner */}
       {backHref && (
