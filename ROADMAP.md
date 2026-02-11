@@ -50,7 +50,7 @@
 - [ ] CRM notes management + project management + outreach scheduling
 - [ ] CMS email/text sequence builder
 - [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
-- [ ] Rename "Landing Pages" to "Web Design"; landing pages open in new tab
+- [x] Rename "Landing Pages" to "Web Design"; landing pages open in new tab
 - [ ] Remove Assets page nav/footer remnants
 
 ## Target Admin Structure

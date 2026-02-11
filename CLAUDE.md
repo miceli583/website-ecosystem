@@ -76,6 +76,8 @@ Middleware detects hostname and serves appropriate content:
 - `src/app/portal/**/frontend/` — client demo implementations use client branding
 - `src/app/portal/**/presentation/` — slide content uses its own styling
 - `text-red-500`, `text-red-400`, `bg-red-500/10` — error/danger states
+- `green-*` classes (`text-green-*`, `bg-green-*`) — success states (e.g., active status, confirmation)
+- `amber-*` classes (`text-amber-*`, `bg-amber-*`) — warning/pending states (e.g., pending badges)
 - `src/lib/staging-templates.ts` — palette definition file itself
 
 ### Scan Scope

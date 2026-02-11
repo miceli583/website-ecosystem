@@ -1,9 +1,9 @@
 import { postRouter } from "~/server/api/routers/post";
-import { dailyValuesRouter } from "~/server/api/routers/dailyValues";
+import { dailyValuesRouter } from "~/server/api/routers/daily-values";
 import { clientsRouter } from "~/server/api/routers/clients";
 import { contactRouter } from "~/server/api/routers/contact";
 import { portalRouter } from "~/server/api/routers/portal";
-import { portalNotesRouter } from "~/server/api/routers/portalNotes";
+import { portalNotesRouter } from "~/server/api/routers/portal-notes";
 import { financeRouter } from "~/server/api/routers/finance";
 import { analyticsRouter } from "~/server/api/routers/analytics";
 import { crmRouter } from "~/server/api/routers/crm";
