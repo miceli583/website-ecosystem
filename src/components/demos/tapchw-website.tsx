@@ -337,7 +337,7 @@ function AnimatedStat({ value, suffix, label, icon: Icon }: { value: number; suf
       <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
         <Icon className="h-8 w-8 text-white" />
       </div>
-      <p className="font-serif text-5xl font-bold text-white sm:text-6xl">
+      <p className="font-serif text-3xl font-bold text-white sm:text-5xl md:text-6xl">
         {count.toLocaleString()}{suffix}
       </p>
       <p className="mt-2 text-sm font-medium uppercase tracking-wider text-white/60">{label}</p>
@@ -571,20 +571,20 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
                 </div>
               </div>
 
-              <div className="relative flex justify-center">
+              <div className="relative flex justify-center px-6 py-8 sm:px-0 sm:py-0">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-[400px] w-[400px] rounded-full border-2 border-dashed border-white/20" />
+                  <div className="h-[260px] w-[260px] rounded-full border-2 border-dashed border-white/20 sm:h-[400px] sm:w-[400px]" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-[320px] w-[320px] rounded-full border border-white/10" />
+                  <div className="h-[200px] w-[200px] rounded-full border border-white/10 sm:h-[320px] sm:w-[320px]" />
                 </div>
 
                 <div className="relative z-10 flex items-center justify-center">
                   {/* Outer soft glow */}
-                  <div className="absolute h-[340px] w-[340px] rounded-full bg-white/[0.22] blur-3xl sm:h-[420px] sm:w-[420px]" />
+                  <div className="absolute h-[260px] w-[260px] rounded-full bg-white/[0.22] blur-3xl sm:h-[420px] sm:w-[420px]" />
                   {/* Inner frosted disc — gives depth */}
                   <div
-                    className="absolute h-[240px] w-[240px] rounded-full border border-white/20 sm:h-[280px] sm:w-[280px]"
+                    className="absolute h-[180px] w-[180px] rounded-full border border-white/20 sm:h-[280px] sm:w-[280px]"
                     style={{ background: "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 70%, transparent 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)" }}
                   />
                   <Image
@@ -592,12 +592,12 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
                     alt="TAPCHW"
                     width={280}
                     height={280}
-                    className="relative object-contain sm:h-[320px] sm:w-[320px]"
-                    style={{ filter: "saturate(1) brightness(1.05) contrast(1.05)", transform: "translate(2px, 9px)", dropShadow: "none" }}
+                    className="relative h-[200px] w-[200px] translate-x-[1px] translate-y-[5px] object-contain sm:h-[320px] sm:w-[320px] sm:translate-x-[2px] sm:translate-y-[9px]"
+                    style={{ filter: "saturate(1) brightness(1.05) contrast(1.05)" }}
                   />
                 </div>
 
-                <div className="absolute -left-4 top-1/4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:-left-8">
+                <div className="absolute left-0 top-1/4 hidden rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:block sm:-left-8">
                   <div className="flex items-center gap-2">
                     <div className="rounded-full bg-green-100 p-2">
                       <TrendingUp className="h-4 w-4 text-green-600" />
@@ -609,7 +609,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
                   </div>
                 </div>
 
-                <div className="absolute -right-4 bottom-1/4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:-right-8">
+                <div className="absolute bottom-1/4 right-0 hidden rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:block sm:-right-8">
                   <div className="flex items-center gap-2">
                     <div className="rounded-full p-2" style={{ backgroundColor: `${COLORS.maroon}15` }}>
                       <Award className="h-4 w-4" style={{ color: COLORS.maroon }} />
@@ -636,7 +636,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
 
       {/* Stats Section */}
       <section
-        className="relative overflow-hidden px-4 py-24"
+        className="relative overflow-hidden px-4 py-12 sm:py-16 lg:py-24"
         style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonDark} 100%)` }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-10">
@@ -644,7 +644,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
         </div>
 
         <div className="relative mx-auto max-w-6xl">
-          <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-8 md:grid-cols-4 md:gap-10">
             {STATS.map((stat) => (
               <AnimatedStat key={stat.label} {...stat} />
             ))}
@@ -656,7 +656,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
 
       {/* Goals Section */}
-      <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
+      <section className="px-4 py-12 sm:py-16 lg:py-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="mx-auto max-w-4xl">
           <div className="mb-14 text-center">
             <Badge className="mb-4" style={{ backgroundColor: `${COLORS.maroon}15`, color: COLORS.maroon }}>
@@ -686,14 +686,14 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       </section>
 
       {/* Testimonials */}
-      <section className="px-4 py-24">
+      <section className="px-4 py-12 sm:py-16 lg:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-14 text-center">
             <Badge className="mb-4" style={{ backgroundColor: `${COLORS.navy}15`, color: COLORS.navy }}>
               Testimonials
             </Badge>
             <h2 className="font-serif text-4xl font-bold sm:text-5xl" style={{ color: COLORS.maroon }}>
-              What Our Members Say
+              What Our{" "}<br className="sm:hidden" />Members Say
             </h2>
           </div>
           <TestimonialCarousel />
@@ -701,13 +701,13 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       </section>
 
       {/* About Section */}
-      <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
+      <section className="px-4 py-12 sm:py-16 lg:py-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="mx-auto max-w-4xl text-center">
           <Badge className="mb-4" style={{ backgroundColor: `${COLORS.navy}15`, color: COLORS.navy }}>
             About Us
           </Badge>
           <h2 className="font-serif mb-6 text-4xl font-bold sm:text-5xl" style={{ color: COLORS.maroon }}>
-            Empowering Texas CHWs<br />Since Day One
+            Empowering Texas{" "}<br className="sm:hidden" />CHWs Since{" "}<br className="sm:hidden" />Day One
           </h2>
           <p className="text-lg leading-relaxed text-gray-600">
             We are a 501(c)3 non-profit professional organization that offers membership and supports
@@ -718,7 +718,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       </section>
 
       {/* Mission & Vision */}
-      <section className="px-4 py-24">
+      <section className="px-4 py-12 sm:py-16 lg:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="group overflow-hidden border border-transparent bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl" style={{ borderImage: "none" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${COLORS.navy}25`; e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS.navy}15`; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; e.currentTarget.style.boxShadow = ""; }}>
@@ -757,7 +757,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
 
       {/* Core Values */}
       <section
-        className="relative overflow-hidden px-4 py-24"
+        className="relative overflow-hidden px-4 py-12 sm:py-16 lg:py-24"
         style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}
       >
         <div className="pointer-events-none absolute inset-0">
@@ -796,7 +796,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
 
       {/* CTA Section */}
       <section
-        className="relative overflow-hidden px-4 py-28"
+        className="relative overflow-hidden px-4 py-14 sm:py-20 lg:py-28"
         style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonDark} 100%)` }}
       >
         <div className="pointer-events-none absolute inset-0">
@@ -844,7 +844,7 @@ function AboutPage() {
   return (
     <div>
       <section
-        className="relative overflow-hidden px-4 py-28"
+        className="relative overflow-hidden px-4 py-14 sm:py-20 lg:py-28"
         style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}
       >
         <div className="relative mx-auto max-w-4xl text-center">
@@ -857,23 +857,23 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="px-4 py-20">
+      <section className="px-4 py-10 sm:py-14 lg:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div
-              className="relative aspect-square overflow-hidden rounded-3xl p-8 shadow-2xl"
+              className="relative overflow-hidden rounded-3xl p-6 shadow-2xl sm:p-8 lg:aspect-square"
               style={{ background: `linear-gradient(160deg, ${COLORS.navyDark} 0%, ${COLORS.navy} 25%, ${COLORS.navyLight} 60%, #B8D0E8 100%)` }}
             >
-              <div className="flex h-full items-center justify-center">
+              <div className="flex h-full items-center justify-center py-8 sm:py-12 lg:py-0">
                 <div className="relative flex items-center justify-center">
                   {/* Outer soft glow */}
-                  <div className="absolute h-[290px] w-[290px] rounded-full bg-white/[0.22] blur-3xl" />
+                  <div className="absolute h-[170px] w-[170px] rounded-full bg-white/[0.22] blur-3xl sm:h-[295px] sm:w-[295px]" />
                   {/* Inner frosted disc */}
                   <div
-                    className="absolute h-[220px] w-[220px] rounded-full border border-white/20"
+                    className="absolute h-[130px] w-[130px] rounded-full border border-white/20 sm:h-[225px] sm:w-[225px]"
                     style={{ background: "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 70%, transparent 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)" }}
                   />
-                  <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={250} height={250} className="relative object-contain" style={{ filter: "saturate(1) brightness(1.05) contrast(1.05)", transform: "translate(1px, 8px)" }} />
+                  <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={250} height={250} className="relative h-[150px] w-[150px] translate-x-[1px] translate-y-[4px] object-contain sm:h-[250px] sm:w-[250px] sm:translate-y-[8px]" style={{ filter: "saturate(1) brightness(1.05) contrast(1.05)" }} />
                 </div>
               </div>
             </div>
@@ -897,7 +897,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="px-4 py-20" style={{ backgroundColor: COLORS.cream }}>
+      <section className="px-4 py-10 sm:py-14 lg:py-20" style={{ backgroundColor: COLORS.cream }}>
         <div className="mx-auto max-w-6xl">
           <h2 className="font-serif mb-12 text-center text-4xl font-bold" style={{ color: COLORS.maroon }}>Core Values</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -1003,7 +1003,7 @@ function DemoCalendar() {
             return (
               <div key={day} className="flex items-center justify-center p-1 sm:p-2">
                 <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition-all sm:h-10 sm:w-10 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs transition-all sm:h-10 sm:w-10 sm:text-sm ${
                     event ? "cursor-pointer font-bold text-white shadow-md" : "text-gray-700 hover:bg-gray-100"
                   }`}
                   style={event ? { backgroundColor: event.color } : {}}
@@ -1036,12 +1036,12 @@ function EventsPage() {
   return (
     <div>
       <section
-        className="px-4 py-24"
+        className="px-4 py-12 sm:py-16 lg:py-24"
         style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonDark} 100%)` }}
       >
         <div className="mx-auto max-w-4xl">
           <Badge className="mb-4 border-white/20 bg-white/10 text-white">Events</Badge>
-          <h1 className="font-serif text-5xl font-bold text-white">Upcoming Events</h1>
+          <h1 className="font-serif text-3xl font-bold text-white sm:text-5xl">Upcoming Events</h1>
         </div>
       </section>
 
@@ -1107,12 +1107,12 @@ function ResourcesPage() {
   return (
     <div>
       <section
-        className="px-4 py-24"
+        className="px-4 py-12 sm:py-16 lg:py-24"
         style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonDark} 100%)` }}
       >
         <div className="mx-auto max-w-4xl">
           <Badge className="mb-4 border-white/20 bg-white/10 text-white">Library</Badge>
-          <h1 className="font-serif mb-6 text-5xl font-bold text-white">CHW Resources</h1>
+          <h1 className="font-serif mb-6 text-3xl font-bold text-white sm:text-5xl">CHW Resources</h1>
           <Button className="bg-white hover:bg-white/90" style={{ color: COLORS.maroon }}>
             TAPCHW Instructor Resources
             <ChevronRight className="ml-2 h-4 w-4" />
@@ -1126,7 +1126,7 @@ function ResourcesPage() {
             {sections.map((section) => {
               const Icon = section.icon;
               return (
-                <Card key={section.title} className="border-0 bg-white shadow-lg">
+                <Card key={section.title} className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
                   <CardContent className="p-6">
                     <div className="mb-4 flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: `${section.color}15` }}>
@@ -1164,7 +1164,7 @@ function TrainingPage() {
   return (
     <div>
       <section
-        className="px-4 py-24"
+        className="px-4 py-12 sm:py-16 lg:py-24"
         style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}
       >
         <div className="mx-auto flex max-w-6xl items-center gap-8">
@@ -1234,7 +1234,7 @@ function TrainingPage() {
 function MembershipPage() {
   return (
     <div>
-      <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
+      <section className="px-4 py-12 sm:py-16 lg:py-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="mx-auto max-w-4xl text-center">
           <Badge className="mb-4" style={{ backgroundColor: `${COLORS.navy}15`, color: COLORS.navy }}>Membership</Badge>
           <h1 className="font-serif text-5xl font-bold sm:text-6xl" style={{ color: COLORS.navy }}>Choose Your Plan</h1>
@@ -1251,7 +1251,7 @@ function MembershipPage() {
               <Card
                 key={tier.name}
                 className={`group relative overflow-hidden border-0 bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${
-                  tier.popular ? "ring-2 ring-amber-400 ring-offset-4" : ""
+                  tier.popular ? "ring-2 ring-amber-400 ring-offset-2 sm:ring-offset-4" : ""
                 }`}
               >
                 {tier.popular && (
@@ -1262,7 +1262,7 @@ function MembershipPage() {
                 <div className="p-6" style={{ background: tier.gradient }}>
                   <h3 className="text-xl font-bold text-white">{tier.name}</h3>
                   <div className="mt-4 flex items-baseline">
-                    <span className="text-5xl font-bold text-white">${tier.price}</span>
+                    <span className="text-4xl font-bold text-white sm:text-5xl">${tier.price}</span>
                     <span className="ml-2 text-white/70">/{tier.period}</span>
                   </div>
                   <p className="mt-2 text-sm text-white/80">{tier.description}</p>
@@ -1303,7 +1303,7 @@ function ContactPage() {
   return (
     <div>
       <section
-        className="px-4 py-28"
+        className="px-4 py-14 sm:py-20 lg:py-28"
         style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}
       >
         <div className="mx-auto max-w-4xl text-center">
@@ -1881,7 +1881,7 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
                   >
                     {currentUser.name.split(" ").map((n) => n[0]).join("")}
                   </div>
-                  <button onClick={handleLogout} className="text-sm text-gray-400 transition-colors hover:text-gray-600">
+                  <button onClick={handleLogout} className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
                     <LogOut className="h-4 w-4" />
                   </button>
                 </div>
@@ -1960,7 +1960,7 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
       {/* Footer */}
       <footer style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}>
         <div className="mx-auto max-w-6xl px-4 py-16">
-          <div className="grid gap-12 md:grid-cols-4">
+          <div className="grid gap-8 md:grid-cols-4 md:gap-12">
             <div className="md:col-span-2">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white p-2">
