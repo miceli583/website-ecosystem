@@ -49,19 +49,19 @@ import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
-// Logo wash filter — light desaturate to harmonize with brightened palette
-const LOGO_FILTER = "saturate(0.75) brightness(0.88) contrast(1.05)";
+// Logo wash filter — minimal wash, palette is close to logo now
+const LOGO_FILTER = "saturate(0.93) brightness(1.01) contrast(1.04)";
 
-// Brand colors — midpoint between original dark palette and logo's vivid red/blue
+// Brand colors — 70% toward logo's vivid red/blue from original dark palette
 const COLORS = {
-  maroon: "#B42D3C",
-  maroonDark: "#922533",
-  maroonLight: "#D04050",
-  navy: "#3566A5",
-  navyLight: "#4E80C4",
-  navyDark: "#2A4E82",
+  maroon: "#C13040",
+  maroonDark: "#A02838",
+  maroonLight: "#DC4858",
+  navy: "#3570B2",
+  navyLight: "#5590D0",
+  navyDark: "#2C5590",
   cream: "#FDF8F3",
-  gold: "#C9A227",
+  gold: "#F0D04A",
 };
 
 // Navigation items
@@ -500,7 +500,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       {/* Hero Section */}
       <section
         className="relative min-h-[90vh] overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}
+        style={{ background: `linear-gradient(160deg, ${COLORS.navyDark} 0%, ${COLORS.navy} 25%, ${COLORS.navyLight} 55%, #D0E0F0 85%, #E8F0F8 100%)` }}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
@@ -521,7 +521,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
 
                 <h1
                   className="font-serif mb-6 text-5xl font-bold leading-tight sm:text-6xl lg:text-7xl xl:text-8xl"
-                  style={{ color: COLORS.gold }}
+                  style={{ color: COLORS.gold, textShadow: `1px 1px 0 rgba(0,0,0,0.15), 2px 2px 6px rgba(0,0,0,0.2)` }}
                 >
                   Howdy!
                 </h1>
@@ -571,14 +571,20 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
                 </div>
 
                 <div className="relative z-10 flex items-center justify-center">
-                  <div className="absolute h-[300px] w-[300px] rounded-full bg-white/30 blur-3xl sm:h-[360px] sm:w-[360px]" />
+                  {/* Outer soft glow */}
+                  <div className="absolute h-[340px] w-[340px] rounded-full bg-white/[0.22] blur-3xl sm:h-[420px] sm:w-[420px]" />
+                  {/* Inner frosted disc — gives depth */}
+                  <div
+                    className="absolute h-[240px] w-[240px] rounded-full border border-white/20 sm:h-[280px] sm:w-[280px]"
+                    style={{ background: "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 70%, transparent 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)" }}
+                  />
                   <Image
                     src="/demos/tapchw-logo.png"
                     alt="TAPCHW"
                     width={280}
                     height={280}
-                    className="relative object-contain drop-shadow-2xl sm:h-[320px] sm:w-[320px]"
-                    style={{ filter: LOGO_FILTER, transform: "translateY(8px)" }}
+                    className="relative object-contain sm:h-[320px] sm:w-[320px]"
+                    style={{ filter: "saturate(1) brightness(1.05) contrast(1.05)", transform: "translate(2px, 9px)", dropShadow: "none" }}
                   />
                 </div>
 
