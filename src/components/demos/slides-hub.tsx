@@ -1,17 +1,27 @@
 "use client";
 
-import { FileText, Presentation, Mic, Play, Sparkles } from "lucide-react";
+import { ArrowLeft, FileText, Presentation, Mic, Play, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { StagingCard } from "~/components/portal";
 
 interface SlidesHubProps {
   basePath: string;
+  backHref?: string;
 }
 
-export function SlidesHub({ basePath }: SlidesHubProps) {
+export function SlidesHub({ basePath, backHref }: SlidesHubProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       <header className="border-b px-4 py-4 sm:px-6" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
-        <div className="mx-auto flex max-w-5xl items-center justify-end">
+        <div className="mx-auto flex max-w-5xl items-center justify-between">
+          {backHref ? (
+            <Link href={backHref} className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Demos
+            </Link>
+          ) : (
+            <div />
+          )}
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: "#D4AF37" }}>
               <Presentation className="h-5 w-5 text-black" />

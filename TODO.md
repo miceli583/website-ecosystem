@@ -10,10 +10,7 @@ _None currently_
 
 ## Tech Debt (code quality issues)
 
-- [ ] Add Stripe product name caching (24hr TTL) to reduce API calls
-- [ ] Implement optimistic updates for notes mutations (reduce flash on rapid actions)
 - [ ] CMS UI: refactor to follow brand guidelines (gold/black theme)
-- [ ] Rename "Landing Pages" nav section to "Web Design"; landing page links open in new tab
 
 
 ## Enhancements (prioritized)
@@ -39,5 +36,6 @@ _None currently_
 
 ## Design Questions (needs decision)
 
+- [ ] **Integrate brand tab into client portal**: Should each client have a "Brand" tab with their guidelines, colors, fonts, logos?
 - [ ] **Page templating architecture**: Design system to copy sample pages between routes
 - [ ] **Shader creation skill**: Should we create a `/shader` skill for generating GLSL shaders?
