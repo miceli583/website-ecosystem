@@ -49,17 +49,17 @@ import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
-// Logo wash filter — desaturate + darken to match maroon/navy palette
-const LOGO_FILTER = "saturate(0.55) brightness(0.8) contrast(1.1)";
+// Logo wash filter — light desaturate to harmonize with brightened palette
+const LOGO_FILTER = "saturate(0.75) brightness(0.88) contrast(1.05)";
 
-// Brand colors
+// Brand colors — midpoint between original dark palette and logo's vivid red/blue
 const COLORS = {
-  maroon: "#8B2332",
-  maroonDark: "#6B1A26",
-  maroonLight: "#A83244",
-  navy: "#354F8B",
-  navyLight: "#4A6AAF",
-  navyDark: "#263A66",
+  maroon: "#B42D3C",
+  maroonDark: "#922533",
+  maroonLight: "#D04050",
+  navy: "#3566A5",
+  navyLight: "#4E80C4",
+  navyDark: "#2A4E82",
   cream: "#FDF8F3",
   gold: "#C9A227",
 };
