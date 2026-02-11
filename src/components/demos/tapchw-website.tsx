@@ -406,14 +406,20 @@ function LogoCarousel({ title }: { title: string }) {
           {doubledLogos.map((member, i) => (
             <div
               key={i}
-              className="group flex h-24 min-w-[180px] flex-shrink-0 items-center justify-center rounded-2xl border border-gray-100 bg-white px-6 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+              className="group relative flex h-24 min-w-[180px] flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border bg-white px-6 shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+              style={{ borderColor: `${COLORS.navy}15` }}
             >
+              <div
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                style={{ background: `radial-gradient(circle at center, ${COLORS.navy}08 0%, transparent 70%)` }}
+              />
               <Image
                 src={member.logo}
                 alt={member.name}
                 width={140}
                 height={70}
-                className="max-h-16 w-auto object-contain transition-all duration-500 group-hover:scale-105"
+                className="relative max-h-16 w-auto object-contain transition-all duration-500 group-hover:scale-105"
+                style={{ filter: LOGO_FILTER }}
               />
             </div>
           ))}
@@ -855,11 +861,20 @@ function AboutPage() {
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div
-              className="aspect-square rounded-3xl p-8 shadow-2xl"
-              style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyLight} 100%)` }}
+              className="relative aspect-square overflow-hidden rounded-3xl p-8 shadow-2xl"
+              style={{ background: `linear-gradient(160deg, ${COLORS.navyDark} 0%, ${COLORS.navy} 25%, ${COLORS.navyLight} 60%, #B8D0E8 100%)` }}
             >
               <div className="flex h-full items-center justify-center">
-                <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={250} height={250} className="object-contain drop-shadow-2xl" style={{ filter: LOGO_FILTER }} />
+                <div className="relative flex items-center justify-center">
+                  {/* Outer soft glow */}
+                  <div className="absolute h-[290px] w-[290px] rounded-full bg-white/[0.22] blur-3xl" />
+                  {/* Inner frosted disc */}
+                  <div
+                    className="absolute h-[220px] w-[220px] rounded-full border border-white/20"
+                    style={{ background: "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 70%, transparent 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)" }}
+                  />
+                  <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={250} height={250} className="relative object-contain" style={{ filter: "saturate(1) brightness(1.05) contrast(1.05)", transform: "translate(1px, 8px)" }} />
+                </div>
               </div>
             </div>
 
@@ -889,16 +904,29 @@ function AboutPage() {
             {CORE_VALUES.map((value) => {
               const Icon = value.icon;
               return (
-                <Card key={value.title} className="group border-0 bg-white shadow-lg transition-all hover:-translate-y-2 hover:shadow-xl">
-                  <CardContent className="p-6">
+                <Card
+                  key={value.title}
+                  className="group cursor-default overflow-hidden border-0 bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                  <CardContent className="relative p-7">
+                    {/* Hover glow */}
                     <div
-                      className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-white transition-all group-hover:scale-110"
+                      className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                      style={{ backgroundColor: `${value.color}20` }}
+                    />
+                    {/* Animated border accent */}
+                    <div
+                      className="absolute bottom-0 left-0 h-1 w-0 transition-all duration-500 group-hover:w-full"
+                      style={{ background: `linear-gradient(to right, ${value.color}, ${value.color}88)` }}
+                    />
+                    <div
+                      className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-md transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg"
                       style={{ background: `linear-gradient(135deg, ${value.color} 0%, ${value.color}cc 100%)` }}
                     >
-                      <Icon className="h-6 w-6" />
+                      <Icon className="h-7 w-7 transition-transform duration-500 group-hover:rotate-6" />
                     </div>
-                    <h3 className="mb-2 font-bold" style={{ color: COLORS.maroon }}>{value.title}</h3>
-                    <p className="text-sm text-gray-600">{value.description}</p>
+                    <h3 className="mb-3 text-lg font-bold transition-colors duration-300" style={{ color: COLORS.maroon }}>{value.title}</h3>
+                    <p className="text-sm leading-relaxed text-gray-600">{value.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -945,9 +973,9 @@ function DemoCalendar() {
 
   return (
     <Card className="border-0 bg-white shadow-xl">
-      <CardContent className="p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h3 className="text-xl font-bold" style={{ color: COLORS.navy }}>
+      <CardContent className="p-4 sm:p-6">
+        <div className="mb-4 flex items-center justify-between sm:mb-6">
+          <h3 className="text-lg font-bold sm:text-xl" style={{ color: COLORS.navy }}>
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h3>
           <div className="flex gap-2">
@@ -960,43 +988,41 @@ function DemoCalendar() {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7">
           {daysOfWeek.map((day) => (
-            <div key={day} className="py-2 text-center text-xs font-semibold text-gray-500">
+            <div key={day} className="border-b py-2 text-center text-xs font-semibold text-gray-400" style={{ borderColor: `${COLORS.navy}15` }}>
               {day}
             </div>
           ))}
           {Array.from({ length: firstDay }).map((_, i) => (
-            <div key={`empty-${i}`} className="aspect-square" />
+            <div key={`empty-${i}`} className="p-1 sm:p-2" />
           ))}
           {Array.from({ length: daysInMonth }).map((_, i) => {
             const day = i + 1;
             const event = getEventForDay(day);
             return (
-              <div
-                key={day}
-                className={`group relative aspect-square flex items-center justify-center rounded-lg text-sm transition-all ${
-                  event ? "cursor-pointer font-bold text-white" : "hover:bg-gray-50"
-                }`}
-                style={event ? { backgroundColor: event.color } : {}}
-                title={event?.title}
-              >
-                {day}
-                {event && (
-                  <div className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white" />
-                )}
+              <div key={day} className="flex items-center justify-center p-1 sm:p-2">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition-all sm:h-10 sm:w-10 ${
+                    event ? "cursor-pointer font-bold text-white shadow-md" : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                  style={event ? { backgroundColor: event.color } : {}}
+                  title={event?.title}
+                >
+                  {day}
+                </div>
               </div>
             );
           })}
         </div>
 
-        <div className="mt-6 flex items-center gap-4 text-xs">
+        <div className="mt-4 flex items-center gap-4 border-t pt-4 text-xs sm:mt-6 sm:pt-4" style={{ borderColor: `${COLORS.navy}15` }}>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded" style={{ backgroundColor: COLORS.maroon }} />
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS.maroon }} />
             <span className="text-gray-600">Member Meeting</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded" style={{ backgroundColor: COLORS.navy }} />
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS.navy }} />
             <span className="text-gray-600">Training Event</span>
           </div>
         </div>
@@ -1316,19 +1342,19 @@ function ContactPage() {
             </div>
           </div>
 
-          <Card className="border-0 bg-white shadow-xl">
-            <CardContent className="p-6">
+          <Card className="border bg-white shadow-xl" style={{ borderColor: `${COLORS.navy}15` }}>
+            <CardContent className="p-6 sm:p-8">
               <h3 className="mb-6 text-xl font-bold" style={{ color: COLORS.navy }}>Send a Message</h3>
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Input placeholder="First Name" className="h-12" />
-                  <Input placeholder="Last Name" className="h-12" />
+                  <Input placeholder="First Name" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
+                  <Input placeholder="Last Name" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
                 </div>
-                <Input type="email" placeholder="Email" className="h-12" />
-                <Input placeholder="Subject" className="h-12" />
-                <Textarea placeholder="Your message..." className="min-h-[120px]" />
+                <Input type="email" placeholder="Email" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
+                <Input placeholder="Subject" className="h-12 !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
+                <Textarea placeholder="Your message..." className="min-h-[120px] !border-gray-200 !bg-white !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0" />
                 <Button
-                  className="h-12 w-full text-white"
+                  className="h-12 w-full text-white shadow-lg transition-all duration-300 hover:shadow-xl"
                   style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
                 >
                   Send Message
@@ -1367,7 +1393,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-20" style={{ backgroundColor: COLORS.cream }}>
-      <Card className="w-full max-w-md border-0 shadow-2xl">
+      <Card className="w-full max-w-md border bg-white shadow-2xl" style={{ borderColor: `${COLORS.navy}15` }}>
         <CardContent className="p-8">
           <div className="mb-8 text-center">
             <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={80} height={80} className="mx-auto mb-4 object-contain" style={{ filter: LOGO_FILTER }} />
@@ -1385,7 +1411,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 pl-10"
+                  className="h-12 !border-gray-200 !bg-white pl-10 !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0"
                 />
               </div>
             </div>
@@ -1398,7 +1424,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 pl-10"
+                  className="h-12 !border-gray-200 !bg-white pl-10 !text-gray-900 !ring-0 placeholder:!text-gray-400 focus:!border-gray-300 focus:!bg-white focus:!ring-0"
                 />
               </div>
             </div>
@@ -1412,7 +1438,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
 
             <Button
               type="submit"
-              className="h-12 w-full text-white"
+              className="h-12 w-full text-white shadow-lg transition-all duration-300 hover:shadow-xl"
               style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
               disabled={loading}
             >
@@ -1455,7 +1481,7 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
       <section className="px-4 py-8">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 md:grid-cols-3">
-            <Card className="border-0 shadow-lg">
+            <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${COLORS.navy}15` }}>
@@ -1473,7 +1499,7 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg">
+            <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${COLORS.maroon}15` }}>
@@ -1491,18 +1517,18 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg">
+            <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <p className="mb-4 text-sm text-gray-500">Quick Actions</p>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setPage("events")}>
-                    <Calendar className="mr-2 h-4 w-4" /> View Events
+                  <Button variant="outline" size="sm" className="w-full justify-start !border-gray-200 !bg-white !text-gray-700 hover:!bg-gray-50" onClick={() => setPage("events")}>
+                    <Calendar className="mr-2 h-4 w-4" style={{ color: COLORS.navy }} /> View Events
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setPage("resources")}>
-                    <BookOpen className="mr-2 h-4 w-4" /> Browse Resources
+                  <Button variant="outline" size="sm" className="w-full justify-start !border-gray-200 !bg-white !text-gray-700 hover:!bg-gray-50" onClick={() => setPage("resources")}>
+                    <BookOpen className="mr-2 h-4 w-4" style={{ color: COLORS.navy }} /> Browse Resources
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setPage("training")}>
-                    <GraduationCap className="mr-2 h-4 w-4" /> Training Center
+                  <Button variant="outline" size="sm" className="w-full justify-start !border-gray-200 !bg-white !text-gray-700 hover:!bg-gray-50" onClick={() => setPage("training")}>
+                    <GraduationCap className="mr-2 h-4 w-4" style={{ color: COLORS.navy }} /> Training Center
                   </Button>
                 </div>
               </CardContent>
@@ -1513,7 +1539,7 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
             <h2 className="mb-4 text-xl font-bold" style={{ color: COLORS.navy }}>Upcoming Events</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {EVENTS.slice(0, 2).map((event, i) => (
-                <Card key={i} className="group border-0 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Card key={i} className="group overflow-hidden border bg-white shadow-md transition-all hover:-translate-y-1 hover:shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
                   <CardContent className="flex items-center gap-0 p-0">
                     <div className="flex w-20 flex-shrink-0 flex-col items-center justify-center py-6" style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}>
                       <span className="text-xs font-semibold uppercase text-white/70">{event.month}</span>
@@ -1531,7 +1557,7 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
 
           <div className="mt-8">
             <h2 className="mb-4 text-xl font-bold" style={{ color: COLORS.navy }}>Recent Activity</h2>
-            <Card className="border-0 shadow-md">
+            <Card className="border bg-white shadow-md" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-0">
                 {[
                   { action: "Completed CE: Trauma Informed Care", time: "2 days ago", icon: CheckCircle2 },
@@ -1584,7 +1610,7 @@ function AdminDashboard() {
             ].map((kpi) => {
               const Icon = kpi.icon;
               return (
-                <Card key={kpi.label} className="border-0 shadow-lg">
+                <Card key={kpi.label} className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
                   <CardContent className="p-5">
                     <div className="mb-3 flex items-center justify-between">
                       <p className="text-sm text-gray-500">{kpi.label}</p>
@@ -1604,7 +1630,7 @@ function AdminDashboard() {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            <Card className="border-0 shadow-lg lg:col-span-2">
+            <Card className="border bg-white shadow-lg lg:col-span-2" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <div>
@@ -1634,7 +1660,7 @@ function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg">
+            <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <h3 className="mb-4 font-bold" style={{ color: COLORS.maroon }}>Top Resources</h3>
                 <div className="space-y-4">
@@ -1661,11 +1687,11 @@ function AdminDashboard() {
           </div>
 
           <div className="mt-8">
-            <Card className="border-0 shadow-lg">
+            <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="font-bold" style={{ color: COLORS.navy }}>Recent Members</h3>
-                  <Badge variant="outline">Last 30 days</Badge>
+                  <Badge variant="outline" className="!border-gray-200 !text-gray-500">Last 30 days</Badge>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -1700,7 +1726,7 @@ function AdminDashboard() {
               const memberCounts: Record<string, number> = { Organization: 28, Individual: 4830, "Bi-Annual": 389 };
               const count = memberCounts[tier.name] ?? 0;
               return (
-                <Card key={tier.name} className="border-0 shadow-lg">
+                <Card key={tier.name} className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
                   <CardContent className="p-5">
                     <div className="mb-3 flex items-center gap-3">
                       <div className="h-3 w-3 rounded-full" style={{ backgroundColor: tier.color }} />
