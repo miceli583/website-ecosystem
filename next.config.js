@@ -29,7 +29,8 @@ const config = {
               "style-src 'self' 'unsafe-inline'", // Allow inline styles for styled-components, Tailwind, etc.
               "img-src 'self' data: blob: https:", // Allow images from HTTPS sources and data URIs
               "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co ws://localhost:*", // Supabase API/realtime + dev HMR
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mapbox.com https://*.tiles.mapbox.com https://events.mapbox.com ws://localhost:*", // Supabase API/realtime + Mapbox + dev HMR
+              "worker-src 'self' blob:", // Mapbox GL JS web workers
               "frame-src 'self'",
               "object-src 'none'",
               "base-uri 'self'",
