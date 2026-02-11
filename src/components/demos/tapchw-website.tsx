@@ -49,6 +49,9 @@ import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
+// Logo wash filter — desaturate + darken to match maroon/navy palette
+const LOGO_FILTER = "saturate(0.55) brightness(0.8) contrast(1.1)";
+
 // Brand colors
 const COLORS = {
   maroon: "#8B2332",
@@ -497,7 +500,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
       {/* Hero Section */}
       <section
         className="relative min-h-[90vh] overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 50%, ${COLORS.maroonDark} 100%)` }}
+        style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyDark} 100%)` }}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
@@ -568,12 +571,14 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
                 </div>
 
                 <div className="relative z-10 flex items-center justify-center">
+                  <div className="absolute h-[300px] w-[300px] rounded-full bg-white/30 blur-3xl sm:h-[360px] sm:w-[360px]" />
                   <Image
                     src="/demos/tapchw-logo.png"
                     alt="TAPCHW"
                     width={280}
                     height={280}
-                    className="object-contain drop-shadow-2xl sm:h-[320px] sm:w-[320px]"
+                    className="relative object-contain drop-shadow-2xl sm:h-[320px] sm:w-[320px]"
+                    style={{ filter: LOGO_FILTER, transform: "translateY(8px)" }}
                   />
                 </div>
 
@@ -848,7 +853,7 @@ function AboutPage() {
               style={{ background: `linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.navyLight} 100%)` }}
             >
               <div className="flex h-full items-center justify-center">
-                <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={250} height={250} className="object-contain drop-shadow-2xl" />
+                <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={250} height={250} className="object-contain drop-shadow-2xl" style={{ filter: LOGO_FILTER }} />
               </div>
             </div>
 
@@ -1359,7 +1364,7 @@ function LoginPage({ onLogin }: { onLogin: (user: DemoUser) => void }) {
       <Card className="w-full max-w-md border-0 shadow-2xl">
         <CardContent className="p-8">
           <div className="mb-8 text-center">
-            <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={80} height={80} className="mx-auto mb-4 object-contain" />
+            <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={80} height={80} className="mx-auto mb-4 object-contain" style={{ filter: LOGO_FILTER }} />
             <h2 className="font-serif text-2xl font-bold" style={{ color: COLORS.navy }}>Welcome Back</h2>
             <p className="mt-1 text-sm text-gray-500">Sign in to your TAPCHW account</p>
           </div>
@@ -1791,7 +1796,7 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
       <nav className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "bg-white/95 shadow-lg backdrop-blur-md" : "bg-white shadow-sm"}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <button onClick={() => setCurrentPage("home")} className="flex items-center gap-3">
-            <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={44} height={44} className="object-contain" />
+            <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={44} height={44} className="object-contain" style={{ filter: LOGO_FILTER }} />
             <span className="text-lg font-bold" style={{ color: COLORS.maroon }}>TAPCHW</span>
           </button>
 
@@ -1927,7 +1932,7 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
             <div className="md:col-span-2">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white p-2">
-                  <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={36} height={36} className="object-contain" />
+                  <Image src="/demos/tapchw-logo.png" alt="TAPCHW" width={36} height={36} className="object-contain" style={{ filter: LOGO_FILTER }} />
                 </div>
                 <span className="text-xl font-bold text-white">TAPCHW</span>
               </div>
