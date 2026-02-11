@@ -246,9 +246,9 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
       </div>
 
       {/* Scrollable Alerts Container */}
-      <div className="min-h-0 flex-1 overflow-hidden bg-cw-navy px-6 py-4 lg:px-8">
-        <div className="mx-auto h-full max-w-5xl">
-          <div className="h-full overflow-y-auto rounded-lg border-2 border-gray-700 bg-cw-navy-dark/30 p-4">
+      <div className="overflow-hidden bg-cw-navy px-6 py-4 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="max-h-[65vh] overflow-y-auto rounded-lg border-2 border-gray-700 bg-cw-navy-dark/30 p-4">
             <div className="space-y-4">
               {filteredIncidents.length === 0 ? (
                 <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-12 text-center">

@@ -13,6 +13,7 @@ import {
   BarChart3,
   Globe,
   Truck,
+  BellRing,
 } from "lucide-react";
 
 /* ---------- Main Component ---------- */
@@ -351,16 +352,18 @@ export function CargoWatchAbout({ baseUrl }: { baseUrl: string }) {
           </p>
           <div className="mt-8 flex items-center justify-center gap-x-6">
             <Link
-              href={baseUrl}
-              className="rounded-md bg-cw-red px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-cw-red-hover"
+              href={`${baseUrl}/report`}
+              className="inline-flex items-center gap-2 rounded-md bg-cw-red px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-cw-red-hover"
             >
-              Join CargoWatch Free
+              <BellRing className="h-4 w-4" />
+              Report an Incident
             </Link>
             <Link
-              href={baseUrl}
-              className="text-sm font-semibold leading-6 text-gray-300 transition-colors hover:text-white"
+              href={`${baseUrl}/alerts`}
+              className="inline-flex items-center gap-2 rounded-md border border-gray-600 px-6 py-3 text-sm font-semibold text-gray-300 transition-colors hover:border-gray-400 hover:text-white"
             >
-              Learn More &rarr;
+              <ShieldCheck className="h-4 w-4" />
+              View Alert Feed
             </Link>
           </div>
           <p className="mt-8 text-gray-400">

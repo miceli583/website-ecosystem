@@ -27,6 +27,7 @@ export default function CargoWatchLayout({
     pathname.includes("/dashboard") ||
     pathname.includes("/alerts") ||
     pathname.includes("/map") ||
+    pathname.includes("/report") ||
     pathname.includes("/profile");
 
   return (
