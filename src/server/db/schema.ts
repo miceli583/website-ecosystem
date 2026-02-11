@@ -353,6 +353,7 @@ export const clientResources = pgTable("client_resources", {
   // Public sharing
   isPublic: boolean("is_public").default(false),
   publicToken: text("public_token").unique(),
+  publicSlug: text("public_slug").unique(),
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

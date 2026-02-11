@@ -13,7 +13,7 @@ import {
   clientAgreements,
   clientResources,
 } from "~/server/db/schema";
-import { eq, desc, isNull, and, asc } from "drizzle-orm";
+import { eq, desc, isNull, and, asc, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
 import { nanoid } from "nanoid";
@@ -212,7 +212,10 @@ export const portalRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const resource = await db.query.clientResources.findFirst({
         where: and(
-          eq(clientResources.publicToken, input.token),
+          or(
+            eq(clientResources.publicToken, input.token),
+            eq(clientResources.publicSlug, input.token),
+          ),
           eq(clientResources.isPublic, true),
           eq(clientResources.isActive, true),
         ),
@@ -241,6 +244,7 @@ export const portalRouter = createTRPCRouter({
         icon: resource.icon,
         metadata: resource.metadata,
         clientName: resource.client.name,
+        publicSlug: resource.publicSlug,
       };
     }),
 
@@ -297,6 +301,68 @@ export const portalRouter = createTRPCRouter({
         .returning();
 
       return updated!;
+    }),
+
+  /**
+   * Set or clear a custom public slug for a demo (admin only)
+   */
+  setPublicSlug: protectedProcedure
+    .input(
+      z.object({
+        resourceId: z.number(),
+        slug: z
+          .string()
+          .min(3)
+          .max(60)
+          .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, "Slug must be lowercase alphanumeric with hyphens, and cannot start or end with a hyphen")
+          .nullable(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || profile.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      // Check uniqueness if setting a slug
+      if (input.slug) {
+        const existing = await db.query.clientResources.findFirst({
+          where: and(
+            eq(clientResources.publicSlug, input.slug),
+          ),
+        });
+
+        if (existing && existing.id !== input.resourceId) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "This slug is already in use",
+          });
+        }
+      }
+
+      const [updated] = await db
+        .update(clientResources)
+        .set({
+          publicSlug: input.slug,
+          updatedAt: new Date(),
+        })
+        .where(eq(clientResources.id, input.resourceId))
+        .returning();
+
+      if (!updated) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Resource not found",
+        });
+      }
+
+      return updated;
     }),
 
   /**

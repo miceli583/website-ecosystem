@@ -27,7 +27,7 @@ import {
   type AdminAction,
   useTabFilters,
 } from "~/components/portal";
-import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye, Share2, EyeOff, Link2, Globe, ExternalLink } from "lucide-react";
+import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye, Share2, EyeOff, Link2, Globe, ExternalLink, Pencil } from "lucide-react";
 
 interface NormalizedDemo {
   id: string;
@@ -43,6 +43,105 @@ interface NormalizedDemo {
   isLegacy: boolean;
   isPublic: boolean;
   publicToken: string | null;
+  publicSlug: string | null;
+}
+
+const SLUG_REGEX = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
+
+function SlugEditDialog({
+  demo,
+  slugInput,
+  onSlugChange,
+  onSave,
+  onClose,
+  isPending,
+}: {
+  demo: NormalizedDemo;
+  slugInput: string;
+  onSlugChange: (v: string) => void;
+  onSave: (resourceId: number, slug: string | null) => void;
+  onClose: () => void;
+  isPending: boolean;
+}) {
+  const isValid = slugInput === "" || (slugInput.length >= 3 && slugInput.length <= 60 && SLUG_REGEX.test(slugInput));
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-xl border p-6"
+        style={{ backgroundColor: "#111", borderColor: "rgba(212, 175, 55, 0.2)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="mb-1 text-lg font-semibold text-white">Custom Share Slug</h3>
+        <p className="mb-4 text-sm text-gray-400">
+          Set a human-readable URL for &ldquo;{demo.title}&rdquo;
+        </p>
+
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-medium text-gray-400">Slug</label>
+          <input
+            type="text"
+            value={slugInput}
+            onChange={(e) => onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+            placeholder="e.g. tapchw-demo"
+            className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:ring-1"
+            style={{
+              borderColor: !isValid && slugInput ? "rgba(239, 68, 68, 0.5)" : "rgba(212, 175, 55, 0.2)",
+              ...(isValid || !slugInput ? {} : {}),
+            }}
+            onFocus={(e) => { e.target.style.borderColor = "rgba(212, 175, 55, 0.5)"; }}
+            onBlur={(e) => { e.target.style.borderColor = slugInput && !isValid ? "rgba(239, 68, 68, 0.5)" : "rgba(212, 175, 55, 0.2)"; }}
+          />
+          {!isValid && slugInput && (
+            <p className="mt-1 text-xs text-red-400">
+              3-60 chars, lowercase letters, numbers, and hyphens. Cannot start or end with a hyphen.
+            </p>
+          )}
+        </div>
+
+        {/* URL preview */}
+        <div className="mb-4 rounded-lg border px-3 py-2" style={{ borderColor: "rgba(212, 175, 55, 0.1)", backgroundColor: "rgba(212, 175, 55, 0.05)" }}>
+          <p className="text-xs text-gray-500">Share URL</p>
+          <p className="truncate text-sm font-mono" style={{ color: "#D4AF37" }}>
+            {origin}/s/{slugInput || demo.publicToken || "..."}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => {
+              if (!demo.resourceId) return;
+              onSave(demo.resourceId, null);
+            }}
+            disabled={!demo.publicSlug || isPending}
+            className="rounded-lg px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-40"
+          >
+            Clear Slug
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="rounded-lg px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (!demo.resourceId || !isValid || !slugInput) return;
+                onSave(demo.resourceId, slugInput);
+              }}
+              disabled={!isValid || !slugInput || isPending || slugInput === demo.publicSlug}
+              className="rounded-lg px-4 py-1.5 text-sm font-medium text-black transition-opacity disabled:opacity-40"
+              style={{ background: "linear-gradient(135deg, #F6E6C1, #D4AF37)" }}
+            >
+              {isPending ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function PortalDemosPage({
@@ -99,13 +198,31 @@ export default function PortalDemosPage({
   const togglePublic = api.portal.toggleDemoPublic.useMutation({
     onSuccess: (data) => {
       if (data.isPublic && data.publicToken) {
-        const shareUrl = `${window.location.origin}/s/${data.publicToken}`;
+        const shareUrl = `${window.location.origin}/s/${data.publicSlug ?? data.publicToken}`;
         void navigator.clipboard.writeText(shareUrl);
         toast.success("Demo is now public. Share link copied!");
       } else {
         toast.success("Demo is now private");
       }
       void utils.portal.getResources.invalidate();
+    },
+  });
+  const setPublicSlug = api.portal.setPublicSlug.useMutation({
+    onSuccess: (data) => {
+      if (data.publicSlug) {
+        toast.success(`Custom slug set: /s/${data.publicSlug}`);
+      } else {
+        toast.success("Custom slug removed");
+      }
+      void utils.portal.getResources.invalidate();
+      setSlugDialog({ open: false, demo: null });
+    },
+    onError: (err) => {
+      if (err.data?.code === "CONFLICT") {
+        toast.error("This slug is already in use");
+      } else {
+        toast.error(err.message);
+      }
     },
   });
 
@@ -151,6 +268,11 @@ export default function PortalDemosPage({
     open: false,
     demo: null,
   });
+  const [slugDialog, setSlugDialog] = useState<{ open: boolean; demo: NormalizedDemo | null }>({
+    open: false,
+    demo: null,
+  });
+  const [slugInput, setSlugInput] = useState("");
 
   // Process legacy demos
   const legacyDemos = useMemo(() => {
@@ -181,6 +303,7 @@ export default function PortalDemosPage({
         isLegacy: false,
         isPublic: r.isPublic ?? false,
         publicToken: r.publicToken ?? null,
+        publicSlug: r.publicSlug ?? null,
       });
     });
 
@@ -199,6 +322,7 @@ export default function PortalDemosPage({
         isLegacy: true,
         isPublic: false,
         publicToken: null,
+        publicSlug: null,
       });
     });
 
@@ -342,11 +466,12 @@ export default function PortalDemosPage({
           onClick: () => togglePublic.mutate({ resourceId: demo.resourceId!, isPublic: !demo.isPublic }),
         });
         if (demo.isPublic && demo.publicToken) {
+          const shareIdentifier = demo.publicSlug ?? demo.publicToken;
           actions.push({
             label: "Copy Share Link",
             icon: <Link2 className="h-4 w-4" />,
             onClick: () => {
-              const shareUrl = `${window.location.origin}/s/${demo.publicToken}`;
+              const shareUrl = `${window.location.origin}/s/${shareIdentifier}`;
               void navigator.clipboard.writeText(shareUrl);
               toast.success("Share link copied!");
             },
@@ -356,6 +481,16 @@ export default function PortalDemosPage({
 
       // Admin-only actions
       if (isAdmin) {
+        if (demo.isPublic && demo.resourceId) {
+          actions.push({
+            label: demo.publicSlug ? "Edit Custom Slug" : "Set Custom Slug",
+            icon: <Pencil className="h-4 w-4" />,
+            onClick: () => {
+              setSlugInput(demo.publicSlug ?? "");
+              setSlugDialog({ open: true, demo });
+            },
+          });
+        }
         actions.push(
           {
             label: demo.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
@@ -396,7 +531,7 @@ export default function PortalDemosPage({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const shareUrl = `${window.location.origin}/s/${demo.publicToken}`;
+                const shareUrl = `${window.location.origin}/s/${demo.publicSlug ?? demo.publicToken}`;
                 void navigator.clipboard.writeText(shareUrl);
                 toast.success("Share link copied!");
               }}
@@ -605,6 +740,18 @@ export default function PortalDemosPage({
         onConfirm={() => deleteDialog.demo && handleDelete(deleteDialog.demo)}
         isLoading={deleteResource.isPending}
       />
+
+      {/* Custom Slug Dialog */}
+      {slugDialog.open && slugDialog.demo && (
+        <SlugEditDialog
+          demo={slugDialog.demo}
+          slugInput={slugInput}
+          onSlugChange={setSlugInput}
+          onSave={(resourceId, slug) => setPublicSlug.mutate({ resourceId, slug })}
+          onClose={() => setSlugDialog({ open: false, demo: null })}
+          isPending={setPublicSlug.isPending}
+        />
+      )}
     </ClientPortalLayout>
   );
 }
