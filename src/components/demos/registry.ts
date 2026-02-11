@@ -13,4 +13,6 @@ export const DEMO_REGISTRY: Record<string, () => Promise<{ default: ComponentTyp
   "slides-presentation": () => import("./slides-presentation").then((m) => ({ default: m.SlidesPresentationDemo })),
   "slides-gamma": () => import("./slides-gamma").then((m) => ({ default: m.SlidesGammaDemo })),
   "mockup-assets": () => import("./mockup-assets").then((m) => ({ default: m.MockupAssetsDemo })),
+  "wildflower-landing": () => import("./wildflower-landing").then((m) => ({ default: m.WildflowerLanding })),
+  "wildflower-assets": () => import("./wildflower-assets").then((m) => ({ default: m.WildflowerAssets })),
 };
