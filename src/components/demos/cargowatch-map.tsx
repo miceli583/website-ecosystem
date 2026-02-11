@@ -4,23 +4,16 @@
  * CargoWatch Map View Demo - Faithful reproduction of the original CargoWatch
  * dashboard map view for the client portal. Uses static data, Lucide icons,
  * and Mapbox GL JS for the interactive threat map.
+ * Sidebar navigation is handled by the parent layout.
  */
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import {
-  Home,
-  Bell,
-  Map,
-  FilePlus,
-  UserCircle,
-  ShieldCheck,
   MapPin,
   Filter,
   X,
-  ArrowLeft,
 } from "lucide-react";
 import {
   INCIDENTS,
@@ -30,15 +23,6 @@ import {
 
 // ---------- Mapbox token ----------
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
-
-// ---------- Sidebar nav definition ----------
-const navigation = [
-  { name: "Dashboard", path: "/dashboard", icon: Home },
-  { name: "Alerts", path: "/dashboard/alerts", icon: Bell },
-  { name: "Map", path: "/dashboard/map", icon: Map },
-  { name: "Report", path: "/dashboard/report", icon: FilePlus, highlight: true },
-  { name: "Profile", path: "/dashboard/profile", icon: UserCircle },
-];
 
 // ---------- Helpers ----------
 const getSeverityColor = (severity: string) => {
@@ -155,7 +139,6 @@ const CARGO_ROUTES = {
 
 // ---------- Main Component ----------
 export function CargoWatchMap({ baseUrl }: { baseUrl: string }) {
-  const pathname = usePathname();
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
@@ -526,315 +509,234 @@ export function CargoWatchMap({ baseUrl }: { baseUrl: string }) {
     }
   };
 
-  // Current active path for sidebar highlighting
-  const currentPath = pathname || "";
-
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-cw-navy-dark">
-      {/* ===== Sidebar ===== */}
-      <div className="flex w-64 flex-shrink-0 flex-col border-r border-gray-800 bg-cw-navy-dark">
-        {/* Logo */}
-        <div className="flex h-16 items-center border-b border-gray-800 px-6">
-          <Link href={baseUrl} className="flex items-center space-x-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cw-red">
-              <ShieldCheck className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold uppercase tracking-wide text-white">
-                CARGO WATCH
-              </span>
-              <span className="text-xs text-gray-400">Command Center</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* User Info */}
-        <div className="border-b border-gray-800 p-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cw-red/10 text-cw-red">
-              D
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-white">
-                Demo User
-              </div>
-              <div className="truncate text-xs capitalize text-gray-400">
-                Viewer
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-4">
-          {navigation.map((item) => {
-            const href = `${baseUrl}${item.path}`;
-            const isActive =
-              item.path === "/dashboard/map" ||
-              currentPath.includes(item.path);
-            const Icon = item.icon;
-
-            return (
-              <Link
-                key={item.name}
-                href={href}
-                className={[
-                  "group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  item.highlight
-                    ? "bg-cw-red text-white hover:bg-cw-red-hover"
-                    : isActive
-                      ? "bg-cw-navy-light text-white"
-                      : "text-gray-400 hover:bg-cw-navy-light hover:text-white",
-                ].join(" ")}
-              >
-                <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Footer */}
-        <div className="border-t border-gray-800 p-4">
-          <Link
-            href={baseUrl}
-            className="flex items-center space-x-2 text-xs text-gray-400 hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Portal</span>
-          </Link>
+    <div className="w-full bg-cw-navy-dark">
+      {/* Header */}
+      <div className="cw-gradient-navy-section border-b border-gray-700 px-6 py-8">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="text-3xl font-bold text-white">
+            Interactive Incident Map
+          </h1>
+          <p className="mt-2 text-gray-400">
+            Geographic view of cargo theft and suspicious activity across
+            monitored regions
+          </p>
         </div>
       </div>
 
-      {/* ===== Main Content ===== */}
-      <div className="flex flex-1 flex-col overflow-y-auto">
-        {/* Header */}
-        <div className="cw-gradient-navy-section border-b border-gray-700 px-6 py-8">
-          <div className="mx-auto max-w-7xl">
-            <h1 className="text-3xl font-bold text-white">
-              Interactive Incident Map
-            </h1>
-            <p className="mt-2 text-gray-400">
-              Geographic view of cargo theft and suspicious activity across
-              monitored regions
-            </p>
-          </div>
-        </div>
-
-        {/* Real-Time Monitoring Banner */}
-        <div className="border-b border-gray-700 px-6 py-6">
-          <div className="mx-auto max-w-7xl">
-            <div className="rounded-lg bg-cw-red p-6">
-              <div className="flex items-center gap-3">
-                <MapPin className="h-8 w-8 text-white" />
-                <div>
-                  <h2 className="text-lg font-semibold text-white">
-                    Real-Time Monitoring
-                  </h2>
-                  <p className="mt-2 text-sm text-white/90">
-                    This map updates in real-time as incidents are reported by
-                    community members across the freight network.
-                  </p>
-                </div>
+      {/* Real-Time Monitoring Banner */}
+      <div className="border-b border-gray-700 px-6 py-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="rounded-lg bg-cw-red p-6">
+            <div className="flex items-center gap-3">
+              <MapPin className="h-8 w-8 text-white" />
+              <div>
+                <h2 className="text-lg font-semibold text-white">
+                  Real-Time Monitoring
+                </h2>
+                <p className="mt-2 text-sm text-white/90">
+                  This map updates in real-time as incidents are reported by
+                  community members across the freight network.
+                </p>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Map Section */}
-        <div className="flex flex-1 flex-col">
-          <div className="p-6">
-            <div className="rounded-lg border-2 border-gray-700 bg-cw-navy-light/30 p-4">
-              {/* Filters */}
-              <div className="mb-4 flex flex-wrap gap-4">
-                {/* Region Filter */}
-                <div className="relative min-w-[200px] flex-1">
-                  <button
-                    onClick={() => setShowRegionDropdown(!showRegionDropdown)}
-                    className="flex w-full items-center justify-between rounded-lg border border-gray-600 bg-cw-navy px-4 py-2 text-sm text-white hover:bg-cw-navy-light"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-gray-400" />
-                      <span>
-                        {selectedRegion === "all"
-                          ? "All Regions"
-                          : REGIONS.find((r) => r.name === selectedRegion)
-                              ?.name}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-400">
-                      ({filteredIncidents.length})
+      {/* Map Section */}
+      <div className="flex flex-1 flex-col">
+        <div className="p-6">
+          <div className="rounded-lg border-2 border-gray-700 bg-cw-navy-light/30 p-4">
+            {/* Filters */}
+            <div className="mb-4 flex flex-wrap gap-4">
+              {/* Region Filter */}
+              <div className="relative min-w-[200px] flex-1">
+                <button
+                  onClick={() => setShowRegionDropdown(!showRegionDropdown)}
+                  className="flex w-full items-center justify-between rounded-lg border border-gray-600 bg-cw-navy px-4 py-2 text-sm text-white hover:bg-cw-navy-light"
+                >
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-gray-400" />
+                    <span>
+                      {selectedRegion === "all"
+                        ? "All Regions"
+                        : REGIONS.find((r) => r.name === selectedRegion)
+                            ?.name}
                     </span>
-                  </button>
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    ({filteredIncidents.length})
+                  </span>
+                </button>
 
-                  {showRegionDropdown && (
-                    <div className="absolute z-50 mt-2 max-h-96 w-full overflow-y-auto rounded-lg border border-gray-600 bg-cw-navy shadow-xl">
-                      <div className="sticky top-0 bg-cw-navy p-2">
-                        <input
-                          type="text"
-                          placeholder="Search regions..."
-                          value={regionSearch}
-                          onChange={(e) => setRegionSearch(e.target.value)}
-                          className="w-full rounded bg-cw-navy-dark px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cw-red"
-                        />
-                      </div>
+                {showRegionDropdown && (
+                  <div className="absolute z-50 mt-2 max-h-96 w-full overflow-y-auto rounded-lg border border-gray-600 bg-cw-navy shadow-xl">
+                    <div className="sticky top-0 bg-cw-navy p-2">
+                      <input
+                        type="text"
+                        placeholder="Search regions..."
+                        value={regionSearch}
+                        onChange={(e) => setRegionSearch(e.target.value)}
+                        className="w-full rounded bg-cw-navy-dark px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cw-red"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedRegion("all");
+                        setShowRegionDropdown(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cw-navy-light"
+                    >
+                      All Regions ({INCIDENTS.length})
+                    </button>
+                    {filteredRegions.map((region) => (
                       <button
+                        key={region.id}
                         onClick={() => {
-                          setSelectedRegion("all");
+                          setSelectedRegion(region.name);
                           setShowRegionDropdown(false);
+                          flyToRegion(region.name);
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cw-navy-light"
                       >
-                        All Regions ({INCIDENTS.length})
+                        {region.name} ({region.incidentCount})
                       </button>
-                      {filteredRegions.map((region) => (
-                        <button
-                          key={region.id}
-                          onClick={() => {
-                            setSelectedRegion(region.name);
-                            setShowRegionDropdown(false);
-                            flyToRegion(region.name);
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cw-navy-light"
-                        >
-                          {region.name} ({region.incidentCount})
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Severity Filter */}
-                <select
-                  value={selectedSeverity}
-                  onChange={(e) => setSelectedSeverity(e.target.value)}
-                  className="rounded-lg border border-gray-600 bg-cw-navy px-4 py-2 text-sm text-white hover:bg-cw-navy-light focus:outline-none focus:ring-2 focus:ring-cw-red"
-                >
-                  <option value="all">All Severities</option>
-                  <option value="critical">Critical</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-
-                {/* Type Filter */}
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="rounded-lg border border-gray-600 bg-cw-navy px-4 py-2 text-sm text-white hover:bg-cw-navy-light focus:outline-none focus:ring-2 focus:ring-cw-red"
-                >
-                  <option value="all">All Types</option>
-                  <option value="theft">Theft</option>
-                  <option value="suspicious">Suspicious Activity</option>
-                  <option value="tampering">Tampering</option>
-                  <option value="attempted_break_in">Attempted Break-in</option>
-                </select>
-
-                {/* Routes Toggle */}
-                <button
-                  onClick={() => setShowRoutes(!showRoutes)}
-                  className={[
-                    "rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
-                    showRoutes
-                      ? "border-indigo-500 bg-indigo-500 text-white"
-                      : "border-gray-600 bg-cw-navy text-white hover:bg-cw-navy-light",
-                  ].join(" ")}
-                >
-                  {showRoutes ? "Hide Routes" : "Show Routes"}
-                </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Map Container */}
-              <div
-                ref={mapContainer}
-                className="h-[600px] w-full overflow-hidden rounded-lg"
-              />
+              {/* Severity Filter */}
+              <select
+                value={selectedSeverity}
+                onChange={(e) => setSelectedSeverity(e.target.value)}
+                className="rounded-lg border border-gray-600 bg-cw-navy px-4 py-2 text-sm text-white hover:bg-cw-navy-light focus:outline-none focus:ring-2 focus:ring-cw-red"
+              >
+                <option value="all">All Severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
 
-              {/* Map Legend */}
-              <div className="mt-4 flex items-center gap-6 text-sm text-gray-400">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-cw-severity-critical" />
-                  <span>Critical</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-cw-severity-high" />
-                  <span>High</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-cw-severity-medium" />
-                  <span>Medium</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-cw-severity-low" />
-                  <span>Low</span>
-                </div>
-                <span className="ml-auto">
-                  Total Incidents: {filteredIncidents.length}
-                </span>
+              {/* Type Filter */}
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="rounded-lg border border-gray-600 bg-cw-navy px-4 py-2 text-sm text-white hover:bg-cw-navy-light focus:outline-none focus:ring-2 focus:ring-cw-red"
+              >
+                <option value="all">All Types</option>
+                <option value="theft">Theft</option>
+                <option value="suspicious">Suspicious Activity</option>
+                <option value="tampering">Tampering</option>
+                <option value="attempted_break_in">Attempted Break-in</option>
+              </select>
+
+              {/* Routes Toggle */}
+              <button
+                onClick={() => setShowRoutes(!showRoutes)}
+                className={[
+                  "rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
+                  showRoutes
+                    ? "border-indigo-500 bg-indigo-500 text-white"
+                    : "border-gray-600 bg-cw-navy text-white hover:bg-cw-navy-light",
+                ].join(" ")}
+              >
+                {showRoutes ? "Hide Routes" : "Show Routes"}
+              </button>
+            </div>
+
+            {/* Map Container */}
+            <div
+              ref={mapContainer}
+              className="h-[600px] w-full overflow-hidden rounded-lg"
+            />
+
+            {/* Map Legend */}
+            <div className="mt-4 flex items-center gap-6 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-cw-severity-critical" />
+                <span>Critical</span>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-cw-severity-high" />
+                <span>High</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-cw-severity-medium" />
+                <span>Medium</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-cw-severity-low" />
+                <span>Low</span>
+              </div>
+              <span className="ml-auto">
+                Total Incidents: {filteredIncidents.length}
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Statistics and Activity Section */}
-          <div className="px-6 pb-6">
-            <div className="mx-auto grid gap-6 lg:grid-cols-2">
-              {/* Regional Statistics */}
-              <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6">
-                <h2 className="text-lg font-semibold text-white">
-                  Regional Statistics
-                </h2>
-                <div className="mt-4 space-y-4">
-                  {topRegions.map((region) => (
-                    <div
-                      key={region.id}
-                      className="cursor-pointer rounded-lg border border-gray-700 bg-cw-navy p-4 hover:bg-cw-navy-dark"
-                      onClick={() => {
-                        setSelectedRegion(region.name);
-                        flyToRegion(region.name);
-                      }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <h3 className="font-medium text-white">
-                          {region.city}, {region.state}
-                        </h3>
-                        <div className="text-xs text-cw-red">&#8599;</div>
-                      </div>
-                      <div className="mt-2 text-3xl font-bold text-white">
-                        {region.incidentCount}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-400">
-                        incidents reported
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6">
-                <h2 className="text-lg font-semibold text-white">
-                  Recent Activity
-                </h2>
-                <div className="mt-4 space-y-4">
-                  {recentIncidents.map((incident) => (
-                    <div
-                      key={incident.id}
-                      className="cursor-pointer rounded-lg border border-gray-700 bg-cw-navy p-3 hover:bg-cw-navy-dark"
-                      onClick={() => flyToIncident(incident)}
-                    >
-                      <h3 className="text-sm font-medium text-white">
-                        {incident.title}
+        {/* Statistics and Activity Section */}
+        <div className="px-6 pb-6">
+          <div className="mx-auto grid gap-6 lg:grid-cols-2">
+            {/* Regional Statistics */}
+            <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6">
+              <h2 className="text-lg font-semibold text-white">
+                Regional Statistics
+              </h2>
+              <div className="mt-4 space-y-4">
+                {topRegions.map((region) => (
+                  <div
+                    key={region.id}
+                    className="cursor-pointer rounded-lg border border-gray-700 bg-cw-navy p-4 hover:bg-cw-navy-dark"
+                    onClick={() => {
+                      setSelectedRegion(region.name);
+                      flyToRegion(region.name);
+                    }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-medium text-white">
+                        {region.city}, {region.state}
                       </h3>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
-                        <MapPin className="h-3 w-3" />
-                        <span>{incident.specificLocation}</span>
-                      </div>
-                      <div className="mt-2 text-xs text-gray-500">
-                        {timeAgo(incident.createdAt)}
-                      </div>
+                      <div className="text-xs text-cw-red">&#8599;</div>
                     </div>
-                  ))}
-                </div>
+                    <div className="mt-2 text-3xl font-bold text-white">
+                      {region.incidentCount}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-400">
+                      incidents reported
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6">
+              <h2 className="text-lg font-semibold text-white">
+                Recent Activity
+              </h2>
+              <div className="mt-4 space-y-4">
+                {recentIncidents.map((incident) => (
+                  <div
+                    key={incident.id}
+                    className="cursor-pointer rounded-lg border border-gray-700 bg-cw-navy p-3 hover:bg-cw-navy-dark"
+                    onClick={() => flyToIncident(incident)}
+                  >
+                    <h3 className="text-sm font-medium text-white">
+                      {incident.title}
+                    </h3>
+                    <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                      <MapPin className="h-3 w-3" />
+                      <span>{incident.specificLocation}</span>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      {timeAgo(incident.createdAt)}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

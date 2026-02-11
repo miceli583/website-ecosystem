@@ -13,105 +13,13 @@ import {
   BarChart3,
   Globe,
   Truck,
-  Building2,
-  BellRing,
-  Menu,
 } from "lucide-react";
-
-/* ---------- Shared Navigation ---------- */
-
-function CWNavigation({ baseUrl }: { baseUrl: string }) {
-  const navLinks = [
-    { name: "Home", href: baseUrl },
-    { name: "Resources", href: `${baseUrl}/resources` },
-    { name: "About", href: `${baseUrl}/about` },
-  ];
-
-  return (
-    <nav className="sticky top-0 z-50 border-b border-gray-800 bg-cw-navy-dark">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href={baseUrl} className="flex items-center space-x-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cw-red">
-                <ShieldCheck className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold uppercase tracking-wide text-white">
-                  CARGO WATCH
-                </span>
-                <span className="text-xs text-gray-400">
-                  America&apos;s Freight Protection Network
-                </span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-1">
-              {navLinks.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="rounded-md px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-cw-navy-light hover:text-white"
-                >
-                  {item.name}
-                </Link>
-              ))}
-
-              <Link
-                href={`${baseUrl}/dashboard`}
-                className="ml-2 rounded-md px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-cw-navy-light hover:text-white"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href={`${baseUrl}/alerts`}
-                className="ml-2 rounded-md px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-cw-navy-light hover:text-white"
-              >
-                Alerts
-              </Link>
-              <Link
-                href={`${baseUrl}/map`}
-                className="ml-2 rounded-md px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-cw-navy-light hover:text-white"
-              >
-                Map
-              </Link>
-
-              <Link
-                href={baseUrl}
-                className="ml-2 rounded-md bg-cw-red px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cw-red-hover"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              className="rounded-md p-2 text-gray-400 hover:bg-cw-navy-light hover:text-white"
-              aria-label="Open menu"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
 
 /* ---------- Main Component ---------- */
 
 export function CargoWatchAbout({ baseUrl }: { baseUrl: string }) {
   return (
     <div className="w-full">
-      <CWNavigation baseUrl={baseUrl} />
-
       {/* Hero */}
       <div
         className="border-b border-gray-700"

@@ -1,9 +1,9 @@
 "use client";
 
 import { use } from "react";
-import { CargoWatchLanding } from "~/components/demos/cargowatch-landing";
+import { CargoWatchProfile } from "~/components/demos/cargowatch-profile";
 
 export default function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  return <CargoWatchLanding baseUrl={`/portal/${slug}/demos/cargowatch`} />;
+  return <CargoWatchProfile baseUrl={`/portal/${slug}/demos/cargowatch`} />;
 }

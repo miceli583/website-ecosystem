@@ -6,9 +6,7 @@
  * Static data, no auth, Lucide icons.
  */
 
-import Link from "next/link";
 import {
-  Shield,
   ShieldCheck,
   Signal,
   Lock,
@@ -16,85 +14,8 @@ import {
   FileText,
   BarChart3,
   ExternalLink,
-  Menu,
 } from "lucide-react";
 import { RESOURCES } from "~/lib/cargowatch-data";
-
-/* ---------- Nav ---------- */
-
-const NAV_LINKS = [
-  { name: "Home", path: "" },
-  { name: "Resources", path: "/resources" },
-  { name: "About", path: "/about" },
-];
-
-function CWNav({ baseUrl, active }: { baseUrl: string; active: string }) {
-  return (
-    <nav className="sticky top-0 z-50 border-b border-gray-800 bg-cw-navy-dark">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href={baseUrl} className="flex items-center space-x-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cw-red">
-                <ShieldCheck className="h-6 w-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold uppercase tracking-wide text-white">
-                  CARGO WATCH
-                </span>
-                <span className="text-xs text-gray-400">
-                  America&apos;s Freight Protection Network
-                </span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-1">
-              {NAV_LINKS.map((item) => {
-                const href = `${baseUrl}${item.path}`;
-                const isActive = active === item.path || (active === "/resources" && item.path === "/resources");
-                return (
-                  <Link
-                    key={item.name}
-                    href={href}
-                    className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-cw-navy-light text-white"
-                        : "text-gray-300 hover:bg-cw-navy-light hover:text-white"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
-
-              <Link
-                href={`${baseUrl}/dashboard`}
-                className="ml-2 rounded-md bg-cw-red px-4 py-2 text-sm font-medium text-white hover:bg-cw-red-hover"
-              >
-                Go to Dashboard
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              className="rounded-md p-2 text-gray-400 hover:bg-cw-navy-light hover:text-white"
-              aria-label="Open menu"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
 
 /* ---------- Helpers ---------- */
 
@@ -107,8 +28,6 @@ const SURVEILLANCE_PRODUCTS = RESOURCES.filter((r) => r.subcategory === "surveil
 export function CargoWatchResources({ baseUrl }: { baseUrl: string }) {
   return (
     <div className="min-h-screen bg-cw-navy">
-      <CWNav baseUrl={baseUrl} active="/resources" />
-
       <div className="w-full">
         {/* Header */}
         <div className="border-b border-gray-700 bg-cw-navy-dark px-6 py-8">
