@@ -310,16 +310,19 @@ function useCountUp(end: number, duration: number = 2000) {
     if (!hasStarted) return;
 
     let startTime: number;
+    let rafId: number;
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime;
       const progress = Math.min((currentTime - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * end));
+      // easeOutQuart — slow start, smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setCount(progress >= 1 ? end : Math.round(eased * end));
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
       }
     };
-    requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [end, duration, hasStarted]);
 
   return { count, ref };
@@ -410,7 +413,7 @@ function LogoCarousel({ title }: { title: string }) {
                 alt={member.name}
                 width={140}
                 height={70}
-                className="max-h-16 w-auto object-contain opacity-70 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0"
+                className="max-h-16 w-auto object-contain transition-all duration-500 group-hover:scale-105"
               />
             </div>
           ))}
@@ -617,6 +620,11 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
         </div>
       </section>
 
+      {/* Member Organizations Carousel */}
+      <section className="border-y bg-white py-4" style={{ borderColor: "rgba(53, 79, 139, 0.1)" }}>
+        <LogoCarousel title="Trusted by Leading Texas Organizations" />
+      </section>
+
       {/* Section Divider */}
       <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
 
@@ -638,6 +646,54 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
         </div>
       </section>
 
+      {/* Section Divider */}
+      <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
+
+      {/* Goals Section */}
+      <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
+        <div className="mx-auto max-w-4xl">
+          <div className="mb-14 text-center">
+            <Badge className="mb-4" style={{ backgroundColor: `${COLORS.maroon}15`, color: COLORS.maroon }}>
+              What We Do
+            </Badge>
+            <h2 className="font-serif text-4xl font-bold sm:text-5xl" style={{ color: COLORS.navy }}>Our Goals</h2>
+          </div>
+
+          <div className="space-y-4">
+            {GOALS.map((goal, i) => (
+              <div
+                key={i}
+                className="group flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <span
+                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white shadow-lg transition-all duration-500 group-hover:scale-110"
+                  style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
+                >
+                  {i + 1}
+                </span>
+                <span className="flex-1 font-medium text-gray-700">{goal}</span>
+                <ArrowRight className="h-5 w-5 text-gray-300 transition-all group-hover:translate-x-2 group-hover:text-gray-500" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="px-4 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-14 text-center">
+            <Badge className="mb-4" style={{ backgroundColor: `${COLORS.navy}15`, color: COLORS.navy }}>
+              Testimonials
+            </Badge>
+            <h2 className="font-serif text-4xl font-bold sm:text-5xl" style={{ color: COLORS.maroon }}>
+              What Our Members Say
+            </h2>
+          </div>
+          <TestimonialCarousel />
+        </div>
+      </section>
+
       {/* About Section */}
       <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="mx-auto max-w-4xl text-center">
@@ -645,7 +701,7 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
             About Us
           </Badge>
           <h2 className="font-serif mb-6 text-4xl font-bold sm:text-5xl" style={{ color: COLORS.maroon }}>
-            Empowering Texas CHWs Since Day One
+            Empowering Texas CHWs<br />Since Day One
           </h2>
           <p className="text-lg leading-relaxed text-gray-600">
             We are a 501(c)3 non-profit professional organization that offers membership and supports
@@ -730,62 +786,6 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
             })}
           </div>
         </div>
-      </section>
-
-      {/* Section Divider */}
-      <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
-
-      {/* Goals Section */}
-      <section className="px-4 py-24" style={{ backgroundColor: COLORS.cream }}>
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-14 text-center">
-            <Badge className="mb-4" style={{ backgroundColor: `${COLORS.maroon}15`, color: COLORS.maroon }}>
-              What We Do
-            </Badge>
-            <h2 className="font-serif text-4xl font-bold sm:text-5xl" style={{ color: COLORS.navy }}>Our Goals</h2>
-          </div>
-
-          <div className="space-y-4">
-            {GOALS.map((goal, i) => (
-              <div
-                key={i}
-                className="group flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
-              >
-                <span
-                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white shadow-lg transition-all duration-500 group-hover:scale-110"
-                  style={{ background: `linear-gradient(135deg, ${COLORS.maroon} 0%, ${COLORS.maroonLight} 100%)` }}
-                >
-                  {i + 1}
-                </span>
-                <span className="flex-1 font-medium text-gray-700">{goal}</span>
-                <ArrowRight className="h-5 w-5 text-gray-300 transition-all group-hover:translate-x-2 group-hover:text-gray-500" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="px-4 py-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-14 text-center">
-            <Badge className="mb-4" style={{ backgroundColor: `${COLORS.navy}15`, color: COLORS.navy }}>
-              Testimonials
-            </Badge>
-            <h2 className="font-serif text-4xl font-bold sm:text-5xl" style={{ color: COLORS.maroon }}>
-              What Our Members Say
-            </h2>
-          </div>
-          <TestimonialCarousel />
-        </div>
-      </section>
-
-      {/* Section Divider */}
-      <div className="h-px w-full" style={{ background: `linear-gradient(to right, transparent, ${COLORS.gold}40, transparent)` }} />
-
-      {/* Member Organizations Carousel */}
-      <section className="border-y bg-white py-4" style={{ borderColor: "rgba(53, 79, 139, 0.1)" }}>
-        <LogoCarousel title="Trusted by Leading Texas Organizations" />
       </section>
 
       {/* CTA Section */}
