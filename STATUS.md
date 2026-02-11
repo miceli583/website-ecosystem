@@ -1,8 +1,8 @@
 # Project Status
 
 **Version:** 0.7.1
-**Last Updated:** 2026-02-10
-**Commits:** 165+
+**Last Updated:** 2026-02-11
+**Commits:** 170+
 
 ## Feature Status
 
@@ -22,7 +22,7 @@
 | Finance expense tracking | Working | Manual expenses, IRS categories seeded, tax deductibility tracking |
 | Client portal v2 | Working | `/portal/[slug]` with role-based auth |
 | Portal profile | Working | Role-aware: org members see company roles, admins see nav links |
-| Portal demos | Working | Hub pages, subroutes, all slide sub-demos (inputs, tracks, presentation, gamma) |
+| Portal demos | Working | Hub pages, subroutes, slide sub-demos, Wildflower landing, CargoWatch multi-page |
 | Public demo sharing | Working | `/s/[token]` with subroute support, OG metadata, all demo types |
 | Portal skeletons | Working | Loading skeletons for all portal pages |
 | Stripe integration | Working | Billing, subscriptions, webhook events, proposal linking |
@@ -38,7 +38,9 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
-| Feb 10 | pending | Ecosystem map audit (74→151 routes), tooling audit (10→47 tools), DB audit (11→22 tables), `/inventory` skill |
+| Feb 11 | fa99777 | CargoWatch refactor: shared nav, all 129 incidents, dashboard shell, report page, profile |
+| Feb 11 | 8ce4b10 | Client onboarding (Cori, Daniel), Wildflower + CargoWatch demo migrations |
+| Feb 10 | 60dca42 | Ecosystem map audit (74→151 routes), tooling audit (10→47 tools), DB audit (11→22 tables), `/inventory` skill |
 | Feb 10 | db2b163 | CRM-client sync, hybrid edit modal, delete/archive, role-based portal profile |
 | Feb 09 | dd65b40 | Finance overhaul: fix tax deductions, fuzzy auto-categorize, aggregate summary, optimistic UI |
 | Feb 09 | 957044c | Fix public demo sharing: metadata, caching, share button, fallback |

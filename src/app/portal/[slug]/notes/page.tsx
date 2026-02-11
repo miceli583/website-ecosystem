@@ -122,42 +122,143 @@ export default function PortalNotesPage({
     { enabled: isAdmin, staleTime: 5 * 60 * 1000 },
   );
 
-  // Mutations
+  // Mutations with optimistic updates
   const createNote = api.portalNotes.createNote.useMutation({
+    onMutate: async (input) => {
+      await utils.portalNotes.getNotes.cancel({ slug });
+      const previous = utils.portalNotes.getNotes.getData({ slug });
+      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) => {
+        if (!old) return old;
+        return [
+          {
+            id: -Date.now(),
+            clientId: client?.id ?? 0,
+            projectId: input.projectId ?? null,
+            createdByAuthId: profile?.authUserId ?? "",
+            createdByName: profile?.name ?? "You",
+            title: input.title,
+            content: input.content ?? "",
+            isPinned: false,
+            isArchived: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            project: null,
+          } as Note,
+          ...old,
+        ];
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      toast.error("Failed to create note");
+    },
     onSuccess: () => {
       toast.success("Note created");
-      void utils.portalNotes.getNotes.invalidate({ slug });
       setShowEditor(false);
     },
+    onSettled: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
+
   const updateNote = api.portalNotes.updateNote.useMutation({
+    onMutate: async (input) => {
+      await utils.portalNotes.getNotes.cancel({ slug });
+      const previous = utils.portalNotes.getNotes.getData({ slug });
+      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
+        old?.map((n) =>
+          n.id === input.noteId
+            ? {
+                ...n,
+                ...(input.title !== undefined && { title: input.title }),
+                ...(input.content !== undefined && { content: input.content }),
+                updatedAt: new Date(),
+              }
+            : n,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      toast.error("Failed to update note");
+    },
     onSuccess: () => {
       toast.success("Note updated");
-      void utils.portalNotes.getNotes.invalidate({ slug });
       setEditingNoteId(null);
     },
+    onSettled: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
+
   const deleteNote = api.portalNotes.deleteNote.useMutation({
+    onMutate: async (input) => {
+      await utils.portalNotes.getNotes.cancel({ slug });
+      const previous = utils.portalNotes.getNotes.getData({ slug });
+      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
+        old?.filter((n) => n.id !== input.noteId),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      toast.error("Failed to delete note");
+    },
     onSuccess: () => {
       toast.success("Note deleted");
-      void utils.portalNotes.getNotes.invalidate({ slug });
       setDeleteDialog({ open: false, note: null });
       setExpandedNoteId(null);
     },
+    onSettled: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
+
   const togglePin = api.portalNotes.updateNote.useMutation({
+    onMutate: async (input) => {
+      await utils.portalNotes.getNotes.cancel({ slug });
+      const previous = utils.portalNotes.getNotes.getData({ slug });
+      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) => {
+        if (!old) return old;
+        const updated = old.map((n) =>
+          n.id === input.noteId ? { ...n, isPinned: input.isPinned ?? n.isPinned } : n,
+        );
+        return updated.sort(
+          (a, b) =>
+            (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0) ||
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        );
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      toast.error("Failed to update pin");
+    },
     onSuccess: (_, variables) => {
       toast.success(variables.isPinned ? "Note pinned" : "Note unpinned");
-      void utils.portalNotes.getNotes.invalidate({ slug });
     },
+    onSettled: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
+
   const assignNote = api.portalNotes.updateNote.useMutation({
+    onMutate: async (input) => {
+      await utils.portalNotes.getNotes.cancel({ slug });
+      const previous = utils.portalNotes.getNotes.getData({ slug });
+      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
+        old?.map((n) =>
+          n.id === input.noteId ? { ...n, projectId: input.projectId ?? n.projectId } : n,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      toast.error("Failed to assign project");
+    },
     onSuccess: () => {
       toast.success("Project assigned");
-      void utils.portalNotes.getNotes.invalidate({ slug });
       void utils.portal.getProjects.invalidate({ slug });
     },
+    onSettled: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
+
   const createProject = api.portal.createProject.useMutation({
     onSuccess: () => {
       toast.success("Project created");
@@ -204,12 +305,25 @@ export default function PortalNotesPage({
     });
   }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
 
-  // Archive mutation
   const archiveNote = api.portalNotes.updateNote.useMutation({
+    onMutate: async (input) => {
+      await utils.portalNotes.getNotes.cancel({ slug });
+      const previous = utils.portalNotes.getNotes.getData({ slug });
+      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
+        old?.map((n) =>
+          n.id === input.noteId ? { ...n, isArchived: input.isArchived ?? n.isArchived } : n,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      toast.error("Failed to archive note");
+    },
     onSuccess: (_, variables) => {
       toast.success(variables.isArchived ? "Note archived" : "Note restored");
-      void utils.portalNotes.getNotes.invalidate({ slug });
     },
+    onSettled: () => void utils.portalNotes.getNotes.invalidate({ slug }),
   });
 
   const toggleGroup = useCallback((groupName: string) => {

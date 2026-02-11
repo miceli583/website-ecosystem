@@ -18,6 +18,30 @@ import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
 import { nanoid } from "nanoid";
 
+// In-memory Stripe product name cache (24hr TTL)
+const stripeProductCache = new Map<
+  string,
+  { name: string; expiresAt: number }
+>();
+const PRODUCT_CACHE_TTL = 24 * 60 * 60 * 1000;
+
+function getCachedProductName(id: string): string | undefined {
+  const entry = stripeProductCache.get(id);
+  if (!entry) return undefined;
+  if (Date.now() > entry.expiresAt) {
+    stripeProductCache.delete(id);
+    return undefined;
+  }
+  return entry.name;
+}
+
+function cacheProductName(id: string, name: string): void {
+  stripeProductCache.set(id, {
+    name,
+    expiresAt: Date.now() + PRODUCT_CACHE_TTL,
+  });
+}
+
 export const portalRouter = createTRPCRouter({
   /**
    * Get current user's portal profile
@@ -732,15 +756,27 @@ export const portalRouter = createTRPCRouter({
           }
         }
 
-        // Fetch product names in parallel
+        // Fetch product names (with 24hr in-memory cache)
         const productMap = new Map<string, string>();
         if (productIds.size > 0) {
-          const products = await Promise.all(
-            Array.from(productIds).map((id) => stripe!.products.retrieve(id))
-          );
-          for (const product of products) {
-            if (!("deleted" in product)) {
-              productMap.set(product.id, product.name);
+          const uncachedIds: string[] = [];
+          for (const id of productIds) {
+            const cached = getCachedProductName(id);
+            if (cached) {
+              productMap.set(id, cached);
+            } else {
+              uncachedIds.push(id);
+            }
+          }
+          if (uncachedIds.length > 0) {
+            const products = await Promise.all(
+              uncachedIds.map((id) => stripe!.products.retrieve(id)),
+            );
+            for (const product of products) {
+              if (!("deleted" in product)) {
+                productMap.set(product.id, product.name);
+                cacheProductName(product.id, product.name);
+              }
             }
           }
         }
