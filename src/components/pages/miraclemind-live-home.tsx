@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
@@ -11,7 +10,6 @@ import { api } from "~/trpc/react";
 type Mode = "signin" | "claim-form" | "claim-check" | "claim-sent";
 
 export function MiracleMindLiveHomePage() {
-  const router = useRouter();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +40,8 @@ export function MiracleMindLiveHomePage() {
         return;
       }
 
-      // Success - redirect to portal
-      router.push("/portal?domain=live");
+      // Full page navigation ensures auth cookies are sent with the request
+      window.location.href = "/portal?domain=live";
     } catch (err) {
       setError("An unexpected error occurred");
       setIsLoading(false);

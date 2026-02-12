@@ -257,14 +257,16 @@ export const clientsRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
 
-      // If slug is changing, fetch the old slug first to cascade
+      // If slug is changing, fetch old slug + stripeCustomerId to cascade
       let oldSlug: string | undefined;
+      let stripeCustomerId: string | null = null;
       if (data.slug) {
         const existing = await db.query.clients.findFirst({
           where: eq(clients.id, id),
-          columns: { slug: true },
+          columns: { slug: true, stripeCustomerId: true },
         });
         oldSlug = existing?.slug;
+        stripeCustomerId = existing?.stripeCustomerId ?? null;
       }
 
       const [updated] = await db
@@ -273,12 +275,22 @@ export const clientsRouter = createTRPCRouter({
         .where(eq(clients.id, id))
         .returning();
 
-      // Cascade slug change to portalUsers
+      // Cascade slug change to all linked records
       if (data.slug && oldSlug && data.slug !== oldSlug) {
+        // 1. portalUsers.clientSlug
         await db
           .update(portalUsers)
           .set({ clientSlug: data.slug, updatedAt: new Date() })
           .where(eq(portalUsers.clientSlug, oldSlug));
+
+        // 2. Stripe customer metadata (best-effort, non-blocking)
+        if (stripeCustomerId && stripeLive) {
+          void stripeLive.customers
+            .update(stripeCustomerId, {
+              metadata: { clientSlug: data.slug },
+            })
+            .catch(() => {});
+        }
       }
 
       return updated;
@@ -374,7 +386,7 @@ export const clientsRouter = createTRPCRouter({
       });
 
       if (project?.client) {
-        const portalUrl = `https://clients.miraclemind.dev/client/${project.client.slug}`;
+        const portalUrl = `https://miraclemind.live/portal/${project.client.slug}`;
         void sendEmail({
           to: project.client.email,
           subject: `New ${input.type} from Miracle Mind: ${input.title}`,
