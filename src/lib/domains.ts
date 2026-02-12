@@ -163,6 +163,15 @@ export function isAdminPath(pathname: string): boolean {
 }
 
 /**
+ * Get the portal login URL (handles cross-domain redirect on sign-out)
+ */
+export function getPortalLoginUrl(): string {
+  if (typeof window === "undefined") return "/?domain=live";
+  if (window.location.hostname.includes("localhost")) return "/?domain=live";
+  return "https://miraclemind.live/";
+}
+
+/**
  * Development URL helpers for testing different domains
  */
 export const DEV_URLS = {

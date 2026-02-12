@@ -11,6 +11,7 @@ import {
   clientUpdates,
   clientAgreements,
   masterCrm,
+  portalUsers,
 } from "~/server/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { stripeLive } from "~/lib/stripe-live";
@@ -255,11 +256,31 @@ export const clientsRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
+
+      // If slug is changing, fetch the old slug first to cascade
+      let oldSlug: string | undefined;
+      if (data.slug) {
+        const existing = await db.query.clients.findFirst({
+          where: eq(clients.id, id),
+          columns: { slug: true },
+        });
+        oldSlug = existing?.slug;
+      }
+
       const [updated] = await db
         .update(clients)
         .set({ ...data, updatedAt: new Date() })
         .where(eq(clients.id, id))
         .returning();
+
+      // Cascade slug change to portalUsers
+      if (data.slug && oldSlug && data.slug !== oldSlug) {
+        await db
+          .update(portalUsers)
+          .set({ clientSlug: data.slug, updatedAt: new Date() })
+          .where(eq(portalUsers.clientSlug, oldSlug));
+      }
+
       return updated;
     }),
 
@@ -363,6 +384,7 @@ export const clientsRouter = createTRPCRouter({
             updateType: input.type,
             projectName: project.name,
             portalUrl,
+            content: input.content,
           }),
         });
       }

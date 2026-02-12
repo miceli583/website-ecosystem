@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useRef } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
@@ -12,7 +12,12 @@ import {
   X,
   Loader2,
   AlertCircle,
+  Send,
 } from "lucide-react";
+import {
+  RichTextEditor,
+  type RichTextEditorRef,
+} from "~/components/portal/rich-text-editor";
 
 type Project = RouterOutputs["portal"]["getProjects"][number];
 
@@ -61,6 +66,16 @@ export default function PortalProjectsPage({
     },
   });
 
+  const pushUpdate = api.clients.pushUpdate.useMutation({
+    onSuccess: () => {
+      void utils.portal.getProjects.invalidate({ slug });
+      setPushingId(null);
+      setPushTitle("");
+      setPushHasContent(false);
+      setPushType("update");
+    },
+  });
+
   // Create form state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newName, setNewName] = useState("");
@@ -74,10 +89,24 @@ export default function PortalProjectsPage({
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // Push update state
+  const [pushingId, setPushingId] = useState<number | null>(null);
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushHasContent, setPushHasContent] = useState(false);
+  const [pushType, setPushType] = useState<"demo" | "proposal" | "update" | "invoice">("update");
+  const pushEditorRef = useRef<RichTextEditorRef>(null);
+
   const startEditing = (project: Project) => {
     setEditingId(project.id);
     setEditName(project.name);
     setEditDesc(project.description ?? "");
+  };
+
+  const startPushing = (projectId: number) => {
+    setPushingId(projectId);
+    setPushTitle("");
+    setPushHasContent(false);
+    setPushType("update");
   };
 
   if (isLoading) {
@@ -292,60 +321,158 @@ export default function PortalProjectsPage({
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                        }}
+                      >
+                        <FolderKanban className="h-4 w-4" style={{ color: "#D4AF37" }} />
+                      </div>
+                      <div>
+                        <p className="font-medium text-white">{project.name}</p>
+                        {project.description && (
+                          <p className="text-sm text-gray-500">{project.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{
+                          backgroundColor:
+                            project.status === "active"
+                              ? "rgba(74, 222, 128, 0.1)"
+                              : project.status === "completed"
+                                ? "rgba(96, 165, 250, 0.1)"
+                                : "rgba(156, 163, 175, 0.1)",
+                          color:
+                            project.status === "active"
+                              ? "#4ade80"
+                              : project.status === "completed"
+                                ? "#60a5fa"
+                                : "#9ca3af",
+                        }}
+                      >
+                        {project.status}
+                      </span>
+                      <button
+                        onClick={() => startPushing(project.id)}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-[#D4AF37]"
+                        title="Push update"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => startEditing(project)}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+                        title="Edit project"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setDeletingId(project.id)}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                        title="Delete project"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Inline push update form */}
+                  {pushingId === project.id && (
                     <div
-                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+                      className="mt-4 space-y-3 rounded-lg border p-4"
                       style={{
-                        background:
-                          "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                        borderColor: "rgba(212, 175, 55, 0.25)",
+                        backgroundColor: "rgba(212, 175, 55, 0.03)",
                       }}
                     >
-                      <FolderKanban className="h-4 w-4" style={{ color: "#D4AF37" }} />
+                      <div className="flex items-center gap-3">
+                        <select
+                          value={pushType}
+                          onChange={(e) =>
+                            setPushType(e.target.value as typeof pushType)
+                          }
+                          className="rounded-lg border bg-white/5 px-3 py-2 text-sm text-white"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                        >
+                          <option value="update">Update</option>
+                          <option value="demo">Demo</option>
+                          <option value="proposal">Proposal</option>
+                          <option value="invoice">Invoice</option>
+                        </select>
+                        <input
+                          type="text"
+                          placeholder="Update title"
+                          value={pushTitle}
+                          onChange={(e) => setPushTitle(e.target.value)}
+                          className="flex-1 rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                          autoFocus
+                        />
+                      </div>
+
+                      <div
+                        className="rounded-lg border"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.2)",
+                          backgroundColor: "rgba(10, 10, 10, 0.95)",
+                        }}
+                      >
+                        <RichTextEditor
+                          ref={pushEditorRef}
+                          placeholder="Write your update..."
+                          minHeight="120px"
+                          onChange={(html) => {
+                            const stripped = html.replace(/<[^>]*>/g, "").trim();
+                            setPushHasContent(stripped.length > 0);
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const content = pushEditorRef.current?.getHTML() ?? "";
+                            if (!pushTitle || !content) return;
+                            pushUpdate.mutate({
+                              projectId: project.id,
+                              title: pushTitle,
+                              content,
+                              type: pushType,
+                            });
+                          }}
+                          disabled={!pushTitle || !pushHasContent || pushUpdate.isPending}
+                          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black transition-opacity disabled:opacity-50"
+                          style={{
+                            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                          }}
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          {pushUpdate.isPending ? "Pushing..." : "Push"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPushingId(null);
+                            setPushTitle("");
+                            setPushHasContent(false);
+                            setPushType("update");
+                          }}
+                          className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-white">{project.name}</p>
-                      {project.description && (
-                        <p className="text-sm text-gray-500">{project.description}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="rounded-full px-2 py-0.5 text-xs font-medium"
-                      style={{
-                        backgroundColor:
-                          project.status === "active"
-                            ? "rgba(74, 222, 128, 0.1)"
-                            : project.status === "completed"
-                              ? "rgba(96, 165, 250, 0.1)"
-                              : "rgba(156, 163, 175, 0.1)",
-                        color:
-                          project.status === "active"
-                            ? "#4ade80"
-                            : project.status === "completed"
-                              ? "#60a5fa"
-                              : "#9ca3af",
-                      }}
-                    >
-                      {project.status}
-                    </span>
-                    <button
-                      onClick={() => startEditing(project)}
-                      className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
-                      title="Edit project"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setDeletingId(project.id)}
-                      className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
-                      title="Delete project"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
+                  )}
+                </>
               )}
             </div>
           ))}

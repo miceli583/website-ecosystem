@@ -16,6 +16,7 @@ interface ClientUpdateEmailProps {
   updateType: string;
   projectName: string;
   portalUrl: string;
+  content?: string;
 }
 
 export function ClientUpdateEmail({
@@ -24,6 +25,7 @@ export function ClientUpdateEmail({
   updateType,
   projectName,
   portalUrl,
+  content,
 }: ClientUpdateEmailProps) {
   return (
     <Html>
@@ -39,6 +41,12 @@ export function ClientUpdateEmail({
           </Text>
           <Section style={updateBox}>
             <Text style={updateTitle_style}>{updateTitle}</Text>
+            {content && (
+              <div
+                style={contentStyle}
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            )}
           </Section>
           <Section style={buttonContainer}>
             <Button style={button} href={portalUrl}>
@@ -98,6 +106,13 @@ const updateTitle_style = {
   fontWeight: "600" as const,
   color: "#1a1a1a",
   margin: "0",
+};
+
+const contentStyle = {
+  fontSize: "15px",
+  lineHeight: "24px",
+  color: "#444444",
+  marginTop: "12px",
 };
 
 const buttonContainer = {

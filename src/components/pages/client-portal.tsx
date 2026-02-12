@@ -7,6 +7,7 @@ import { useState, type ReactNode } from "react";
 import { ArrowLeft, LogOut, Menu, X } from "lucide-react";
 import { api } from "~/trpc/react";
 import { createClient } from "~/lib/supabase/client";
+import { getPortalLoginUrl } from "~/lib/domains";
 
 interface ClientPortalLayoutProps {
   clientName: string;
@@ -53,7 +54,9 @@ export function ClientPortalLayout({
     await utils.invalidate();
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/?domain=live");
+    const url = getPortalLoginUrl();
+    if (url.startsWith("http")) window.location.href = url;
+    else router.push(url);
   };
 
   return (

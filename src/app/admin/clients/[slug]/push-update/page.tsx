@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api, type RouterOutputs } from "~/trpc/react";
@@ -10,6 +10,10 @@ type ClientProject = ClientDetail["projects"][number];
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { ArrowLeft, Send } from "lucide-react";
+import {
+  RichTextEditor,
+  type RichTextEditorRef,
+} from "~/components/portal/rich-text-editor";
 
 export default function PushUpdatePage({
   params,
@@ -29,15 +33,17 @@ export default function PushUpdatePage({
   });
 
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [hasContent, setHasContent] = useState(false);
   const [type, setType] = useState<"demo" | "proposal" | "update" | "invoice">(
     "update"
   );
   const [projectId, setProjectId] = useState(
     projectIdParam ? Number(projectIdParam) : 0
   );
+  const editorRef = useRef<RichTextEditorRef>(null);
 
   const handleSubmit = () => {
+    const content = editorRef.current?.getHTML() ?? "";
     if (!title || !content || !projectId) return;
     pushUpdate.mutate({ projectId, title, content, type });
   };
@@ -112,23 +118,34 @@ export default function PushUpdatePage({
               />
             </div>
 
-            {/* Content */}
+            {/* Content - Rich Text */}
             <div>
               <label className="mb-1 block text-sm text-gray-400">
                 Content
               </label>
-              <textarea
-                placeholder="Update content (Markdown supported)"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full rounded border border-gray-700 bg-black/50 px-3 py-2 text-white"
-                rows={8}
-              />
+              <div
+                className="rounded-lg border"
+                style={{
+                  borderColor: "rgba(212, 175, 55, 0.2)",
+                  backgroundColor: "rgba(10, 10, 10, 0.95)",
+                }}
+              >
+                <RichTextEditor
+                  ref={editorRef}
+                  placeholder="Write your update..."
+                  minHeight="180px"
+                  onChange={(html) => {
+                    // Check if content has meaningful text (not just empty tags)
+                    const stripped = html.replace(/<[^>]*>/g, "").trim();
+                    setHasContent(stripped.length > 0);
+                  }}
+                />
+              </div>
             </div>
 
             <Button
               onClick={handleSubmit}
-              disabled={!title || !content || !projectId || pushUpdate.isPending}
+              disabled={!title || !hasContent || !projectId || pushUpdate.isPending}
               className="w-full"
               style={{
                 background:

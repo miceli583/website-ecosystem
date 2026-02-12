@@ -11,6 +11,7 @@ import { Input } from "~/components/ui/input";
 import { ClientCardSkeletonGrid } from "~/components/portal";
 import { Search, Users, LogOut, Loader2 } from "lucide-react";
 import { createClient } from "~/lib/supabase/client";
+import { getPortalLoginUrl } from "~/lib/domains";
 
 type ClientListItem = RouterOutputs["portal"]["listClients"][number];
 
@@ -48,7 +49,9 @@ export default function PortalPage() {
     await utils.invalidate();
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/?domain=live");
+    const url = getPortalLoginUrl();
+    if (url.startsWith("http")) window.location.href = url;
+    else router.push(url);
   };
 
   // Loading state
