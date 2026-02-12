@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api, type RouterOutputs } from "~/trpc/react";
 
-type ClientDetail = NonNullable<RouterOutputs["clients"]["getById"]>;
+type ClientDetail = NonNullable<RouterOutputs["clients"]["getBySlugAdmin"]>;
 type ClientProject = ClientDetail["projects"][number];
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -14,18 +14,17 @@ import { ArrowLeft, Send } from "lucide-react";
 export default function PushUpdatePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = use(params);
-  const clientId = Number(id);
+  const { slug } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectIdParam = searchParams.get("projectId");
 
-  const { data: client } = api.clients.getById.useQuery({ id: clientId });
+  const { data: client } = api.clients.getBySlugAdmin.useQuery({ slug });
   const pushUpdate = api.clients.pushUpdate.useMutation({
     onSuccess: () => {
-      router.push(`/admin/clients/${clientId}`);
+      router.push(`/admin/clients/${slug}`);
     },
   });
 
@@ -47,7 +46,7 @@ export default function PushUpdatePage({
     <div className="min-h-screen bg-black p-6 text-white sm:p-8">
       <div className="mx-auto max-w-3xl">
         <Link
-          href={`/admin/clients/${clientId}`}
+          href={`/admin/clients/${slug}`}
           className="mb-6 inline-flex items-center text-sm text-gray-400 hover:text-gray-200"
         >
           <ArrowLeft className="mr-1 h-4 w-4" />

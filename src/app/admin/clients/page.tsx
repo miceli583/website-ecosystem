@@ -1153,7 +1153,7 @@ export default function AdminClientsPage() {
                   {/* Name */}
                   <td className="px-4 py-3">
                     <Link
-                      href={`/admin/clients/${client.id}`}
+                      href={`/admin/clients/${client.slug}`}
                       className="font-medium text-white transition-colors hover:text-[#D4AF37]"
                     >
                       {client.name}

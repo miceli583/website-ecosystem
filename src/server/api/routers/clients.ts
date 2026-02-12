@@ -13,6 +13,7 @@ import {
   masterCrm,
 } from "~/server/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { stripeLive } from "~/lib/stripe-live";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
 
@@ -49,7 +50,7 @@ export const clientsRouter = createTRPCRouter({
   getById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      return db.query.clients.findFirst({
+      const client = await db.query.clients.findFirst({
         where: eq(clients.id, input.id),
         with: {
           projects: {
@@ -64,6 +65,101 @@ export const clientsRouter = createTRPCRouter({
           },
         },
       });
+
+      if (!client) return null;
+
+      // Fetch Stripe lifetime spend if client has a Stripe customer ID
+      let stripeLifetimeSpend: { totalCents: number; chargeCount: number } | null = null;
+      if (client.stripeCustomerId && stripeLive) {
+        try {
+          let totalCents = 0;
+          let chargeCount = 0;
+          let hasMore = true;
+          let startingAfter: string | undefined;
+
+          while (hasMore) {
+            const charges = await stripeLive.charges.list({
+              customer: client.stripeCustomerId,
+              limit: 100,
+              ...(startingAfter ? { starting_after: startingAfter } : {}),
+            });
+            for (const charge of charges.data) {
+              if (charge.status === "succeeded") {
+                totalCents += charge.amount;
+                chargeCount++;
+              }
+            }
+            hasMore = charges.has_more;
+            if (charges.data.length > 0) {
+              startingAfter = charges.data[charges.data.length - 1]!.id;
+            }
+          }
+
+          stripeLifetimeSpend = { totalCents, chargeCount };
+        } catch {
+          // Stripe unavailable
+        }
+      }
+
+      return { ...client, stripeLifetimeSpend };
+    }),
+
+  // Get single client by slug (admin detail page)
+  getBySlugAdmin: protectedProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const client = await db.query.clients.findFirst({
+        where: eq(clients.slug, input.slug),
+        with: {
+          projects: {
+            with: {
+              updates: {
+                orderBy: [desc(clientUpdates.createdAt)],
+              },
+            },
+          },
+          agreements: {
+            orderBy: [desc(clientAgreements.createdAt)],
+          },
+        },
+      });
+
+      if (!client) return null;
+
+      // Fetch Stripe lifetime spend if client has a Stripe customer ID
+      let stripeLifetimeSpend: { totalCents: number; chargeCount: number } | null = null;
+      if (client.stripeCustomerId && stripeLive) {
+        try {
+          let totalCents = 0;
+          let chargeCount = 0;
+          let hasMore = true;
+          let startingAfter: string | undefined;
+
+          while (hasMore) {
+            const charges = await stripeLive.charges.list({
+              customer: client.stripeCustomerId,
+              limit: 100,
+              ...(startingAfter ? { starting_after: startingAfter } : {}),
+            });
+            for (const charge of charges.data) {
+              if (charge.status === "succeeded") {
+                totalCents += charge.amount;
+                chargeCount++;
+              }
+            }
+            hasMore = charges.has_more;
+            if (charges.data.length > 0) {
+              startingAfter = charges.data[charges.data.length - 1]!.id;
+            }
+          }
+
+          stripeLifetimeSpend = { totalCents, chargeCount };
+        } catch {
+          // Stripe unavailable
+        }
+      }
+
+      return { ...client, stripeLifetimeSpend };
     }),
 
   // Get client by slug (used for client portal)
@@ -206,6 +302,25 @@ export const clientsRouter = createTRPCRouter({
         })
         .returning();
       return project;
+    }),
+
+  // Update project name/description
+  updateProject: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        description: z.string().nullable().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const [updated] = await db
+        .update(clientProjects)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(clientProjects.id, id))
+        .returning();
+      return updated;
     }),
 
   // Push update to a project (also sends email notification)

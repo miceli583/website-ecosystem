@@ -428,64 +428,65 @@ export function MatthewHomePage({
 
               {/* Expanded Testimonial Modal */}
               {expandedTestimonial !== null && (
-                <div
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                  style={{ background: 'rgba(0, 0, 0, 0.85)' }}
-                  onClick={(e) => {
-                    if (e.target === e.currentTarget) {
-                      setExpandedTestimonial(null);
-                    }
-                  }}
-                >
-                  <Card
-                    className="relative max-w-2xl w-full max-h-[80vh] flex flex-col backdrop-blur-md"
-                    style={{
-                      borderColor: 'rgba(212, 175, 55, 0.4)',
-                      borderWidth: '1px',
-                      background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.35) 0%, rgba(107, 29, 54, 0.35) 100%)'
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() => setExpandedTestimonial(null)}
-                      className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                <div className="fixed inset-0 z-50">
+                  {/* Full-screen backdrop — click anywhere to close */}
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: 'rgba(0, 0, 0, 0.9)' }}
+                    onClick={() => setExpandedTestimonial(null)}
+                  />
+
+                  {/* Centered card */}
+                  <div className="pointer-events-none relative flex h-full items-center justify-center p-4">
+                    <Card
+                      className="pointer-events-auto relative max-w-2xl w-full max-h-[80vh] flex flex-col"
                       style={{
-                        background: 'rgba(212, 175, 55, 0.2)',
                         borderColor: 'rgba(212, 175, 55, 0.3)',
-                        borderWidth: '1px'
+                        borderWidth: '1px',
+                        background: '#0a0a0a',
                       }}
-                      aria-label="Close"
                     >
-                      <X className="h-4 w-4" style={{ color: '#D4AF37' }} />
-                    </button>
+                      <button
+                        onClick={() => setExpandedTestimonial(null)}
+                        className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:scale-110"
+                        style={{
+                          background: 'rgba(212, 175, 55, 0.15)',
+                          borderColor: 'rgba(212, 175, 55, 0.3)',
+                          borderWidth: '1px'
+                        }}
+                        aria-label="Close"
+                      >
+                        <X className="h-4 w-4" style={{ color: '#D4AF37' }} />
+                      </button>
 
-                    <div className="overflow-y-auto p-6 sm:p-8">
-                      {testimonials[expandedTestimonial] && (
-                        <>
-                          <div className="mb-6 flex items-center gap-4 pr-10">
-                            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-2" style={{ borderColor: '#D4AF37' }}>
-                              <Image
-                                src={testimonials[expandedTestimonial].image}
-                                alt={testimonials[expandedTestimonial].name}
-                                fill
-                                className="object-cover"
-                              />
+                      <div className="overflow-y-auto p-6 sm:p-8">
+                        {testimonials[expandedTestimonial] && (
+                          <>
+                            <div className="mb-6 flex items-center gap-4 pr-10">
+                              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-2" style={{ borderColor: '#D4AF37' }}>
+                                <Image
+                                  src={testimonials[expandedTestimonial].image}
+                                  alt={testimonials[expandedTestimonial].name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div>
+                                <p className="text-lg font-semibold text-white">{testimonials[expandedTestimonial].name}</p>
+                                <p className="text-sm" style={{ color: '#D4AF37' }}>{testimonials[expandedTestimonial].role}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-lg font-semibold text-white">{testimonials[expandedTestimonial].name}</p>
-                              <p className="text-sm" style={{ color: '#D4AF37' }}>{testimonials[expandedTestimonial].role}</p>
-                            </div>
-                          </div>
 
-                          <Quote className="mb-4 h-10 w-10 opacity-30" style={{ color: '#D4AF37' }} />
+                            <Quote className="mb-4 h-10 w-10 opacity-30" style={{ color: '#D4AF37' }} />
 
-                          <p className="leading-relaxed text-gray-100 whitespace-pre-line">
-                            {testimonials[expandedTestimonial].content}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </Card>
+                            <p className="leading-relaxed text-gray-200 whitespace-pre-line">
+                              {testimonials[expandedTestimonial].content}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </Card>
+                  </div>
                 </div>
               )}
             </div>

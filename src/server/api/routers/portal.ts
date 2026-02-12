@@ -1808,4 +1808,76 @@ export const portalRouter = createTRPCRouter({
 
       return project;
     }),
+
+  /**
+   * Update a project (admin only)
+   */
+  updateProject: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        description: z.string().nullable().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || profile.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      const { id, ...data } = input;
+      const [updated] = await db
+        .update(clientProjects)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(clientProjects.id, id))
+        .returning();
+
+      if (!updated) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      return updated;
+    }),
+
+  /**
+   * Delete a project (admin only)
+   */
+  deleteProject: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+
+      if (!profile || profile.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      const [deleted] = await db
+        .delete(clientProjects)
+        .where(eq(clientProjects.id, input.id))
+        .returning();
+
+      if (!deleted) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      return { success: true };
+    }),
 });

@@ -242,7 +242,7 @@ export default function ContactDetailPage({
       {/* Portal Client Banner */}
       {contact.portalClient && (
         <Link
-          href={`/admin/clients/${contact.portalClient.id}`}
+          href={`/admin/clients/${contact.portalClient.slug}`}
           className="flex items-center gap-3 rounded-lg border p-4 transition-all hover:bg-white/5"
           style={{
             borderColor: "rgba(74, 222, 128, 0.3)",

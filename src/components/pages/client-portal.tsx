@@ -42,6 +42,7 @@ export function ClientPortalLayout({
     { name: "Tooling", href: `${basePath}/${slug}/tooling` },
     { name: "Notes", href: `${basePath}/${slug}/notes` },
     { name: "Billing", href: `${basePath}/${slug}/billing` },
+    ...(isAdmin ? [{ name: "Projects", href: `${basePath}/${slug}/projects` }] : []),
     { name: "Profile", href: `${basePath}/${slug}/profile` },
   ];
 
