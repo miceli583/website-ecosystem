@@ -1,8 +1,8 @@
 # Project Status
 
 **Version:** 0.7.2
-**Last Updated:** 2026-02-11
-**Commits:** 175+
+**Last Updated:** 2026-02-12
+**Commits:** 180+
 
 ## Feature Status
 
@@ -20,7 +20,7 @@
 | Admin clients | Working | Hybrid edit modal, delete/archive, action menus, CRM sync-on-save |
 | Finance integrations | Working | Stripe Live + Mercury API (date-filtered), smart auto-categorization |
 | Finance expense tracking | Working | Manual expenses, IRS categories seeded, tax deductibility tracking |
-| Client portal v2 | Working | `/portal/[slug]` with role-based auth |
+| Client portal v2 | Working | `/portal/[slug]` with role-based auth, rich text push updates, admin Projects tab |
 | Portal profile | Working | Role-aware: org members see company roles, admins see nav links |
 | Portal demos | Working | Hub pages, subroutes, slide sub-demos, Wildflower landing, CargoWatch multi-page |
 | Public demo sharing | Working | `/s/[token]` with subroute support, OG metadata, custom slugs |
@@ -38,10 +38,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 12 | 820d253 | Fix testimonial overflow on mobile in TAPCHW demo |
+| Feb 12 | 1aa8f46 | Fix login auth cookie race, expand slug cascade, fix email URL |
+| Feb 12 | 8fe1103 | Portal fixes: sign-out redirect, rich text updates, slug sync |
+| Feb 12 | df26be4 | Migrate admin clients to slug routes, add portal Projects tab |
 | Feb 11 | 2c32fb7 | Quality sweep: a11y, responsive, cohere, console cleanup (19 files) |
-| Feb 11 | 5fa890f | Fix TAPCHW mobile: horizontal drift, iOS zoom, admin chart bars |
-| Feb 11 | 1bb5449 | Custom URL slugs for public demo sharing (`/s/custom-slug` aliases) |
-| Feb 11 | 303338f | Mobile responsiveness pass for TAPCHW demo |
-| Feb 11 | fa99777 | CargoWatch refactor: shared nav, all 129 incidents, dashboard shell, report page, profile |
 
 _Older changes: `git log --oneline`_
