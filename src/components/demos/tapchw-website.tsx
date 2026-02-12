@@ -460,7 +460,7 @@ function TestimonialCarousel() {
       <div className="mx-auto max-w-3xl px-4 pb-8 text-center">
         <Quote className="mx-auto mb-8 h-16 w-16 opacity-10" style={{ color: COLORS.maroon }} />
 
-        <div className="relative h-[200px] overflow-hidden sm:h-[280px]">
+        <div className="relative h-[320px] overflow-hidden sm:h-[280px]">
           {TESTIMONIALS.map((testimonial, i) => (
             <div
               key={i}
@@ -468,7 +468,7 @@ function TestimonialCarousel() {
                 i === current ? "translate-x-0 opacity-100" : i < current ? "-translate-x-full opacity-0" : "translate-x-full opacity-0"
               }`}
             >
-              <p className="font-serif mb-8 text-2xl italic leading-relaxed text-gray-700 sm:text-3xl">
+              <p className="font-serif mb-8 text-xl italic leading-relaxed text-gray-700 sm:text-3xl">
                 &ldquo;{testimonial.quote}&rdquo;
               </p>
               <div className="flex items-center justify-center gap-4">
