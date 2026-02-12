@@ -9,10 +9,12 @@ export async function GET(request: Request) {
   const errorDescription = searchParams.get("error_description");
 
   // Log for debugging auth issues
-  console.log("[Auth Callback] URL:", request.url);
-  console.log("[Auth Callback] code:", code ? "present" : "missing");
-  console.log("[Auth Callback] next:", next);
-  console.log("[Auth Callback] error_description:", errorDescription);
+  if (process.env.NODE_ENV === "development") {
+    console.log("[Auth Callback] URL:", request.url);
+    console.log("[Auth Callback] code:", code ? "present" : "missing");
+    console.log("[Auth Callback] next:", next);
+    console.log("[Auth Callback] error_description:", errorDescription);
+  }
 
   // Handle Supabase error responses (e.g., expired link)
   if (errorDescription) {
@@ -48,7 +50,9 @@ export async function GET(request: Request) {
         redirectUrl = `${origin}${next}`;
       }
 
-      console.log("[Auth Callback] Success, redirecting to:", redirectUrl);
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Auth Callback] Success, redirecting to:", redirectUrl);
+      }
       return NextResponse.redirect(redirectUrl);
     }
   }

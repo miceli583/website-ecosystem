@@ -460,7 +460,7 @@ function TestimonialCarousel() {
       <div className="mx-auto max-w-3xl px-4 pb-8 text-center">
         <Quote className="mx-auto mb-8 h-16 w-16 opacity-10" style={{ color: COLORS.maroon }} />
 
-        <div className="relative h-[280px] overflow-hidden sm:h-[240px]">
+        <div className="relative h-[200px] overflow-hidden sm:h-[280px]">
           {TESTIMONIALS.map((testimonial, i) => (
             <div
               key={i}
@@ -573,15 +573,15 @@ function HomePage({ setPage }: { setPage: (page: string) => void }) {
 
               <div className="relative flex justify-center px-6 py-8 sm:px-0 sm:py-0">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-[260px] w-[260px] rounded-full border-2 border-dashed border-white/20 sm:h-[400px] sm:w-[400px]" />
+                  <div className="h-[150px] w-[150px] rounded-full border-2 border-dashed border-white/20 sm:h-[260px] sm:w-[260px]" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-[200px] w-[200px] rounded-full border border-white/10 sm:h-[320px] sm:w-[320px]" />
+                  <div className="h-[120px] w-[120px] rounded-full border border-white/10 sm:h-[200px] sm:w-[200px]" />
                 </div>
 
                 <div className="relative z-10 flex items-center justify-center">
                   {/* Outer soft glow */}
-                  <div className="absolute h-[260px] w-[260px] rounded-full bg-white/[0.22] blur-3xl sm:h-[420px] sm:w-[420px]" />
+                  <div className="absolute h-[150px] w-[150px] rounded-full bg-white/[0.22] blur-3xl sm:h-[260px] sm:w-[260px]" />
                   {/* Inner frosted disc — gives depth */}
                   <div
                     className="absolute h-[180px] w-[180px] rounded-full border border-white/20 sm:h-[280px] sm:w-[280px]"

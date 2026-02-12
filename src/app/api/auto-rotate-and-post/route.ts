@@ -32,11 +32,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log("🤖 Auto Rotate and Post: Starting...");
-
   try {
     // 1. Get first item from queue
-    console.log("📋 Fetching first queue item...");
     const queue = await db
       .select()
       .from(quotePosts)
@@ -53,7 +50,6 @@ export async function POST(request: NextRequest) {
     const firstItem = queue[0];
 
     // 2. Get core value and quote details
-    console.log("🔍 Fetching content details...");
     const [coreValue] = await db
       .select()
       .from(coreValues)
@@ -80,7 +76,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Generate images using node-canvas
-    console.log("🎨 Generating carousel images with node-canvas...");
     const images = await generateCarousel({
       quote: {
         text: quoteData.text,
@@ -93,7 +88,6 @@ export async function POST(request: NextRequest) {
     }, DEFAULT_THEME);
 
     // 4. Upload images to Supabase Storage
-    console.log("☁️  Uploading images to Supabase Storage...");
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     // Delete old files
@@ -132,7 +126,6 @@ export async function POST(request: NextRequest) {
     const cacheBust = `?v=${timestamp}&nocache=true`;
 
     // 5. Create Zapier payload
-    console.log("📦 Creating payload...");
     const caption = generateCaption(
       coreValue.value,
       coreValue.description,
@@ -155,7 +148,6 @@ export async function POST(request: NextRequest) {
     };
 
     // 6. Save to pending_posts with 2-minute buffer
-    console.log("💾 Saving to pending_posts...");
     const scheduledFor = new Date(Date.now() + 120000); // 2 minutes from now
 
     await db
@@ -178,7 +170,6 @@ export async function POST(request: NextRequest) {
       });
 
     // 7. Rotate queue (pop first, enqueue new random)
-    console.log("🔄 Rotating queue...");
 
     // Delete first item
     await db.delete(quotePosts).where(eq(quotePosts.id, firstItem.id));
@@ -225,8 +216,6 @@ export async function POST(request: NextRequest) {
         });
       }
     }
-
-    console.log("✅ Auto Rotate and Post: Complete!");
 
     return NextResponse.json({
       success: true,

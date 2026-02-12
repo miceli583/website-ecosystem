@@ -118,7 +118,7 @@ export function MiracleMindLiveHomePage() {
   if (mode === "claim-sent") {
     return (
       <div className="relative flex h-screen min-h-screen items-center justify-center overflow-hidden bg-black px-4">
-        <div className="absolute inset-0 flex items-center justify-center pt-8">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pt-8">
           <div className="h-[840px] w-[840px] sm:h-[980px] sm:w-[980px]">
             <iframe
               src="/shaders/orbit-star/embed"
@@ -174,7 +174,7 @@ export function MiracleMindLiveHomePage() {
   if (mode === "claim-check") {
     return (
       <div className="relative flex h-screen min-h-screen items-center justify-center overflow-hidden bg-black px-4">
-        <div className="absolute inset-0 flex items-center justify-center pt-8">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pt-8">
           <div className="h-[840px] w-[840px] sm:h-[980px] sm:w-[980px]">
             <iframe
               src="/shaders/orbit-star/embed"
@@ -269,7 +269,7 @@ export function MiracleMindLiveHomePage() {
 
     return (
       <div className="relative flex h-screen min-h-screen items-center justify-center overflow-hidden bg-black px-4">
-        <div className="absolute inset-0 flex items-center justify-center pt-8">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pt-8">
           <div className="h-[840px] w-[840px] sm:h-[980px] sm:w-[980px]">
             <iframe
               src="/shaders/orbit-star/embed"
@@ -365,7 +365,7 @@ export function MiracleMindLiveHomePage() {
   return (
     <div className="relative flex h-screen min-h-screen items-center justify-center overflow-hidden bg-black px-4">
       {/* Background shader - centered and enlarged */}
-      <div className="absolute inset-0 flex items-center justify-center pt-8">
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pt-8">
         <div className="h-[840px] w-[840px] sm:h-[980px] sm:w-[980px]">
           <iframe
             src="/shaders/orbit-star/embed"

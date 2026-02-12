@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -33,9 +34,10 @@ export const dailyValuesRouter = createTRPCRouter({
       };
     } catch (error) {
       console.error("Health check failed:", error);
-      throw new Error(
-        `Database health check failed: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Database health check failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      });
     }
   }),
 
@@ -76,7 +78,10 @@ export const dailyValuesRouter = createTRPCRouter({
         .limit(1);
 
       if (existing.length > 0) {
-        throw new Error("This value already exists in Supporting Values");
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This value already exists in Supporting Values",
+        });
       }
 
       const id = `sv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -113,7 +118,10 @@ export const dailyValuesRouter = createTRPCRouter({
         .limit(1);
 
       if (existing.length > 0) {
-        throw new Error("This value name already exists");
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This value name already exists",
+        });
       }
 
       const result = await db
@@ -139,7 +147,10 @@ export const dailyValuesRouter = createTRPCRouter({
         .limit(1);
 
       if (!supportingValue[0]) {
-        throw new Error("Supporting Value not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Supporting Value not found",
+        });
       }
 
       const coreValueExists = await db
@@ -217,7 +228,10 @@ export const dailyValuesRouter = createTRPCRouter({
         .limit(1);
 
       if (existingCore.length > 0) {
-        throw new Error("This value already exists as a Core Value");
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This value already exists as a Core Value",
+        });
       }
 
       // If creating from Supporting Value, use that value
@@ -288,7 +302,10 @@ export const dailyValuesRouter = createTRPCRouter({
           .limit(1);
 
         if (existing.length > 0) {
-          throw new Error("This value name already exists as a Core Value");
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "This value name already exists as a Core Value",
+          });
         }
 
         updates.value = input.value;
@@ -418,9 +435,10 @@ export const dailyValuesRouter = createTRPCRouter({
         .where(eq(quotes.authorId, input.id));
 
       if (quotesCount[0] && quotesCount[0].count > 0) {
-        throw new Error(
-          `Cannot delete author with ${quotesCount[0].count} quotes. Delete quotes first.`
-        );
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Cannot delete author with ${quotesCount[0].count} quotes. Delete quotes first.`,
+        });
       }
 
       await db.delete(authors).where(eq(authors.id, input.id));
@@ -739,7 +757,10 @@ export const dailyValuesRouter = createTRPCRouter({
     const allCoreValues = await db.select().from(coreValues);
 
     if (allCoreValues.length === 0) {
-      throw new Error("No core values found");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No core values found",
+      });
     }
 
     // Pick a random core value
@@ -782,7 +803,10 @@ export const dailyValuesRouter = createTRPCRouter({
         .leftJoin(authors, eq(quotes.authorId, authors.id));
 
       if (allQuotes.length === 0) {
-        throw new Error("No quotes found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No quotes found",
+        });
       }
 
       selectedQuote = allQuotes[Math.floor(Math.random() * allQuotes.length)];
@@ -838,7 +862,10 @@ export const dailyValuesRouter = createTRPCRouter({
       .leftJoin(authors, eq(quotes.authorId, authors.id));
 
     if (allCoreValues.length === 0 || allQuotes.length === 0) {
-      throw new Error("No core values or quotes available");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No core values or quotes available",
+      });
     }
 
     // Filter out quotes already in queue
@@ -847,9 +874,10 @@ export const dailyValuesRouter = createTRPCRouter({
     );
 
     if (availableQuotes.length < spotsToFill) {
-      throw new Error(
-        `Not enough unique quotes. Need ${spotsToFill}, have ${availableQuotes.length}`
-      );
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Not enough unique quotes. Need ${spotsToFill}, have ${availableQuotes.length}`,
+      });
     }
 
     // Generate random combinations
@@ -869,7 +897,10 @@ export const dailyValuesRouter = createTRPCRouter({
           availableQuotes[Math.floor(Math.random() * availableQuotes.length)];
         attempts++;
         if (attempts > 100) {
-          throw new Error("Could not find unique quote combination");
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Could not find unique quote combination",
+          });
         }
       } while (usedQuoteIds.has(randomQuote!.id));
 
@@ -979,7 +1010,10 @@ export const dailyValuesRouter = createTRPCRouter({
     const allQuotes = await db.select().from(quotes);
 
     if (allCoreValues.length === 0 || allQuotes.length === 0) {
-      throw new Error("No core values or quotes available");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No core values or quotes available",
+      });
     }
 
     // Filter out quotes already in queue
@@ -988,7 +1022,10 @@ export const dailyValuesRouter = createTRPCRouter({
     );
 
     if (availableQuotes.length === 0) {
-      throw new Error("No unique quotes available");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No unique quotes available",
+      });
     }
 
     // Pick random core value and quote

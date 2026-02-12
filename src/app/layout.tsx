@@ -1,12 +1,18 @@
 import "~/styles/globals.css";
 import "./fonts.css";
 
-import { type Metadata } from "next";
+import { type Metadata, type Viewport } from "next";
 import { Geist, Montserrat, Quattrocento_Sans, Barlow } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://miraclemind.dev"),

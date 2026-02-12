@@ -151,33 +151,12 @@ export async function POST(request: NextRequest) {
       break;
     }
 
-    case "invoice.payment_succeeded": {
-      const invoice = event.data.object as Stripe.Invoice;
-      const subDetails = invoice.parent?.subscription_details;
-      const subscriptionId = subDetails
-        ? typeof subDetails.subscription === "string"
-          ? subDetails.subscription
-          : subDetails.subscription?.id ?? null
-        : null;
-      console.log(
-        `[Stripe Webhook] Invoice ${invoice.id} paid — subscription: ${subscriptionId ?? "none"}, amount: ${invoice.amount_paid}`
-      );
+    case "invoice.payment_succeeded":
+    case "customer.subscription.updated":
       break;
-    }
-
-    case "customer.subscription.updated": {
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log(
-        `[Stripe Webhook] Subscription ${subscription.id} updated — status: ${subscription.status}, cancel_at_period_end: ${subscription.cancel_at_period_end}`
-      );
-      break;
-    }
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object as Stripe.Subscription;
-      console.log(
-        `[Stripe Webhook] Subscription ${subscription.id} deleted/canceled`
-      );
 
       // Find proposals linked to this subscription and mark them
       const linkedProposals = await db.query.clientResources.findMany({
@@ -198,9 +177,6 @@ export async function POST(request: NextRequest) {
               updatedAt: new Date(),
             })
             .where(eq(clientResources.id, proposal.id));
-          console.log(
-            `[Stripe Webhook] Marked proposal ${proposal.id} subscription as canceled`
-          );
         }
       }
       break;

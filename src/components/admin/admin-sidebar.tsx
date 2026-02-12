@@ -298,6 +298,7 @@ export function AdminSidebar() {
         {/* Collapse toggle button */}
         <button
           onClick={toggle}
+          aria-label="Toggle sidebar"
           className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border bg-black text-gray-400 transition-colors hover:text-white"
           style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
         >
@@ -333,7 +334,7 @@ export function AdminSidebarMobileToggle() {
   return (
     <button
       onClick={toggleMobile}
-      className="flex h-10 w-10 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-white/5 hover:text-white md:hidden"
+      className="flex h-12 w-12 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-white/5 hover:text-white md:hidden"
     >
       <Menu className="h-5 w-5" />
       <span className="sr-only">Toggle menu</span>

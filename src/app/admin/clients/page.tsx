@@ -86,6 +86,7 @@ function CompanyPicker({
       <div className="relative">
         <Building2 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         <input
+          aria-label="Search companies"
           className="w-full rounded-lg border bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
           style={borderStyle}
           placeholder="Search or create company..."
@@ -169,9 +170,9 @@ function AccountManagerPicker({
           {selected ? selected.name : "Select account manager..."}
         </span>
         {value ? (
-          <span
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
+            aria-label="Clear account manager"
             onClick={(e) => {
               e.stopPropagation();
               onChange(null);
@@ -185,7 +186,7 @@ function AccountManagerPicker({
             className="text-gray-500 hover:text-white"
           >
             <X className="h-3.5 w-3.5" />
-          </span>
+          </button>
         ) : (
           <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
         )}
@@ -277,6 +278,7 @@ function TagPicker({
             <Tag className="h-2.5 w-2.5" />
             {tag}
             <button
+              aria-label="Remove tag"
               onClick={(e) => {
                 e.stopPropagation();
                 removeTag(tag);
@@ -288,6 +290,7 @@ function TagPicker({
           </span>
         ))}
         <input
+          aria-label="Search tags"
           className="min-w-[80px] flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none"
           placeholder={selected.length === 0 ? "Search or add tags..." : "Add..."}
           value={input}
@@ -382,6 +385,9 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Create new client"
         className="relative mx-4 w-full max-w-lg rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
         style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
       >
@@ -389,6 +395,7 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
           <h2 className="text-lg font-semibold text-white">New Client</h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
@@ -568,6 +575,9 @@ function EditClientModal({
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Edit client"
         className="relative mx-4 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
         style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
       >
@@ -575,6 +585,7 @@ function EditClientModal({
           <h2 className="text-lg font-semibold text-white">Edit Client</h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
@@ -774,6 +785,9 @@ function ArchiveConfirmModal({
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Confirm archive"
         className="relative mx-4 w-full max-w-md rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
         style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
       >
@@ -855,6 +869,9 @@ function DeleteConfirmModal({
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Confirm delete"
         className="relative mx-4 w-full max-w-md rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
         style={{ borderColor: "rgba(248, 113, 113, 0.3)" }}
       >
@@ -945,6 +962,7 @@ function ActionMenu({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
+        aria-label="Client actions"
         className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
       >
         <MoreVertical className="h-4 w-4" />

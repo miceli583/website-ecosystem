@@ -128,8 +128,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(loginUrl));
     }
 
-    // Check if user is an admin (only admin@miraclemind.live can access /admin routes)
-    const adminEmails = ["admin@miraclemind.live"];
+    // Check if user is an admin (email allowlist from env, falls back to default)
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "admin@miraclemind.live")
+      .split(",")
+      .map((e) => e.trim());
     if (!adminEmails.includes(user.email ?? "")) {
       if (process.env.NODE_ENV === "development") {
         console.log(`🔒 [Middleware] Admin access denied for: ${user.email}`);

@@ -290,11 +290,11 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
         {/* Background gradient orbs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
-            className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full opacity-30 blur-3xl"
+            className="absolute -right-40 -top-40 h-[250px] w-[250px] rounded-full opacity-30 blur-3xl sm:h-[500px] sm:w-[500px]"
             style={{ background: "radial-gradient(circle, #14919B 0%, transparent 70%)" }}
           />
           <div
-            className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full opacity-20 blur-3xl"
+            className="absolute -bottom-40 -left-40 h-[200px] w-[200px] rounded-full opacity-20 blur-3xl sm:h-[400px] sm:w-[400px]"
             style={{ background: "radial-gradient(circle, #E07A5F 0%, transparent 70%)" }}
           />
         </div>
@@ -386,7 +386,7 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
               {/* Decorative rings */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div
-                  className="h-[350px] w-[350px] animate-pulse rounded-full opacity-20 sm:h-[450px] sm:w-[450px]"
+                  className="h-[200px] w-[200px] animate-pulse rounded-full opacity-20 sm:h-[350px] sm:w-[350px]"
                   style={{ border: "2px dashed #0D7377" }}
                 />
               </div>

@@ -99,6 +99,7 @@ export function SearchFilterBar({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input
+            aria-label="Search deliverables"
             placeholder={searchPlaceholder}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -107,6 +108,7 @@ export function SearchFilterBar({
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
+              aria-label="Clear search"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
             >
               <X className="h-4 w-4" />
@@ -159,6 +161,7 @@ export function SearchFilterBar({
                   : "text-gray-500 hover:bg-white/5 hover:text-white"
               }`}
               title="List view"
+              aria-label="List view"
             >
               <LayoutList className="h-4 w-4" />
             </button>
@@ -171,6 +174,7 @@ export function SearchFilterBar({
                   : "text-gray-500 hover:bg-white/5 hover:text-white"
               }`}
               title="Grouped view"
+              aria-label="Grouped view"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
@@ -189,6 +193,7 @@ export function SearchFilterBar({
                     : "text-gray-500 hover:bg-white/5 hover:text-white"
                 }`}
                 title="Expand all"
+                aria-label="Expand all"
               >
                 <ChevronsUpDown className="h-4 w-4" />
               </button>
@@ -205,6 +210,7 @@ export function SearchFilterBar({
                     : "text-gray-500 hover:bg-white/5 hover:text-white"
                 }`}
                 title="Collapse all"
+                aria-label="Collapse all"
               >
                 <ChevronDown className="h-4 w-4" />
               </button>
@@ -254,6 +260,7 @@ export function SearchFilterBar({
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
               <input
                 type="text"
+                aria-label="Filter deliverables"
                 value={filterSearch}
                 onChange={(e) => setFilterSearch(e.target.value)}
                 placeholder="Find..."

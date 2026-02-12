@@ -1181,9 +1181,6 @@ Living with an embodied value system means letting principles like ${valueName} 
       );
       const quote = quotes?.find((q: QuoteWithAuthor) => q.id === post.quoteId);
 
-      console.log("Found coreValue:", coreValue);
-      console.log("Found quote:", quote);
-
       if (!coreValue || !quote) {
         throw new Error("Could not find core value or quote");
       }
@@ -1209,16 +1206,12 @@ Living with an embodied value system means letting principles like ${valueName} 
         },
       };
 
-      console.log("Generating carousel for:", post.id, content, theme);
       const carousel = await generateCarousel(content, theme);
-      console.log("Generated carousel:", carousel);
 
       // Convert Blobs to object URLs (same as Generate tab)
       const page1Url = URL.createObjectURL(carousel.page1);
       const page2Url = URL.createObjectURL(carousel.page2);
       const page3Url = URL.createObjectURL(carousel.page3);
-
-      console.log("Created URLs:", { page1Url, page2Url, page3Url });
 
       // Generate caption
       const caption = generateCaption(

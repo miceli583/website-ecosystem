@@ -91,6 +91,7 @@ function TagPicker({
             <Tag className="h-2.5 w-2.5" />
             {tag}
             <button
+              aria-label="Remove tag"
               onClick={(e) => {
                 e.stopPropagation();
                 removeTag(tag);
@@ -204,6 +205,7 @@ function ReferralPicker({
               : referredByExternal}
           </span>
           <button
+            aria-label="Clear referral"
             onClick={() => {
               onChange(null, null);
               setSearch("");
@@ -411,9 +413,9 @@ function AccountManagerPicker({
           {selected ? selected.name : "Select account manager..."}
         </span>
         {value ? (
-          <span
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
+            aria-label="Clear account manager"
             onClick={(e) => {
               e.stopPropagation();
               onChange(null);
@@ -427,7 +429,7 @@ function AccountManagerPicker({
             className="text-gray-500 hover:text-white"
           >
             <X className="h-3.5 w-3.5" />
-          </span>
+          </button>
         ) : (
           <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
         )}
@@ -617,6 +619,7 @@ function PromoteToClientModal({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
@@ -944,6 +947,7 @@ function EditContactModal({
           <h2 className="text-lg font-semibold text-white">Edit Contact</h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
@@ -1200,6 +1204,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
           <h2 className="text-lg font-semibold text-white">New Contact</h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
@@ -1629,6 +1634,7 @@ export default function CrmContactsPage() {
                         onClick={() => setEditingContact(contact)}
                         className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
                         title="Edit contact"
+                        aria-label="Edit contact"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </button>
