@@ -34,7 +34,7 @@
 
 ### Phase 3: CRM Advanced
 - [x] Source tracking from intake forms
-- [ ] Stripe lifetime spend per customer
+- [x] Stripe lifetime spend per customer
 - [ ] Customer notes with todos
 - [ ] Link admin notes to portal client view
 
@@ -51,7 +51,7 @@
 - [ ] CMS email/text sequence builder
 - [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
 - [x] Rename "Landing Pages" to "Web Design"; landing pages open in new tab
-- [ ] Remove Assets page nav/footer remnants
+- [x] Remove Assets page nav/footer remnants
 
 ## Target Admin Structure
 

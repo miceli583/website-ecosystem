@@ -7,6 +7,7 @@ import { portalNotesRouter } from "~/server/api/routers/portal-notes";
 import { financeRouter } from "~/server/api/routers/finance";
 import { analyticsRouter } from "~/server/api/routers/analytics";
 import { crmRouter } from "~/server/api/routers/crm";
+import { ecosystemRouter } from "~/server/api/routers/ecosystem";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -24,6 +25,7 @@ export const appRouter = createTRPCRouter({
   finance: financeRouter,
   analytics: analyticsRouter,
   crm: crmRouter,
+  ecosystem: ecosystemRouter,
 });
 
 // export type definition of API

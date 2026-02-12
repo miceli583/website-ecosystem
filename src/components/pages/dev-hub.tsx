@@ -763,7 +763,6 @@ function DevHubContent() {
                 <Link
                   key={feature.title}
                   href={feature.href}
-                  onClick={() => console.log("Navigating to:", feature.href)}
                 >
                   <Card
                     className={`group flex h-full cursor-pointer flex-col border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${colors.border}`}

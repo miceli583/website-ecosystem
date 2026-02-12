@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { stripeLive } from "~/lib/stripe-live";
 import {
   masterCrm,
   banyanEarlyAccess,
@@ -252,6 +253,39 @@ export const crmRouter = createTRPCRouter({
 
       const portalClient = linkedClient[0] ?? null;
 
+      // Fetch Stripe lifetime spend if client has a Stripe customer ID
+      let stripeLifetimeSpend: { totalCents: number; chargeCount: number } | null = null;
+      if (portalClient?.stripeCustomerId && stripeLive) {
+        try {
+          let totalCents = 0;
+          let chargeCount = 0;
+          let hasMore = true;
+          let startingAfter: string | undefined;
+
+          while (hasMore) {
+            const charges = await stripeLive.charges.list({
+              customer: portalClient.stripeCustomerId,
+              limit: 100,
+              ...(startingAfter ? { starting_after: startingAfter } : {}),
+            });
+            for (const charge of charges.data) {
+              if (charge.status === "succeeded") {
+                totalCents += charge.amount;
+                chargeCount++;
+              }
+            }
+            hasMore = charges.has_more;
+            if (charges.data.length > 0) {
+              startingAfter = charges.data[charges.data.length - 1]!.id;
+            }
+          }
+
+          stripeLifetimeSpend = { totalCents, chargeCount };
+        } catch {
+          // Stripe unavailable — return null
+        }
+      }
+
       return {
         ...contact[0],
         name: portalClient?.name ?? contact[0].name,
@@ -264,6 +298,7 @@ export const crmRouter = createTRPCRouter({
         portalClient,
         referrer: referrer[0] ?? null,
         accountManager: accountManager[0] ?? null,
+        stripeLifetimeSpend,
       };
     }),
 

@@ -10,8 +10,10 @@ import {
   ChevronDown,
   ChevronRight,
   ArrowRight,
+  AlertTriangle,
 } from "lucide-react";
 import { Input } from "~/components/ui/input";
+import { api } from "~/trpc/react";
 
 /**
  * Route information derived from the app structure
@@ -233,7 +235,7 @@ const STATUS_COLORS: Record<RouteInfo["status"], string> = {
   live: "bg-green-900/50 text-green-400",
   dev: "bg-[#D4AF37]/15 text-[#D4AF37]",
   deprecated: "bg-gray-800 text-gray-400",
-  redirect: "bg-blue-900/50 text-blue-400",
+  redirect: "bg-gray-800 text-gray-400",
 };
 
 export default function EcosystemPage() {
@@ -243,8 +245,34 @@ export default function EcosystemPage() {
   const [statusFilter, setStatusFilter] = useState<RouteInfo["status"] | "all">("all");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["Admin", "Portal", "Public"]));
 
+  // Fetch scanned routes from filesystem
+  const { data: scannedRoutes } = api.ecosystem.scanRoutes.useQuery(undefined, {
+    staleTime: 60_000,
+  });
+
+  // Merge: documented routes + undocumented routes discovered by scanner
+  const allRoutes = useMemo(() => {
+    const documentedPaths = new Set(ECOSYSTEM_ROUTES.map((r) => r.path));
+    const undocumented: RouteInfo[] = (scannedRoutes ?? [])
+      .filter((sr) => !documentedPaths.has(sr.path))
+      .map((sr) => ({
+        path: sr.path,
+        domain: sr.domain,
+        access: sr.access,
+        status: "live" as const,
+        description: sr.type === "api" ? "API route" : undefined,
+      }));
+    return [...ECOSYSTEM_ROUTES, ...undocumented];
+  }, [scannedRoutes]);
+
+  // Track which paths are undocumented
+  const undocumentedPaths = useMemo(() => {
+    const documentedPaths = new Set(ECOSYSTEM_ROUTES.map((r) => r.path));
+    return new Set((scannedRoutes ?? []).filter((sr) => !documentedPaths.has(sr.path)).map((sr) => sr.path));
+  }, [scannedRoutes]);
+
   const filteredRoutes = useMemo(() => {
-    return ECOSYSTEM_ROUTES.filter((route) => {
+    return allRoutes.filter((route) => {
       if (searchQuery && !route.path.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
@@ -259,7 +287,7 @@ export default function EcosystemPage() {
       }
       return true;
     });
-  }, [searchQuery, domainFilter, accessFilter, statusFilter]);
+  }, [allRoutes, searchQuery, domainFilter, accessFilter, statusFilter]);
 
   // Group routes by category
   const groupedRoutes = useMemo(() => {
@@ -307,14 +335,15 @@ export default function EcosystemPage() {
   };
 
   const stats = useMemo(() => ({
-    total: ECOSYSTEM_ROUTES.length,
-    live: ECOSYSTEM_ROUTES.filter((r) => r.status === "live").length,
-    dev: ECOSYSTEM_ROUTES.filter((r) => r.status === "dev").length,
-    redirect: ECOSYSTEM_ROUTES.filter((r) => r.status === "redirect").length,
-    public: ECOSYSTEM_ROUTES.filter((r) => r.access === "public").length,
-    auth: ECOSYSTEM_ROUTES.filter((r) => r.access === "auth").length,
-    admin: ECOSYSTEM_ROUTES.filter((r) => r.access === "admin").length,
-  }), []);
+    total: allRoutes.length,
+    live: allRoutes.filter((r) => r.status === "live").length,
+    dev: allRoutes.filter((r) => r.status === "dev").length,
+    redirect: allRoutes.filter((r) => r.status === "redirect").length,
+    public: allRoutes.filter((r) => r.access === "public").length,
+    auth: allRoutes.filter((r) => r.access === "auth").length,
+    admin: allRoutes.filter((r) => r.access === "admin").length,
+    undocumented: undocumentedPaths.size,
+  }), [allRoutes, undocumentedPaths]);
 
   return (
     <div className="space-y-6">
@@ -323,6 +352,7 @@ export default function EcosystemPage() {
         <h1 className="text-2xl font-bold text-white">Ecosystem Map</h1>
         <p className="text-sm text-gray-400">
           All routes across the Miracle Mind ecosystem
+          {scannedRoutes && ` · Live scan: ${scannedRoutes.length} routes detected`}
         </p>
       </div>
 
@@ -353,7 +383,7 @@ export default function EcosystemPage() {
           className="rounded-lg border bg-white/5 p-4 text-center"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
         >
-          <p className="text-2xl font-bold text-blue-400">{stats.redirect}</p>
+          <p className="text-2xl font-bold text-gray-400">{stats.redirect}</p>
           <p className="text-xs text-gray-500">Redirects</p>
         </div>
         <div
@@ -378,6 +408,21 @@ export default function EcosystemPage() {
           <p className="text-xs text-gray-500">Admin Only</p>
         </div>
       </div>
+
+      {/* Undocumented routes alert */}
+      {stats.undocumented > 0 && (
+        <div
+          className="flex items-center gap-3 rounded-lg border px-4 py-3"
+          style={{ borderColor: "rgba(245, 158, 11, 0.3)", background: "rgba(245, 158, 11, 0.05)" }}
+        >
+          <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-400" />
+          <p className="text-sm text-amber-400">
+            <span className="font-semibold">{stats.undocumented} undocumented route{stats.undocumented !== 1 ? "s" : ""}</span>{" "}
+            found by filesystem scanner. Add descriptions to the static inventory in{" "}
+            <code className="text-xs">ecosystem/page.tsx</code>.
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -466,7 +511,15 @@ export default function EcosystemPage() {
                         style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
                       >
                         <td className="px-4 py-2">
-                          <code className="text-gray-300">{route.path}</code>
+                          <div className="flex items-center gap-2">
+                            <code className="text-gray-300">{route.path}</code>
+                            {undocumentedPaths.has(route.path) && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-900/50 px-1.5 py-0.5 text-[10px] text-amber-400" title="Route found by scanner but not in static inventory">
+                                <AlertTriangle className="h-2.5 w-2.5" />
+                                new
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="hidden px-4 py-2 sm:table-cell">
                           <span className="flex items-center gap-1 text-gray-400">
@@ -489,7 +542,7 @@ export default function EcosystemPage() {
                         </td>
                         <td className="hidden px-4 py-2 lg:table-cell">
                           {route.redirectTo ? (
-                            <span className="flex items-center gap-1 text-blue-400">
+                            <span className="flex items-center gap-1 text-gray-400">
                               <ArrowRight className="h-3 w-3" />
                               <code className="text-xs">{route.redirectTo}</code>
                             </span>

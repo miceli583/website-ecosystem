@@ -15,6 +15,7 @@ import {
   FileText,
   ChevronDown,
   UserCheck,
+  DollarSign,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -404,6 +405,28 @@ export default function ContactDetailPage({
                   </p>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Stripe Lifetime Spend */}
+          {contact.stripeLifetimeSpend && (
+            <div
+              className="rounded-lg border bg-white/5 p-4"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+                Stripe Lifetime Spend
+              </h3>
+              <p className="flex items-center gap-2 text-2xl font-bold text-white">
+                <DollarSign className="h-5 w-5" style={{ color: "#D4AF37" }} />
+                {(contact.stripeLifetimeSpend.totalCents / 100).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                })}
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                {contact.stripeLifetimeSpend.chargeCount} successful charge{contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
+              </p>
             </div>
           )}
 

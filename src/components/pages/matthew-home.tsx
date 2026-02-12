@@ -196,10 +196,13 @@ export function MatthewHomePage({
               </div>
               <div className="animate-fade-in-delay-2 flex-shrink-0">
                 <div className="h-24 w-24 overflow-hidden rounded-full border-2 shadow-2xl sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-42 lg:w-42" style={{ borderColor: '#D4AF37', boxShadow: '0 25px 50px -12px rgba(212, 175, 55, 0.25)' }}>
-                  <img
+                  <Image
                     src="/images/profile.jpg"
                     alt="Matthew Miceli"
+                    width={336}
+                    height={336}
                     className="h-full w-full object-cover"
+                    priority
                   />
                 </div>
               </div>

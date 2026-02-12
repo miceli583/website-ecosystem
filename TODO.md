@@ -10,7 +10,7 @@ _None currently_
 
 ## Tech Debt (code quality issues)
 
-- [ ] CMS UI: refactor to follow brand guidelines (gold/black theme)
+_None currently_
 
 ## Enhancements (prioritized)
 
@@ -27,12 +27,10 @@ _None currently_
 - [ ] **CRM enhancements**: Notes management, deeper project management, in-site scheduling of emails/updates/outreach
 - [ ] **CMS email/text sequences**: Add email and text sequence builder to CMS
 - [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
-- [ ] Dynamic route scanning for ecosystem map (currently static list)
 - [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
 - [ ] **Integrate brand tab into client portal**: Each client gets a "Brand" tab with their guidelines, colors, fonts, logos
 - [ ] **Page templating architecture**: Design system to copy sample pages between routes
 
 ### Lower Priority
 - [ ] Evaluate Turso for demo data isolation
-- [ ] Bundle size optimization pass
 - [ ] **Shader creation skill**: Evaluate creating a `/shader` skill for generating GLSL shaders
