@@ -234,18 +234,17 @@ function AboutContent() {
                 <div className="grid items-center gap-6 sm:gap-8 md:grid-cols-3">
                   <div className="md:col-span-1">
                     <div
-                      className="mx-auto overflow-hidden rounded-full border-2 shadow-2xl"
+                      className="mx-auto aspect-square w-48 overflow-hidden rounded-full border-2 shadow-2xl sm:w-52"
                       style={{
                         borderColor: "#D4AF37",
                         boxShadow: "0 25px 50px -12px rgba(212, 175, 55, 0.25)",
-                        maxWidth: "200px",
                       }}
                     >
                       <Image
                         src="/images/profile.jpg"
                         alt="Matthew Miceli"
-                        width={200}
-                        height={200}
+                        width={400}
+                        height={400}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -301,6 +300,7 @@ function AboutContent() {
             </h2>
             <p className="mb-8 text-gray-300">
               Whether you&apos;re launching a new venture or modernizing an existing system,
+              <br />
               let&apos;s explore how we can help.
             </p>
             <Link href={buildHref("/contact")}>

@@ -428,38 +428,38 @@ export function MatthewHomePage({
                 <div
                   className="fixed inset-0 z-50 flex items-center justify-center p-4"
                   style={{ background: 'rgba(0, 0, 0, 0.85)' }}
-                  onMouseDown={(e) => {
+                  onClick={(e) => {
                     if (e.target === e.currentTarget) {
                       setExpandedTestimonial(null);
                     }
                   }}
                 >
                   <Card
-                    className="relative max-w-2xl w-full max-h-[80vh] overflow-y-auto backdrop-blur-md"
+                    className="relative max-w-2xl w-full max-h-[80vh] flex flex-col backdrop-blur-md"
                     style={{
                       borderColor: 'rgba(212, 175, 55, 0.4)',
                       borderWidth: '1px',
                       background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.35) 0%, rgba(107, 29, 54, 0.35) 100%)'
                     }}
-                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <CardContent className="p-6 sm:p-8">
-                      <button
-                        onClick={() => setExpandedTestimonial(null)}
-                        className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
-                        style={{
-                          background: 'rgba(212, 175, 55, 0.2)',
-                          borderColor: 'rgba(212, 175, 55, 0.3)',
-                          borderWidth: '1px'
-                        }}
-                        aria-label="Close"
-                      >
-                        <X className="h-4 w-4" style={{ color: '#D4AF37' }} />
-                      </button>
+                    <button
+                      onClick={() => setExpandedTestimonial(null)}
+                      className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                      style={{
+                        background: 'rgba(212, 175, 55, 0.2)',
+                        borderColor: 'rgba(212, 175, 55, 0.3)',
+                        borderWidth: '1px'
+                      }}
+                      aria-label="Close"
+                    >
+                      <X className="h-4 w-4" style={{ color: '#D4AF37' }} />
+                    </button>
 
+                    <div className="overflow-y-auto p-6 sm:p-8">
                       {testimonials[expandedTestimonial] && (
                         <>
-                          <div className="mb-6 flex items-center gap-4">
+                          <div className="mb-6 flex items-center gap-4 pr-10">
                             <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-2" style={{ borderColor: '#D4AF37' }}>
                               <Image
                                 src={testimonials[expandedTestimonial].image}
@@ -481,7 +481,7 @@ export function MatthewHomePage({
                           </p>
                         </>
                       )}
-                    </CardContent>
+                    </div>
                   </Card>
                 </div>
               )}
