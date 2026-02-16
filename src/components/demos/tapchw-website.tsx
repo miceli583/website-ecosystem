@@ -130,6 +130,7 @@ const MEMBER_LOGOS = [
   { name: "Planned Parenthood Gulf Coast", logo: "/demos/tapchw-members/planned-parenthood-gulf-coast.png" },
   { name: "UMEMBA Health", logo: "/demos/tapchw-members/umemba-health.png" },
   { name: "Border Region Behavioral Health Center", logo: "/demos/tapchw-members/border-region-behavioral-health.png" },
+  { name: "CHW360", logo: "/demos/tapchw-members/chw360.png" },
   { name: "Cook Children's Health Plan", logo: "/demos/tapchw-members/member-01.png" },
   { name: "Foundation Communities", logo: "/demos/tapchw-members/member-02.png" },
   { name: "Austin Asian Community Health Initiative", logo: "/demos/tapchw-members/member-03.png" },
@@ -1480,7 +1481,7 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
 
       <section className="px-4 py-8">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-3">
@@ -1496,24 +1497,6 @@ function MemberDashboard({ user, setPage }: { user: DemoUser; setPage: (page: st
                   <CheckCircle2 className="h-4 w-4" />
                   Active — Renews Jan 2026
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border bg-white shadow-lg" style={{ borderColor: `${COLORS.navy}15` }}>
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: `${COLORS.maroon}15` }}>
-                    <Award className="h-5 w-5" style={{ color: COLORS.maroon }} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">CEs Earned</p>
-                    <p className="font-bold" style={{ color: COLORS.maroon }}>12 / 20</p>
-                  </div>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                  <div className="h-full rounded-full" style={{ width: "60%", background: `linear-gradient(90deg, ${COLORS.maroon}, ${COLORS.maroonLight})` }} />
-                </div>
-                <p className="mt-2 text-xs text-gray-500">8 more needed by Dec 2025</p>
               </CardContent>
             </Card>
 
@@ -2002,8 +1985,8 @@ export function TAPCHWWebsiteDemo({ backHref }: { backHref?: string }) {
           <div className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-white/50">
             © 2025 Texas Association of Promotores & Community Health Workers. All rights reserved.
           </div>
-          <div className="mt-4 text-center text-xs text-white/30">
-            Website designed and developed in partnership with CHW360
+          <div className="mx-auto mt-6 w-fit rounded-md border border-white/5 bg-white/[0.03] px-4 py-2 text-center text-sm font-medium" style={{ color: COLORS.gold }}>
+            Website designed and developed in partnership with <span className="font-bold">CHW360</span>
           </div>
         </div>
       </footer>
