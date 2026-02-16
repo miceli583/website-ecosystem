@@ -1,7 +1,7 @@
 # Project Status
 
 **Version:** 0.7.2
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-02-15
 **Commits:** 180+
 
 ## Feature Status
@@ -38,10 +38,10 @@
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Feb 15 | 012d5e0 | TAPCHW demo: add CHW360 logo, remove CEUs, highlight footer credit |
 | Feb 12 | 820d253 | Fix testimonial overflow on mobile in TAPCHW demo |
 | Feb 12 | 1aa8f46 | Fix login auth cookie race, expand slug cascade, fix email URL |
 | Feb 12 | 8fe1103 | Portal fixes: sign-out redirect, rich text updates, slug sync |
 | Feb 12 | df26be4 | Migrate admin clients to slug routes, add portal Projects tab |
-| Feb 11 | 2c32fb7 | Quality sweep: a11y, responsive, cohere, console cleanup (19 files) |
 
 _Older changes: `git log --oneline`_
