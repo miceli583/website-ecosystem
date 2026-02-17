@@ -17,7 +17,12 @@ import {
   ChevronDown,
   ChevronUp,
   Layers,
+  Eye,
+  EyeOff,
+  Send,
+  Construction,
 } from "lucide-react";
+import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
 // Types for proposal metadata
@@ -74,6 +79,8 @@ interface ProposalModalProps {
     project?: { name: string } | null;
   };
   slug: string;
+  isAdmin?: boolean;
+  underDevelopment?: boolean;
 }
 
 function formatCurrency(amount: number, currency: string) {
@@ -259,7 +266,7 @@ function PackageCard({
   );
 }
 
-export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModalProps) {
+export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin, underDevelopment }: ProposalModalProps) {
   const [selectedPackages, setSelectedPackages] = useState<Set<string>>(new Set());
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -269,6 +276,21 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
   const currency = metadata?.currency ?? "usd";
   const status = metadata?.status ?? "draft";
   const customerInfo = metadata?.customerInfo;
+
+  // Admin visibility toggle
+  const utils = api.useUtils();
+  const updateResource = api.portal.updateResource.useMutation({
+    onSuccess: () => {
+      void utils.portal.getResources.invalidate();
+      void utils.portal.getProposals.invalidate();
+    },
+  });
+  const updateStatus = api.portal.updateResource.useMutation({
+    onSuccess: () => {
+      void utils.portal.getResources.invalidate();
+      void utils.portal.getProposals.invalidate();
+    },
+  });
 
   // Initialize required packages
   useMemo(() => {
@@ -397,14 +419,81 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
         </div>
 
         <div className="p-4 sm:p-6 md:p-8">
-          {/* Status banner */}
-          {status === "accepted" && (
+          {/* Admin controls */}
+          {isAdmin && (
+            <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border p-3" style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(212, 175, 55, 0.05)" }}>
+              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">Admin</span>
+              <button
+                onClick={() => {
+                  updateResource.mutate(
+                    { id: proposal.id, underDevelopment: !underDevelopment },
+                    {
+                      onSuccess: () => {
+                        toast.success(underDevelopment ? "Proposal is now visible to client" : "Proposal hidden from client");
+                      },
+                    },
+                  );
+                }}
+                disabled={updateResource.isPending}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  underDevelopment
+                    ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                    : "bg-green-900/30 text-green-400 hover:bg-green-900/50"
+                }`}
+              >
+                {underDevelopment ? (
+                  <>
+                    <EyeOff className="h-3.5 w-3.5" />
+                    Private
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-3.5 w-3.5" />
+                    Public
+                  </>
+                )}
+              </button>
+              {status === "draft" && (
+                <button
+                  onClick={() => {
+                    updateStatus.mutate(
+                      { id: proposal.id, metadata: { ...metadata, status: "sent" } },
+                      {
+                        onSuccess: () => {
+                          toast.success("Proposal sent — client can now checkout");
+                        },
+                      },
+                    );
+                  }}
+                  disabled={updateStatus.isPending}
+                  className="flex items-center gap-1.5 rounded-md bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-medium text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/25"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Mark as Sent
+                </button>
+              )}
+              {status === "sent" && (
+                <span className="flex items-center gap-1.5 rounded-md bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-medium text-[#D4AF37]">
+                  <Send className="h-3.5 w-3.5" />
+                  Sent
+                </span>
+              )}
+              {underDevelopment && (
+                <span className="ml-auto text-xs text-gray-500">
+                  Client cannot see this proposal
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Status banner (client view) */}
+          {!isAdmin && status === "accepted" && (
             <div className="mb-6 flex items-center gap-2 rounded-lg bg-green-900/30 p-3 text-green-400">
               <Check className="h-5 w-5" />
               This proposal has been accepted
             </div>
           )}
-          {status === "draft" && (
+          {!isAdmin && status === "draft" && (
             <div className="mb-6 flex items-center gap-2 rounded-lg bg-gray-800 p-3 text-gray-400">
               <Clock className="h-5 w-5" />
               This proposal is still in draft
@@ -462,7 +551,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
                     currency={currency}
                     selected={selectedPackages.has(pkg.id)}
                     onToggle={() => togglePackage(pkg.id)}
-                    disabled={status !== "sent"}
+                    disabled={!isAdmin && status !== "sent"}
                   />
                 ))}
               </div>
@@ -484,7 +573,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
                     currency={currency}
                     selected={selectedPackages.has(pkg.id)}
                     onToggle={() => togglePackage(pkg.id)}
-                    disabled={status !== "sent"}
+                    disabled={!isAdmin && status !== "sent"}
                   />
                 ))}
               </div>

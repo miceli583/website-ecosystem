@@ -662,6 +662,8 @@ export default function PortalProposalsPage({
             project: selectedProposal.project,
           }}
           slug={slug}
+          isAdmin={isAdmin}
+          underDevelopment={allProposals.find((p) => p.originalId === selectedProposal.id && !p.isLegacy)?.underDevelopment ?? false}
         />
       )}
 
