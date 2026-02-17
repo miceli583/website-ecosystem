@@ -1138,6 +1138,7 @@ export const portalRouter = createTRPCRouter({
       z.object({
         proposalId: z.number(),
         selectedPackageIds: z.array(z.string()).optional(), // If provided, only these packages
+        applyBundlePrice: z.boolean().optional(), // Apply bundle discount if all one-time packages selected
         successUrl: z.string().url(),
         cancelUrl: z.string().url(),
       })
@@ -1186,6 +1187,7 @@ export const portalRouter = createTRPCRouter({
       }
 
       const metadata = proposal.metadata as {
+        bundlePrice?: number;
         // New package-based structure
         packages?: Array<{
           id: string;
@@ -1283,21 +1285,61 @@ export const portalRouter = createTRPCRouter({
         const hasSubscription = selectedPackages.some((pkg) => pkg.type === "subscription");
         checkoutMode = hasSubscription ? "subscription" : "payment";
 
+        // Check if bundle pricing applies
+        const oneTimePackages = selectedPackages.filter((p) => p.type === "one-time");
+        const allOneTimeFromProposal = metadata.packages!.filter((p) => p.type === "one-time");
+        const allOneTimeSelected = allOneTimeFromProposal.length > 1 &&
+          allOneTimeFromProposal.every((p) => oneTimePackages.some((s) => s.id === p.id));
+        const bundleApplies = input.applyBundlePrice && allOneTimeSelected &&
+          metadata.bundlePrice != null;
+
         // Build line items from packages
-        stripeLineItems = selectedPackages.map((pkg) => ({
-          price_data: {
-            currency: metadata.currency,
-            product_data: {
-              name: pkg.name,
-              description: pkg.description,
+        if (bundleApplies) {
+          // Bundle: send one-time packages as a single bundled line item
+          const subscriptionPackages = selectedPackages.filter((p) => p.type === "subscription");
+          stripeLineItems = [
+            {
+              price_data: {
+                currency: metadata.currency,
+                product_data: {
+                  name: `${proposal.title} — Full Bundle`,
+                  description: oneTimePackages.map((p) => p.name).join(", "),
+                },
+                unit_amount: Math.round(metadata.bundlePrice! * 100),
+              },
+              quantity: 1,
             },
-            unit_amount: Math.round(pkg.price * 100), // Convert to cents
-            ...(pkg.type === "subscription" && pkg.interval
-              ? { recurring: { interval: pkg.interval } }
-              : {}),
-          },
-          quantity: 1,
-        }));
+            ...subscriptionPackages.map((pkg) => ({
+              price_data: {
+                currency: metadata.currency,
+                product_data: {
+                  name: pkg.name,
+                  description: pkg.description,
+                },
+                unit_amount: Math.round(pkg.price * 100),
+                ...(pkg.interval
+                  ? { recurring: { interval: pkg.interval } }
+                  : {}),
+              },
+              quantity: 1,
+            })),
+          ];
+        } else {
+          stripeLineItems = selectedPackages.map((pkg) => ({
+            price_data: {
+              currency: metadata.currency,
+              product_data: {
+                name: pkg.name,
+                description: pkg.description,
+              },
+              unit_amount: Math.round(pkg.price * 100), // Convert to cents
+              ...(pkg.type === "subscription" && pkg.interval
+                ? { recurring: { interval: pkg.interval } }
+                : {}),
+            },
+            quantity: 1,
+          }));
+        }
       }
       // Legacy lineItems structure
       else if (metadata.lineItems && metadata.lineItems.length > 0) {

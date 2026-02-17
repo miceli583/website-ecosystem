@@ -49,6 +49,7 @@ export interface ProposalMetadata {
   currency: string;
   notes?: string;
   validUntil?: string;
+  bundlePrice?: number; // Discounted total when all one-time packages are selected
   // Legacy support
   lineItems?: Array<{
     name: string;
@@ -280,8 +281,8 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
     }
   }, [packages]);
 
-  // Calculate totals (separate one-time and recurring)
-  const { oneTimeTotal, recurringTotal, recurringInterval } = useMemo(() => {
+  // Calculate totals (separate one-time and recurring) with bundle discount
+  const { oneTimeTotal, recurringTotal, recurringInterval, bundleActive, bundleSavings } = useMemo(() => {
     let oneTime = 0;
     let recurring = 0;
     let interval: "month" | "year" | null = null;
@@ -295,8 +296,23 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
         }
       }
     });
-    return { oneTimeTotal: oneTime, recurringTotal: recurring, recurringInterval: interval };
-  }, [packages, selectedPackages]);
+
+    // Check if bundle discount applies (all one-time packages selected)
+    const oneTimePackages = packages.filter((p) => p.type === "one-time");
+    const allOneTimeSelected = oneTimePackages.length > 1 &&
+      oneTimePackages.every((p) => selectedPackages.has(p.id));
+    const hasBundlePrice = metadata?.bundlePrice != null && metadata.bundlePrice < oneTime;
+    const isBundle = allOneTimeSelected && hasBundlePrice;
+    const savings = isBundle ? oneTime - metadata!.bundlePrice! : 0;
+
+    return {
+      oneTimeTotal: isBundle ? metadata!.bundlePrice! : oneTime,
+      recurringTotal: recurring,
+      recurringInterval: interval,
+      bundleActive: isBundle,
+      bundleSavings: savings,
+    };
+  }, [packages, selectedPackages, metadata]);
 
   const togglePackage = (pkgId: string) => {
     const pkg = packages.find((p) => p.id === pkgId);
@@ -333,6 +349,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
     createCheckout.mutate({
       proposalId: proposal.id,
       selectedPackageIds: Array.from(selectedPackages),
+      applyBundlePrice: bundleActive,
       successUrl: `${baseUrl}/portal/${slug}/proposals?success=true`,
       cancelUrl: `${baseUrl}/portal/${slug}/proposals?canceled=true`,
     });
@@ -532,9 +549,16 @@ export function ProposalModal({ isOpen, onClose, proposal, slug }: ProposalModal
           )}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
-              <p className="text-xs text-gray-500 sm:text-sm">
-                {selectedPackages.size} package{selectedPackages.size !== 1 ? "s" : ""} selected
-              </p>
+              <div className="flex items-center justify-center gap-2 sm:justify-start">
+                <p className="text-xs text-gray-500 sm:text-sm">
+                  {selectedPackages.size} package{selectedPackages.size !== 1 ? "s" : ""} selected
+                </p>
+                {bundleActive && (
+                  <span className="rounded-full bg-green-900/50 px-2 py-0.5 text-xs font-medium text-green-400">
+                    Bundle — save {formatCurrency(bundleSavings, currency)}
+                  </span>
+                )}
+              </div>
               <div className="flex items-baseline justify-center gap-2 sm:justify-start">
                 {oneTimeTotal > 0 && (
                   <p className="text-xl font-bold sm:text-2xl md:text-3xl" style={{ color: "#D4AF37" }}>
