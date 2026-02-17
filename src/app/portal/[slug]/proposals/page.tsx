@@ -46,6 +46,9 @@ import {
   Trash2,
   Construction,
   Eye,
+  EyeOff,
+  Lock,
+  Unlock,
 } from "lucide-react";
 
 function getStatusIcon(status: string) {
@@ -84,6 +87,7 @@ interface NormalizedProposal {
   projectName: string;
   createdAt: Date | string;
   isActive: boolean;
+  isPrivate: boolean;
   underDevelopment: boolean;
   isLegacy: boolean;
   metadata: ProposalMetadata | null;
@@ -127,8 +131,10 @@ export default function PortalProposalsPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Proposal archived");
       else if (variables.isActive === true) toast.success("Proposal restored");
+      else if (variables.isPrivate === true) toast.success("Proposal is now private");
+      else if (variables.isPrivate === false) toast.success("Proposal is now public");
       else if (variables.underDevelopment === true) toast.success("Proposal marked as under development");
-      else if (variables.underDevelopment === false) toast.success("Proposal is now visible to clients");
+      else if (variables.underDevelopment === false) toast.success("Removed under development status");
       else if (variables.projectId !== undefined) toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
       void utils.portal.getProposals.invalidate();
@@ -223,6 +229,7 @@ export default function PortalProposalsPage({
         projectName: r.project?.name ?? "",
         createdAt: r.createdAt,
         isActive: r.isActive ?? true,
+        isPrivate: (r as any).isPrivate ?? false,
         underDevelopment: r.underDevelopment ?? false,
         isLegacy: false,
         metadata,
@@ -241,6 +248,7 @@ export default function PortalProposalsPage({
         projectName: d.projectName,
         createdAt: d.createdAt,
         isActive: true,
+        isPrivate: false,
         underDevelopment: false,
         isLegacy: true,
         metadata: null,
@@ -364,14 +372,27 @@ export default function PortalProposalsPage({
     [updateResource]
   );
 
+  const handleTogglePrivate = useCallback(
+    (proposal: NormalizedProposal) => {
+      if (!proposal.resourceId) return;
+      updateResource.mutate({ id: proposal.resourceId, isPrivate: !proposal.isPrivate });
+    },
+    [updateResource]
+  );
+
   const getAdminActions = useCallback(
     (proposal: NormalizedProposal): AdminAction[] => {
       if (proposal.isLegacy) return [];
       return [
         {
-          label: proposal.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
+          label: proposal.underDevelopment ? "Remove Under Development" : "Mark Under Development",
           icon: proposal.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
           onClick: () => handleToggleUnderDevelopment(proposal),
+        },
+        {
+          label: proposal.isPrivate ? "Make Public" : "Make Private",
+          icon: proposal.isPrivate ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />,
+          onClick: () => handleTogglePrivate(proposal),
         },
         {
           label: proposal.isActive ? "Archive" : "Unarchive",
@@ -470,6 +491,12 @@ export default function PortalProposalsPage({
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 font-medium text-amber-400">
                 <Construction className="h-3 w-3" />
                 WIP
+              </span>
+            )}
+            {isAdmin && proposal.isPrivate && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 font-medium text-gray-400">
+                <Lock className="h-3 w-3" />
+                Private
               </span>
             )}
             <span className="flex items-center gap-1">
@@ -660,11 +687,9 @@ export default function PortalProposalsPage({
             createdAt: selectedProposal.createdAt,
             metadata: selectedProposal.metadata as ProposalMetadata | null,
             project: selectedProposal.project,
-            isActive: allProposals.find((p) => p.originalId === selectedProposal.id && !p.isLegacy)?.isActive ?? true,
           }}
           slug={slug}
           isAdmin={isAdmin}
-          underDevelopment={allProposals.find((p) => p.originalId === selectedProposal.id && !p.isLegacy)?.underDevelopment ?? false}
         />
       )}
 

@@ -515,9 +515,10 @@ export const portalRouter = createTRPCRouter({
         conditions.push(eq(clientResources.isActive, activeFilter));
       }
 
-      // Clients cannot see resources under development; admins see all
+      // Clients cannot see private or under-development resources; admins see all
       if (profile.role === "client") {
         conditions.push(eq(clientResources.underDevelopment, false));
+        conditions.push(eq(clientResources.isPrivate, false));
       }
 
       if (input.section) {
@@ -1678,7 +1679,8 @@ export const portalRouter = createTRPCRouter({
         title: z.string().min(1).optional(),
         description: z.string().nullable().optional(),
         isActive: z.boolean().optional(),
-        underDevelopment: z.boolean().optional(), // Hide from clients when true
+        isPrivate: z.boolean().optional(), // Hidden from clients entirely
+        underDevelopment: z.boolean().optional(), // WIP badge for admin
         sortOrder: z.number().optional(),
         isFeatured: z.boolean().optional(),
         url: z.string().nullable().optional(),

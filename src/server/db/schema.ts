@@ -337,7 +337,8 @@ export const clientResources = pgTable("client_resources", {
   sortOrder: integer("sort_order").default(0),
   isFeatured: boolean("is_featured").default(false),
   isActive: boolean("is_active").default(true),
-  underDevelopment: boolean("under_development").default(false), // Hide from clients when true
+  isPrivate: boolean("is_private").default(false), // Hidden from clients entirely
+  underDevelopment: boolean("under_development").default(false), // WIP badge for admin
 
   // Content (use based on type)
   url: text("url"), // for links, embeds, files, microapps
