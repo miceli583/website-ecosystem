@@ -660,6 +660,7 @@ export default function PortalProposalsPage({
             createdAt: selectedProposal.createdAt,
             metadata: selectedProposal.metadata as ProposalMetadata | null,
             project: selectedProposal.project,
+            isActive: allProposals.find((p) => p.originalId === selectedProposal.id && !p.isLegacy)?.isActive ?? true,
           }}
           slug={slug}
           isAdmin={isAdmin}

@@ -19,7 +19,6 @@ import {
   Layers,
   Eye,
   EyeOff,
-  Send,
   Construction,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -77,6 +76,7 @@ interface ProposalModalProps {
     createdAt: Date | string;
     metadata: ProposalMetadata | null;
     project?: { name: string } | null;
+    isActive?: boolean;
   };
   slug: string;
   isAdmin?: boolean;
@@ -277,15 +277,9 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin, underD
   const status = metadata?.status ?? "draft";
   const customerInfo = metadata?.customerInfo;
 
-  // Admin visibility toggle
+  // Admin mutations
   const utils = api.useUtils();
   const updateResource = api.portal.updateResource.useMutation({
-    onSuccess: () => {
-      void utils.portal.getResources.invalidate();
-      void utils.portal.getProposals.invalidate();
-    },
-  });
-  const updateStatus = api.portal.updateResource.useMutation({
     onSuccess: () => {
       void utils.portal.getResources.invalidate();
       void utils.portal.getProposals.invalidate();
@@ -377,7 +371,8 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin, underD
     });
   };
 
-  const canCheckout = status === "sent" && selectedPackages.size > 0 && (oneTimeTotal > 0 || recurringTotal > 0);
+  const hasSelection = selectedPackages.size > 0 && (oneTimeTotal > 0 || recurringTotal > 0);
+  const canCheckout = hasSelection && (isAdmin || status === "sent");
 
   if (!isOpen) return null;
 
@@ -429,7 +424,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin, underD
                     { id: proposal.id, underDevelopment: !underDevelopment },
                     {
                       onSuccess: () => {
-                        toast.success(underDevelopment ? "Proposal is now visible to client" : "Proposal hidden from client");
+                        toast.success(underDevelopment ? "Proposal no longer under development" : "Proposal marked as under development");
                       },
                     },
                   );
@@ -438,49 +433,46 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin, underD
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                   underDevelopment
                     ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
-                    : "bg-green-900/30 text-green-400 hover:bg-green-900/50"
+                    : "bg-white/10 text-gray-400 hover:bg-white/15"
                 }`}
               >
-                {underDevelopment ? (
-                  <>
-                    <EyeOff className="h-3.5 w-3.5" />
-                    Private
-                  </>
-                ) : (
+                <Construction className="h-3.5 w-3.5" />
+                {underDevelopment ? "Under Development" : "Mark as WIP"}
+              </button>
+              <button
+                onClick={() => {
+                  const newIsActive = !proposal.isActive;
+                  updateResource.mutate(
+                    { id: proposal.id, isActive: newIsActive },
+                    {
+                      onSuccess: () => {
+                        toast.success(newIsActive ? "Proposal is now public" : "Proposal is now private");
+                      },
+                    },
+                  );
+                }}
+                disabled={updateResource.isPending}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  proposal.isActive
+                    ? "bg-green-900/30 text-green-400 hover:bg-green-900/50"
+                    : "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                }`}
+              >
+                {proposal.isActive ? (
                   <>
                     <Eye className="h-3.5 w-3.5" />
                     Public
                   </>
+                ) : (
+                  <>
+                    <EyeOff className="h-3.5 w-3.5" />
+                    Private
+                  </>
                 )}
               </button>
-              {status === "draft" && (
-                <button
-                  onClick={() => {
-                    updateStatus.mutate(
-                      { id: proposal.id, metadata: { ...metadata, status: "sent" } },
-                      {
-                        onSuccess: () => {
-                          toast.success("Proposal sent — client can now checkout");
-                        },
-                      },
-                    );
-                  }}
-                  disabled={updateStatus.isPending}
-                  className="flex items-center gap-1.5 rounded-md bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-medium text-[#D4AF37] transition-colors hover:bg-[#D4AF37]/25"
-                >
-                  <Send className="h-3.5 w-3.5" />
-                  Mark as Sent
-                </button>
-              )}
-              {status === "sent" && (
-                <span className="flex items-center gap-1.5 rounded-md bg-[#D4AF37]/15 px-3 py-1.5 text-xs font-medium text-[#D4AF37]">
-                  <Send className="h-3.5 w-3.5" />
-                  Sent
-                </span>
-              )}
-              {underDevelopment && (
+              {(underDevelopment || !proposal.isActive) && (
                 <span className="ml-auto text-xs text-gray-500">
-                  Client cannot see this proposal
+                  {underDevelopment ? "Under development" : "Hidden from client"}
                 </span>
               )}
             </div>
