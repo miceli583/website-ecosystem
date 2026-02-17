@@ -787,7 +787,7 @@ export default function PortalNotesPage({
             if (!assignDialog.note) return;
             assignNote.mutate({ slug, noteId: assignDialog.note.id, projectId });
           }}
-          onCreateProject={(name) => createProject.mutate({ slug, name })}
+          onCreateProject={(name) => createProject.mutateAsync({ slug, name })}
           isLoading={assignNote.isPending || createProject.isPending}
         />
       )}

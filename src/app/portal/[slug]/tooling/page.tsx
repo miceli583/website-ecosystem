@@ -297,7 +297,7 @@ export default function PortalToolingPage({
 
   const handleCreateProject = useCallback(
     (name: string) => {
-      createProject.mutate({ slug, name });
+      return createProject.mutateAsync({ slug, name });
     },
     [createProject, slug]
   );

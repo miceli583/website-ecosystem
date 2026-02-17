@@ -440,7 +440,7 @@ export default function PortalDemosPage({
 
   const handleCreateProject = useCallback(
     (name: string) => {
-      createProject.mutate({ slug, name });
+      return createProject.mutateAsync({ slug, name });
     },
     [createProject, slug]
   );

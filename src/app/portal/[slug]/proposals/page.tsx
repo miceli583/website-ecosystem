@@ -351,7 +351,7 @@ export default function PortalProposalsPage({
 
   const handleCreateProject = useCallback(
     (name: string) => {
-      createProject.mutate({ slug, name });
+      return createProject.mutateAsync({ slug, name });
     },
     [createProject, slug]
   );

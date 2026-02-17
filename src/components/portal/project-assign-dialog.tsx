@@ -7,7 +7,7 @@ interface ProjectAssignDialogProps {
   currentProjectId: number | null;
   projects: Array<{ id: number; name: string }>;
   onAssign: (projectId: number | null) => void;
-  onCreateProject: (name: string) => void;
+  onCreateProject: (name: string) => Promise<{ id: number }> | void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;
@@ -24,6 +24,7 @@ export function ProjectAssignDialog({
 }: ProjectAssignDialogProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -62,6 +63,23 @@ export function ProjectAssignDialog({
     const query = searchQuery.toLowerCase();
     return projects.filter((p) => p.name.toLowerCase().includes(query));
   }, [projects, searchQuery]);
+
+  const handleCreate = async (name: string) => {
+    setIsCreating(true);
+    try {
+      const result = await onCreateProject(name);
+      setNewProjectName("");
+      setShowCreate(false);
+      if (result?.id) {
+        onAssign(result.id);
+        onOpenChange(false);
+      }
+    } catch {
+      // Creation failed — mutation's onError handles the toast
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -153,9 +171,7 @@ export function ProjectAssignDialog({
               onChange={(e) => setNewProjectName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && newProjectName.trim()) {
-                  onCreateProject(newProjectName.trim());
-                  setNewProjectName("");
-                  setShowCreate(false);
+                  void handleCreate(newProjectName.trim());
                 }
               }}
               placeholder="Project name..."
@@ -165,16 +181,14 @@ export function ProjectAssignDialog({
             <button
               onClick={() => {
                 if (newProjectName.trim()) {
-                  onCreateProject(newProjectName.trim());
-                  setNewProjectName("");
-                  setShowCreate(false);
+                  void handleCreate(newProjectName.trim());
                 }
               }}
-              disabled={!newProjectName.trim() || isLoading}
+              disabled={!newProjectName.trim() || isLoading || isCreating}
               className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
             >
-              {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
+              {isLoading || isCreating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
             </button>
           </div>
         ) : (
