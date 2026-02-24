@@ -179,6 +179,22 @@ export function MatthewHomePage({
                       <span style={{ fontWeight: 300 }}>MIRACLE</span>{" "}
                       <span style={{ fontWeight: 700 }}>MIND</span>
                     </Link>.
+                    <br />
+                    Co-Founder of{" "}
+                    <a
+                      href="https://www.joinnewearthcollective.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                      style={{
+                        background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }}
+                    >
+                      New Earth Collective
+                    </a>.
                   </p>
                 </div>
                 <div className="animate-fade-in-delay-2 flex flex-col gap-2 text-xs text-gray-200 sm:flex-row sm:gap-4 sm:text-sm">
