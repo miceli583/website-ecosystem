@@ -22,4 +22,5 @@ export const DEMO_REGISTRY: Record<string, () => Promise<{ default: ComponentTyp
   "cargowatch-dashboard": () => import("./cargowatch-dashboard").then((m) => ({ default: m.CargoWatchDashboard })),
   "cargowatch-alerts": () => import("./cargowatch-alerts").then((m) => ({ default: m.CargoWatchAlerts })),
   "cargowatch-map": () => import("./cargowatch-map").then((m) => ({ default: m.CargoWatchMap })),
+  "new-earth-media": () => import("./new-earth-media").then((m) => ({ default: m.NewEarthMediaLanding })),
 };

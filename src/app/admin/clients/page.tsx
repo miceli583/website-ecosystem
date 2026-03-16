@@ -25,6 +25,8 @@ import {
   Tag,
   AlertTriangle,
   Info,
+  UserPlus,
+  Shield,
 } from "lucide-react";
 
 /* ── Shared styles ─────────────────────────────────────────────── */
@@ -170,8 +172,9 @@ function AccountManagerPicker({
           {selected ? selected.name : "Select account manager..."}
         </span>
         {value ? (
-          <button
-            type="button"
+          <span
+            role="button"
+            tabIndex={0}
             aria-label="Clear account manager"
             onClick={(e) => {
               e.stopPropagation();
@@ -186,7 +189,7 @@ function AccountManagerPicker({
             className="text-gray-500 hover:text-white"
           >
             <X className="h-3.5 w-3.5" />
-          </button>
+          </span>
         ) : (
           <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
         )}
@@ -474,6 +477,271 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
             {createClient.isPending ? "Creating..." : "Create Client"}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Add from Contact Modal ────────────────────────────────────── */
+
+function AddFromContactModal({ onClose }: { onClose: () => void }) {
+  const utils = api.useUtils();
+  const { data: contacts = [] } = api.crm.getContactOptions.useQuery();
+  const { data: existingClients } = api.clients.list.useQuery();
+  const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
+  const promote = api.crm.promoteToClient.useMutation({
+    onSuccess: () => {
+      void utils.clients.list.invalidate();
+      void utils.crm.getContacts.invalidate();
+      void utils.crm.getPipelineStats.invalidate();
+      onClose();
+    },
+  });
+
+  const [search, setSearch] = useState("");
+  const [selectedContact, setSelectedContact] = useState<{
+    id: string;
+    name: string;
+    email: string;
+  } | null>(null);
+  const [form, setForm] = useState({ slug: "", company: "", accountManagerId: null as string | null });
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selectedContact) setSelectedContact(null);
+        else onClose();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, selectedContact]);
+
+  // Filter out contacts that are already clients
+  const existingEmails = new Set(
+    existingClients?.map((c: ClientListItem) => c.email.toLowerCase()) ?? []
+  );
+  const available = contacts.filter(
+    (c: { id: string; name: string; email: string }) =>
+      !existingEmails.has(c.email.toLowerCase()) &&
+      (search
+        ? c.name.toLowerCase().includes(search.toLowerCase()) ||
+          c.email.toLowerCase().includes(search.toLowerCase())
+        : true)
+  );
+
+  const handleSelect = (contact: { id: string; name: string; email: string }) => {
+    setSelectedContact(contact);
+    setForm({
+      slug: contact.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, ""),
+      company: "",
+      accountManagerId: null,
+    });
+    setError("");
+  };
+
+  const handlePromote = () => {
+    if (!selectedContact || !form.slug) return;
+    setError("");
+    promote.mutate(
+      {
+        crmId: selectedContact.id,
+        slug: form.slug,
+        company: form.company || undefined,
+        accountManagerId: form.accountManagerId,
+      },
+      { onError: (err) => setError(err.message) }
+    );
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Add client from contact"
+        className="relative mx-4 w-full max-w-lg rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
+        style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-lg"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+              }}
+            >
+              <UserPlus className="h-4 w-4" style={{ color: "#D4AF37" }} />
+            </div>
+            <h2 className="text-lg font-semibold text-white">
+              {selectedContact ? "Create Client Portal" : "Add from Contacts"}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {!selectedContact ? (
+          <>
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search contacts by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={inputClass + " pl-10"}
+                style={borderStyle}
+                autoFocus
+              />
+            </div>
+            <div className="max-h-80 space-y-1 overflow-y-auto">
+              {available.length === 0 ? (
+                <div className="py-8 text-center">
+                  <Users className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+                  <p className="text-sm text-gray-500">
+                    {search ? "No matching contacts" : "No available contacts"}
+                  </p>
+                </div>
+              ) : (
+                available.map((c: { id: string; name: string; email: string }) => (
+                  <button
+                    key={c.id}
+                    onClick={() => handleSelect(c)}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/10"
+                  >
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: "rgba(212, 175, 55, 0.15)",
+                        color: "#D4AF37",
+                      }}
+                    >
+                      {c.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-white">{c.name}</p>
+                      <p className="truncate text-xs text-gray-500">{c.email}</p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mb-4 text-sm text-gray-400">
+              Promoting{" "}
+              <span className="font-medium text-white">{selectedContact.name}</span> to
+              client. This will create a portal at{" "}
+              <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
+                /portal/{form.slug}
+              </span>
+            </p>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>Name</label>
+                  <input
+                    className={inputClass + " cursor-not-allowed opacity-60"}
+                    style={borderStyle}
+                    value={selectedContact.name}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Email</label>
+                  <input
+                    className={inputClass + " cursor-not-allowed opacity-60"}
+                    style={borderStyle}
+                    value={selectedContact.email}
+                    readOnly
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Portal Slug</label>
+                <input
+                  className={inputClass}
+                  style={borderStyle}
+                  value={form.slug}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      slug: e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9-]/g, "-"),
+                    }))
+                  }
+                  placeholder="client-slug"
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Company</label>
+                <CompanyPicker
+                  value={form.company}
+                  onChange={(v) => setForm((f) => ({ ...f, company: v }))}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Account Manager</label>
+                <AccountManagerPicker
+                  value={form.accountManagerId}
+                  onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-400">{error}</p>}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between">
+              <button
+                onClick={() => setSelectedContact(null)}
+                className="text-sm text-gray-500 transition-colors hover:text-white"
+              >
+                ← Back to search
+              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={onClose}
+                  className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+                  style={borderStyle}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePromote}
+                  disabled={promote.isPending || !form.slug}
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
+                  style={{
+                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }}
+                >
+                  {promote.isPending ? "Creating..." : "Create Client Portal"}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -1018,6 +1286,7 @@ export default function AdminClientsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showCreate, setShowCreate] = useState(false);
+  const [showAddFromContact, setShowAddFromContact] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientListItem | null>(null);
   const [archivingClient, setArchivingClient] = useState<ClientListItem | null>(null);
   const [deletingClient, setDeletingClient] = useState<ClientListItem | null>(null);
@@ -1099,16 +1368,26 @@ export default function AdminClientsPage() {
           </span>
         )}
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-          style={{
-            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          New Client
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => setShowAddFromContact(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10"
+            style={{ borderColor: "rgba(212, 175, 55, 0.3)", color: "#D4AF37" }}
+          >
+            <UserPlus className="h-4 w-4" />
+            Add from Contacts
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            New Client
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -1251,6 +1530,9 @@ export default function AdminClientsPage() {
       {/* Modals */}
       {showCreate && (
         <CreateClientModal onClose={() => setShowCreate(false)} />
+      )}
+      {showAddFromContact && (
+        <AddFromContactModal onClose={() => setShowAddFromContact(false)} />
       )}
       {editingClient && (
         <EditClientModal
