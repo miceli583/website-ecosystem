@@ -38,8 +38,8 @@
 
 - [x] Source tracking from intake forms
 - [x] Stripe lifetime spend per customer
-- [ ] Customer notes with todos
-- [ ] Link admin notes to portal client view
+- [x] Link admin notes to portal client view (collaborative notes tab)
+- [ ] Todo/checklist feature within customer notes
 
 ### Phase 4: Analytics
 

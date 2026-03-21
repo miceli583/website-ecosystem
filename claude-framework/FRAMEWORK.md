@@ -1,6 +1,6 @@
 # Unified Development Framework
 
-> **Version:** 1.23.0
+> **Version:** 1.23.1
 > **Last Updated:** 2026-03-21
 > **Location:** `~/.claude/FRAMEWORK.md`
 > **View from any project:** Run `/framework` or `cat ~/.claude/FRAMEWORK.md`
@@ -2809,6 +2809,11 @@ rm -rf .next
 ---
 
 ## Changelog
+
+### v1.23.1 (2026-03-21)
+
+- Enhanced `/tidy` cross-reference check: full coherence enforcement between ROADMAP ↔ TODO ↔ STATUS
+- Checks: phase completion flow, version coherence, stale file:line refs, bug/status conflicts
 
 ### v1.23.0 (2026-03-21)
 
