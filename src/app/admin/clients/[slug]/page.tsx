@@ -30,7 +30,11 @@ export default function AdminClientDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const { data: client, isLoading, refetch } = api.clients.getBySlugAdmin.useQuery({
+  const {
+    data: client,
+    isLoading,
+    refetch,
+  } = api.clients.getBySlugAdmin.useQuery({
     slug,
   });
 
@@ -170,18 +174,22 @@ export default function AdminClientDetailPage({
                 <DollarSign className="h-5 w-5" style={{ color: "#D4AF37" }} />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                <p className="text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Stripe Lifetime Spend
                 </p>
                 <p className="text-xl font-bold text-white">
-                  {(client.stripeLifetimeSpend.totalCents / 100).toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  })}
+                  {(client.stripeLifetimeSpend.totalCents / 100).toLocaleString(
+                    "en-US",
+                    {
+                      style: "currency",
+                      currency: "USD",
+                    }
+                  )}
                 </p>
               </div>
               <p className="ml-auto text-sm text-gray-500">
-                {client.stripeLifetimeSpend.chargeCount} payment{client.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
+                {client.stripeLifetimeSpend.chargeCount} payment
+                {client.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
               </p>
             </CardContent>
           </Card>
@@ -284,7 +292,9 @@ export default function AdminClientDetailPage({
                       </div>
                     ) : (
                       <div>
-                        <h3 className="text-lg font-semibold">{project.name}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {project.name}
+                        </h3>
                         {project.description && (
                           <p className="text-sm text-gray-400">
                             {project.description}
@@ -300,7 +310,8 @@ export default function AdminClientDetailPage({
                             onClick={saveEditing}
                             disabled={!editName || updateProject.isPending}
                             style={{
-                              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                              background:
+                                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                               color: "black",
                             }}
                           >
@@ -387,7 +398,7 @@ export default function AdminClientDetailPage({
         {/* Agreements */}
         {client.agreements.length > 0 && (
           <>
-            <h2 className="mb-4 mt-10 text-xl font-semibold">Agreements</h2>
+            <h2 className="mt-10 mb-4 text-xl font-semibold">Agreements</h2>
             <div className="space-y-3">
               {client.agreements.map((agreement: ClientAgreement) => (
                 <Card
@@ -437,9 +448,7 @@ export default function AdminClientDetailPage({
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-white">Client Portal</p>
-            <p className="text-xs text-gray-500">
-              /portal/{client.slug}
-            </p>
+            <p className="text-xs text-gray-500">/portal/{client.slug}</p>
           </div>
           <span className="text-xs text-gray-500">Open portal &rarr;</span>
         </Link>

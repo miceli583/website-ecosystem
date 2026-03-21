@@ -15,6 +15,7 @@ _None currently_
 ## Enhancements (prioritized)
 
 ### High Priority
+
 - [ ] **Full-stack analytics**: Set up Vercel Analytics + PostHog across ecosystem — portal usage, site visits, form submissions, domain activity
 - [ ] **Sentry error tracking**: Implement across ecosystem (especially client portal); add dedicated "Sentry" tab in dev hub
 - [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
@@ -22,6 +23,7 @@ _None currently_
 - [ ] **Mercury as payment platform**: Investigate Mercury Plus recurring invoices as Stripe replacement — recurring invoices, revenue dashboard integration (`admin/finance/revenue`), client portal checkout via Mercury invoicing. Mercury Plus is $35/mo; Stripe processing fee savings already cover the cost.
 
 ### Medium Priority
+
 - [ ] **Account manager permissions**: Role-based access so account managers can filter by their clients, only edit projects for their assigned clients
 - [ ] **CRM contact import**: Bulk upload contacts from phone via VCF file — client-side vCard parser, preview table with duplicate detection (match by email), bulk `crm.importContacts` mutation
 - [ ] **CRM enhancements**: Notes management, deeper project management, in-site scheduling of emails/updates/outreach
@@ -32,5 +34,6 @@ _None currently_
 - [ ] **Page templating architecture**: Design system to copy sample pages between routes
 
 ### Lower Priority
+
 - [ ] Evaluate Turso for demo data isolation
 - [ ] **Shader creation skill**: Evaluate creating a `/shader` skill for generating GLSL shaders

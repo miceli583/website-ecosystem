@@ -109,9 +109,7 @@ export default function TaxPage() {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">
-              Tax & Deductions
-            </h1>
+            <h1 className="text-2xl font-bold text-white">Tax & Deductions</h1>
             <p className="text-sm text-gray-400">
               IRS Schedule C deduction summary and export
             </p>
@@ -134,8 +132,7 @@ export default function TaxPage() {
               disabled={!exportData?.rows?.length}
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black transition-opacity disabled:opacity-50"
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               }}
             >
               <Download className="h-4 w-4" />
@@ -160,10 +157,7 @@ export default function TaxPage() {
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
               <div className="flex items-center gap-2 text-sm text-gray-400">
-                <DollarSign
-                  className="h-4 w-4"
-                  style={{ color: "#D4AF37" }}
-                />
+                <DollarSign className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 Gross Income
               </div>
               <p className="mt-2 text-2xl font-bold text-white">
@@ -236,7 +230,7 @@ export default function TaxPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr
-                  className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">IRS Category</th>
@@ -247,7 +241,10 @@ export default function TaxPage() {
               </thead>
               <tbody>
                 {taxSummary.deductibleByCategory
-                  .sort((a: DeductibleCategory, b: DeductibleCategory) => (b.total ?? 0) - (a.total ?? 0))
+                  .sort(
+                    (a: DeductibleCategory, b: DeductibleCategory) =>
+                      (b.total ?? 0) - (a.total ?? 0)
+                  )
                   .map((cat: DeductibleCategory) => (
                     <tr
                       key={cat.categoryName}
@@ -292,9 +289,7 @@ export default function TaxPage() {
       {/* All Deductible Expenses */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold text-white">
-            All Deductible Expenses
-          </h2>
+          <h2 className="font-semibold text-white">All Deductible Expenses</h2>
           {exportData?.rows?.length ? (
             <span className="text-xs text-gray-500">
               {exportData.rows.length} expense
@@ -315,7 +310,7 @@ export default function TaxPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr
-                    className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                    className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                     style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                   >
                     <th className="px-4 py-3">Date</th>

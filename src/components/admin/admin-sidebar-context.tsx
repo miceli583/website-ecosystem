@@ -26,7 +26,9 @@ interface AdminSidebarContextValue {
   closeMobile: () => void;
 }
 
-const AdminSidebarContext = createContext<AdminSidebarContextValue | null>(null);
+const AdminSidebarContext = createContext<AdminSidebarContextValue | null>(
+  null
+);
 
 export function AdminSidebarProvider({ children }: { children: ReactNode }) {
   // Initialize from localStorage (default: expanded on desktop)

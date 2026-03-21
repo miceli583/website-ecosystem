@@ -4,7 +4,13 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown, Menu, ExternalLink } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Menu,
+  ExternalLink,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -24,7 +30,12 @@ import {
 } from "~/components/ui/collapsible";
 import { cn } from "~/lib/utils";
 import { useAdminSidebar } from "./admin-sidebar-context";
-import { ADMIN_SIDEBAR_NAV, ADMIN_FOOTER_LINKS, type NavItem, type NavSubItem } from "./admin-nav";
+import {
+  ADMIN_SIDEBAR_NAV,
+  ADMIN_FOOTER_LINKS,
+  type NavItem,
+  type NavSubItem,
+} from "./admin-nav";
 
 const SIDEBAR_WIDTH = 240;
 const SIDEBAR_WIDTH_COLLAPSED = 64;
@@ -83,7 +94,9 @@ function NavGroup({
   const Icon = item.icon;
   const hasItems = item.items && item.items.length > 0;
   const isActive = item.href === pathname;
-  const hasActiveChild = item.items?.some((sub) => pathname.startsWith(sub.href));
+  const hasActiveChild = item.items?.some((sub) =>
+    pathname.startsWith(sub.href)
+  );
   const [isOpen, setIsOpen] = useState(hasActiveChild);
 
   // Simple link without subitems
@@ -299,7 +312,7 @@ export function AdminSidebar() {
         <button
           onClick={toggle}
           aria-label="Toggle sidebar"
-          className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border bg-black text-gray-400 transition-colors hover:text-white"
+          className="absolute top-20 -right-3 flex h-6 w-6 items-center justify-center rounded-full border bg-black text-gray-400 transition-colors hover:text-white"
           style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
         >
           {isCollapsed ? (

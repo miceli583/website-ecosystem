@@ -104,22 +104,24 @@ export default function PortalNotesPage({
   const utils = api.useUtils();
 
   // Data queries
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = api.portal.getClientBySlug.useQuery(
     { slug },
-    { staleTime: 5 * 60 * 1000 },
+    { staleTime: 5 * 60 * 1000 }
   );
   const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
   });
   const isAdmin = profile?.role === "admin";
 
-  const { data: notes, isLoading: notesLoading } = api.portalNotes.getNotes.useQuery(
-    { slug },
-    { staleTime: 5 * 60 * 1000 },
-  );
+  const { data: notes, isLoading: notesLoading } =
+    api.portalNotes.getNotes.useQuery({ slug }, { staleTime: 5 * 60 * 1000 });
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
-    { enabled: isAdmin, staleTime: 5 * 60 * 1000 },
+    { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
   );
 
   // Mutations with optimistic updates
@@ -127,30 +129,34 @@ export default function PortalNotesPage({
     onMutate: async (input) => {
       await utils.portalNotes.getNotes.cancel({ slug });
       const previous = utils.portalNotes.getNotes.getData({ slug });
-      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) => {
-        if (!old) return old;
-        return [
-          {
-            id: -Date.now(),
-            clientId: client?.id ?? 0,
-            projectId: input.projectId ?? null,
-            createdByAuthId: profile?.authUserId ?? "",
-            createdByName: profile?.name ?? "You",
-            title: input.title,
-            content: input.content ?? "",
-            isPinned: false,
-            isArchived: false,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            project: null,
-          } as Note,
-          ...old,
-        ];
-      });
+      utils.portalNotes.getNotes.setData(
+        { slug },
+        (old: Note[] | undefined) => {
+          if (!old) return old;
+          return [
+            {
+              id: -Date.now(),
+              clientId: client?.id ?? 0,
+              projectId: input.projectId ?? null,
+              createdByAuthId: profile?.authUserId ?? "",
+              createdByName: profile?.name ?? "You",
+              title: input.title,
+              content: input.content ?? "",
+              isPinned: false,
+              isArchived: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              project: null,
+            } as Note,
+            ...old,
+          ];
+        }
+      );
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      if (context?.previous)
+        utils.portalNotes.getNotes.setData({ slug }, context.previous);
       toast.error("Failed to create note");
     },
     onSuccess: () => {
@@ -173,13 +179,14 @@ export default function PortalNotesPage({
                 ...(input.content !== undefined && { content: input.content }),
                 updatedAt: new Date(),
               }
-            : n,
-        ),
+            : n
+        )
       );
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      if (context?.previous)
+        utils.portalNotes.getNotes.setData({ slug }, context.previous);
       toast.error("Failed to update note");
     },
     onSuccess: () => {
@@ -194,12 +201,13 @@ export default function PortalNotesPage({
       await utils.portalNotes.getNotes.cancel({ slug });
       const previous = utils.portalNotes.getNotes.getData({ slug });
       utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
-        old?.filter((n) => n.id !== input.noteId),
+        old?.filter((n) => n.id !== input.noteId)
       );
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      if (context?.previous)
+        utils.portalNotes.getNotes.setData({ slug }, context.previous);
       toast.error("Failed to delete note");
     },
     onSuccess: () => {
@@ -214,21 +222,27 @@ export default function PortalNotesPage({
     onMutate: async (input) => {
       await utils.portalNotes.getNotes.cancel({ slug });
       const previous = utils.portalNotes.getNotes.getData({ slug });
-      utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) => {
-        if (!old) return old;
-        const updated = old.map((n) =>
-          n.id === input.noteId ? { ...n, isPinned: input.isPinned ?? n.isPinned } : n,
-        );
-        return updated.sort(
-          (a, b) =>
-            (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0) ||
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        );
-      });
+      utils.portalNotes.getNotes.setData(
+        { slug },
+        (old: Note[] | undefined) => {
+          if (!old) return old;
+          const updated = old.map((n) =>
+            n.id === input.noteId
+              ? { ...n, isPinned: input.isPinned ?? n.isPinned }
+              : n
+          );
+          return updated.sort(
+            (a, b) =>
+              (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0) ||
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
+        }
+      );
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      if (context?.previous)
+        utils.portalNotes.getNotes.setData({ slug }, context.previous);
       toast.error("Failed to update pin");
     },
     onSuccess: (_, variables) => {
@@ -243,13 +257,16 @@ export default function PortalNotesPage({
       const previous = utils.portalNotes.getNotes.getData({ slug });
       utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
         old?.map((n) =>
-          n.id === input.noteId ? { ...n, projectId: input.projectId ?? n.projectId } : n,
-        ),
+          n.id === input.noteId
+            ? { ...n, projectId: input.projectId ?? n.projectId }
+            : n
+        )
       );
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      if (context?.previous)
+        utils.portalNotes.getNotes.setData({ slug }, context.previous);
       toast.error("Failed to assign project");
     },
     onSuccess: () => {
@@ -274,21 +291,29 @@ export default function PortalNotesPage({
   const [showEditor, setShowEditor] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<"active" | "archived">(saved.activeTab ?? "active");
+  const [activeTab, setActiveTab] = useState<"active" | "archived">(
+    saved.activeTab ?? "active"
+  );
   const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
   const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
-  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">(
-    saved.selectedProject as number | "all" | "unassigned",
-  );
+  const [selectedProject, setSelectedProject] = useState<
+    number | "all" | "unassigned"
+  >(saved.selectedProject as number | "all" | "unassigned");
   const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups),
+    new Set(saved.collapsedGroups)
   );
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; note: Note | null }>({
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    note: Note | null;
+  }>({
     open: false,
     note: null,
   });
-  const [assignDialog, setAssignDialog] = useState<{ open: boolean; note: Note | null }>({
+  const [assignDialog, setAssignDialog] = useState<{
+    open: boolean;
+    note: Note | null;
+  }>({
     open: false,
     note: null,
   });
@@ -303,7 +328,15 @@ export default function PortalNotesPage({
       collapsedGroups: Array.from(collapsedGroups),
       activeTab,
     });
-  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
+  }, [
+    searchQuery,
+    sortOrder,
+    selectedProject,
+    viewMode,
+    collapsedGroups,
+    activeTab,
+    persistState,
+  ]);
 
   const archiveNote = api.portalNotes.updateNote.useMutation({
     onMutate: async (input) => {
@@ -311,13 +344,16 @@ export default function PortalNotesPage({
       const previous = utils.portalNotes.getNotes.getData({ slug });
       utils.portalNotes.getNotes.setData({ slug }, (old: Note[] | undefined) =>
         old?.map((n) =>
-          n.id === input.noteId ? { ...n, isArchived: input.isArchived ?? n.isArchived } : n,
-        ),
+          n.id === input.noteId
+            ? { ...n, isArchived: input.isArchived ?? n.isArchived }
+            : n
+        )
       );
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) utils.portalNotes.getNotes.setData({ slug }, context.previous);
+      if (context?.previous)
+        utils.portalNotes.getNotes.setData({ slug }, context.previous);
       toast.error("Failed to archive note");
     },
     onSuccess: (_, variables) => {
@@ -337,12 +373,18 @@ export default function PortalNotesPage({
 
   const canDelete = useCallback(
     (note: Note) => isAdmin || note.createdByAuthId === profile?.authUserId,
-    [isAdmin, profile?.authUserId],
+    [isAdmin, profile?.authUserId]
   );
 
   // Split active/archived
-  const activeNotes = useMemo(() => (notes ?? []).filter((n: Note) => !n.isArchived), [notes]);
-  const archivedNotes = useMemo(() => (notes ?? []).filter((n: Note) => n.isArchived), [notes]);
+  const activeNotes = useMemo(
+    () => (notes ?? []).filter((n: Note) => !n.isArchived),
+    [notes]
+  );
+  const archivedNotes = useMemo(
+    () => (notes ?? []).filter((n: Note) => n.isArchived),
+    [notes]
+  );
   const currentNotes = activeTab === "active" ? activeNotes : archivedNotes;
 
   // Project filters (from current tab's notes)
@@ -356,7 +398,9 @@ export default function PortalNotesPage({
     projects?.forEach((p: { id: number; name: string }) => {
       projectMap.set(p.id, p.name);
     });
-    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(
+      ([id, name]) => ({ id, name })
+    );
     if (hasUnassigned) filters.push({ id: "unassigned", name: "Unassigned" });
     return filters;
   }, [currentNotes, projects, hasUnassigned]);
@@ -370,10 +414,12 @@ export default function PortalNotesPage({
         const matchContent = n.content.toLowerCase().includes(q);
         const matchAuthor = n.createdByName.toLowerCase().includes(q);
         const matchProject = n.project?.name.toLowerCase().includes(q);
-        if (!matchTitle && !matchContent && !matchAuthor && !matchProject) return false;
+        if (!matchTitle && !matchContent && !matchAuthor && !matchProject)
+          return false;
       }
       if (selectedProject === "unassigned") return n.projectId === null;
-      if (selectedProject !== "all" && n.projectId !== selectedProject) return false;
+      if (selectedProject !== "all" && n.projectId !== selectedProject)
+        return false;
       return true;
     });
   }, [currentNotes, searchQuery, selectedProject]);
@@ -417,7 +463,8 @@ export default function PortalNotesPage({
     setCollapsedGroups(new Set(groupedNotes.map(([name]) => name)));
   }, [groupedNotes]);
 
-  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const hasActiveFilters =
+    Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -472,7 +519,7 @@ export default function PortalNotesPage({
           ]
         : []),
     ],
-    [slug, togglePin, archiveNote, canDelete],
+    [slug, togglePin, archiveNote, canDelete]
   );
 
   // ── Loading / Error states ──
@@ -480,7 +527,10 @@ export default function PortalNotesPage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -558,7 +608,10 @@ export default function PortalNotesPage({
               <div className="flex items-center gap-2">
                 <p className="truncate font-medium text-white">{note.title}</p>
                 {note.isPinned && (
-                  <Pin className="h-3.5 w-3.5 shrink-0" style={{ color: "#D4AF37" }} />
+                  <Pin
+                    className="h-3.5 w-3.5 shrink-0"
+                    style={{ color: "#D4AF37" }}
+                  />
                 )}
               </div>
               {!isExpanded && preview && preview !== "No content." && (
@@ -567,7 +620,9 @@ export default function PortalNotesPage({
             </div>
           </button>
           <div className="flex flex-shrink-0 items-center gap-4 text-sm text-gray-500">
-            <span className="hidden sm:inline">{note.project?.name ?? "Unassigned"}</span>
+            <span className="hidden sm:inline">
+              {note.project?.name ?? "Unassigned"}
+            </span>
             <span className="flex items-center gap-1 text-xs">
               <span
                 className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${authorColor(note.createdByName)}`}
@@ -577,7 +632,9 @@ export default function PortalNotesPage({
             </span>
             <span className="text-xs">
               {relativeTime(note.updatedAt)}
-              {edited && <span className="ml-1 italic text-gray-600">(edited)</span>}
+              {edited && (
+                <span className="ml-1 text-gray-600 italic">(edited)</span>
+              )}
             </span>
             {isAdmin && <AdminActionMenu actions={getNoteActions(note)} />}
           </div>
@@ -599,48 +656,48 @@ export default function PortalNotesPage({
             </button>
 
             <div className="px-4 pb-4">
-            {note.content && note.content !== "<p></p>" ? (
-              <div
-                className="prose prose-invert max-w-none text-sm"
-                dangerouslySetInnerHTML={{ __html: note.content }}
-              />
-            ) : (
-              <p className="text-sm italic text-gray-500">No content.</p>
-            )}
+              {note.content && note.content !== "<p></p>" ? (
+                <div
+                  className="prose prose-invert max-w-none text-sm"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                />
+              ) : (
+                <p className="text-sm text-gray-500 italic">No content.</p>
+              )}
 
-            {/* Inline actions — pin + edit for quick access */}
-            <div
-              className="mt-4 flex items-center gap-2 border-t pt-3"
-              style={{ borderColor: "rgba(255, 255, 255, 0.06)" }}
-            >
-              <button
-                onClick={() =>
-                  togglePin.mutate({
-                    slug,
-                    noteId: note.id,
-                    isPinned: !note.isPinned,
-                  })
-                }
-                className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs transition-colors hover:bg-white/5 ${
-                  note.isPinned
-                    ? "text-[#D4AF37]"
-                    : "text-gray-400 hover:text-white"
-                }`}
+              {/* Inline actions — pin + edit for quick access */}
+              <div
+                className="mt-4 flex items-center gap-2 border-t pt-3"
+                style={{ borderColor: "rgba(255, 255, 255, 0.06)" }}
               >
-                <Pin className="h-3.5 w-3.5" />
-                {note.isPinned ? "Unpin" : "Pin"}
-              </button>
-              <button
-                onClick={() => {
-                  setEditingNoteId(note.id);
-                  setExpandedNoteId(null);
-                }}
-                className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-                Edit
-              </button>
-            </div>
+                <button
+                  onClick={() =>
+                    togglePin.mutate({
+                      slug,
+                      noteId: note.id,
+                      isPinned: !note.isPinned,
+                    })
+                  }
+                  className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs transition-colors hover:bg-white/5 ${
+                    note.isPinned
+                      ? "text-[#D4AF37]"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  <Pin className="h-3.5 w-3.5" />
+                  {note.isPinned ? "Unpin" : "Pin"}
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingNoteId(note.id);
+                    setExpandedNoteId(null);
+                  }}
+                  className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -685,14 +742,17 @@ export default function PortalNotesPage({
       )}
 
       {/* Active / Archived tabs */}
-      {isAdmin && (notes?.length ?? 0) > 0 && !showEditor && editingNoteId === null && (
-        <StatusTabs
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          activeCount={activeNotes.length}
-          archivedCount={archivedNotes.length}
-        />
-      )}
+      {isAdmin &&
+        (notes?.length ?? 0) > 0 &&
+        !showEditor &&
+        editingNoteId === null && (
+          <StatusTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            activeCount={activeNotes.length}
+            archivedCount={archivedNotes.length}
+          />
+        )}
 
       {/* Search + Filter Bar */}
       {currentNotes.length > 0 && !showEditor && editingNoteId === null && (
@@ -704,7 +764,9 @@ export default function PortalNotesPage({
           onSortChange={setSortOrder}
           filterOptions={projectFilters}
           selectedFilter={selectedProject}
-          onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
+          onFilterChange={(id) =>
+            setSelectedProject(id as number | "all" | "unassigned")
+          }
           filterLabel="Project"
           viewMode={viewMode}
           onViewModeChange={setViewMode}
@@ -735,7 +797,9 @@ export default function PortalNotesPage({
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Archive className="mb-4 h-12 w-12 text-gray-600" />
           <p className="text-gray-500">
-            {activeTab === "archived" ? "No archived notes." : "No active notes."}
+            {activeTab === "archived"
+              ? "No archived notes."
+              : "No active notes."}
           </p>
         </div>
       ) : sortedNotes.length === 0 ? (
@@ -785,7 +849,11 @@ export default function PortalNotesPage({
           projects={projects ?? []}
           onAssign={(projectId) => {
             if (!assignDialog.note) return;
-            assignNote.mutate({ slug, noteId: assignDialog.note.id, projectId });
+            assignNote.mutate({
+              slug,
+              noteId: assignDialog.note.id,
+              projectId,
+            });
           }}
           onCreateProject={(name) => createProject.mutateAsync({ slug, name })}
           isLoading={assignNote.isPending || createProject.isPending}

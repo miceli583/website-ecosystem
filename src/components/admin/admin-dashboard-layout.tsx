@@ -4,7 +4,11 @@ import { type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { AdminSidebarProvider, useAdminSidebar } from "./admin-sidebar-context";
-import { AdminSidebar, SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from "./admin-sidebar";
+import {
+  AdminSidebar,
+  SIDEBAR_WIDTH,
+  SIDEBAR_WIDTH_COLLAPSED,
+} from "./admin-sidebar";
 import { AdminHeader } from "./admin-header";
 
 // Pages that should NOT get the dashboard shell
@@ -28,7 +32,9 @@ function DashboardContent({ children }: { children: ReactNode }) {
   }, [pathname, closeMobile]);
 
   // Check if this is a standalone page (no shell)
-  const isStandalone = STANDALONE_PAGES.some((page) => pathname.startsWith(page));
+  const isStandalone = STANDALONE_PAGES.some((page) =>
+    pathname.startsWith(page)
+  );
 
   if (isStandalone) {
     return <div className="min-h-screen bg-black text-white">{children}</div>;

@@ -64,9 +64,7 @@ function getDateRange(
       const start = fmt(new Date(yr, 0, 1));
       // If selected year is current year, end = today; otherwise end of that year
       const end =
-        yr === now.getFullYear()
-          ? today
-          : fmt(new Date(yr + 1, 0, 1));
+        yr === now.getFullYear() ? today : fmt(new Date(yr + 1, 0, 1));
       return { start, end };
     }
     case "custom":
@@ -234,7 +232,10 @@ function ExpenseForm({
       </div>
 
       {/* Type toggle */}
-      <div className="mb-3 flex gap-1 rounded-lg bg-white/5 p-0.5" style={{ width: "fit-content" }}>
+      <div
+        className="mb-3 flex gap-1 rounded-lg bg-white/5 p-0.5"
+        style={{ width: "fit-content" }}
+      >
         <button
           type="button"
           onClick={() => setEntryType("expense")}
@@ -254,7 +255,11 @@ function ExpenseForm({
               ? "text-green-400"
               : "text-gray-400 hover:text-white"
           }`}
-          style={entryType === "revenue" ? { backgroundColor: "rgba(74, 222, 128, 0.1)" } : undefined}
+          style={
+            entryType === "revenue"
+              ? { backgroundColor: "rgba(74, 222, 128, 0.1)" }
+              : undefined
+          }
         >
           Revenue
         </button>
@@ -271,14 +276,14 @@ function ExpenseForm({
             onChange={(e) => setVendor(e.target.value)}
             className="w-full rounded border bg-white/5 px-3 py-1.5 text-sm text-white placeholder:text-gray-500"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            placeholder={entryType === "revenue" ? "e.g. Client payment" : "e.g. Vercel"}
+            placeholder={
+              entryType === "revenue" ? "e.g. Client payment" : "e.g. Vercel"
+            }
             required
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-gray-400">
-            Amount ($)
-          </label>
+          <label className="mb-1 block text-xs text-gray-400">Amount ($)</label>
           <input
             type="number"
             step="0.01"
@@ -611,7 +616,9 @@ export default function ExpensesPage() {
   }, [datePreset, selectedYear, customStart, customEnd]);
 
   // Income/expense filter for Mercury
-  const [txFilter, setTxFilter] = useState<"all" | "income" | "expenses">("all");
+  const [txFilter, setTxFilter] = useState<"all" | "income" | "expenses">(
+    "all"
+  );
 
   // Pagination
   const txLimit = 50;
@@ -624,19 +631,24 @@ export default function ExpensesPage() {
   const { data: balances, isLoading: balancesLoading } =
     api.finance.getMercuryBalances.useQuery();
 
-  const { data: txData, isLoading: txLoading, isFetching: txFetching } =
-    api.finance.getMercuryTransactions.useQuery({
-      limit: txLimit,
-      offset: txOffset,
-      start: dateRange.start,
-      end: dateRange.end,
-    });
-
-  // Server-side summary for accurate totals across full date range
-  const { data: txSummary } = api.finance.getMercuryTransactionSummary.useQuery({
+  const {
+    data: txData,
+    isLoading: txLoading,
+    isFetching: txFetching,
+  } = api.finance.getMercuryTransactions.useQuery({
+    limit: txLimit,
+    offset: txOffset,
     start: dateRange.start,
     end: dateRange.end,
   });
+
+  // Server-side summary for accurate totals across full date range
+  const { data: txSummary } = api.finance.getMercuryTransactionSummary.useQuery(
+    {
+      start: dateRange.start,
+      end: dateRange.end,
+    }
+  );
 
   // Sync fetched data into allTransactions — reset on date change, append on pagination
   useEffect(() => {
@@ -702,7 +714,8 @@ export default function ExpensesPage() {
   // Filter transactions client-side by income/expense
   const filteredTransactions = useMemo(() => {
     if (txFilter === "all") return allTransactions;
-    if (txFilter === "income") return allTransactions.filter((t) => t.amount >= 0);
+    if (txFilter === "income")
+      return allTransactions.filter((t) => t.amount >= 0);
     return allTransactions.filter((t) => t.amount < 0);
   }, [allTransactions, txFilter]);
 
@@ -724,7 +737,10 @@ export default function ExpensesPage() {
     if (!manualExpenses?.length) return { expenses: 0, revenue: 0, count: 0 };
     let expenses = 0;
     let revenue = 0;
-    for (const exp of manualExpenses as Array<{ amount: number; type: string }>) {
+    for (const exp of manualExpenses as Array<{
+      amount: number;
+      type: string;
+    }>) {
       if (exp.type === "revenue") {
         revenue += exp.amount;
       } else {
@@ -766,12 +782,13 @@ export default function ExpensesPage() {
   });
 
   // Parent-level categorize mutation — instant optimistic update
-  const categorizeMutation = api.finance.categorizeMercuryTransaction.useMutation({
-    onSuccess: () => {
-      // Background refetch, don't block UI
-      void utils.finance.getMercuryTransactionCategories.invalidate();
-    },
-  });
+  const categorizeMutation =
+    api.finance.categorizeMercuryTransaction.useMutation({
+      onSuccess: () => {
+        // Background refetch, don't block UI
+        void utils.finance.getMercuryTransactionCategories.invalidate();
+      },
+    });
 
   const handleCategorize = (params: {
     mercuryTransactionId: string;
@@ -883,8 +900,7 @@ export default function ExpensesPage() {
               }}
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black"
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               }}
             >
               <Plus className="h-4 w-4" />
@@ -928,9 +944,7 @@ export default function ExpensesPage() {
             <div className="flex gap-2">
               {autoCategorizeDry.data.suggestions.length > 0 && (
                 <button
-                  onClick={() =>
-                    autoCategorizeApply.mutate({ apply: true })
-                  }
+                  onClick={() => autoCategorizeApply.mutate({ apply: true })}
                   disabled={autoCategorizeApply.isPending}
                   className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium text-black"
                   style={{
@@ -962,7 +976,7 @@ export default function ExpensesPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr
-                    className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                    className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                     style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                   >
                     <th className="px-3 py-2">Counterparty</th>
@@ -1024,7 +1038,8 @@ export default function ExpensesPage() {
                           )}
                         </td>
                         <td className="px-3 py-1.5 text-right font-medium text-white">
-                          ${Math.abs(s.amount).toLocaleString("en-US", {
+                          $
+                          {Math.abs(s.amount).toLocaleString("en-US", {
                             minimumFractionDigits: 2,
                           })}
                         </td>
@@ -1100,7 +1115,7 @@ export default function ExpensesPage() {
                         minimumFractionDigits: 2,
                       })}
                     </p>
-                    <p className="mt-1 text-xs capitalize text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 capitalize">
                       {account.type} account
                     </p>
                   </div>
@@ -1111,10 +1126,7 @@ export default function ExpensesPage() {
                 style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
               >
                 <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <Receipt
-                    className="h-4 w-4"
-                    style={{ color: "#D4AF37" }}
-                  />
+                  <Receipt className="h-4 w-4" style={{ color: "#D4AF37" }} />
                   Total Available
                 </div>
                 <p className="mt-2 text-2xl font-bold text-white">
@@ -1235,7 +1247,7 @@ export default function ExpensesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr
-                  className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Vendor</th>
@@ -1305,7 +1317,9 @@ export default function ExpensesPage() {
                       </td>
                       <td
                         className={`px-4 py-2.5 text-right font-medium ${
-                          exp.type === "revenue" ? "text-green-400" : "text-white"
+                          exp.type === "revenue"
+                            ? "text-green-400"
+                            : "text-white"
                         }`}
                       >
                         {exp.type === "revenue" ? "+" : ""}$
@@ -1496,7 +1510,7 @@ export default function ExpensesPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr
-                    className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                    className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                     style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                   >
                     <th className="px-4 py-3">Description</th>
@@ -1538,15 +1552,13 @@ export default function ExpensesPage() {
                           className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
                           style={{
                             backgroundColor:
-                              tx.status === "sent" ||
-                              tx.status === "received"
+                              tx.status === "sent" || tx.status === "received"
                                 ? "rgba(74, 222, 128, 0.1)"
                                 : tx.status === "pending"
                                   ? "rgba(250, 204, 21, 0.1)"
                                   : "rgba(156, 163, 175, 0.1)",
                             color:
-                              tx.status === "sent" ||
-                              tx.status === "received"
+                              tx.status === "sent" || tx.status === "received"
                                 ? "#4ade80"
                                 : tx.status === "pending"
                                   ? "#facc15"
@@ -1583,7 +1595,10 @@ export default function ExpensesPage() {
 
           {/* Load More button */}
           {txData?.hasMore && (
-            <div className="border-t p-3 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}>
+            <div
+              className="border-t p-3 text-center"
+              style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+            >
               <button
                 onClick={handleLoadMore}
                 disabled={txFetching}
@@ -1613,7 +1628,7 @@ export default function ExpensesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr
-                className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
                 <th className="px-4 py-3">Category</th>

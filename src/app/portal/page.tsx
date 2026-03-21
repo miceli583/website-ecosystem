@@ -58,7 +58,10 @@ export default function PortalPage() {
   if (profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -88,7 +91,10 @@ export default function PortalPage() {
   if (profile.role === "client") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -154,9 +160,7 @@ export default function PortalPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Clients</h1>
-            <p className="mt-1 text-gray-400">
-              Manage and view client portals
-            </p>
+            <p className="mt-1 text-gray-400">Manage and view client portals</p>
           </div>
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-gray-500" />
@@ -168,7 +172,7 @@ export default function PortalPage() {
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+          <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-500" />
           <Input
             type="text"
             placeholder="Search by name, email, company, or slug..."
@@ -191,10 +195,7 @@ export default function PortalPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredClients?.map((client: ClientListItem) => (
-              <Link
-                key={client.id}
-                href={`/portal/${client.slug}?domain=live`}
-              >
+              <Link key={client.id} href={`/portal/${client.slug}?domain=live`}>
                 <Card
                   className="cursor-pointer bg-white/5 transition-all hover:bg-white/10"
                   style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}

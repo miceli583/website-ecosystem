@@ -261,7 +261,9 @@ export function MiracleMindLiveHomePage() {
       } else if (data?.exists) {
         setError("This account is already active. Please sign in.");
       } else {
-        setError("No account found for this email. Contact your account manager.");
+        setError(
+          "No account found for this email. Contact your account manager."
+        );
       }
     };
 
@@ -315,7 +317,7 @@ export function MiracleMindLiveHomePage() {
                     id="claim-email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                    className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
                     style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
                     placeholder="you@example.com"
                     required
@@ -415,7 +417,7 @@ export function MiracleMindLiveHomePage() {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                  className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
                   style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
                   placeholder="you@example.com"
                   required
@@ -434,7 +436,7 @@ export function MiracleMindLiveHomePage() {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                  className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
                   style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
                   placeholder="Enter your password"
                   required

@@ -263,10 +263,7 @@ export function AdminOverview() {
                   className="flex h-8 w-8 items-center justify-center rounded-lg"
                   style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
                 >
-                  <Users
-                    className="h-4 w-4"
-                    style={{ color: "#D4AF37" }}
-                  />
+                  <Users className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 </div>
                 <h3 className="font-semibold text-white">CRM</h3>
               </div>
@@ -285,7 +282,13 @@ export function AdminOverview() {
                 {pipelineData && pipelineData.total > 0 && (
                   <div className="flex h-2 overflow-hidden rounded-full bg-white/5">
                     {(
-                      ["lead", "prospect", "client", "inactive", "churned"] as const
+                      [
+                        "lead",
+                        "prospect",
+                        "client",
+                        "inactive",
+                        "churned",
+                      ] as const
                     ).map((status) => {
                       const value =
                         (pipelineData as Record<string, number>)[status] ?? 0;
@@ -325,10 +328,7 @@ export function AdminOverview() {
                   className="flex h-8 w-8 items-center justify-center rounded-lg"
                   style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
                 >
-                  <BarChart3
-                    className="h-4 w-4"
-                    style={{ color: "#D4AF37" }}
-                  />
+                  <BarChart3 className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 </div>
                 <h3 className="font-semibold text-white">Analytics</h3>
               </div>
@@ -401,8 +401,7 @@ export function AdminOverview() {
                           className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
                           style={{
                             backgroundColor: `${STATUS_COLORS[contact.status] ?? "#9ca3af"}15`,
-                            color:
-                              STATUS_COLORS[contact.status] ?? "#9ca3af",
+                            color: STATUS_COLORS[contact.status] ?? "#9ca3af",
                           }}
                         >
                           {contact.status}

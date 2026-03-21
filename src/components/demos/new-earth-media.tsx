@@ -264,11 +264,11 @@ function VideoModal({
           <div className="absolute inset-0 rounded-t-2xl bg-gradient-to-t from-black via-black/20 to-transparent" />
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+            className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
           >
             <X className="h-5 w-5" />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 p-6">
+          <div className="absolute right-0 bottom-0 left-0 p-6">
             <div className="mb-4 w-fit rounded-full bg-purple-600 px-3 py-1 text-sm font-semibold text-white">
               {details.type}
             </div>
@@ -306,9 +306,21 @@ function VideoModal({
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { icon: Users, label: "Active Viewers", value: details.stats.activeUsers },
-                  { icon: Calendar, label: "Released", value: details.stats.launched },
-                  { icon: Clock, label: "Last Updated", value: details.stats.lastUpdated },
+                  {
+                    icon: Users,
+                    label: "Active Viewers",
+                    value: details.stats.activeUsers,
+                  },
+                  {
+                    icon: Calendar,
+                    label: "Released",
+                    value: details.stats.launched,
+                  },
+                  {
+                    icon: Clock,
+                    label: "Last Updated",
+                    value: details.stats.lastUpdated,
+                  },
                 ].map((stat) => (
                   <div
                     key={stat.label}
@@ -452,13 +464,13 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-black via-purple-900 to-black">
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute left-20 top-20 h-72 w-72 animate-pulse rounded-full bg-gradient-to-r from-purple-400 to-pink-400 blur-3xl" />
-          <div className="absolute bottom-20 right-20 h-96 w-96 animate-pulse rounded-full bg-gradient-to-r from-purple-400 to-purple-600 blur-3xl [animation-delay:1s]" />
-          <div className="absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-gradient-to-r from-purple-500 to-purple-700 blur-3xl [animation-delay:0.5s]" />
+          <div className="absolute top-20 left-20 h-72 w-72 animate-pulse rounded-full bg-gradient-to-r from-purple-400 to-pink-400 blur-3xl" />
+          <div className="absolute right-20 bottom-20 h-96 w-96 animate-pulse rounded-full bg-gradient-to-r from-purple-400 to-purple-600 blur-3xl [animation-delay:1s]" />
+          <div className="absolute top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-gradient-to-r from-purple-500 to-purple-700 blur-3xl [animation-delay:0.5s]" />
         </div>
         <div className="relative z-10 mx-auto max-w-6xl px-6 text-center">
           <h1
-            className="mb-6 text-5xl font-bold leading-tight text-white md:text-7xl"
+            className="mb-6 text-5xl leading-tight font-bold text-white md:text-7xl"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             Streaming the Stories of a{" "}
@@ -467,7 +479,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
             </span>
           </h1>
           <p
-            className="mx-auto mb-12 max-w-4xl text-xl font-light leading-relaxed text-gray-200 md:text-2xl"
+            className="mx-auto mb-12 max-w-4xl text-xl leading-relaxed font-light text-gray-200 md:text-2xl"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             New Earth Media is your hub for conscious entertainment and
@@ -541,12 +553,12 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
                     className="h-96 w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute bottom-0 left-0 right-0 translate-y-4 p-6 transition-transform duration-300 group-hover:translate-y-0">
+                  <div className="absolute right-0 bottom-0 left-0 translate-y-4 p-6 transition-transform duration-300 group-hover:translate-y-0">
                     <div className="mb-3 w-fit rounded-full bg-purple-600 px-3 py-1 text-xs font-semibold text-white">
                       {item.category}
                     </div>
                     <h3
-                      className="text-xl font-bold leading-tight text-white"
+                      className="text-xl leading-tight font-bold text-white"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {item.title}
@@ -596,7 +608,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
                   {feature.title}
                 </h3>
                 <p
-                  className="font-light leading-relaxed text-gray-300"
+                  className="leading-relaxed font-light text-gray-300"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {feature.description}
@@ -620,7 +632,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
                   className="h-96 w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
-                <div className="absolute left-6 top-6 rounded-2xl bg-white/10 p-4 backdrop-blur-md transition-transform duration-300 group-hover:scale-110">
+                <div className="absolute top-6 left-6 rounded-2xl bg-white/10 p-4 backdrop-blur-md transition-transform duration-300 group-hover:scale-110">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-purple-500 to-purple-700" />
                     <div>
@@ -629,7 +641,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
                     </div>
                   </div>
                 </div>
-                <div className="absolute bottom-6 right-6 rounded-2xl bg-white/10 p-4 backdrop-blur-md transition-transform delay-100 duration-300 group-hover:scale-110">
+                <div className="absolute right-6 bottom-6 rounded-2xl bg-white/10 p-4 backdrop-blur-md transition-transform delay-100 duration-300 group-hover:scale-110">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-gradient-to-r from-purple-400 to-purple-600" />
                     <div className="h-2 w-20 rounded bg-white/80" />
@@ -640,14 +652,14 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
             <div className="space-y-8">
               <div>
                 <h2
-                  className="mb-6 text-4xl font-bold leading-tight text-white md:text-5xl"
+                  className="mb-6 text-4xl leading-tight font-bold text-white md:text-5xl"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   Why It Matters
                 </h2>
                 <div className="space-y-6">
                   <p
-                    className="text-xl font-light leading-relaxed text-gray-300"
+                    className="text-xl leading-relaxed font-light text-gray-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     We are creating media that uplifts, educates, and empowers
@@ -655,7 +667,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
                     for our planet and communities.
                   </p>
                   <p
-                    className="text-lg font-light leading-relaxed text-gray-400"
+                    className="text-lg leading-relaxed font-light text-gray-400"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     In a world overwhelmed by divisive content, New Earth Media
@@ -701,13 +713,13 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
       {/* ── Creator Invitation ──────────────────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-black to-black py-20">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute right-10 top-10 h-64 w-64 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 blur-3xl" />
+          <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 blur-3xl" />
           <div className="absolute bottom-10 left-10 h-80 w-80 rounded-full bg-gradient-to-r from-purple-500 to-purple-700 blur-3xl" />
         </div>
         <div className="relative z-10 mx-auto max-w-7xl px-6">
           <div className="mb-16 text-center">
             <h2
-              className="mb-6 text-4xl font-bold leading-tight text-white md:text-6xl"
+              className="mb-6 text-4xl leading-tight font-bold text-white md:text-6xl"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Are You a Filmmaker, Educator, or{" "}
@@ -716,7 +728,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
               </span>
             </h2>
             <p
-              className="mx-auto max-w-4xl text-xl font-light leading-relaxed text-gray-200 md:text-2xl"
+              className="mx-auto max-w-4xl text-xl leading-relaxed font-light text-gray-200 md:text-2xl"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Submit your series, films, or doc-style content and become a voice
@@ -876,7 +888,7 @@ export function NewEarthMediaLanding({ backHref }: { backHref?: string }) {
                 New Earth Media
               </h3>
               <p
-                className="mb-6 max-w-md font-light leading-relaxed text-gray-400"
+                className="mb-6 max-w-md leading-relaxed font-light text-gray-400"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Streaming the stories of a regenerative future. Join our

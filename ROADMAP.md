@@ -24,21 +24,25 @@
 ## Session 4+ — Admin Overhaul (Phased)
 
 ### Phase 1: Foundation (DONE)
+
 - [x] Admin-only route protection
 - [x] Dashboard layout + custom nav/footer
 
 ### Phase 2: CRM Core (DONE)
+
 - [x] Input customers
 - [x] Search
 - [x] Pipeline view
 
 ### Phase 3: CRM Advanced
+
 - [x] Source tracking from intake forms
 - [x] Stripe lifetime spend per customer
 - [ ] Customer notes with todos
 - [ ] Link admin notes to portal client view
 
 ### Phase 4: Analytics
+
 - [x] Site analytics (internal submission metrics)
 - [ ] Full-stack analytics (Vercel Analytics + PostHog across ecosystem)
 - [ ] Login frequency
@@ -46,6 +50,7 @@
 - [ ] Click tracking
 
 ### Phase 5: Platform Expansion
+
 - [ ] Account manager role-based permissions (filter clients, scoped editing)
 - [ ] CRM notes management + project management + outreach scheduling
 - [ ] CMS email/text sequence builder

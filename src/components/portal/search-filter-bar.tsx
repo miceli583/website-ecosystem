@@ -88,16 +88,18 @@ export function SearchFilterBar({
   const showFilterSearch = hasFilters && (filterOptions?.length ?? 0) > 6;
 
   // Show view mode toggle and expand/collapse when provided
-  const showViewToggle = viewMode !== undefined && onViewModeChange !== undefined;
+  const showViewToggle =
+    viewMode !== undefined && onViewModeChange !== undefined;
   const showExpandCollapse =
-    viewMode === "grouped" && (onExpandAll !== undefined || onCollapseAll !== undefined);
+    viewMode === "grouped" &&
+    (onExpandAll !== undefined || onCollapseAll !== undefined);
 
   return (
     <div className="mb-6 space-y-3">
       <div className="flex gap-3">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input
             aria-label="Search deliverables"
             placeholder={searchPlaceholder}
@@ -109,7 +111,7 @@ export function SearchFilterBar({
             <button
               onClick={() => onSearchChange("")}
               aria-label="Clear search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
@@ -129,13 +131,16 @@ export function SearchFilterBar({
               </option>
             ))}
           </select>
-          <ArrowUpDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <ArrowUpDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         {/* Filter toggle */}
         {hasFilters && onFilterChange && (
           <button
-            onClick={() => { setShowFilters(!showFilters); if (showFilters) setFilterSearch(""); }}
+            onClick={() => {
+              setShowFilters(!showFilters);
+              if (showFilters) setFilterSearch("");
+            }}
             className={`flex items-center gap-2 rounded-md border px-4 py-2 transition-colors ${
               showFilters || hasActiveFilter
                 ? "border-[#D4AF37]/50 bg-[#D4AF37]/10 text-[#D4AF37]"
@@ -223,7 +228,13 @@ export function SearchFilterBar({
       {showFilters && hasFilters && onFilterChange && (
         <div className="flex items-start gap-3">
           {/* Scrollable tag area */}
-          <div className="flex-1 overflow-x-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(212, 175, 55, 0.3) transparent" }}>
+          <div
+            className="flex-1 overflow-x-auto"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(212, 175, 55, 0.3) transparent",
+            }}
+          >
             <div className="flex gap-2 pb-1">
               <button
                 onClick={() => onFilterChange("all")}
@@ -249,7 +260,9 @@ export function SearchFilterBar({
                 </button>
               ))}
               {filterSearch && filteredFilterOptions?.length === 0 && (
-                <span className="shrink-0 px-3 py-1.5 text-sm text-gray-600">No matches</span>
+                <span className="shrink-0 px-3 py-1.5 text-sm text-gray-600">
+                  No matches
+                </span>
               )}
             </div>
           </div>
@@ -257,20 +270,20 @@ export function SearchFilterBar({
           {/* Filter search — visible when many options */}
           {showFilterSearch && (
             <div className="relative shrink-0">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+              <Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
               <input
                 type="text"
                 aria-label="Filter deliverables"
                 value={filterSearch}
                 onChange={(e) => setFilterSearch(e.target.value)}
                 placeholder="Find..."
-                className="w-32 rounded-full border bg-white/5 py-1.5 pl-8 pr-3 text-sm text-white placeholder-gray-600 outline-none transition-colors focus:border-[#D4AF37]/50 focus:bg-white/10"
+                className="w-32 rounded-full border bg-white/5 py-1.5 pr-3 pl-8 text-sm text-white placeholder-gray-600 transition-colors outline-none focus:border-[#D4AF37]/50 focus:bg-white/10"
                 style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
               />
               {filterSearch && (
                 <button
                   onClick={() => setFilterSearch("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white"
+                  className="absolute top-1/2 right-2.5 -translate-y-1/2 text-gray-600 hover:text-white"
                 >
                   <X className="h-3 w-3" />
                 </button>

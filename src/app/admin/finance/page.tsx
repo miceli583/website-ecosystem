@@ -114,7 +114,9 @@ export default function FinancePage() {
         >
           <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
           <div>
-            <p className="font-medium text-white">Failed to load finance data</p>
+            <p className="font-medium text-white">
+              Failed to load finance data
+            </p>
             <p className="mt-1 text-sm text-gray-400">{error.message}</p>
           </div>
         </div>
@@ -143,7 +145,8 @@ export default function FinancePage() {
                 ${formatCents(stripe?.mrr ?? 0)}
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                {stripe?.activeSubscriptions ?? 0} active subscription{(stripe?.activeSubscriptions ?? 0) !== 1 ? "s" : ""}
+                {stripe?.activeSubscriptions ?? 0} active subscription
+                {(stripe?.activeSubscriptions ?? 0) !== 1 ? "s" : ""}
               </p>
             </div>
 
@@ -217,7 +220,9 @@ export default function FinancePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-white">Revenue</h3>
-                <p className="text-sm text-gray-400">Stripe payments & subscriptions</p>
+                <p className="text-sm text-gray-400">
+                  Stripe payments & subscriptions
+                </p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
@@ -239,7 +244,9 @@ export default function FinancePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-white">Expenses</h3>
-                <p className="text-sm text-gray-400">Bank transactions & costs</p>
+                <p className="text-sm text-gray-400">
+                  Bank transactions & costs
+                </p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
@@ -261,7 +268,9 @@ export default function FinancePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-white">Yearly Review</h3>
-                <p className="text-sm text-gray-400">P&L, breakdown & YoY comparison</p>
+                <p className="text-sm text-gray-400">
+                  P&L, breakdown & YoY comparison
+                </p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
@@ -283,7 +292,9 @@ export default function FinancePage() {
               </div>
               <div>
                 <h3 className="font-semibold text-white">Tax & Deductions</h3>
-                <p className="text-sm text-gray-400">IRS categories & CSV export</p>
+                <p className="text-sm text-gray-400">
+                  IRS categories & CSV export
+                </p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
@@ -293,49 +304,81 @@ export default function FinancePage() {
 
       {/* Infrastructure Costs */}
       <div>
-        <h2 className="mb-3 font-semibold text-white">Estimated Infrastructure Costs</h2>
+        <h2 className="mb-3 font-semibold text-white">
+          Estimated Infrastructure Costs
+        </h2>
         <div
           className="rounded-lg border bg-white/5"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
         >
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-xs uppercase tracking-wider text-gray-500" style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}>
+              <tr
+                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
+                style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+              >
                 <th className="px-4 py-3">Service</th>
                 <th className="px-4 py-3 text-right">Plan</th>
                 <th className="px-4 py-3 text-right">Est. Monthly</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <tr
+                className="border-b"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 <td className="px-4 py-2 text-gray-300">Vercel</td>
                 <td className="px-4 py-2 text-right text-gray-400">Pro</td>
                 <td className="px-4 py-2 text-right text-gray-300">$20</td>
               </tr>
-              <tr className="border-b" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <tr
+                className="border-b"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 <td className="px-4 py-2 text-gray-300">Supabase</td>
-                <td className="px-4 py-2 text-right text-gray-400">Free / Pro</td>
+                <td className="px-4 py-2 text-right text-gray-400">
+                  Free / Pro
+                </td>
                 <td className="px-4 py-2 text-right text-gray-300">$0–25</td>
               </tr>
-              <tr className="border-b" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <tr
+                className="border-b"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 <td className="px-4 py-2 text-gray-300">Resend</td>
-                <td className="px-4 py-2 text-right text-gray-400">Free tier</td>
+                <td className="px-4 py-2 text-right text-gray-400">
+                  Free tier
+                </td>
                 <td className="px-4 py-2 text-right text-gray-300">$0</td>
               </tr>
-              <tr className="border-b" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <tr
+                className="border-b"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 <td className="px-4 py-2 text-gray-300">Stripe</td>
-                <td className="px-4 py-2 text-right text-gray-400">Per transaction</td>
+                <td className="px-4 py-2 text-right text-gray-400">
+                  Per transaction
+                </td>
                 <td className="px-4 py-2 text-right text-gray-300">~2.9%</td>
               </tr>
-              <tr className="border-b" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <tr
+                className="border-b"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 <td className="px-4 py-2 text-gray-300">Make.com</td>
-                <td className="px-4 py-2 text-right text-gray-400">Free tier</td>
+                <td className="px-4 py-2 text-right text-gray-400">
+                  Free tier
+                </td>
                 <td className="px-4 py-2 text-right text-gray-300">$0</td>
               </tr>
               <tr>
-                <td className="px-4 py-2 font-medium text-white">Estimated Total</td>
+                <td className="px-4 py-2 font-medium text-white">
+                  Estimated Total
+                </td>
                 <td className="px-4 py-2"></td>
-                <td className="px-4 py-2 text-right font-medium text-white">$20–45</td>
+                <td className="px-4 py-2 text-right font-medium text-white">
+                  $20–45
+                </td>
               </tr>
             </tbody>
           </table>

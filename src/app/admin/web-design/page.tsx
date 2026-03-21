@@ -219,7 +219,7 @@ export default function WebDesignPage() {
                 aria-label={`Open ${item.title}`}
               />
 
-              <div className="relative z-10 mb-3 flex items-center gap-3 pointer-events-none">
+              <div className="pointer-events-none relative z-10 mb-3 flex items-center gap-3">
                 <div
                   className="flex h-9 w-9 items-center justify-center rounded-lg"
                   style={{
@@ -227,10 +227,7 @@ export default function WebDesignPage() {
                       "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                   }}
                 >
-                  <Icon
-                    className="h-4 w-4"
-                    style={{ color: "#D4AF37" }}
-                  />
+                  <Icon className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 </div>
                 <span
                   className="rounded-md px-2 py-0.5 text-xs font-medium"
@@ -249,10 +246,10 @@ export default function WebDesignPage() {
                 </span>
               </div>
 
-              <h3 className="relative z-10 mb-1 text-sm font-semibold text-white pointer-events-none">
+              <h3 className="pointer-events-none relative z-10 mb-1 text-sm font-semibold text-white">
                 {item.title}
               </h3>
-              <p className="relative z-10 mb-4 flex-1 text-xs leading-relaxed text-white/40 pointer-events-none">
+              <p className="pointer-events-none relative z-10 mb-4 flex-1 text-xs leading-relaxed text-white/40">
                 {item.description}
               </p>
 
@@ -274,7 +271,7 @@ export default function WebDesignPage() {
                 </div>
               )}
 
-              <div className="relative z-10 flex items-center gap-1.5 text-xs font-medium pointer-events-none">
+              <div className="pointer-events-none relative z-10 flex items-center gap-1.5 text-xs font-medium">
                 <ExternalLink
                   className="h-3 w-3"
                   style={{ color: "#D4AF37" }}

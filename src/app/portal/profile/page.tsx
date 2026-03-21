@@ -40,7 +40,11 @@ const ROLE_LABELS: Record<string, string> = {
 export default function AdminProfilePage() {
   const router = useRouter();
   const utils = api.useUtils();
-  const { data: profile, isLoading, error } = api.portal.getMyProfile.useQuery(
+  const {
+    data: profile,
+    isLoading,
+    error,
+  } = api.portal.getMyProfile.useQuery(
     undefined,
     { staleTime: 0 } // Always fetch fresh profile data
   );
@@ -119,7 +123,9 @@ export default function AdminProfilePage() {
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
 
       if (error) {
         setPasswordError(error.message);
@@ -198,7 +204,10 @@ export default function AdminProfilePage() {
     }
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -289,13 +298,15 @@ export default function AdminProfilePage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">Account</h2>
-                  <p className="text-sm text-gray-400">Your admin account details</p>
+                  <p className="text-sm text-gray-400">
+                    Your admin account details
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                  <label className="text-xs tracking-wide text-gray-500 uppercase">
                     Name
                   </label>
                   {isEditingName ? (
@@ -341,7 +352,7 @@ export default function AdminProfilePage() {
                   )}
                 </div>
                 <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                  <label className="text-xs tracking-wide text-gray-500 uppercase">
                     Email
                   </label>
                   <p className="flex items-center gap-2 text-white">
@@ -350,7 +361,7 @@ export default function AdminProfilePage() {
                   </p>
                 </div>
                 <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                  <label className="text-xs tracking-wide text-gray-500 uppercase">
                     Phone (optional)
                   </label>
                   {isEditingPhone ? (
@@ -424,7 +435,7 @@ export default function AdminProfilePage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                  <label className="text-xs tracking-wide text-gray-500 uppercase">
                     Portal Role
                   </label>
                   <p className="text-white capitalize">{profile.role}</p>
@@ -432,11 +443,14 @@ export default function AdminProfilePage() {
 
                 {profile.isCompanyMember && (
                   <div>
-                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                    <label className="text-xs tracking-wide text-gray-500 uppercase">
                       Organization Member
                     </label>
                     <div className="mt-1 flex items-center gap-2 text-sm text-gray-400">
-                      <Building2 className="h-4 w-4" style={{ color: "#D4AF37" }} />
+                      <Building2
+                        className="h-4 w-4"
+                        style={{ color: "#D4AF37" }}
+                      />
                       <span>Miracle Mind</span>
                     </div>
                   </div>
@@ -444,7 +458,7 @@ export default function AdminProfilePage() {
 
                 {profile.companyRoles && profile.companyRoles.length > 0 ? (
                   <div>
-                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                    <label className="text-xs tracking-wide text-gray-500 uppercase">
                       Company Roles
                     </label>
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -465,7 +479,7 @@ export default function AdminProfilePage() {
                   </div>
                 ) : (
                   <div>
-                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                    <label className="text-xs tracking-wide text-gray-500 uppercase">
                       Permissions
                     </label>
                     <ul className="mt-1 space-y-1 text-sm text-gray-400">
@@ -495,7 +509,9 @@ export default function AdminProfilePage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">Security</h2>
-                  <p className="text-sm text-gray-400">Manage your account security</p>
+                  <p className="text-sm text-gray-400">
+                    Manage your account security
+                  </p>
                 </div>
               </div>
 
@@ -516,7 +532,7 @@ export default function AdminProfilePage() {
               ) : (
                 <div className="max-w-md space-y-4">
                   <div>
-                    <label className="mb-1 block text-xs uppercase tracking-wide text-gray-500">
+                    <label className="mb-1 block text-xs tracking-wide text-gray-500 uppercase">
                       New Password
                     </label>
                     <div className="relative">
@@ -530,7 +546,7 @@ export default function AdminProfilePage() {
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showNewPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -541,7 +557,7 @@ export default function AdminProfilePage() {
                     </div>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs uppercase tracking-wide text-gray-500">
+                    <label className="mb-1 block text-xs tracking-wide text-gray-500 uppercase">
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -554,8 +570,10 @@ export default function AdminProfilePage() {
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4" />

@@ -46,13 +46,17 @@ export function NoteEditor({
   }, [handleSave, onCancel]);
 
   const isEditing = Boolean(initialTitle);
-  const isMac = typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent);
+  const isMac =
+    typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent);
   const modKey = isMac ? "\u2318" : "Ctrl+";
 
   return (
     <div
       className={`rounded-lg border transition-all ${compact ? "" : "shadow-lg shadow-black/20"}`}
-      style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(10, 10, 10, 0.95)" }}
+      style={{
+        borderColor: "rgba(212, 175, 55, 0.2)",
+        backgroundColor: "rgba(10, 10, 10, 0.95)",
+      }}
     >
       {/* Title input */}
       <input
@@ -73,7 +77,10 @@ export function NoteEditor({
       />
 
       {/* Actions */}
-      <div className="flex items-center justify-between border-t px-4 py-2.5" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
+      <div
+        className="flex items-center justify-between border-t px-4 py-2.5"
+        style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+      >
         <span className="text-xs text-gray-600">
           {modKey}Enter to save &middot; Esc to cancel
         </span>
@@ -93,9 +100,7 @@ export function NoteEditor({
             className="flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium text-black transition-colors disabled:opacity-50"
             style={{ backgroundColor: "#D4AF37" }}
           >
-            {saving ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : null}
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             {isEditing ? "Update" : "Save"}
           </button>
         </div>

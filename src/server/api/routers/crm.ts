@@ -10,7 +10,17 @@ import {
   clients,
   portalUsers,
 } from "~/server/db/schema";
-import { and, count, desc, eq, sql, ilike, or, gte, inArray } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  sql,
+  ilike,
+  or,
+  gte,
+  inArray,
+} from "drizzle-orm";
 
 /**
  * CRM Router
@@ -104,7 +114,12 @@ export const crmRouter = createTRPCRouter({
 
       if (contactIds.length === 0) {
         return {
-          contacts: [] as Array<typeof contactRows[number] & { submissionSources: string[]; portalClient: { id: number; slug: string; name: string } | null }>,
+          contacts: [] as Array<
+            (typeof contactRows)[number] & {
+              submissionSources: string[];
+              portalClient: { id: number; slug: string; name: string } | null;
+            }
+          >,
           total: totalResult[0]?.count ?? 0,
           hasMore: false,
         };
@@ -115,48 +130,72 @@ export const crmRouter = createTRPCRouter({
         .map((c: { accountManagerId: string | null }) => c.accountManagerId)
         .filter((id: string | null): id is string => id !== null);
 
-      const [mmIds, personalIds, banyanIds, linkedClients, accountManagers] = await Promise.all([
-        db
-          .select({ crmId: contactSubmissions.crmId })
-          .from(contactSubmissions)
-          .where(inArray(contactSubmissions.crmId, contactIds))
-          .groupBy(contactSubmissions.crmId),
-        db
-          .select({ crmId: personalContactSubmissions.crmId })
-          .from(personalContactSubmissions)
-          .where(inArray(personalContactSubmissions.crmId, contactIds))
-          .groupBy(personalContactSubmissions.crmId),
-        db
-          .select({ crmId: banyanEarlyAccess.crmId })
-          .from(banyanEarlyAccess)
-          .where(inArray(banyanEarlyAccess.crmId, contactIds))
-          .groupBy(banyanEarlyAccess.crmId),
-        db
-          .select({
-            crmId: clients.crmId,
-            id: clients.id,
-            slug: clients.slug,
-            name: clients.name,
-            company: clients.company,
-          })
-          .from(clients)
-          .where(inArray(clients.crmId, contactIds)),
-        amIds.length > 0
-          ? db
-              .select({ id: portalUsers.id, name: portalUsers.name })
-              .from(portalUsers)
-              .where(inArray(portalUsers.id, amIds))
-          : Promise.resolve([]),
-      ]);
+      const [mmIds, personalIds, banyanIds, linkedClients, accountManagers] =
+        await Promise.all([
+          db
+            .select({ crmId: contactSubmissions.crmId })
+            .from(contactSubmissions)
+            .where(inArray(contactSubmissions.crmId, contactIds))
+            .groupBy(contactSubmissions.crmId),
+          db
+            .select({ crmId: personalContactSubmissions.crmId })
+            .from(personalContactSubmissions)
+            .where(inArray(personalContactSubmissions.crmId, contactIds))
+            .groupBy(personalContactSubmissions.crmId),
+          db
+            .select({ crmId: banyanEarlyAccess.crmId })
+            .from(banyanEarlyAccess)
+            .where(inArray(banyanEarlyAccess.crmId, contactIds))
+            .groupBy(banyanEarlyAccess.crmId),
+          db
+            .select({
+              crmId: clients.crmId,
+              id: clients.id,
+              slug: clients.slug,
+              name: clients.name,
+              company: clients.company,
+            })
+            .from(clients)
+            .where(inArray(clients.crmId, contactIds)),
+          amIds.length > 0
+            ? db
+                .select({ id: portalUsers.id, name: portalUsers.name })
+                .from(portalUsers)
+                .where(inArray(portalUsers.id, amIds))
+            : Promise.resolve([]),
+        ]);
 
-      const mmSet = new Set(mmIds.map((r: { crmId: string | null }) => r.crmId));
-      const personalSet = new Set(personalIds.map((r: { crmId: string | null }) => r.crmId));
-      const banyanSet = new Set(banyanIds.map((r: { crmId: string | null }) => r.crmId));
-      const clientMap = new Map<string | null, { id: number; slug: string; name: string; company: string | null }>(
-        linkedClients.map((c: { crmId: string | null; id: number; slug: string; name: string; company: string | null }) => [c.crmId, { id: c.id, slug: c.slug, name: c.name, company: c.company }])
+      const mmSet = new Set(
+        mmIds.map((r: { crmId: string | null }) => r.crmId)
+      );
+      const personalSet = new Set(
+        personalIds.map((r: { crmId: string | null }) => r.crmId)
+      );
+      const banyanSet = new Set(
+        banyanIds.map((r: { crmId: string | null }) => r.crmId)
+      );
+      const clientMap = new Map<
+        string | null,
+        { id: number; slug: string; name: string; company: string | null }
+      >(
+        linkedClients.map(
+          (c: {
+            crmId: string | null;
+            id: number;
+            slug: string;
+            name: string;
+            company: string | null;
+          }) => [
+            c.crmId,
+            { id: c.id, slug: c.slug, name: c.name, company: c.company },
+          ]
+        )
       );
       const amMap = new Map<string, string>(
-        accountManagers.map((am: { id: string; name: string }) => [am.id, am.name])
+        accountManagers.map((am: { id: string; name: string }) => [
+          am.id,
+          am.name,
+        ])
       );
 
       const CRM_SOURCE_LABELS: Record<string, string> = {
@@ -164,33 +203,40 @@ export const crmRouter = createTRPCRouter({
         portal: "Portal",
       };
 
-      const contacts = contactRows.map((contact: typeof contactRows[number]) => {
-        const submissionSources: string[] = [];
-        if (mmSet.has(contact.id)) submissionSources.push("Contact Form · miraclemind.dev/contact");
-        if (personalSet.has(contact.id)) submissionSources.push("Contact Form · matthewmiceli.com");
-        if (banyanSet.has(contact.id)) submissionSources.push("Early Access Form · miraclemind.dev/banyan");
+      const contacts = contactRows.map(
+        (contact: (typeof contactRows)[number]) => {
+          const submissionSources: string[] = [];
+          if (mmSet.has(contact.id))
+            submissionSources.push("Contact Form · miraclemind.dev/contact");
+          if (personalSet.has(contact.id))
+            submissionSources.push("Contact Form · matthewmiceli.com");
+          if (banyanSet.has(contact.id))
+            submissionSources.push(
+              "Early Access Form · miraclemind.dev/banyan"
+            );
 
-        // Include the CRM source if it's not already represented by a form submission
-        const sourceLabel = CRM_SOURCE_LABELS[contact.source];
-        if (sourceLabel && !submissionSources.includes(sourceLabel)) {
-          submissionSources.push(sourceLabel);
+          // Include the CRM source if it's not already represented by a form submission
+          const sourceLabel = CRM_SOURCE_LABELS[contact.source];
+          if (sourceLabel && !submissionSources.includes(sourceLabel)) {
+            submissionSources.push(sourceLabel);
+          }
+
+          const portalClient = clientMap.get(contact.id) ?? null;
+
+          const accountManagerName = contact.accountManagerId
+            ? (amMap.get(contact.accountManagerId) ?? null)
+            : null;
+
+          return {
+            ...contact,
+            name: portalClient?.name ?? contact.name,
+            company: portalClient?.company ?? contact.company,
+            submissionSources,
+            portalClient,
+            accountManagerName,
+          };
         }
-
-        const portalClient = clientMap.get(contact.id) ?? null;
-
-        const accountManagerName = contact.accountManagerId
-          ? amMap.get(contact.accountManagerId) ?? null
-          : null;
-
-        return {
-          ...contact,
-          name: portalClient?.name ?? contact.name,
-          company: portalClient?.company ?? contact.company,
-          submissionSources,
-          portalClient,
-          accountManagerName,
-        };
-      });
+      );
 
       return {
         contacts,
@@ -213,48 +259,58 @@ export const crmRouter = createTRPCRouter({
 
       if (!contact[0]) return null;
 
-      const [mmSubmissions, personalSubmissions, banyanSignups, linkedClient, referrer, accountManager] =
-        await Promise.all([
-          db
-            .select()
-            .from(contactSubmissions)
-            .where(eq(contactSubmissions.crmId, input.id))
-            .orderBy(desc(contactSubmissions.createdAt)),
-          db
-            .select()
-            .from(personalContactSubmissions)
-            .where(eq(personalContactSubmissions.crmId, input.id))
-            .orderBy(desc(personalContactSubmissions.createdAt)),
-          db
-            .select()
-            .from(banyanEarlyAccess)
-            .where(eq(banyanEarlyAccess.crmId, input.id))
-            .orderBy(desc(banyanEarlyAccess.createdAt)),
-          db
-            .select()
-            .from(clients)
-            .where(eq(clients.crmId, input.id))
-            .limit(1),
-          contact[0].referredBy
-            ? db
-                .select({ id: masterCrm.id, name: masterCrm.name })
-                .from(masterCrm)
-                .where(eq(masterCrm.id, contact[0].referredBy))
-                .limit(1)
-            : Promise.resolve([]),
-          contact[0].accountManagerId
-            ? db
-                .select({ id: portalUsers.id, name: portalUsers.name, email: portalUsers.email, phone: portalUsers.phone })
-                .from(portalUsers)
-                .where(eq(portalUsers.id, contact[0].accountManagerId))
-                .limit(1)
-            : Promise.resolve([]),
-        ]);
+      const [
+        mmSubmissions,
+        personalSubmissions,
+        banyanSignups,
+        linkedClient,
+        referrer,
+        accountManager,
+      ] = await Promise.all([
+        db
+          .select()
+          .from(contactSubmissions)
+          .where(eq(contactSubmissions.crmId, input.id))
+          .orderBy(desc(contactSubmissions.createdAt)),
+        db
+          .select()
+          .from(personalContactSubmissions)
+          .where(eq(personalContactSubmissions.crmId, input.id))
+          .orderBy(desc(personalContactSubmissions.createdAt)),
+        db
+          .select()
+          .from(banyanEarlyAccess)
+          .where(eq(banyanEarlyAccess.crmId, input.id))
+          .orderBy(desc(banyanEarlyAccess.createdAt)),
+        db.select().from(clients).where(eq(clients.crmId, input.id)).limit(1),
+        contact[0].referredBy
+          ? db
+              .select({ id: masterCrm.id, name: masterCrm.name })
+              .from(masterCrm)
+              .where(eq(masterCrm.id, contact[0].referredBy))
+              .limit(1)
+          : Promise.resolve([]),
+        contact[0].accountManagerId
+          ? db
+              .select({
+                id: portalUsers.id,
+                name: portalUsers.name,
+                email: portalUsers.email,
+                phone: portalUsers.phone,
+              })
+              .from(portalUsers)
+              .where(eq(portalUsers.id, contact[0].accountManagerId))
+              .limit(1)
+          : Promise.resolve([]),
+      ]);
 
       const portalClient = linkedClient[0] ?? null;
 
       // Fetch Stripe lifetime spend if client has a Stripe customer ID
-      let stripeLifetimeSpend: { totalCents: number; chargeCount: number } | null = null;
+      let stripeLifetimeSpend: {
+        totalCents: number;
+        chargeCount: number;
+      } | null = null;
       if (portalClient?.stripeCustomerId && stripeLive) {
         try {
           let totalCents = 0;
@@ -320,8 +376,10 @@ export const crmRouter = createTRPCRouter({
       sql`SELECT DISTINCT company FROM clients WHERE company IS NOT NULL AND company != '' ORDER BY company`
     );
     const all = new Set<string>();
-    for (const row of crmResult as unknown as { company: string }[]) all.add(row.company);
-    for (const row of clientResult as unknown as { company: string }[]) all.add(row.company);
+    for (const row of crmResult as unknown as { company: string }[])
+      all.add(row.company);
+    for (const row of clientResult as unknown as { company: string }[])
+      all.add(row.company);
     return [...all].sort();
   }),
 
@@ -351,7 +409,8 @@ export const crmRouter = createTRPCRouter({
         .insert(masterCrm)
         .values({
           ...input,
-          createdBy: (ctx as unknown as { profile: { name: string } }).profile.name,
+          createdBy: (ctx as unknown as { profile: { name: string } }).profile
+            .name,
         })
         .returning();
       return created;
@@ -389,7 +448,12 @@ export const crmRouter = createTRPCRouter({
         .returning();
 
       // Sync contact-info fields to linked client (CRM is source of truth)
-      const syncFields = ["name", "email", "company", "accountManagerId"] as const;
+      const syncFields = [
+        "name",
+        "email",
+        "company",
+        "accountManagerId",
+      ] as const;
       const hasSyncField = syncFields.some((f) => f in data);
       if (hasSyncField) {
         const linkedClient = await db
@@ -399,7 +463,9 @@ export const crmRouter = createTRPCRouter({
           .limit(1);
 
         if (linkedClient[0]) {
-          const clientUpdate: Record<string, unknown> = { updatedAt: new Date() };
+          const clientUpdate: Record<string, unknown> = {
+            updatedAt: new Date(),
+          };
           for (const f of syncFields) {
             if (f in data) clientUpdate[f] = data[f as keyof typeof data];
           }
@@ -463,7 +529,11 @@ export const crmRouter = createTRPCRouter({
    */
   getContactOptions: adminProcedure.query(async () => {
     return db
-      .select({ id: masterCrm.id, name: masterCrm.name, email: masterCrm.email })
+      .select({
+        id: masterCrm.id,
+        name: masterCrm.name,
+        email: masterCrm.email,
+      })
       .from(masterCrm)
       .orderBy(masterCrm.name);
   }),
@@ -707,7 +777,8 @@ export const crmRouter = createTRPCRouter({
           email: contact[0].email,
           slug: input.slug,
           company: input.company ?? contact[0].company ?? undefined,
-          accountManagerId: input.accountManagerId ?? contact[0].accountManagerId ?? undefined,
+          accountManagerId:
+            input.accountManagerId ?? contact[0].accountManagerId ?? undefined,
         })
         .returning();
 
@@ -745,9 +816,7 @@ export const crmRouter = createTRPCRouter({
             .set({ status: "inactive", updatedAt: new Date() })
             .where(eq(clients.id, linkedClient[0].id));
         } else {
-          await db
-            .delete(clients)
-            .where(eq(clients.id, linkedClient[0].id));
+          await db.delete(clients).where(eq(clients.id, linkedClient[0].id));
         }
       }
 

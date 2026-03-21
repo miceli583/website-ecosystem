@@ -14,7 +14,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { quotePosts, coreValues, quotes, authors, pendingPosts } from "~/server/db/schema";
+import {
+  quotePosts,
+  coreValues,
+  quotes,
+  authors,
+  pendingPosts,
+} from "~/server/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "~/env";
@@ -24,7 +30,8 @@ import { generateCarousel } from "~/lib/carousel-generator-server";
 const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 const STORAGE_BUCKET = "daily-anchors";
-const ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/25829205/ua7aaz9/";
+const ZAPIER_WEBHOOK_URL =
+  "https://hooks.zapier.com/hooks/catch/25829205/ua7aaz9/";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -41,10 +48,13 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!queue[0]) {
-      return NextResponse.json({
-        success: false,
-        error: "Queue is empty",
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Queue is empty",
+        },
+        { status: 400 }
+      );
     }
 
     const firstItem = queue[0];
@@ -69,23 +79,29 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!coreValue || !quoteData) {
-      return NextResponse.json({
-        success: false,
-        error: "Core value or quote not found",
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Core value or quote not found",
+        },
+        { status: 404 }
+      );
     }
 
     // 3. Generate images using node-canvas
-    const images = await generateCarousel({
-      quote: {
-        text: quoteData.text,
-        author: quoteData.authorName ?? "Unknown",
+    const images = await generateCarousel(
+      {
+        quote: {
+          text: quoteData.text,
+          author: quoteData.authorName ?? "Unknown",
+        },
+        value: {
+          name: coreValue.value,
+          description: coreValue.description,
+        },
       },
-      value: {
-        name: coreValue.value,
-        description: coreValue.description,
-      },
-    }, DEFAULT_THEME);
+      DEFAULT_THEME
+    );
 
     // 4. Upload images to Supabase Storage
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -118,9 +134,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Get public URLs
-    const { data: { publicUrl: url1 } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image1.jpg");
-    const { data: { publicUrl: url2 } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image2.jpg");
-    const { data: { publicUrl: url3 } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image3.jpg");
+    const {
+      data: { publicUrl: url1 },
+    } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image1.jpg");
+    const {
+      data: { publicUrl: url2 },
+    } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image2.jpg");
+    const {
+      data: { publicUrl: url3 },
+    } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl("image3.jpg");
 
     const timestamp = Date.now();
     const cacheBust = `?v=${timestamp}&nocache=true`;
@@ -192,12 +214,18 @@ export async function POST(request: NextRequest) {
       const allCoreValues = await db.select().from(coreValues);
       const allQuotes = await db.select().from(quotes);
 
-      const existingQuoteIds = new Set(remaining.map((p: { quoteId: string }) => p.quoteId));
-      const availableQuotes = allQuotes.filter((q: { id: string }) => !existingQuoteIds.has(q.id));
+      const existingQuoteIds = new Set(
+        remaining.map((p: { quoteId: string }) => p.quoteId)
+      );
+      const availableQuotes = allQuotes.filter(
+        (q: { id: string }) => !existingQuoteIds.has(q.id)
+      );
 
       if (availableQuotes.length > 0 && allCoreValues.length > 0) {
-        const randomCoreValue = allCoreValues[Math.floor(Math.random() * allCoreValues.length)];
-        const randomQuote = availableQuotes[Math.floor(Math.random() * availableQuotes.length)];
+        const randomCoreValue =
+          allCoreValues[Math.floor(Math.random() * allCoreValues.length)];
+        const randomQuote =
+          availableQuotes[Math.floor(Math.random() * availableQuotes.length)];
 
         const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
         const queuePosition = String(remaining.length + 1).padStart(2, "0");
@@ -229,7 +257,6 @@ export async function POST(request: NextRequest) {
         queueRotated: true,
       },
     });
-
   } catch (error) {
     console.error("❌ Auto Rotate and Post Error:", error);
     return NextResponse.json(
@@ -266,7 +293,8 @@ ${description}
 export async function GET() {
   return NextResponse.json({
     message: "Auto Rotate and Post Endpoint",
-    usage: "POST to this endpoint to automatically rotate queue and create pending post",
+    usage:
+      "POST to this endpoint to automatically rotate queue and create pending post",
     note: "This will generate images, upload to Supabase, and schedule for posting in 2 minutes",
   });
 }

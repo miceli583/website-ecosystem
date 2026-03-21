@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Play, Monitor, Layers, Clock, Maximize2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Play,
+  Monitor,
+  Layers,
+  Clock,
+  Maximize2,
+} from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 
 interface SlidesPresentationDemoProps {
@@ -13,7 +20,8 @@ const FEATURES = [
   {
     icon: Monitor,
     title: "Web-Based Viewer",
-    description: "View slides directly in the browser with no downloads required.",
+    description:
+      "View slides directly in the browser with no downloads required.",
   },
   {
     icon: Maximize2,
@@ -32,7 +40,9 @@ const FEATURES = [
   },
 ];
 
-export function SlidesPresentationDemo({ backHref }: SlidesPresentationDemoProps) {
+export function SlidesPresentationDemo({
+  backHref,
+}: SlidesPresentationDemoProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -125,10 +135,7 @@ export function SlidesPresentationDemo({ backHref }: SlidesPresentationDemoProps
                 background: "rgba(255, 255, 255, 0.05)",
               }}
             >
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "#D4AF37" }}
-              >
+              <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
                 {stat.value}
               </p>
               <p className="mt-1 text-xs text-gray-500">{stat.label}</p>
@@ -156,10 +163,7 @@ export function SlidesPresentationDemo({ backHref }: SlidesPresentationDemoProps
                         "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                     }}
                   >
-                    <Icon
-                      className="h-5 w-5"
-                      style={{ color: "#D4AF37" }}
-                    />
+                    <Icon className="h-5 w-5" style={{ color: "#D4AF37" }} />
                   </div>
                   <div>
                     <h3 className="mb-1 font-semibold text-white">

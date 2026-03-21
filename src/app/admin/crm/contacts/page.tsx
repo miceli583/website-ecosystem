@@ -48,7 +48,8 @@ function TagPicker({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -56,8 +57,7 @@ function TagPicker({
 
   const filtered = suggestions.filter(
     (t) =>
-      !selected.includes(t) &&
-      t.toLowerCase().includes(input.toLowerCase())
+      !selected.includes(t) && t.toLowerCase().includes(input.toLowerCase())
   );
 
   const addTag = (tag: string) => {
@@ -104,7 +104,9 @@ function TagPicker({
         ))}
         <input
           className="min-w-[80px] flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none"
-          placeholder={selected.length === 0 ? "Search or add tags..." : "Add..."}
+          placeholder={
+            selected.length === 0 ? "Search or add tags..." : "Add..."
+          }
           value={input}
           onChange={(e) => {
             setInput(e.target.value);
@@ -164,7 +166,10 @@ function ReferralPicker({
   contactId?: string;
   referredBy: string | null;
   referredByExternal: string | null;
-  onChange: (referredBy: string | null, referredByExternal: string | null) => void;
+  onChange: (
+    referredBy: string | null,
+    referredByExternal: string | null
+  ) => void;
 }) {
   const { data: contacts = [] } = api.crm.getContactOptions.useQuery();
   const [search, setSearch] = useState(referredByExternal ?? "");
@@ -178,7 +183,8 @@ function ReferralPicker({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -221,7 +227,7 @@ function ReferralPicker({
       {!referredBy && !referredByExternal && (
         <>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+            <Search className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
             <input
               className={inputClass + " pl-9"}
               style={borderStyle}
@@ -246,21 +252,25 @@ function ReferralPicker({
               className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
-              {filtered.map((c: { id: string; name: string; email: string }) => (
-                <button
-                  key={c.id}
-                  onClick={() => {
-                    onChange(c.id, null);
-                    setSearch("");
-                    setOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
-                >
-                  <UserPlus className="h-3 w-3 text-gray-500" />
-                  <span>{c.name}</span>
-                  <span className="ml-auto text-xs text-gray-600">{c.email}</span>
-                </button>
-              ))}
+              {filtered.map(
+                (c: { id: string; name: string; email: string }) => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      onChange(c.id, null);
+                      setSearch("");
+                      setOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+                  >
+                    <UserPlus className="h-3 w-3 text-gray-500" />
+                    <span>{c.name}</span>
+                    <span className="ml-auto text-xs text-gray-600">
+                      {c.email}
+                    </span>
+                  </button>
+                )
+              )}
               {search.trim() && (
                 <button
                   onClick={() => {
@@ -311,24 +321,25 @@ function CompanyPicker({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const filtered = suggestions.filter(
-    (c) => c.toLowerCase().includes(value.toLowerCase()) && c !== value,
+    (c) => c.toLowerCase().includes(value.toLowerCase()) && c !== value
   );
 
-  const showCreate = value.trim() && !suggestions.some(
-    (c) => c.toLowerCase() === value.trim().toLowerCase(),
-  );
+  const showCreate =
+    value.trim() &&
+    !suggestions.some((c) => c.toLowerCase() === value.trim().toLowerCase());
 
   return (
     <div ref={ref} className="relative">
       <div className="relative">
-        <Building2 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+        <Building2 className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         <input
           className={inputClass + " pl-9"}
           style={borderStyle}
@@ -391,11 +402,14 @@ function AccountManagerPicker({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const selected = value ? team.find((m: { id: string }) => m.id === value) : null;
+  const selected = value
+    ? team.find((m: { id: string }) => m.id === value)
+    : null;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -451,11 +465,15 @@ function AccountManagerPicker({
             >
               <Users className="h-3 w-3 text-gray-500" />
               <span>{member.name}</span>
-              <span className="ml-auto text-xs text-gray-600">{member.email}</span>
+              <span className="ml-auto text-xs text-gray-600">
+                {member.email}
+              </span>
             </button>
           ))}
           {team.length === 0 && (
-            <p className="px-3 py-2 text-xs text-gray-500">No team members found</p>
+            <p className="px-3 py-2 text-xs text-gray-500">
+              No team members found
+            </p>
           )}
         </div>
       )}
@@ -628,7 +646,8 @@ function PromoteToClientModal({
         </div>
 
         <p className="mb-4 text-sm text-gray-400">
-          Promoting <span className="font-medium text-white">{contact.name}</span> to
+          Promoting{" "}
+          <span className="font-medium text-white">{contact.name}</span> to
           client. This will create a portal at{" "}
           <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
             /portal/{form.slug}
@@ -687,13 +706,13 @@ function PromoteToClientModal({
             <label className={labelClass}>Account Manager</label>
             <AccountManagerPicker
               value={form.accountManagerId}
-              onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+              onChange={(id) =>
+                setForm((f) => ({ ...f, accountManagerId: id }))
+              }
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-400">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-400">{error}</p>}
         </div>
 
         <div className="mt-6 flex items-center justify-end gap-3">
@@ -777,8 +796,8 @@ function DemotionDialog({
         </div>
 
         <p className="mb-2 text-sm text-gray-400">
-          <span className="font-medium text-white">{clientInfo.name}</span> has a
-          portal at{" "}
+          <span className="font-medium text-white">{clientInfo.name}</span> has
+          a portal at{" "}
           <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
             /portal/{clientInfo.slug}
           </span>
@@ -922,7 +941,12 @@ function EditContactModal({
       email: form.email,
       phone: form.phone || null,
       company: form.company || null,
-      status: form.status as "lead" | "prospect" | "client" | "inactive" | "churned",
+      status: form.status as
+        | "lead"
+        | "prospect"
+        | "client"
+        | "inactive"
+        | "churned",
       source: form.source,
       referredBy: form.referredBy,
       referredByExternal: form.referredByExternal,
@@ -963,7 +987,9 @@ function EditContactModal({
                 className={inputClass}
                 style={borderStyle}
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -973,7 +999,9 @@ function EditContactModal({
                 style={borderStyle}
                 type="email"
                 value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
               />
             </div>
           </div>
@@ -986,7 +1014,9 @@ function EditContactModal({
                 style={borderStyle}
                 placeholder="(555) 123-4567"
                 value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -1006,7 +1036,9 @@ function EditContactModal({
                   className={selectClass}
                   style={borderStyle}
                   value={form.status}
-                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, status: e.target.value }))
+                  }
                 >
                   {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
                     <option key={key} value={key}>
@@ -1014,7 +1046,7 @@ function EditContactModal({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
             <div>
@@ -1024,7 +1056,9 @@ function EditContactModal({
                   className={selectClass}
                   style={borderStyle}
                   value={form.source}
-                  onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, source: e.target.value }))
+                  }
                 >
                   {SOURCE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -1032,7 +1066,7 @@ function EditContactModal({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
@@ -1050,7 +1084,11 @@ function EditContactModal({
                 referredBy={form.referredBy}
                 referredByExternal={form.referredByExternal}
                 onChange={(rb, rbe) =>
-                  setForm((f) => ({ ...f, referredBy: rb, referredByExternal: rbe }))
+                  setForm((f) => ({
+                    ...f,
+                    referredBy: rb,
+                    referredByExternal: rbe,
+                  }))
                 }
               />
             </div>
@@ -1060,7 +1098,9 @@ function EditContactModal({
             <label className={labelClass}>Account Manager</label>
             <AccountManagerPicker
               value={form.accountManagerId}
-              onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+              onChange={(id) =>
+                setForm((f) => ({ ...f, accountManagerId: id }))
+              }
             />
           </div>
 
@@ -1071,7 +1111,9 @@ function EditContactModal({
               style={borderStyle}
               placeholder="Who created this contact"
               value={form.createdBy}
-              onChange={(e) => setForm((f) => ({ ...f, createdBy: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, createdBy: e.target.value }))
+              }
             />
           </div>
 
@@ -1091,7 +1133,9 @@ function EditContactModal({
               rows={3}
               placeholder="Internal notes about this contact..."
               value={form.notes}
-              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, notes: e.target.value }))
+              }
             />
           </div>
         </div>
@@ -1106,7 +1150,12 @@ function EditContactModal({
           </button>
           <button
             onClick={handleSave}
-            disabled={updateContact.isPending || checkClientStatus.isFetching || !form.name || !form.email}
+            disabled={
+              updateContact.isPending ||
+              checkClientStatus.isFetching ||
+              !form.name ||
+              !form.email
+            }
             className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
             style={{
               background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
@@ -1210,7 +1259,12 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
       email: form.email,
       phone: form.phone || null,
       company: form.company || null,
-      status: form.status as "lead" | "prospect" | "client" | "inactive" | "churned",
+      status: form.status as
+        | "lead"
+        | "prospect"
+        | "client"
+        | "inactive"
+        | "churned",
       source: form.source,
       referredBy: form.referredBy,
       referredByExternal: form.referredByExternal,
@@ -1258,7 +1312,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
               >
                 <Shield className="h-4 w-4" style={{ color: "#D4AF37" }} />
               </div>
-              <h2 className="text-lg font-semibold text-white">Create Client Portal</h2>
+              <h2 className="text-lg font-semibold text-white">
+                Create Client Portal
+              </h2>
             </div>
             <button
               onClick={onClose}
@@ -1286,16 +1342,16 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                 value={slug}
                 onChange={(e) =>
                   setSlug(
-                    e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9-]/g, "-")
+                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
                   )
                 }
                 placeholder="client-slug"
               />
             </div>
 
-            {promoteError && <p className="text-sm text-red-400">{promoteError}</p>}
+            {promoteError && (
+              <p className="text-sm text-red-400">{promoteError}</p>
+            )}
           </div>
 
           <div className="mt-6 flex items-center justify-end gap-3">
@@ -1353,7 +1409,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                 style={borderStyle}
                 placeholder="Full name"
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -1364,7 +1422,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                 type="email"
                 placeholder="email@example.com"
                 value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
               />
             </div>
           </div>
@@ -1377,7 +1437,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                 style={borderStyle}
                 placeholder="(555) 123-4567"
                 value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -1397,7 +1459,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                   className={selectClass}
                   style={borderStyle}
                   value={form.status}
-                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, status: e.target.value }))
+                  }
                 >
                   {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
                     <option key={key} value={key}>
@@ -1405,7 +1469,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
             <div>
@@ -1415,7 +1479,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                   className={selectClass}
                   style={borderStyle}
                   value={form.source}
-                  onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, source: e.target.value }))
+                  }
                 >
                   {SOURCE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -1423,7 +1489,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
@@ -1436,9 +1502,13 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                 backgroundColor: "rgba(74, 222, 128, 0.05)",
               }}
             >
-              <Shield className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#4ade80" }} />
+              <Shield
+                className="mt-0.5 h-4 w-4 shrink-0"
+                style={{ color: "#4ade80" }}
+              />
               <p className="text-xs text-gray-400">
-                After creating this contact, you&apos;ll be prompted to set up their client portal.
+                After creating this contact, you&apos;ll be prompted to set up
+                their client portal.
               </p>
             </div>
           )}
@@ -1455,7 +1525,11 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                 referredBy={form.referredBy}
                 referredByExternal={form.referredByExternal}
                 onChange={(rb, rbe) =>
-                  setForm((f) => ({ ...f, referredBy: rb, referredByExternal: rbe }))
+                  setForm((f) => ({
+                    ...f,
+                    referredBy: rb,
+                    referredByExternal: rbe,
+                  }))
                 }
               />
             </div>
@@ -1465,7 +1539,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
             <label className={labelClass}>Account Manager</label>
             <AccountManagerPicker
               value={form.accountManagerId}
-              onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+              onChange={(id) =>
+                setForm((f) => ({ ...f, accountManagerId: id }))
+              }
             />
           </div>
 
@@ -1485,7 +1561,9 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
               rows={3}
               placeholder="Internal notes about this contact..."
               value={form.notes}
-              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, notes: e.target.value }))
+              }
             />
           </div>
         </div>
@@ -1558,7 +1636,7 @@ export default function CrmContactsPage() {
           className="relative flex-1"
           style={{ minWidth: "200px", maxWidth: "320px" }}
         >
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             placeholder="Search by name or email..."
@@ -1567,7 +1645,7 @@ export default function CrmContactsPage() {
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="w-full rounded-lg border bg-white/5 py-2 pl-10 pr-3 text-sm text-white placeholder:text-gray-500 focus:outline-none"
+            className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-10 text-sm text-white placeholder:text-gray-500 focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           />
         </div>
@@ -1579,7 +1657,7 @@ export default function CrmContactsPage() {
               setStatusFilter(e.target.value || undefined);
               setPage(0);
             }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pl-3 pr-8 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
             <option value="">All Statuses</option>
@@ -1589,7 +1667,7 @@ export default function CrmContactsPage() {
             <option value="inactive">Inactive</option>
             <option value="churned">Churned</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         </div>
 
         <div className="relative">
@@ -1599,7 +1677,7 @@ export default function CrmContactsPage() {
               setSourceFilter(e.target.value || undefined);
               setPage(0);
             }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pl-3 pr-8 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
             <option value="">All Sources</option>
@@ -1608,7 +1686,7 @@ export default function CrmContactsPage() {
             <option value="banyan_waitlist">Banyan Waitlist</option>
             <option value="referral">Referral</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         </div>
 
         {data && (
@@ -1649,7 +1727,7 @@ export default function CrmContactsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr
-                className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
                 <th className="px-4 py-3">Name</th>

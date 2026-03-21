@@ -19,7 +19,10 @@ export default function AdminPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+          <Loader2
+            className="h-8 w-8 animate-spin"
+            style={{ color: "#D4AF37" }}
+          />
         </div>
       }
     >

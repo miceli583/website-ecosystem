@@ -34,12 +34,11 @@ export async function middleware(request: NextRequest) {
   // Only check auth for routes that ACTUALLY need it
   // /s/* routes are public demo share links — never require auth
   const needsAuth =
-    !pathname.startsWith('/s/') && (
-      pathname.startsWith('/admin') ||
-      pathname.startsWith('/auth/callback') ||
-      pathname.startsWith('/portal') ||
-      isPortalDomain
-    );
+    !pathname.startsWith("/s/") &&
+    (pathname.startsWith("/admin") ||
+      pathname.startsWith("/auth/callback") ||
+      pathname.startsWith("/portal") ||
+      isPortalDomain);
 
   // Subdomain routing - handle admin.* subdomains
   // admin.miraclemind.dev/templates → /admin/templates?domain=dev
@@ -88,7 +87,9 @@ export async function middleware(request: NextRequest) {
   const currentDomain = getDomainFromHeaders(request.headers);
 
   if (process.env.NODE_ENV === "development") {
-    const authStatus = needsAuth ? `Auth Check: User ${user?.email || "None"}` : "Public Route";
+    const authStatus = needsAuth
+      ? `Auth Check: User ${user?.email || "None"}`
+      : "Public Route";
     console.log(
       `🌐 [Middleware] ${hostname}${pathname} → Domain: ${currentDomain} | ${authStatus}`
     );
@@ -165,8 +166,15 @@ export async function middleware(request: NextRequest) {
   }
 
   // Miracle Mind routes - only accessible via miraclemind.dev
-  const miracleMindRoutes = ["/banyan", "/services", "/contact", "/stewardship"];
-  const isMiracleMindRoute = miracleMindRoutes.some(route => pathname.startsWith(route));
+  const miracleMindRoutes = [
+    "/banyan",
+    "/services",
+    "/contact",
+    "/stewardship",
+  ];
+  const isMiracleMindRoute = miracleMindRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
   if (isMiracleMindRoute) {
     const isValidMiracleMindDomain =
@@ -180,7 +188,9 @@ export async function middleware(request: NextRequest) {
         : `https://miraclemind.dev${pathname}`;
 
       if (process.env.NODE_ENV === "development") {
-        console.log(`🌐 [Middleware] Miracle Mind route redirect: ${redirectUrl}`);
+        console.log(
+          `🌐 [Middleware] Miracle Mind route redirect: ${redirectUrl}`
+        );
       }
       return NextResponse.redirect(new URL(redirectUrl));
     }
@@ -211,7 +221,11 @@ export async function middleware(request: NextRequest) {
   // Handle portal routes on miraclemind.live domain
   if (isPortalDomain) {
     // Allow public access to login page, set-password, and shared demo links
-    if (pathname === "/" || pathname === "/portal/set-password" || pathname.startsWith("/s/")) {
+    if (
+      pathname === "/" ||
+      pathname === "/portal/set-password" ||
+      pathname.startsWith("/s/")
+    ) {
       return supabaseResponse;
     }
 
@@ -222,7 +236,9 @@ export async function middleware(request: NextRequest) {
         : `https://miraclemind.live/`;
 
       if (process.env.NODE_ENV === "development") {
-        console.log(`🔒 [Middleware] Portal auth required, redirecting to: ${loginUrl}`);
+        console.log(
+          `🔒 [Middleware] Portal auth required, redirecting to: ${loginUrl}`
+        );
       }
       return NextResponse.redirect(new URL(loginUrl));
     }

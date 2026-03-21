@@ -29,19 +29,21 @@ export default function PortalProjectsPage({
   const { slug } = use(params);
   const utils = api.useUtils();
 
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = api.portal.getClientBySlug.useQuery(
     { slug },
-    { staleTime: 5 * 60 * 1000 },
+    { staleTime: 5 * 60 * 1000 }
   );
   const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
   });
   const isAdmin = profile?.role === "admin";
 
-  const { data: projects, isLoading: projectsLoading } = api.portal.getProjects.useQuery(
-    { slug },
-    { enabled: isAdmin },
-  );
+  const { data: projects, isLoading: projectsLoading } =
+    api.portal.getProjects.useQuery({ slug }, { enabled: isAdmin });
 
   const createProject = api.portal.createProject.useMutation({
     onSuccess: () => {
@@ -93,7 +95,9 @@ export default function PortalProjectsPage({
   const [pushingId, setPushingId] = useState<number | null>(null);
   const [pushTitle, setPushTitle] = useState("");
   const [pushHasContent, setPushHasContent] = useState(false);
-  const [pushType, setPushType] = useState<"demo" | "proposal" | "update" | "invoice">("update");
+  const [pushType, setPushType] = useState<
+    "demo" | "proposal" | "update" | "invoice"
+  >("update");
   const pushEditorRef = useRef<RichTextEditorRef>(null);
 
   const startEditing = (project: Project) => {
@@ -112,7 +116,10 @@ export default function PortalProjectsPage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -151,9 +158,7 @@ export default function PortalProjectsPage({
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="mb-2 text-3xl font-bold">Projects</h1>
-          <p className="text-gray-400">
-            Manage projects for this client.
-          </p>
+          <p className="text-gray-400">Manage projects for this client.</p>
         </div>
         {!showCreateForm && (
           <button
@@ -179,7 +184,7 @@ export default function PortalProjectsPage({
               placeholder="Project name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37]/50 focus:outline-none"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
               autoFocus
             />
@@ -188,7 +193,7 @@ export default function PortalProjectsPage({
               placeholder="Description (optional)"
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
-              className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37]/50 focus:outline-none"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             />
           </div>
@@ -229,10 +234,7 @@ export default function PortalProjectsPage({
       {projectsLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-20 animate-pulse rounded-lg bg-white/5"
-            />
+            <div key={i} className="h-20 animate-pulse rounded-lg bg-white/5" />
           ))}
         </div>
       ) : !projects?.length ? (
@@ -257,7 +259,7 @@ export default function PortalProjectsPage({
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50"
+                    className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
                     style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
                     autoFocus
                   />
@@ -266,7 +268,7 @@ export default function PortalProjectsPage({
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     placeholder="Description (optional)"
-                    className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
+                    className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37]/50 focus:outline-none"
                     style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
                   />
                   <div className="flex gap-2">
@@ -282,7 +284,8 @@ export default function PortalProjectsPage({
                       disabled={!editName || updateProject.isPending}
                       className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black transition-opacity disabled:opacity-50"
                       style={{
-                        background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        background:
+                          "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                       }}
                     >
                       <Check className="h-3.5 w-3.5" />
@@ -301,7 +304,9 @@ export default function PortalProjectsPage({
               ) : deletingId === project.id ? (
                 <div>
                   <p className="mb-3 text-sm text-gray-300">
-                    Delete <strong className="text-white">{project.name}</strong>? This will also delete all updates under this project.
+                    Delete{" "}
+                    <strong className="text-white">{project.name}</strong>? This
+                    will also delete all updates under this project.
                   </p>
                   <div className="flex gap-2">
                     <button
@@ -309,7 +314,9 @@ export default function PortalProjectsPage({
                       disabled={deleteProject.isPending}
                       className="rounded-lg bg-red-500/10 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
                     >
-                      {deleteProject.isPending ? "Deleting..." : "Confirm Delete"}
+                      {deleteProject.isPending
+                        ? "Deleting..."
+                        : "Confirm Delete"}
                     </button>
                     <button
                       onClick={() => setDeletingId(null)}
@@ -331,12 +338,17 @@ export default function PortalProjectsPage({
                             "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                         }}
                       >
-                        <FolderKanban className="h-4 w-4" style={{ color: "#D4AF37" }} />
+                        <FolderKanban
+                          className="h-4 w-4"
+                          style={{ color: "#D4AF37" }}
+                        />
                       </div>
                       <div>
                         <p className="font-medium text-white">{project.name}</p>
                         {project.description && (
-                          <p className="text-sm text-gray-500">{project.description}</p>
+                          <p className="text-sm text-gray-500">
+                            {project.description}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -412,7 +424,7 @@ export default function PortalProjectsPage({
                           placeholder="Update title"
                           value={pushTitle}
                           onChange={(e) => setPushTitle(e.target.value)}
-                          className="flex-1 rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
+                          className="flex-1 rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37]/50 focus:outline-none"
                           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
                           autoFocus
                         />
@@ -430,7 +442,9 @@ export default function PortalProjectsPage({
                           placeholder="Write your update..."
                           minHeight="120px"
                           onChange={(html) => {
-                            const stripped = html.replace(/<[^>]*>/g, "").trim();
+                            const stripped = html
+                              .replace(/<[^>]*>/g, "")
+                              .trim();
                             setPushHasContent(stripped.length > 0);
                           }}
                         />
@@ -439,7 +453,8 @@ export default function PortalProjectsPage({
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
-                            const content = pushEditorRef.current?.getHTML() ?? "";
+                            const content =
+                              pushEditorRef.current?.getHTML() ?? "";
                             if (!pushTitle || !content) return;
                             pushUpdate.mutate({
                               projectId: project.id,
@@ -448,10 +463,15 @@ export default function PortalProjectsPage({
                               type: pushType,
                             });
                           }}
-                          disabled={!pushTitle || !pushHasContent || pushUpdate.isPending}
+                          disabled={
+                            !pushTitle ||
+                            !pushHasContent ||
+                            pushUpdate.isPending
+                          }
                           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black transition-opacity disabled:opacity-50"
                           style={{
-                            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                            background:
+                              "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                           }}
                         >
                           <Send className="h-3.5 w-3.5" />

@@ -59,7 +59,13 @@ function TealLaunchLanding1PageContent() {
 
 export default function TealLaunchLanding1Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <TealLaunchLanding1PageContent />
     </Suspense>
   );

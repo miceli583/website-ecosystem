@@ -214,10 +214,10 @@ export const portalRouter = createTRPCRouter({
         where: and(
           or(
             eq(clientResources.publicToken, input.token),
-            eq(clientResources.publicSlug, input.token),
+            eq(clientResources.publicSlug, input.token)
           ),
           eq(clientResources.isPublic, true),
-          eq(clientResources.isActive, true),
+          eq(clientResources.isActive, true)
         ),
         with: {
           client: {
@@ -280,7 +280,10 @@ export const portalRouter = createTRPCRouter({
       }
 
       // Authorization: admin can toggle any; client only their own
-      if (profile.role === "client" && profile.clientSlug !== resource.client.slug) {
+      if (
+        profile.role === "client" &&
+        profile.clientSlug !== resource.client.slug
+      ) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only share your own demos",
@@ -288,7 +291,8 @@ export const portalRouter = createTRPCRouter({
       }
 
       // Generate token on first toggle-to-public; reuse existing token
-      const publicToken = resource.publicToken ?? (input.isPublic ? nanoid(12) : null);
+      const publicToken =
+        resource.publicToken ?? (input.isPublic ? nanoid(12) : null);
 
       const [updated] = await db
         .update(clientResources)
@@ -314,7 +318,10 @@ export const portalRouter = createTRPCRouter({
           .string()
           .min(3)
           .max(60)
-          .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, "Slug must be lowercase alphanumeric with hyphens, and cannot start or end with a hyphen")
+          .regex(
+            /^[a-z0-9][a-z0-9-]*[a-z0-9]$/,
+            "Slug must be lowercase alphanumeric with hyphens, and cannot start or end with a hyphen"
+          )
           .nullable(),
       })
     )
@@ -333,9 +340,7 @@ export const portalRouter = createTRPCRouter({
       // Check uniqueness if setting a slug
       if (input.slug) {
         const existing = await db.query.clientResources.findFirst({
-          where: and(
-            eq(clientResources.publicSlug, input.slug),
-          ),
+          where: and(eq(clientResources.publicSlug, input.slug)),
         });
 
         if (existing && existing.id !== input.resourceId) {
@@ -505,12 +510,11 @@ export const portalRouter = createTRPCRouter({
       }
 
       // Build query conditions
-      const conditions = [
-        eq(clientResources.clientId, client.id),
-      ];
+      const conditions = [eq(clientResources.clientId, client.id)];
 
       // Clients always see only active resources; admins can filter or see all
-      const activeFilter = input.isActive ?? (profile.role === "client" ? true : undefined);
+      const activeFilter =
+        input.isActive ?? (profile.role === "client" ? true : undefined);
       if (activeFilter !== undefined) {
         conditions.push(eq(clientResources.isActive, activeFilter));
       }
@@ -528,7 +532,10 @@ export const portalRouter = createTRPCRouter({
       // Fetch resources
       const resources = await db.query.clientResources.findMany({
         where: and(...conditions),
-        orderBy: [asc(clientResources.sortOrder), desc(clientResources.createdAt)],
+        orderBy: [
+          asc(clientResources.sortOrder),
+          desc(clientResources.createdAt),
+        ],
         with: {
           project: true,
         },
@@ -538,18 +545,22 @@ export const portalRouter = createTRPCRouter({
       let activeProductIds = new Set<string>();
       if (stripe && client.stripeCustomerId) {
         try {
-          const [activeSubscriptions, trialingSubscriptions] = await Promise.all([
-            stripe.subscriptions.list({
-              customer: client.stripeCustomerId,
-              status: "active",
-            }),
-            stripe.subscriptions.list({
-              customer: client.stripeCustomerId,
-              status: "trialing",
-            }),
-          ]);
+          const [activeSubscriptions, trialingSubscriptions] =
+            await Promise.all([
+              stripe.subscriptions.list({
+                customer: client.stripeCustomerId,
+                status: "active",
+              }),
+              stripe.subscriptions.list({
+                customer: client.stripeCustomerId,
+                status: "trialing",
+              }),
+            ]);
 
-          for (const sub of [...activeSubscriptions.data, ...trialingSubscriptions.data]) {
+          for (const sub of [
+            ...activeSubscriptions.data,
+            ...trialingSubscriptions.data,
+          ]) {
             if (sub.cancel_at_period_end) continue;
             for (const item of sub.items.data) {
               const productId =
@@ -566,7 +577,7 @@ export const portalRouter = createTRPCRouter({
       }
 
       // Add subscription status to each resource
-      return resources.map((resource: typeof resources[number]) => ({
+      return resources.map((resource: (typeof resources)[number]) => ({
         ...resource,
         subscriptionActive: resource.stripeProductId
           ? activeProductIds.has(resource.stripeProductId)
@@ -762,28 +773,29 @@ export const portalRouter = createTRPCRouter({
         const balance = "balance" in customer ? customer.balance : null;
 
         // Fetch Stripe data and proposals in parallel
-        const [invoices, subscriptions, paymentIntents, proposals] = await Promise.all([
-          stripe.invoices.list({
-            customer: validCustomerId,
-            limit: 20,
-          }),
-          stripe.subscriptions.list({
-            customer: validCustomerId,
-            status: "all",
-            limit: 10,
-          }),
-          stripe.paymentIntents.list({
-            customer: validCustomerId,
-            limit: 20,
-          }),
-          db.query.clientResources.findMany({
-            where: and(
-              eq(clientResources.clientId, client.id),
-              eq(clientResources.section, "proposals"),
-            ),
-            with: { project: true },
-          }),
-        ]);
+        const [invoices, subscriptions, paymentIntents, proposals] =
+          await Promise.all([
+            stripe.invoices.list({
+              customer: validCustomerId,
+              limit: 20,
+            }),
+            stripe.subscriptions.list({
+              customer: validCustomerId,
+              status: "all",
+              limit: 10,
+            }),
+            stripe.paymentIntents.list({
+              customer: validCustomerId,
+              limit: 20,
+            }),
+            db.query.clientResources.findMany({
+              where: and(
+                eq(clientResources.clientId, client.id),
+                eq(clientResources.section, "proposals")
+              ),
+              with: { project: true },
+            }),
+          ]);
 
         // Build dual lookup maps from proposals
         interface ProposalLink {
@@ -837,7 +849,7 @@ export const portalRouter = createTRPCRouter({
           }
           if (uncachedIds.length > 0) {
             const products = await Promise.all(
-              uncachedIds.map((id) => stripe!.products.retrieve(id)),
+              uncachedIds.map((id) => stripe!.products.retrieve(id))
             );
             for (const product of products) {
               if (!("deleted" in product)) {
@@ -865,11 +877,13 @@ export const portalRouter = createTRPCRouter({
               const invSubscriptionId = invSubDetails
                 ? typeof invSubDetails.subscription === "string"
                   ? invSubDetails.subscription
-                  : invSubDetails.subscription?.id ?? null
+                  : (invSubDetails.subscription?.id ?? null)
                 : null;
               const proposalLink =
                 invToProposal.get(inv.id) ??
-                (invSubscriptionId ? subToProposal.get(invSubscriptionId) ?? null : null);
+                (invSubscriptionId
+                  ? (subToProposal.get(invSubscriptionId) ?? null)
+                  : null);
 
               const proposalName = proposalLink?.proposalTitle ?? null;
 
@@ -904,15 +918,21 @@ export const portalRouter = createTRPCRouter({
               };
             })
             // Only show invoices linked to a proposal (directly or via subscription)
-            .filter((inv) => inv._hasProposalLink || inv._parentSubscriptionLinked)
-            .map(({ _hasProposalLink, _parentSubscriptionLinked, ...inv }) => inv),
+            .filter(
+              (inv) => inv._hasProposalLink || inv._parentSubscriptionLinked
+            )
+            .map(
+              ({ _hasProposalLink, _parentSubscriptionLinked, ...inv }) => inv
+            ),
           // One-time payments (from Checkout) - only show proposal-linked payments
           payments: (() => {
             const filteredPayments = paymentIntents.data
               .filter((pi) => pi.status === "succeeded")
               .filter((pi) => {
                 const desc = pi.description?.toLowerCase() ?? "";
-                return !desc.includes("subscription") && !desc.includes("invoice");
+                return (
+                  !desc.includes("subscription") && !desc.includes("invoice")
+                );
               })
               // Only include payments linked to a proposal
               .filter((pi) => piToProposal.has(pi.id));
@@ -925,10 +945,12 @@ export const portalRouter = createTRPCRouter({
                 currency: pi.currency,
                 status: pi.status,
                 created: pi.created,
-                description: piLink?.proposalTitle ?? pi.description ?? "Payment",
-                receiptUrl: pi.latest_charge && typeof pi.latest_charge !== "string"
-                  ? pi.latest_charge.receipt_url ?? null
-                  : null,
+                description:
+                  piLink?.proposalTitle ?? pi.description ?? "Payment",
+                receiptUrl:
+                  pi.latest_charge && typeof pi.latest_charge !== "string"
+                    ? (pi.latest_charge.receipt_url ?? null)
+                    : null,
                 proposalId: piLink?.proposalId ?? null,
                 projectId: piLink?.projectId ?? null,
                 projectName: piLink?.projectName ?? null,
@@ -1069,10 +1091,14 @@ export const portalRouter = createTRPCRouter({
           })
         ),
         currency: z.string().default("usd"),
-        paymentType: z.enum(["one-time", "subscription", "payment-plan"]).default("one-time"),
+        paymentType: z
+          .enum(["one-time", "subscription", "payment-plan"])
+          .default("one-time"),
         subscriptionInterval: z.enum(["month", "year"]).optional(),
         installments: z.number().optional(),
-        status: z.enum(["draft", "sent", "accepted", "declined"]).default("draft"),
+        status: z
+          .enum(["draft", "sent", "accepted", "declined"])
+          .default("draft"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -1180,7 +1206,10 @@ export const portalRouter = createTRPCRouter({
       }
 
       // Authorization check
-      if (profile.role === "client" && profile.clientSlug !== proposal.client.slug) {
+      if (
+        profile.role === "client" &&
+        profile.clientSlug !== proposal.client.slug
+      ) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only checkout your own proposals",
@@ -1270,8 +1299,8 @@ export const portalRouter = createTRPCRouter({
         // Filter to selected packages if provided
         let selectedPackages = metadata.packages;
         if (input.selectedPackageIds && input.selectedPackageIds.length > 0) {
-          selectedPackages = metadata.packages.filter(
-            (pkg) => input.selectedPackageIds!.includes(pkg.id)
+          selectedPackages = metadata.packages.filter((pkg) =>
+            input.selectedPackageIds!.includes(pkg.id)
           );
         }
 
@@ -1283,21 +1312,34 @@ export const portalRouter = createTRPCRouter({
         }
 
         // Check if any selected package is a subscription
-        const hasSubscription = selectedPackages.some((pkg) => pkg.type === "subscription");
+        const hasSubscription = selectedPackages.some(
+          (pkg) => pkg.type === "subscription"
+        );
         checkoutMode = hasSubscription ? "subscription" : "payment";
 
         // Check if bundle pricing applies
-        const oneTimePackages = selectedPackages.filter((p) => p.type === "one-time");
-        const allOneTimeFromProposal = metadata.packages!.filter((p) => p.type === "one-time");
-        const allOneTimeSelected = allOneTimeFromProposal.length > 1 &&
-          allOneTimeFromProposal.every((p) => oneTimePackages.some((s) => s.id === p.id));
-        const bundleApplies = input.applyBundlePrice && allOneTimeSelected &&
+        const oneTimePackages = selectedPackages.filter(
+          (p) => p.type === "one-time"
+        );
+        const allOneTimeFromProposal = metadata.packages!.filter(
+          (p) => p.type === "one-time"
+        );
+        const allOneTimeSelected =
+          allOneTimeFromProposal.length > 1 &&
+          allOneTimeFromProposal.every((p) =>
+            oneTimePackages.some((s) => s.id === p.id)
+          );
+        const bundleApplies =
+          input.applyBundlePrice &&
+          allOneTimeSelected &&
           metadata.bundlePrice != null;
 
         // Build line items from packages
         if (bundleApplies) {
           // Bundle: send one-time packages as a single bundled line item
-          const subscriptionPackages = selectedPackages.filter((p) => p.type === "subscription");
+          const subscriptionPackages = selectedPackages.filter(
+            (p) => p.type === "subscription"
+          );
           stripeLineItems = [
             {
               price_data: {
@@ -1344,7 +1386,8 @@ export const portalRouter = createTRPCRouter({
       }
       // Legacy lineItems structure
       else if (metadata.lineItems && metadata.lineItems.length > 0) {
-        checkoutMode = metadata.paymentType === "subscription" ? "subscription" : "payment";
+        checkoutMode =
+          metadata.paymentType === "subscription" ? "subscription" : "payment";
 
         stripeLineItems = metadata.lineItems.map((item) => ({
           price_data: {
@@ -1354,8 +1397,13 @@ export const portalRouter = createTRPCRouter({
               description: item.description,
             },
             unit_amount: Math.round(item.unitPrice * 100),
-            ...(metadata.paymentType === "subscription" && metadata.subscriptionInterval
-              ? { recurring: { interval: metadata.subscriptionInterval as "month" | "year" } }
+            ...(metadata.paymentType === "subscription" &&
+            metadata.subscriptionInterval
+              ? {
+                  recurring: {
+                    interval: metadata.subscriptionInterval as "month" | "year",
+                  },
+                }
               : {}),
           },
           quantity: item.quantity,

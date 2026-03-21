@@ -62,6 +62,8 @@ export const STAGING_TEMPLATES: Record<TemplateId, StagingTemplate> = {
 
 export const DEFAULT_TEMPLATE: TemplateId = "blackGold";
 
-export function getTemplate(id: TemplateId = DEFAULT_TEMPLATE): StagingTemplate {
+export function getTemplate(
+  id: TemplateId = DEFAULT_TEMPLATE
+): StagingTemplate {
   return STAGING_TEMPLATES[id];
 }

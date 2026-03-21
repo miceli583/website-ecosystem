@@ -6,7 +6,8 @@ export default function PublicDemoNotFound() {
       <div
         className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
           border: "1px solid rgba(212, 175, 55, 0.2)",
         }}
       >
@@ -31,7 +32,9 @@ export default function PublicDemoNotFound() {
       <Link
         href="https://miraclemind.dev"
         className="rounded-lg px-6 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
-        style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
+        style={{
+          background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+        }}
       >
         Visit Miracle Mind
       </Link>

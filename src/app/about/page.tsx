@@ -7,14 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { DomainLayout } from "~/components/domain-layout";
-import {
-  ArrowRight,
-  Heart,
-  Users,
-  Leaf,
-  Sparkles,
-  Code,
-} from "lucide-react";
+import { ArrowRight, Heart, Users, Leaf, Sparkles, Code } from "lucide-react";
 
 function AboutContent() {
   const searchParams = useSearchParams();
@@ -84,7 +77,8 @@ function AboutContent() {
               About{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -94,7 +88,8 @@ function AboutContent() {
               </span>
             </h1>
             <p className="text-lg leading-relaxed text-gray-300">
-              We build technology that empowers human sovereignty, deepens connection,
+              We build technology that empowers human sovereignty, deepens
+              connection,
               <br />
               and honors what makes us most alive.
             </p>
@@ -122,11 +117,11 @@ function AboutContent() {
                 —the ability to act on your own behalf.
               </p>
               <p>
-                With the rise of AI, sovereignty must sit at the forefront of human
-                consciousness. This technology represents limitless possibility:
-                pure potential, activated through human choice. When stewarded with
-                intention, it expands our agency, increases our bandwidth, and
-                returns our attention to what matters most.
+                With the rise of AI, sovereignty must sit at the forefront of
+                human consciousness. This technology represents limitless
+                possibility: pure potential, activated through human choice.
+                When stewarded with intention, it expands our agency, increases
+                our bandwidth, and returns our attention to what matters most.
               </p>
               <p>
                 <span style={{ color: "#D4AF37", fontWeight: 600 }}>
@@ -134,9 +129,10 @@ function AboutContent() {
                 </span>
               </p>
               <p>
-                We choose to steward this technology in alignment with an embodied
-                value system. And that alignment begins with language—because how we
-                name something shapes how we relate to it.
+                We choose to steward this technology in alignment with an
+                embodied value system. And that alignment begins with
+                language—because how we name something shapes how we relate to
+                it.
               </p>
               <p>
                 We call it{" "}
@@ -147,22 +143,24 @@ function AboutContent() {
               </p>
               <p>
                 Because there is nothing artificial about this technology. It is
-                built from refined minerals and crystalline structures, transmitting
-                electrical signals that mirror our own nervous systems, neural
-                biology, and the mycelial networks that connect living ecosystems.
+                built from refined minerals and crystalline structures,
+                transmitting electrical signals that mirror our own nervous
+                systems, neural biology, and the mycelial networks that connect
+                living ecosystems.
               </p>
               <p>
-                The word <em>artificial</em> carries an assumption of separation—from
-                nature, from one another, and from ourselves. Words are spells. When
-                we shift our language from <em>Artificial</em> to <em>Collective</em>,
-                we open the door to stewarding this technology in coherence with our
-                humanness, in alignment with our biology.
+                The word <em>artificial</em> carries an assumption of
+                separation—from nature, from one another, and from ourselves.
+                Words are spells. When we shift our language from{" "}
+                <em>Artificial</em> to <em>Collective</em>, we open the door to
+                stewarding this technology in coherence with our humanness, in
+                alignment with our biology.
               </p>
               <p>
-                From this orientation, rigid technological systems soften into living
-                ones. Structures become adaptable. Systems are guided by living
-                agreements rather than rigid rules—shaped by the real conditions of
-                the people they serve.
+                From this orientation, rigid technological systems soften into
+                living ones. Structures become adaptable. Systems are guided by
+                living agreements rather than rigid rules—shaped by the real
+                conditions of the people they serve.
               </p>
               <p>
                 What emerges are{" "}
@@ -257,17 +255,19 @@ function AboutContent() {
                       Matthew Miceli
                     </h3>
                     <p className="mb-2 text-base leading-relaxed text-gray-300">
-                      I&apos;m a systems architect who bridges worlds—transforming vision
-                      into reality through the integration of diverse disciplines. My path
-                      has taken me through robotics research, satellite testing, software
+                      I&apos;m a systems architect who bridges
+                      worlds—transforming vision into reality through the
+                      integration of diverse disciplines. My path has taken me
+                      through robotics research, satellite testing, software
                       development, high-ticket sales, and even music production.
                     </p>
                     <p className="mb-4 text-base leading-relaxed text-gray-300">
-                      This breadth has shaped my approach: I thrive in the spaces between
-                      fields, connecting engineering with business, technology with
-                      creativity, individual insight with collective impact. I illuminate
-                      unseen patterns and design systems that honor each part as
-                      interdependent within a greater whole.
+                      This breadth has shaped my approach: I thrive in the
+                      spaces between fields, connecting engineering with
+                      business, technology with creativity, individual insight
+                      with collective impact. I illuminate unseen patterns and
+                      design systems that honor each part as interdependent
+                      within a greater whole.
                     </p>
                     <Link href="https://matthewmiceli.com">
                       <Button
@@ -299,7 +299,8 @@ function AboutContent() {
               Ready to Build Together?
             </h2>
             <p className="mb-8 text-gray-300">
-              Whether you&apos;re launching a new venture or modernizing an existing system,
+              Whether you&apos;re launching a new venture or modernizing an
+              existing system,
               <br />
               let&apos;s explore how we can help.
             </p>
@@ -308,7 +309,8 @@ function AboutContent() {
                 size="lg"
                 className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 }}
               >
                 Get In Touch

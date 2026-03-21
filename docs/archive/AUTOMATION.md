@@ -5,6 +5,7 @@ Instagram post automation and scheduled tasks.
 ## Overview
 
 The automated system:
+
 1. Generates carousel images server-side (Puppeteer)
 2. Uploads to Supabase Storage
 3. Creates pending post with 2-minute buffer
@@ -125,6 +126,7 @@ Visit: `https://YOUR_DEPLOYMENT_URL/api/process-pending-post`
 ```
 
 **Common schedules:**
+
 - `0 10 * * *` - Daily at 10 AM UTC
 - `0 10 * * 1-5` - Weekdays only
 - `0 10,18 * * *` - Twice daily
@@ -168,11 +170,13 @@ Generate PDF from the `/resume` page using Puppeteer.
 ### Quick Start
 
 **Terminal 1:**
+
 ```bash
 npm run dev
 ```
 
 **Terminal 2:**
+
 ```bash
 npm run generate-resume-pdf
 ```
@@ -191,6 +195,7 @@ Output: `Matthew_Miceli_Resume.pdf` in project root
 ## Cost
 
 All free tier:
+
 - Supabase cron: Free
 - Puppeteer on Vercel: Free
 - Storage: Free (3 images overwritten daily)

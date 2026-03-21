@@ -33,7 +33,13 @@ function BlueCyanJoinCommunity1PageContent() {
 
 export default function BlueCyanJoinCommunity1Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <BlueCyanJoinCommunity1PageContent />
     </Suspense>
   );

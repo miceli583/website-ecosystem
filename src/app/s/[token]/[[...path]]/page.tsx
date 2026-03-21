@@ -10,7 +10,9 @@ interface PageProps {
   params: Promise<{ token: string; path?: string[] }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { token } = await params;
 
   try {

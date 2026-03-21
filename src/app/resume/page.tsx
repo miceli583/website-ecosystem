@@ -12,7 +12,7 @@ export default function ResumePage() {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 print:bg-white print:py-0">
-        <div className="mx-auto max-w-4xl animate-fade-in-up">
+        <div className="animate-fade-in-up mx-auto max-w-4xl">
           {/* Resume Container */}
           <div className="resume-container bg-white shadow-2xl print:shadow-none">
             {/* Header */}
@@ -31,7 +31,10 @@ export default function ResumePage() {
                   <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-300">
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4" />
-                      <a href="mailto:mmicel583@gmail.com" className="hover:text-[#D4AF37] transition-colors">
+                      <a
+                        href="mailto:mmicel583@gmail.com"
+                        className="transition-colors hover:text-[#D4AF37]"
+                      >
                         mmicel583@gmail.com
                       </a>
                     </div>
@@ -45,7 +48,10 @@ export default function ResumePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4" />
-                      <a href="https://matthewmiceli.com" className="hover:text-[#D4AF37] transition-colors">
+                      <a
+                        href="https://matthewmiceli.com"
+                        className="transition-colors hover:text-[#D4AF37]"
+                      >
                         matthewmiceli.com
                       </a>
                     </div>
@@ -74,15 +80,23 @@ export default function ResumePage() {
                 <h2 className="resume-section-title mb-3 border-b-2 border-[#D4AF37] pb-2 text-2xl font-bold text-gray-900 print:text-xl">
                   Professional Summary
                 </h2>
-                <p className="text-gray-700 leading-relaxed">
-                  Cross-domain systems engineer with experience in satellite communications, IoT testing, and automation-driven workflows.
-                  Core strength lies in bridging technical disciplines—connecting engineering and operations, translating complex concepts
-                  across teams, and integrating insights from diverse domains into coherent solutions. Proven ability to design comprehensive
-                  test frameworks for satellite IoT hardware, develop AI-driven applications, and automate complex engineering workflows using
-                  Python scripting. Background spanning robotics (MS), satellite testing, and technical support enables rapid learning,
-                  cross-functional collaboration, and optimization across domain boundaries. Seeking to return to Globalstar to apply
-                  enhanced automation capabilities, data-driven analysis, and cross-domain integration skills to gateway engineering and
-                  network performance optimization.
+                <p className="leading-relaxed text-gray-700">
+                  Cross-domain systems engineer with experience in satellite
+                  communications, IoT testing, and automation-driven workflows.
+                  Core strength lies in bridging technical
+                  disciplines—connecting engineering and operations, translating
+                  complex concepts across teams, and integrating insights from
+                  diverse domains into coherent solutions. Proven ability to
+                  design comprehensive test frameworks for satellite IoT
+                  hardware, develop AI-driven applications, and automate complex
+                  engineering workflows using Python scripting. Background
+                  spanning robotics (MS), satellite testing, and technical
+                  support enables rapid learning, cross-functional
+                  collaboration, and optimization across domain boundaries.
+                  Seeking to return to Globalstar to apply enhanced automation
+                  capabilities, data-driven analysis, and cross-domain
+                  integration skills to gateway engineering and network
+                  performance optimization.
                 </p>
               </section>
 
@@ -96,8 +110,12 @@ export default function ResumePage() {
                 <div className="resume-job mb-6 last:mb-0">
                   <div className="mb-2 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Application Support Engineer</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">The MathWorks</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Application Support Engineer
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        The MathWorks
+                      </p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">Jan 2022 - Sept 2023</p>
@@ -105,10 +123,26 @@ export default function ResumePage() {
                     </div>
                   </div>
                   <ul className="ml-5 list-disc space-y-1 text-gray-700">
-                    <li>Provided real-time technical support to customers in Control Design, Signal Processing, and Robotics, translating complex technical concepts across engineering disciplines</li>
-                    <li>Led R&D projects including AI-driven quadcopter training for acrobatic maneuvers using reinforcement learning and control systems</li>
-                    <li>Built collision-aware robotic arm controller integrating MATLAB with third-party mapping tools, demonstrating cross-platform integration skills</li>
-                    <li>Collaborated across departments to bridge customer needs with internal engineering capabilities</li>
+                    <li>
+                      Provided real-time technical support to customers in
+                      Control Design, Signal Processing, and Robotics,
+                      translating complex technical concepts across engineering
+                      disciplines
+                    </li>
+                    <li>
+                      Led R&D projects including AI-driven quadcopter training
+                      for acrobatic maneuvers using reinforcement learning and
+                      control systems
+                    </li>
+                    <li>
+                      Built collision-aware robotic arm controller integrating
+                      MATLAB with third-party mapping tools, demonstrating
+                      cross-platform integration skills
+                    </li>
+                    <li>
+                      Collaborated across departments to bridge customer needs
+                      with internal engineering capabilities
+                    </li>
                   </ul>
                 </div>
 
@@ -116,8 +150,12 @@ export default function ResumePage() {
                 <div className="resume-job mb-6 last:mb-0">
                   <div className="mb-2 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Associate Test Engineer</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">Globalstar, Inc.</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Associate Test Engineer
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        Globalstar, Inc.
+                      </p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">May 2020 - July 2021</p>
@@ -125,13 +163,37 @@ export default function ResumePage() {
                     </div>
                   </div>
                   <ul className="ml-5 list-disc space-y-1 text-gray-700">
-                    <li>Designed and executed comprehensive test frameworks for satellite IoT communication devices</li>
-                    <li>Collaborated across engineering, operations, and QA departments to develop integrated testing solutions, bridging technical requirements with operational constraints</li>
-                    <li>Authored detailed QA documentation, technical specifications, and procedural test documentation for hardware validation</li>
-                    <li>Led cross-functional test plan reviews, translating complex technical requirements across departments</li>
-                    <li>Interfaced with embedded systems during IoT device testing</li>
-                    <li>Conducted proactive data collection and performance analysis to identify system issues and optimization opportunities</li>
-                    <li>Developed troubleshooting workflows and documented solutions for recurring operational challenges</li>
+                    <li>
+                      Designed and executed comprehensive test frameworks for
+                      satellite IoT communication devices
+                    </li>
+                    <li>
+                      Collaborated across engineering, operations, and QA
+                      departments to develop integrated testing solutions,
+                      bridging technical requirements with operational
+                      constraints
+                    </li>
+                    <li>
+                      Authored detailed QA documentation, technical
+                      specifications, and procedural test documentation for
+                      hardware validation
+                    </li>
+                    <li>
+                      Led cross-functional test plan reviews, translating
+                      complex technical requirements across departments
+                    </li>
+                    <li>
+                      Interfaced with embedded systems during IoT device testing
+                    </li>
+                    <li>
+                      Conducted proactive data collection and performance
+                      analysis to identify system issues and optimization
+                      opportunities
+                    </li>
+                    <li>
+                      Developed troubleshooting workflows and documented
+                      solutions for recurring operational challenges
+                    </li>
                   </ul>
                 </div>
 
@@ -139,8 +201,12 @@ export default function ResumePage() {
                 <div className="resume-job mb-6 last:mb-0">
                   <div className="mb-2 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Teaching Assistant - Machine Design</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">Louisiana State University</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Teaching Assistant - Machine Design
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        Louisiana State University
+                      </p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">Jan 2019 - Jan 2020</p>
@@ -148,9 +214,18 @@ export default function ResumePage() {
                     </div>
                   </div>
                   <ul className="ml-5 list-disc space-y-1 text-gray-700">
-                    <li>Mentored 150+ engineering students in advanced machine design, fatigue analysis, and systems thinking</li>
-                    <li>Developed curriculum materials and delivered technical lectures on mechanical systems</li>
-                    <li>Provided one-on-one guidance on complex engineering problem-solving and design optimization</li>
+                    <li>
+                      Mentored 150+ engineering students in advanced machine
+                      design, fatigue analysis, and systems thinking
+                    </li>
+                    <li>
+                      Developed curriculum materials and delivered technical
+                      lectures on mechanical systems
+                    </li>
+                    <li>
+                      Provided one-on-one guidance on complex engineering
+                      problem-solving and design optimization
+                    </li>
                   </ul>
                 </div>
 
@@ -158,8 +233,12 @@ export default function ResumePage() {
                 <div className="resume-job mb-6 last:mb-0">
                   <div className="mb-2 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Sales Manager</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">Vector Marketing Corporation</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Sales Manager
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        Vector Marketing Corporation
+                      </p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">Summer 2017</p>
@@ -167,8 +246,14 @@ export default function ResumePage() {
                     </div>
                   </div>
                   <ul className="ml-5 list-disc space-y-1 text-gray-700">
-                    <li>Led team of 25+ representatives, fostering collaborative culture and coordinating cross-functional activities</li>
-                    <li>Developed and delivered comprehensive training programs on performance optimization and effective communication</li>
+                    <li>
+                      Led team of 25+ representatives, fostering collaborative
+                      culture and coordinating cross-functional activities
+                    </li>
+                    <li>
+                      Developed and delivered comprehensive training programs on
+                      performance optimization and effective communication
+                    </li>
                   </ul>
                 </div>
               </section>
@@ -182,9 +267,13 @@ export default function ResumePage() {
                 <div className="resume-education mb-4 last:mb-0">
                   <div className="mb-1 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Master of Science in Robotics and Autonomous Systems</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">Boston University</p>
-                      <p className="text-sm text-gray-600 mt-1">GPA: 3.76</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Master of Science in Robotics and Autonomous Systems
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        Boston University
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">GPA: 3.76</p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">Jan 2019 - Dec 2022</p>
@@ -195,9 +284,15 @@ export default function ResumePage() {
                 <div className="resume-education mb-4 last:mb-0">
                   <div className="mb-1 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Bachelor of Science in Mechanical Engineering</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">Louisiana State University</p>
-                      <p className="text-sm text-gray-600 mt-1">GPA: 3.99 • Summa Cum Laude</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Bachelor of Science in Mechanical Engineering
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        Louisiana State University
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">
+                        GPA: 3.99 • Summa Cum Laude
+                      </p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">Aug 2016 - May 2020</p>
@@ -208,9 +303,15 @@ export default function ResumePage() {
                 <div className="resume-education mb-4 last:mb-0">
                   <div className="mb-1 flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">Bachelor of Science in Computer Science</h3>
-                      <p className="text-base font-semibold text-[#D4AF37]">Louisiana State University</p>
-                      <p className="text-sm text-gray-600 mt-1">GPA: 3.99 • Summa Cum Laude</p>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Bachelor of Science in Computer Science
+                      </h3>
+                      <p className="text-base font-semibold text-[#D4AF37]">
+                        Louisiana State University
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600">
+                        GPA: 3.99 • Summa Cum Laude
+                      </p>
                     </div>
                     <div className="text-right text-sm text-gray-600">
                       <p className="font-semibold">Jan 2017 - Dec 2020</p>
@@ -225,14 +326,20 @@ export default function ResumePage() {
                   Core Competencies
                 </h2>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2 md:grid-cols-4">
-                  <div className="text-gray-700">Cross-Functional Collaboration</div>
+                  <div className="text-gray-700">
+                    Cross-Functional Collaboration
+                  </div>
                   <div className="text-gray-700">Systems Architecture</div>
                   <div className="text-gray-700">Technical Communication</div>
                   <div className="text-gray-700">Process Optimization</div>
-                  <div className="text-gray-700">Interdisciplinary Integration</div>
+                  <div className="text-gray-700">
+                    Interdisciplinary Integration
+                  </div>
                   <div className="text-gray-700">Project Leadership</div>
                   <div className="text-gray-700">Problem-Solving</div>
-                  <div className="text-gray-700">Team Training & Development</div>
+                  <div className="text-gray-700">
+                    Team Training & Development
+                  </div>
                 </div>
               </section>
 
@@ -244,20 +351,40 @@ export default function ResumePage() {
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <div>
-                    <h3 className="mb-2 font-bold text-gray-900">Programming & Scripting</h3>
-                    <p className="text-gray-700">Python, MATLAB, Bash, JavaScript, C++</p>
+                    <h3 className="mb-2 font-bold text-gray-900">
+                      Programming & Scripting
+                    </h3>
+                    <p className="text-gray-700">
+                      Python, MATLAB, Bash, JavaScript, C++
+                    </p>
                   </div>
                   <div>
-                    <h3 className="mb-2 font-bold text-gray-900">Engineering Tools & Platforms</h3>
-                    <p className="text-gray-700">MATLAB/Simulink, Control Design, Signal Processing, Git, JIRA</p>
+                    <h3 className="mb-2 font-bold text-gray-900">
+                      Engineering Tools & Platforms
+                    </h3>
+                    <p className="text-gray-700">
+                      MATLAB/Simulink, Control Design, Signal Processing, Git,
+                      JIRA
+                    </p>
                   </div>
                   <div>
-                    <h3 className="mb-2 font-bold text-gray-900">Automation & Integration</h3>
-                    <p className="text-gray-700">AI Workflows, Zapier, n8n, API Integration, Workflow Automation</p>
+                    <h3 className="mb-2 font-bold text-gray-900">
+                      Automation & Integration
+                    </h3>
+                    <p className="text-gray-700">
+                      AI Workflows, Zapier, n8n, API Integration, Workflow
+                      Automation
+                    </p>
                   </div>
                   <div>
-                    <h3 className="mb-2 font-bold text-gray-900">Domain Experience</h3>
-                    <p className="text-gray-700">Satellite Communications, IoT Testing, Robotics, Networking Concepts, Data Analysis, Technical Documentation, Sales & Team Leadership</p>
+                    <h3 className="mb-2 font-bold text-gray-900">
+                      Domain Experience
+                    </h3>
+                    <p className="text-gray-700">
+                      Satellite Communications, IoT Testing, Robotics,
+                      Networking Concepts, Data Analysis, Technical
+                      Documentation, Sales & Team Leadership
+                    </p>
                   </div>
                 </div>
               </section>
@@ -270,30 +397,47 @@ export default function ResumePage() {
 
                 <div className="space-y-3">
                   <div>
-                    <h3 className="font-bold text-gray-900">Banyan - AI-Assisted Life Operating System</h3>
-                    <p className="text-sm text-gray-600 mb-1">Personal Project | 2025 - Present</p>
+                    <h3 className="font-bold text-gray-900">
+                      Banyan - AI-Assisted Life Operating System
+                    </h3>
+                    <p className="mb-1 text-sm text-gray-600">
+                      Personal Project | 2025 - Present
+                    </p>
                     <p className="text-gray-700">
-                      Developing an integrated system that connects habits, projects, finances, and wellbeing as interdependent
-                      elements. Built using modern web technologies (Next.js, TypeScript, tRPC, PostgreSQL) with automated workflows
-                      and AI-driven insights to bridge inspiration and execution across life domains.
+                      Developing an integrated system that connects habits,
+                      projects, finances, and wellbeing as interdependent
+                      elements. Built using modern web technologies (Next.js,
+                      TypeScript, tRPC, PostgreSQL) with automated workflows and
+                      AI-driven insights to bridge inspiration and execution
+                      across life domains.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900">AI-Trained Quadcopter Acrobatics</h3>
-                    <p className="text-sm text-gray-600 mb-1">The MathWorks R&D | 2022 - 2023</p>
+                    <h3 className="font-bold text-gray-900">
+                      AI-Trained Quadcopter Acrobatics
+                    </h3>
+                    <p className="mb-1 text-sm text-gray-600">
+                      The MathWorks R&D | 2022 - 2023
+                    </p>
                     <p className="text-gray-700">
-                      Led research project training autonomous quadcopters to perform acrobatic maneuvers using reinforcement learning
+                      Led research project training autonomous quadcopters to
+                      perform acrobatic maneuvers using reinforcement learning
                       and control systems in MATLAB/Simulink environment.
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-gray-900">Collision-Aware Robotic Arm Controller</h3>
-                    <p className="text-sm text-gray-600 mb-1">The MathWorks | 2022 - 2023</p>
+                    <h3 className="font-bold text-gray-900">
+                      Collision-Aware Robotic Arm Controller
+                    </h3>
+                    <p className="mb-1 text-sm text-gray-600">
+                      The MathWorks | 2022 - 2023
+                    </p>
                     <p className="text-gray-700">
-                      Designed and implemented real-time collision detection and path planning system for robotic manipulators,
-                      integrating MATLAB with third-party mapping and visualization tools.
+                      Designed and implemented real-time collision detection and
+                      path planning system for robotic manipulators, integrating
+                      MATLAB with third-party mapping and visualization tools.
                     </p>
                   </div>
                 </div>
@@ -324,11 +468,21 @@ export default function ResumePage() {
           animation: fade-in-up 0.6s ease-out both;
         }
 
-        .resume-section:nth-child(1) { animation-delay: 0.1s; }
-        .resume-section:nth-child(2) { animation-delay: 0.2s; }
-        .resume-section:nth-child(3) { animation-delay: 0.3s; }
-        .resume-section:nth-child(4) { animation-delay: 0.4s; }
-        .resume-section:nth-child(5) { animation-delay: 0.5s; }
+        .resume-section:nth-child(1) {
+          animation-delay: 0.1s;
+        }
+        .resume-section:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        .resume-section:nth-child(3) {
+          animation-delay: 0.3s;
+        }
+        .resume-section:nth-child(4) {
+          animation-delay: 0.4s;
+        }
+        .resume-section:nth-child(5) {
+          animation-delay: 0.5s;
+        }
 
         .resume-job,
         .resume-education {

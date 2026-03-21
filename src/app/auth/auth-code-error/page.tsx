@@ -39,7 +39,11 @@ function AuthCodeErrorContent() {
           </ul>
         </div>
 
-        <Button asChild className="w-full" style={{ backgroundColor: "#D4AF37" }}>
+        <Button
+          asChild
+          className="w-full"
+          style={{ backgroundColor: "#D4AF37" }}
+        >
           <Link href="/">Try Again</Link>
         </Button>
       </CardContent>

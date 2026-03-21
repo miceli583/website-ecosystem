@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, FileText, Layers, Target, Lightbulb, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  Layers,
+  Target,
+  Lightbulb,
+  CheckCircle,
+} from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 
 interface SlidesInputsDemoProps {
@@ -121,10 +128,7 @@ export function SlidesInputsDemo({ backHref }: SlidesInputsDemoProps) {
                 background: "rgba(255, 255, 255, 0.05)",
               }}
             >
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "#D4AF37" }}
-              >
+              <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
                 {stat.value}
               </p>
               <p className="mt-1 text-xs text-gray-500">{stat.label}</p>

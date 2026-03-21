@@ -98,7 +98,7 @@ export function ProjectAssignDialog({
       >
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 text-gray-500 hover:text-white"
+          className="absolute top-4 right-4 text-gray-500 hover:text-white"
         >
           <X className="h-4 w-4" />
         </button>
@@ -106,14 +106,14 @@ export function ProjectAssignDialog({
 
         {/* Search input */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-600" />
           <input
             ref={searchRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search projects..."
-            className="w-full rounded-lg border bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-gray-600 outline-none focus:border-[#D4AF37]/50"
+            className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-9 text-sm text-white placeholder-gray-600 outline-none focus:border-[#D4AF37]/50"
             style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
           />
         </div>
@@ -122,7 +122,10 @@ export function ProjectAssignDialog({
           {/* Unassigned option — hidden when searching */}
           {!searchQuery && (
             <button
-              onClick={() => { onAssign(null); onOpenChange(false); }}
+              onClick={() => {
+                onAssign(null);
+                onOpenChange(false);
+              }}
               disabled={isLoading}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
                 currentProjectId === null
@@ -139,7 +142,10 @@ export function ProjectAssignDialog({
           {filteredProjects.map((project) => (
             <button
               key={project.id}
-              onClick={() => { onAssign(project.id); onOpenChange(false); }}
+              onClick={() => {
+                onAssign(project.id);
+                onOpenChange(false);
+              }}
               disabled={isLoading}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
                 currentProjectId === project.id
@@ -154,12 +160,17 @@ export function ProjectAssignDialog({
 
           {/* No results */}
           {searchQuery && filteredProjects.length === 0 && (
-            <p className="px-3 py-2.5 text-sm text-gray-600">No projects match &ldquo;{searchQuery}&rdquo;</p>
+            <p className="px-3 py-2.5 text-sm text-gray-600">
+              No projects match &ldquo;{searchQuery}&rdquo;
+            </p>
           )}
         </div>
 
         {/* Divider */}
-        <div className="my-2 border-b" style={{ borderColor: "rgba(255, 255, 255, 0.05)" }} />
+        <div
+          className="my-2 border-b"
+          style={{ borderColor: "rgba(255, 255, 255, 0.05)" }}
+        />
 
         {/* Create new project */}
         {showCreate ? (
@@ -186,9 +197,15 @@ export function ProjectAssignDialog({
               }}
               disabled={!newProjectName.trim() || isLoading || isCreating}
               className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
+              style={{
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              }}
             >
-              {isLoading || isCreating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
+              {isLoading || isCreating ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                "Add"
+              )}
             </button>
           </div>
         ) : (

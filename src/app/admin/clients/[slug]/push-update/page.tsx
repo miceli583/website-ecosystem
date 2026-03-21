@@ -145,11 +145,12 @@ export default function PushUpdatePage({
 
             <Button
               onClick={handleSubmit}
-              disabled={!title || !hasContent || !projectId || pushUpdate.isPending}
+              disabled={
+                !title || !hasContent || !projectId || pushUpdate.isPending
+              }
               className="w-full"
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 color: "black",
               }}
             >

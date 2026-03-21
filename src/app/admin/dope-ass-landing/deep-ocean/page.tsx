@@ -154,7 +154,13 @@ function DeepOceanLandingPageContent() {
 
 export default function DeepOceanLandingPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <DeepOceanLandingPageContent />
     </Suspense>
   );

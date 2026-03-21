@@ -38,9 +38,7 @@ export function ListItemSkeleton({
 
       {/* Right: Metadata */}
       <div className="flex flex-shrink-0 items-center gap-4">
-        {showSecondaryText && (
-          <Skeleton className="hidden h-3 w-20 sm:block" />
-        )}
+        {showSecondaryText && <Skeleton className="hidden h-3 w-20 sm:block" />}
         {showDate && <Skeleton className="h-3 w-16" />}
       </div>
     </div>

@@ -154,7 +154,13 @@ function EmeraldTealLandingPageContent() {
 
 export default function EmeraldTealLandingPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <EmeraldTealLandingPageContent />
     </Suspense>
   );

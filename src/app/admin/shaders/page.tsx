@@ -72,8 +72,7 @@ function ShadersContent() {
             style={{
               fontFamily: "'Quattrocento Sans', serif",
               letterSpacing: "0.08em",
-              background:
-                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -113,10 +112,7 @@ function ShadersContent() {
                       "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                   }}
                 >
-                  <Sparkles
-                    className="h-4 w-4"
-                    style={{ color: "#D4AF37" }}
-                  />
+                  <Sparkles className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 </div>
               </div>
               <h3 className="mb-1 text-sm font-semibold text-white">

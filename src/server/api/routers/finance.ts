@@ -1,5 +1,15 @@
 import { z } from "zod";
-import { eq, and, gte, lt, sql, desc, asc, inArray, isNotNull } from "drizzle-orm";
+import {
+  eq,
+  and,
+  gte,
+  lt,
+  sql,
+  desc,
+  asc,
+  inArray,
+  isNotNull,
+} from "drizzle-orm";
 import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
 import { stripeLive } from "~/lib/stripe-live";
 import {
@@ -44,93 +54,301 @@ const CATEGORIZATION_RULES: Array<{
   isTaxDeductible: boolean;
 }> = [
   // Software & Subscriptions
-  { pattern: /vercel/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /supabase/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /anthropic|claude/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /openai/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /github/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /figma/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /notion/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /slack/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /google\s*(cloud|workspace|domains)/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /aws|amazon web/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /netlify/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /heroku/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /digital\s*ocean/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /make\.com|integromat/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /zapier/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /postmark|resend|sendgrid|mailgun/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /adobe/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /canva/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /1password|lastpass|bitwarden/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
-  { pattern: /linear|jira|asana/i, categoryName: "Software & Subscriptions", isTaxDeductible: true },
+  {
+    pattern: /vercel/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /supabase/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /anthropic|claude/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /openai/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /github/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /figma/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /notion/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /slack/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /google\s*(cloud|workspace|domains)/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /aws|amazon web/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /netlify/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /heroku/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /digital\s*ocean/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /make\.com|integromat/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /zapier/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /postmark|resend|sendgrid|mailgun/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /adobe/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /canva/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /1password|lastpass|bitwarden/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /linear|jira|asana/i,
+    categoryName: "Software & Subscriptions",
+    isTaxDeductible: true,
+  },
 
   // Advertising & Marketing
-  { pattern: /namecheap|godaddy|cloudflare.*domain|porkbun/i, categoryName: "Advertising & Marketing", isTaxDeductible: true },
-  { pattern: /google\s*ads|facebook\s*ads|meta\s*ads/i, categoryName: "Advertising & Marketing", isTaxDeductible: true },
-  { pattern: /mailchimp|convertkit|beehiiv/i, categoryName: "Advertising & Marketing", isTaxDeductible: true },
+  {
+    pattern: /namecheap|godaddy|cloudflare.*domain|porkbun/i,
+    categoryName: "Advertising & Marketing",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /google\s*ads|facebook\s*ads|meta\s*ads/i,
+    categoryName: "Advertising & Marketing",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /mailchimp|convertkit|beehiiv/i,
+    categoryName: "Advertising & Marketing",
+    isTaxDeductible: true,
+  },
 
   // Commissions & Fees
-  { pattern: /stripe/i, categoryName: "Commissions & Fees", isTaxDeductible: true },
-  { pattern: /paypal/i, categoryName: "Commissions & Fees", isTaxDeductible: true },
-  { pattern: /square/i, categoryName: "Commissions & Fees", isTaxDeductible: true },
+  {
+    pattern: /stripe/i,
+    categoryName: "Commissions & Fees",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /paypal/i,
+    categoryName: "Commissions & Fees",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /square/i,
+    categoryName: "Commissions & Fees",
+    isTaxDeductible: true,
+  },
 
   // Equipment & Hardware
-  { pattern: /apple|macbook|ipad|iphone/i, categoryName: "Equipment & Hardware", isTaxDeductible: true },
-  { pattern: /dell|lenovo|hp\b/i, categoryName: "Equipment & Hardware", isTaxDeductible: true },
-  { pattern: /amazon(?!\s*web)/i, categoryName: "Equipment & Hardware", isTaxDeductible: true },
+  {
+    pattern: /apple|macbook|ipad|iphone/i,
+    categoryName: "Equipment & Hardware",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /dell|lenovo|hp\b/i,
+    categoryName: "Equipment & Hardware",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /amazon(?!\s*web)/i,
+    categoryName: "Equipment & Hardware",
+    isTaxDeductible: true,
+  },
 
   // Education & Training
-  { pattern: /udemy|coursera|skillshare|linkedin\s*learning/i, categoryName: "Education & Training", isTaxDeductible: true },
-  { pattern: /conference|summit|workshop/i, categoryName: "Education & Training", isTaxDeductible: true },
+  {
+    pattern: /udemy|coursera|skillshare|linkedin\s*learning/i,
+    categoryName: "Education & Training",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /conference|summit|workshop/i,
+    categoryName: "Education & Training",
+    isTaxDeductible: true,
+  },
 
   // Bank & Finance Fees
-  { pattern: /mercury.*fee|bank\s*fee|wire\s*fee/i, categoryName: "Bank & Finance Fees", isTaxDeductible: true },
+  {
+    pattern: /mercury.*fee|bank\s*fee|wire\s*fee/i,
+    categoryName: "Bank & Finance Fees",
+    isTaxDeductible: true,
+  },
 
   // Meals & Entertainment
-  { pattern: /uber\s*eats|doordash|grubhub|postmates/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
-  { pattern: /h-?e-?b\b|heb\b|h\.e\.b/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
-  { pattern: /walmart|target|costco|sam'?s\s*club/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
-  { pattern: /starbucks|dunkin|coffee|cafe|bakery/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
-  { pattern: /restaurant|grill|pizza|burger|taco|sushi|diner|bistro|kitchen/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
-  { pattern: /chipotle|chick-?fil-?a|whataburger|panera|subway/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
-  { pattern: /cabana|bar\s|lounge|pub\b|brewery/i, categoryName: "Meals & Entertainment", isTaxDeductible: true },
+  {
+    pattern: /uber\s*eats|doordash|grubhub|postmates/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /h-?e-?b\b|heb\b|h\.e\.b/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /walmart|target|costco|sam'?s\s*club/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /starbucks|dunkin|coffee|cafe|bakery/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /restaurant|grill|pizza|burger|taco|sushi|diner|bistro|kitchen/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /chipotle|chick-?fil-?a|whataburger|panera|subway/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /cabana|bar\s|lounge|pub\b|brewery/i,
+    categoryName: "Meals & Entertainment",
+    isTaxDeductible: true,
+  },
 
   // Car & Vehicle
-  { pattern: /shell\b|exxon|chevron|texaco|valero|gas\s*station|fuel|bp\b|citgo/i, categoryName: "Car & Vehicle", isTaxDeductible: true },
-  { pattern: /car\s*wash|jiffy\s*lube|autozone|o'?reilly/i, categoryName: "Car & Vehicle", isTaxDeductible: true },
-  { pattern: /parking|toll|ez-?pass/i, categoryName: "Car & Vehicle", isTaxDeductible: true },
+  {
+    pattern:
+      /shell\b|exxon|chevron|texaco|valero|gas\s*station|fuel|bp\b|citgo/i,
+    categoryName: "Car & Vehicle",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /car\s*wash|jiffy\s*lube|autozone|o'?reilly/i,
+    categoryName: "Car & Vehicle",
+    isTaxDeductible: true,
+  },
+  {
+    pattern: /parking|toll|ez-?pass/i,
+    categoryName: "Car & Vehicle",
+    isTaxDeductible: true,
+  },
 
   // Travel
-  { pattern: /uber(?!\s*eats)|lyft/i, categoryName: "Travel", isTaxDeductible: true },
-  { pattern: /airbnb|hotel|airline|delta|united|american\s*air|southwest|jetblue/i, categoryName: "Travel", isTaxDeductible: true },
+  {
+    pattern: /uber(?!\s*eats)|lyft/i,
+    categoryName: "Travel",
+    isTaxDeductible: true,
+  },
+  {
+    pattern:
+      /airbnb|hotel|airline|delta|united|american\s*air|southwest|jetblue/i,
+    categoryName: "Travel",
+    isTaxDeductible: true,
+  },
 
   // Utilities
-  { pattern: /comcast|xfinity|verizon|at&t|t-?mobile/i, categoryName: "Utilities", isTaxDeductible: true },
+  {
+    pattern: /comcast|xfinity|verizon|at&t|t-?mobile/i,
+    categoryName: "Utilities",
+    isTaxDeductible: true,
+  },
 
   // Insurance
-  { pattern: /insurance|policy/i, categoryName: "Insurance", isTaxDeductible: true },
+  {
+    pattern: /insurance|policy/i,
+    categoryName: "Insurance",
+    isTaxDeductible: true,
+  },
 
   // Legal & Professional
-  { pattern: /attorney|law\s*firm|legal|accountant|cpa/i, categoryName: "Legal & Professional", isTaxDeductible: true },
+  {
+    pattern: /attorney|law\s*firm|legal|accountant|cpa/i,
+    categoryName: "Legal & Professional",
+    isTaxDeductible: true,
+  },
 
   // Contract Labor
-  { pattern: /fiverr|upwork|toptal|freelanc/i, categoryName: "Contract Labor", isTaxDeductible: true },
+  {
+    pattern: /fiverr|upwork|toptal|freelanc/i,
+    categoryName: "Contract Labor",
+    isTaxDeductible: true,
+  },
 
   // Rent & Lease
-  { pattern: /wework|co-?working|regus/i, categoryName: "Rent & Lease", isTaxDeductible: true },
+  {
+    pattern: /wework|co-?working|regus/i,
+    categoryName: "Rent & Lease",
+    isTaxDeductible: true,
+  },
 
   // Taxes & Licenses
-  { pattern: /irs|tax\s*payment|state\s*tax|license\s*fee/i, categoryName: "Taxes & Licenses", isTaxDeductible: false },
+  {
+    pattern: /irs|tax\s*payment|state\s*tax|license\s*fee/i,
+    categoryName: "Taxes & Licenses",
+    isTaxDeductible: false,
+  },
 
   // Office Expenses
-  { pattern: /office\s*depot|staples|usps|fedex|ups\b/i, categoryName: "Office Expenses", isTaxDeductible: true },
+  {
+    pattern: /office\s*depot|staples|usps|fedex|ups\b/i,
+    categoryName: "Office Expenses",
+    isTaxDeductible: true,
+  },
 ];
 
 /**
  * Filter out failed/cancelled Mercury transactions from all calculations
  */
-function filterActiveMercuryTransactions(txs: MercuryTransaction[]): MercuryTransaction[] {
+function filterActiveMercuryTransactions(
+  txs: MercuryTransaction[]
+): MercuryTransaction[] {
   return txs.filter((t) => t.status !== "failed" && t.status !== "cancelled");
 }
 
@@ -143,7 +361,10 @@ function suggestCategory(
 
   for (const rule of CATEGORIZATION_RULES) {
     if (rule.pattern.test(text)) {
-      return { categoryName: rule.categoryName, isTaxDeductible: rule.isTaxDeductible };
+      return {
+        categoryName: rule.categoryName,
+        isTaxDeductible: rule.isTaxDeductible,
+      };
     }
   }
   return null;
@@ -160,7 +381,9 @@ function suggestCategoryFromDb(
 ): { categoryId: number; isTaxDeductible: boolean } | null {
   if (!counterpartyName && !bankDescription) return null;
 
-  const candidates = [counterpartyName, bankDescription].filter(Boolean) as string[];
+  const candidates = [counterpartyName, bankDescription].filter(
+    Boolean
+  ) as string[];
 
   for (const candidate of candidates) {
     const normalized = candidate.toLowerCase().trim();
@@ -241,8 +464,13 @@ export const financeRouter = createTRPCRouter({
         limit: 100,
       });
 
-      const successfulCharges = charges.data.filter((c) => c.status === "succeeded");
-      const totalRevenue = successfulCharges.reduce((sum, c) => sum + c.amount, 0);
+      const successfulCharges = charges.data.filter(
+        (c) => c.status === "succeeded"
+      );
+      const totalRevenue = successfulCharges.reduce(
+        (sum, c) => sum + c.amount,
+        0
+      );
 
       // Recent payments (last 10)
       const recentPayments = successfulCharges.slice(0, 10).map((c) => ({
@@ -301,7 +529,9 @@ export const financeRouter = createTRPCRouter({
           const items = sub.items.data.map((item) => {
             const product = item.price?.product;
             const productName =
-              typeof product === "object" && product !== null && "name" in product
+              typeof product === "object" &&
+              product !== null &&
+              "name" in product
                 ? (product as { name: string }).name
                 : null;
 
@@ -411,7 +641,9 @@ export const financeRouter = createTRPCRouter({
         );
         const filtered = filterActiveMercuryTransactions(rawTransactions);
         const hasMore = filtered.length > input.limit;
-        const transactions = hasMore ? filtered.slice(0, input.limit) : filtered;
+        const transactions = hasMore
+          ? filtered.slice(0, input.limit)
+          : filtered;
 
         const formatted = transactions.map((t: MercuryTransaction) => ({
           id: t.id,
@@ -455,7 +687,13 @@ export const financeRouter = createTRPCRouter({
         }
 
         const accountId = accounts[0]!.id;
-        const rawTxs = await getMercuryTransactions(accountId, 500, 0, input.start, input.end);
+        const rawTxs = await getMercuryTransactions(
+          accountId,
+          500,
+          0,
+          input.start,
+          input.end
+        );
         const txs = filterActiveMercuryTransactions(rawTxs);
 
         let totalIncome = 0;
@@ -507,12 +745,18 @@ export const financeRouter = createTRPCRouter({
           }
 
           // Total revenue from successful charges
-          const successfulCharges = charges.data.filter((c) => c.status === "succeeded");
-          const totalRevenue = successfulCharges.reduce((sum, c) => sum + c.amount, 0);
+          const successfulCharges = charges.data.filter(
+            (c) => c.status === "succeeded"
+          );
+          const totalRevenue = successfulCharges.reduce(
+            (sum, c) => sum + c.amount,
+            0
+          );
 
           // This month's revenue
           const now = new Date();
-          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
+          const startOfMonth =
+            new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
           const thisMonthRevenue = successfulCharges
             .filter((c) => c.created >= startOfMonth)
             .reduce((sum, c) => sum + c.amount, 0);
@@ -523,7 +767,10 @@ export const financeRouter = createTRPCRouter({
             totalRevenue,
             thisMonthRevenue,
             activeSubscriptions: subscriptions.data.length,
-            stripeBalance: balance.available.reduce((sum, b) => sum + b.amount, 0),
+            stripeBalance: balance.available.reduce(
+              (sum, b) => sum + b.amount,
+              0
+            ),
           };
         } catch (error) {
           console.error("Stripe overview error:", error);
@@ -605,7 +852,9 @@ export const financeRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const maxSort = await ctx.db
-        .select({ max: sql<number>`coalesce(max(${expenseCategories.sortOrder}), 0)` })
+        .select({
+          max: sql<number>`coalesce(max(${expenseCategories.sortOrder}), 0)`,
+        })
         .from(expenseCategories);
       const nextSort = (maxSort[0]?.max ?? 0) + 1;
 
@@ -737,7 +986,10 @@ export const financeRouter = createTRPCRouter({
           createdAt: expenses.createdAt,
         })
         .from(expenses)
-        .leftJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
+        .leftJoin(
+          expenseCategories,
+          eq(expenses.categoryId, expenseCategories.id)
+        )
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(expenses.date));
 
@@ -790,7 +1042,8 @@ export const financeRouter = createTRPCRouter({
       return ctx.db
         .select({
           id: mercuryTransactionCategories.id,
-          mercuryTransactionId: mercuryTransactionCategories.mercuryTransactionId,
+          mercuryTransactionId:
+            mercuryTransactionCategories.mercuryTransactionId,
           categoryId: mercuryTransactionCategories.categoryId,
           categoryName: expenseCategories.name,
           isTaxDeductible: mercuryTransactionCategories.isTaxDeductible,
@@ -850,7 +1103,9 @@ export const financeRouter = createTRPCRouter({
               )
           : [];
       const alreadyCategorized = new Set(
-        existing.map((e: { mercuryTransactionId: string }) => e.mercuryTransactionId)
+        existing.map(
+          (e: { mercuryTransactionId: string }) => e.mercuryTransactionId
+        )
       );
 
       // Backfill missing counterparty names on existing categorizations
@@ -881,8 +1136,12 @@ export const financeRouter = createTRPCRouter({
         .select({ id: expenseCategories.id, name: expenseCategories.name })
         .from(expenseCategories)
         .where(eq(expenseCategories.isActive, true));
-      const catNameToId = new Map<string, number>(allCategories.map((c: { name: string; id: number }) => [c.name, c.id]));
-      const catIdToName = new Map<number, string>(allCategories.map((c: { name: string; id: number }) => [c.id, c.name]));
+      const catNameToId = new Map<string, number>(
+        allCategories.map((c: { name: string; id: number }) => [c.name, c.id])
+      );
+      const catIdToName = new Map<number, string>(
+        allCategories.map((c: { name: string; id: number }) => [c.id, c.name])
+      );
 
       // Batch-load DB counterparty → category mappings (learned from past categorizations)
       const dbMappingRows = await ctx.db
@@ -892,14 +1151,22 @@ export const financeRouter = createTRPCRouter({
           isTaxDeductible: mercuryTransactionCategories.isTaxDeductible,
         })
         .from(mercuryTransactionCategories)
-        .where(sql`${mercuryTransactionCategories.counterpartyName} IS NOT NULL`);
+        .where(
+          sql`${mercuryTransactionCategories.counterpartyName} IS NOT NULL`
+        );
 
-      const dbMappings = new Map<string, { categoryId: number; isTaxDeductible: boolean }>();
+      const dbMappings = new Map<
+        string,
+        { categoryId: number; isTaxDeductible: boolean }
+      >();
       for (const row of dbMappingRows) {
         if (row.counterpartyName) {
           const key = row.counterpartyName.toLowerCase().trim();
           // Keep the most recent mapping (last wins since we iterate in order)
-          dbMappings.set(key, { categoryId: row.categoryId, isTaxDeductible: row.isTaxDeductible });
+          dbMappings.set(key, {
+            categoryId: row.categoryId,
+            isTaxDeductible: row.isTaxDeductible,
+          });
         }
       }
 
@@ -924,7 +1191,11 @@ export const financeRouter = createTRPCRouter({
         }
 
         // 1. Check DB history first (learned from past user categorizations)
-        const dbSuggestion = suggestCategoryFromDb(tx.counterpartyName, tx.bankDescription, dbMappings);
+        const dbSuggestion = suggestCategoryFromDb(
+          tx.counterpartyName,
+          tx.bankDescription,
+          dbMappings
+        );
         if (dbSuggestion) {
           const categoryName = catIdToName.get(dbSuggestion.categoryId);
           if (categoryName) {
@@ -1008,7 +1279,9 @@ export const financeRouter = createTRPCRouter({
 
       try {
         const startTs = Math.floor(new Date(input.year, 0, 1).getTime() / 1000);
-        const endTs = Math.floor(new Date(input.year + 1, 0, 1).getTime() / 1000);
+        const endTs = Math.floor(
+          new Date(input.year + 1, 0, 1).getTime() / 1000
+        );
 
         // Fetch all charges for the year (paginate if needed)
         let allCharges: Array<{ amount: number; created: number }> = [];
@@ -1073,7 +1346,10 @@ export const financeRouter = createTRPCRouter({
           categoryName: expenseCategories.name,
         })
         .from(expenses)
-        .leftJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
+        .leftJoin(
+          expenseCategories,
+          eq(expenses.categoryId, expenseCategories.id)
+        )
         .where(and(gte(expenses.date, startDate), lt(expenses.date, endDate)));
 
       // Group manual by month and category
@@ -1082,7 +1358,8 @@ export const financeRouter = createTRPCRouter({
         expenses: 0,
       }));
 
-      const categoryTotals: Record<string, { name: string; total: number }> = {};
+      const categoryTotals: Record<string, { name: string; total: number }> =
+        {};
 
       for (const exp of manualExpenses) {
         const d = new Date(exp.date);
@@ -1137,7 +1414,12 @@ export const financeRouter = createTRPCRouter({
               : [];
 
           const catMap = new Map<string, string | null>(
-            categorizations.map((c: { mercuryTransactionId: string; categoryName: string | null }) => [c.mercuryTransactionId, c.categoryName])
+            categorizations.map(
+              (c: {
+                mercuryTransactionId: string;
+                categoryName: string | null;
+              }) => [c.mercuryTransactionId, c.categoryName]
+            )
           );
 
           for (const tx of txs) {
@@ -1285,7 +1567,9 @@ export const financeRouter = createTRPCRouter({
                   )
               : [];
           const categorizedIds = new Set(
-            categorized.map((c: { mercuryTransactionId: string }) => c.mercuryTransactionId)
+            categorized.map(
+              (c: { mercuryTransactionId: string }) => c.mercuryTransactionId
+            )
           );
 
           for (const tx of txs) {
@@ -1328,7 +1612,8 @@ export const financeRouter = createTRPCRouter({
       try {
         const deductibleMercuryCats = await ctx.db
           .select({
-            mercuryTransactionId: mercuryTransactionCategories.mercuryTransactionId,
+            mercuryTransactionId:
+              mercuryTransactionCategories.mercuryTransactionId,
           })
           .from(mercuryTransactionCategories)
           .innerJoin(
@@ -1340,9 +1625,20 @@ export const financeRouter = createTRPCRouter({
         if (deductibleMercuryCats.length > 0) {
           const mercAccounts = await getMercuryAccounts();
           if (mercAccounts.length > 0) {
-            const deductibleRawTxs = await getMercuryTransactions(mercAccounts[0]!.id, 500, 0, startDate, endDate);
-            const deductibleTxs = filterActiveMercuryTransactions(deductibleRawTxs);
-            const deductibleIds = new Set(deductibleMercuryCats.map((c: { mercuryTransactionId: string }) => c.mercuryTransactionId));
+            const deductibleRawTxs = await getMercuryTransactions(
+              mercAccounts[0]!.id,
+              500,
+              0,
+              startDate,
+              endDate
+            );
+            const deductibleTxs =
+              filterActiveMercuryTransactions(deductibleRawTxs);
+            const deductibleIds = new Set(
+              deductibleMercuryCats.map(
+                (c: { mercuryTransactionId: string }) => c.mercuryTransactionId
+              )
+            );
             for (const tx of deductibleTxs) {
               if (tx.amount >= 0) continue;
               if (!deductibleIds.has(tx.id)) continue;
@@ -1411,7 +1707,10 @@ export const financeRouter = createTRPCRouter({
             and(gte(expenses.date, cStartDate), lt(expenses.date, cEndDate))
           );
 
-        compExpenses = cExpenses.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
+        compExpenses = cExpenses.reduce(
+          (sum: number, e: { amount: number }) => sum + e.amount,
+          0
+        );
 
         comparison = {
           revenue: compRevenue,
@@ -1504,28 +1803,40 @@ export const financeRouter = createTRPCRouter({
       // Deductible Mercury transactions — any categorized into an IRS category is deductible
       const deductibleMercuryCats = await ctx.db
         .select({
-          mercuryTransactionId: mercuryTransactionCategories.mercuryTransactionId,
+          mercuryTransactionId:
+            mercuryTransactionCategories.mercuryTransactionId,
           categoryName: expenseCategories.name,
           irsCategory: expenseCategories.irsCategory,
         })
         .from(mercuryTransactionCategories)
         .innerJoin(
           expenseCategories,
-          eq(
-            mercuryTransactionCategories.categoryId,
-            expenseCategories.id
-          )
+          eq(mercuryTransactionCategories.categoryId, expenseCategories.id)
         )
         .where(isNotNull(expenseCategories.irsCategory));
 
       // Fetch Mercury transactions for this year to get actual dollar amounts
       let mercuryDeductionTotal = 0;
-      const mercuryDeductionsByCategory: Record<string, { name: string; irsCategory: string | null; count: number; total: number }> = {};
+      const mercuryDeductionsByCategory: Record<
+        string,
+        {
+          name: string;
+          irsCategory: string | null;
+          count: number;
+          total: number;
+        }
+      > = {};
 
       try {
         const accounts = await getMercuryAccounts();
         if (accounts.length > 0 && deductibleMercuryCats.length > 0) {
-          const rawTxs = await getMercuryTransactions(accounts[0]!.id, 500, 0, startDate, endDate);
+          const rawTxs = await getMercuryTransactions(
+            accounts[0]!.id,
+            500,
+            0,
+            startDate,
+            endDate
+          );
           const txs = filterActiveMercuryTransactions(rawTxs);
           const txAmountMap = new Map(txs.map((t) => [t.id, t.amount]));
 
@@ -1537,7 +1848,12 @@ export const financeRouter = createTRPCRouter({
 
             const catName = cat.categoryName ?? "Uncategorized";
             if (!mercuryDeductionsByCategory[catName]) {
-              mercuryDeductionsByCategory[catName] = { name: catName, irsCategory: cat.irsCategory, count: 0, total: 0 };
+              mercuryDeductionsByCategory[catName] = {
+                name: catName,
+                irsCategory: cat.irsCategory,
+                count: 0,
+                total: 0,
+              };
             }
             mercuryDeductionsByCategory[catName].count++;
             mercuryDeductionsByCategory[catName].total += amountCents;
@@ -1550,7 +1866,9 @@ export const financeRouter = createTRPCRouter({
       // Merge manual + Mercury deductions by category
       const mergedDeductions = [...deductibleByCategory];
       for (const mercCat of Object.values(mercuryDeductionsByCategory)) {
-        const existing = mergedDeductions.find((d) => d.categoryName === mercCat.name);
+        const existing = mergedDeductions.find(
+          (d) => d.categoryName === mercCat.name
+        );
         if (existing) {
           existing.count += mercCat.count;
           existing.total = (existing.total ?? 0) + mercCat.total;
@@ -1574,10 +1892,9 @@ export const financeRouter = createTRPCRouter({
         totalDeductions,
         estimatedTaxableIncome: grossIncome - totalDeductions,
         deductibleByCategory: mergedDeductions,
-        deductibleMercuryCount: Object.values(mercuryDeductionsByCategory).reduce(
-          (sum, c) => sum + c.count,
-          0
-        ),
+        deductibleMercuryCount: Object.values(
+          mercuryDeductionsByCategory
+        ).reduce((sum, c) => sum + c.count, 0),
       };
     }),
 
@@ -1621,10 +1938,7 @@ export const financeRouter = createTRPCRouter({
         .from(mercuryTransactionCategories)
         .innerJoin(
           expenseCategories,
-          eq(
-            mercuryTransactionCategories.categoryId,
-            expenseCategories.id
-          )
+          eq(mercuryTransactionCategories.categoryId, expenseCategories.id)
         )
         .where(isNotNull(expenseCategories.irsCategory));
 
@@ -1639,15 +1953,23 @@ export const financeRouter = createTRPCRouter({
         deductible: boolean;
       }
 
-      const rows: TaxExportRow[] = manualDeductible.map((e: { date: string; vendor: string; categoryName: string | null; amount: number; description: string | null }) => ({
-        date: e.date,
-        vendor: e.vendor,
-        category: e.categoryName ?? "Uncategorized",
-        amount: e.amount, // cents
-        description: e.description ?? "",
-        source: "Manual" as const,
-        deductible: true,
-      }));
+      const rows: TaxExportRow[] = manualDeductible.map(
+        (e: {
+          date: string;
+          vendor: string;
+          categoryName: string | null;
+          amount: number;
+          description: string | null;
+        }) => ({
+          date: e.date,
+          vendor: e.vendor,
+          category: e.categoryName ?? "Uncategorized",
+          amount: e.amount, // cents
+          description: e.description ?? "",
+          source: "Manual" as const,
+          deductible: true,
+        })
+      );
 
       // Get Mercury tx details for categorized transactions
       try {
@@ -1655,11 +1977,20 @@ export const financeRouter = createTRPCRouter({
         if (accounts.length > 0 && mercuryCats.length > 0) {
           const rawTxs = await getMercuryTransactions(accounts[0]!.id, 500);
           const txs = filterActiveMercuryTransactions(rawTxs);
-          const catMap = new Map<string, { categoryName: string | null; notes: string | null }>(
-            mercuryCats.map((c: { mercuryTransactionId: string; categoryName: string | null; notes: string | null }) => [
-              c.mercuryTransactionId,
-              { categoryName: c.categoryName, notes: c.notes },
-            ])
+          const catMap = new Map<
+            string,
+            { categoryName: string | null; notes: string | null }
+          >(
+            mercuryCats.map(
+              (c: {
+                mercuryTransactionId: string;
+                categoryName: string | null;
+                notes: string | null;
+              }) => [
+                c.mercuryTransactionId,
+                { categoryName: c.categoryName, notes: c.notes },
+              ]
+            )
           );
 
           for (const tx of txs) {

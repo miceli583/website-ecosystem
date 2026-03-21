@@ -87,7 +87,9 @@ export function ListItem({
         </div>
       </div>
       <div className="flex flex-shrink-0 items-center gap-4 text-sm text-gray-500">
-        {secondaryText && <span className="hidden sm:inline">{secondaryText}</span>}
+        {secondaryText && (
+          <span className="hidden sm:inline">{secondaryText}</span>
+        )}
         {formattedDate && <span>{formattedDate}</span>}
         {href && external && !disabled && <ExternalLink className="h-4 w-4" />}
         {actions}
@@ -140,7 +142,9 @@ export function ListContainer({
   showClearFilters = false,
 }: ListContainerProps) {
   // Check if children is empty
-  const hasChildren = Array.isArray(children) ? children.length > 0 : !!children;
+  const hasChildren = Array.isArray(children)
+    ? children.length > 0
+    : !!children;
 
   if (!hasChildren) {
     return (

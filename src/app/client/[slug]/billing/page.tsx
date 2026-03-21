@@ -50,9 +50,7 @@ export default function ClientBillingPage({
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
       <h1 className="mb-2 text-3xl font-bold">Billing</h1>
-      <p className="mb-8 text-gray-400">
-        Invoices and payment history.
-      </p>
+      <p className="mb-8 text-gray-400">Invoices and payment history.</p>
 
       {invoices.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">

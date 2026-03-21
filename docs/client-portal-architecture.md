@@ -21,23 +21,27 @@ The client portal (`/portal/[slug]`) provides authenticated access for clients t
 ## Authentication Flow
 
 ### 1. Initial Access
+
 - User visits `/portal/[slug]`
 - Middleware checks for Supabase session
 - If no session → redirect to `/portal/[slug]/login`
 
 ### 2. Magic Link Login
+
 - User enters email at login page
 - Supabase sends magic link to email
 - Link redirects to `/portal/[slug]/auth/callback`
 - Callback exchanges code for session
 
 ### 3. Profile Claiming
+
 - On first login, if `portal_users.auth_user_id` is NULL
 - User is redirected to `/portal/[slug]/claim`
 - Claim page links Supabase auth user to portal_user record
 - Sets `auth_user_id` on the portal_users row
 
 ### 4. Authorization Check
+
 ```
 portal_users.email        → Must match authenticated user
 portal_users.client_slug  → Must match URL [slug] parameter
@@ -47,7 +51,9 @@ portal_users.is_active    → Must be true
 ## Database Schema
 
 ### `clients`
+
 Main client record (the organization).
+
 ```sql
 id              SERIAL PRIMARY KEY
 name            TEXT NOT NULL
@@ -60,7 +66,9 @@ notes           TEXT
 ```
 
 ### `portal_users`
+
 Individual users who can access the portal.
+
 ```sql
 id              UUID PRIMARY KEY DEFAULT gen_random_uuid()
 auth_user_id    UUID UNIQUE       -- Links to Supabase auth.users
@@ -73,7 +81,9 @@ phone           TEXT
 ```
 
 ### `client_projects`
+
 Projects belonging to a client.
+
 ```sql
 id              SERIAL PRIMARY KEY
 client_id       INTEGER REFERENCES clients(id)
@@ -83,7 +93,9 @@ status          TEXT DEFAULT 'active'
 ```
 
 ### `client_resources`
+
 Flexible resource system for demos, tools, proposals, etc.
+
 ```sql
 id              SERIAL PRIMARY KEY
 client_id       INTEGER REFERENCES clients(id)
@@ -101,14 +113,17 @@ stripe_product_id TEXT  -- For subscription-gated resources
 ## API Layer (tRPC)
 
 ### `portal` Router
+
 Located at `src/server/api/routers/portal.ts`
 
 **Queries:**
+
 - `getClientBySlug` - Fetch client with projects/updates
 - `getResources` - Fetch resources by section
 - `getProposals` - Fetch proposals with metadata
 
 **Mutations:**
+
 - `claimProfile` - Link auth user to portal_user
 - `createProposalCheckout` - Create Stripe checkout session
 
@@ -129,24 +144,27 @@ src/components/
 ## Proposal System
 
 ### Data Model
+
 Proposals are stored in `client_resources` with:
+
 - `section = 'proposals'`
 - `type = 'proposal'`
 - `metadata` containing:
+
 ```typescript
 interface ProposalMetadata {
-  status: 'draft' | 'sent' | 'accepted' | 'declined';
-  customerInfo?: { name, email, company };
+  status: "draft" | "sent" | "accepted" | "declined";
+  customerInfo?: { name; email; company };
   packages: Array<{
     id: string;
     name: string;
     description?: string;
     price: number;
-    type: 'one-time' | 'subscription';
-    interval?: 'month' | 'year';
+    type: "one-time" | "subscription";
+    interval?: "month" | "year";
     required?: boolean;
     popular?: boolean;
-    lineItems?: Array<{ name, quantity, unitPrice }>;
+    lineItems?: Array<{ name; quantity; unitPrice }>;
   }>;
   currency: string;
   notes?: string;
@@ -155,6 +173,7 @@ interface ProposalMetadata {
 ```
 
 ### Checkout Flow
+
 1. User opens proposal modal
 2. Selects desired packages
 3. Clicks "Checkout"
@@ -165,6 +184,7 @@ interface ProposalMetadata {
 ## Subscription-Gated Resources
 
 Resources can be linked to Stripe products via `stripe_product_id`:
+
 - When set, resource only appears if client has active subscription
 - Checked via `billing.getActiveSubscriptions` query
 - Enables "upgrade to unlock" patterns
@@ -172,11 +192,13 @@ Resources can be linked to Stripe products via `stripe_product_id`:
 ## Demo System
 
 Demos are stored as resources with `section = 'demos'`:
+
 - Listed on `/portal/[slug]/demos` page
 - URL points to demo route under `/portal/[slug]/demos/...`
 - Demo pages use dynamic `[slug]` for proper back-navigation
 
 ### Current Demos
+
 1. **Training Slide Generator** (`/portal/[slug]/demos/slides/`)
    - Input documents viewer
    - Presentation preview

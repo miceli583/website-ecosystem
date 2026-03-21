@@ -7,11 +7,7 @@
  */
 
 import Link from "next/link";
-import {
-  ShieldCheck,
-  BellRing,
-  Users,
-} from "lucide-react";
+import { ShieldCheck, BellRing, Users } from "lucide-react";
 import { STATS } from "~/lib/cargowatch-data";
 
 /* ---------- Main Component ---------- */
@@ -29,7 +25,7 @@ export function CargoWatchLanding({ baseUrl }: { baseUrl: string }) {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           {/* Alert Banner */}
           <div className="mx-auto mb-8 flex max-w-2xl items-center justify-center">
-            <div className="rounded-full bg-cw-red/10 px-4 py-2 text-sm font-medium text-cw-red ring-1 ring-inset ring-cw-red/20">
+            <div className="bg-cw-red/10 text-cw-red ring-cw-red/20 rounded-full px-4 py-2 text-sm font-medium ring-1 ring-inset">
               <BellRing className="mr-2 inline-block h-4 w-4" />
               $35 Billion Annual Cargo Theft Problem
             </div>
@@ -41,16 +37,16 @@ export function CargoWatchLanding({ baseUrl }: { baseUrl: string }) {
               Watch. Alert. Protect.
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-300">
-              A collaborative community technology platform for the US maritime, intermodal, and
-              trucking community. Share real-time alerts, report incidents, and protect America&apos;s
-              freight network together.
+              A collaborative community technology platform for the US maritime,
+              intermodal, and trucking community. Share real-time alerts, report
+              incidents, and protect America&apos;s freight network together.
             </p>
 
             {/* CTA Buttons */}
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 href={`${baseUrl}/report`}
-                className="inline-flex items-center gap-2 rounded-md bg-cw-red px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-cw-red-hover"
+                className="bg-cw-red hover:bg-cw-red-hover inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors"
               >
                 <BellRing className="h-4 w-4" />
                 Report an Incident
@@ -78,30 +74,30 @@ export function CargoWatchLanding({ baseUrl }: { baseUrl: string }) {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-2">
             {/* Real-Time Alerts */}
-            <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-cw-red/10">
-                <ShieldCheck className="h-6 w-6 text-cw-red" />
+            <div className="bg-cw-navy-light rounded-lg border border-gray-700 p-6">
+              <div className="bg-cw-red/10 mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+                <ShieldCheck className="text-cw-red h-6 w-6" />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-white">
                 Real-Time Alerts
               </h3>
               <p className="text-sm text-gray-400">
-                Instant notifications of suspicious activity in your region with photos, videos, and
-                details
+                Instant notifications of suspicious activity in your region with
+                photos, videos, and details
               </p>
             </div>
 
             {/* Community-Driven */}
-            <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-cw-red/10">
-                <Users className="h-6 w-6 text-cw-red" />
+            <div className="bg-cw-navy-light rounded-lg border border-gray-700 p-6">
+              <div className="bg-cw-red/10 mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+                <Users className="text-cw-red h-6 w-6" />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-white">
                 Community-Driven
               </h3>
               <p className="text-sm text-gray-400">
-                Connect with neighboring supply chain members and law enforcement to combat cargo
-                crime
+                Connect with neighboring supply chain members and law
+                enforcement to combat cargo crime
               </p>
             </div>
           </div>
@@ -113,11 +109,11 @@ export function CargoWatchLanding({ baseUrl }: { baseUrl: string }) {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-4">
             <div className="rounded-lg bg-gray-50 p-6 text-center">
-              <div className="text-3xl font-bold text-cw-red">
+              <div className="text-cw-red text-3xl font-bold">
                 {STATS.totalIncidents}
               </div>
               <div className="mt-1 text-sm text-gray-600">Total Incidents</div>
-              <div className="mt-1 text-xs text-cw-red">Live Data</div>
+              <div className="text-cw-red mt-1 text-xs">Live Data</div>
             </div>
             <div className="rounded-lg bg-gray-50 p-6 text-center">
               <div className="text-3xl font-bold" style={{ color: "#2563EB" }}>
@@ -160,28 +156,29 @@ export function CargoWatchLanding({ baseUrl }: { baseUrl: string }) {
           <ShieldCheck className="mx-auto h-12 w-12 text-white" />
           <h2 className="mt-6 text-3xl font-bold text-white">Our Mission</h2>
           <p className="mt-4 text-lg text-white/90">
-            To create a collaborative community technology platform for the US maritime, intermodal,
-            and trucking community that aims to watch, alert, and protect our US freight network, our
-            people, and our cargo.
+            To create a collaborative community technology platform for the US
+            maritime, intermodal, and trucking community that aims to watch,
+            alert, and protect our US freight network, our people, and our
+            cargo.
           </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 bg-cw-navy-dark py-12">
+      <footer className="bg-cw-navy-dark border-t border-gray-800 py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
             <div className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cw-red">
+              <div className="bg-cw-red flex h-8 w-8 items-center justify-center rounded-lg">
                 <ShieldCheck className="h-5 w-5 text-white" />
               </div>
-              <span className="text-sm font-bold uppercase tracking-wide text-white">
+              <span className="text-sm font-bold tracking-wide text-white uppercase">
                 Cargo Watch
               </span>
             </div>
             <p className="text-sm text-gray-400">
-              &copy; {new Date().getFullYear()} CargoWatch. Protecting America&apos;s Freight
-              Network.
+              &copy; {new Date().getFullYear()} CargoWatch. Protecting
+              America&apos;s Freight Network.
             </p>
           </div>
         </div>

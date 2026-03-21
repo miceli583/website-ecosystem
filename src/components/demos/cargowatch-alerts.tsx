@@ -18,11 +18,7 @@ import {
   Camera,
   Video,
 } from "lucide-react";
-import {
-  INCIDENTS,
-  REGIONS,
-  type CWIncident,
-} from "~/lib/cargowatch-data";
+import { INCIDENTS, REGIONS, type CWIncident } from "~/lib/cargowatch-data";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -89,13 +85,15 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [regionSearch, setRegionSearch] = useState("");
   const [showRegionDropdown, setShowRegionDropdown] = useState(false);
-  const [expandedIncidentId, setExpandedIncidentId] = useState<string | null>(null);
+  const [expandedIncidentId, setExpandedIncidentId] = useState<string | null>(
+    null
+  );
 
   // Filter regions based on search
   const filteredRegions = useMemo(() => {
     if (!regionSearch) return REGIONS;
     return REGIONS.filter((r) =>
-      r.name.toLowerCase().includes(regionSearch.toLowerCase()),
+      r.name.toLowerCase().includes(regionSearch.toLowerCase())
     );
   }, [regionSearch]);
 
@@ -105,7 +103,10 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
       if (selectedRegion !== "all" && incident.region !== selectedRegion) {
         return false;
       }
-      if (selectedSeverity !== "all" && incident.severityLevel !== selectedSeverity) {
+      if (
+        selectedSeverity !== "all" &&
+        incident.severityLevel !== selectedSeverity
+      ) {
         return false;
       }
       if (selectedType !== "all" && incident.incidentType !== selectedType) {
@@ -116,19 +117,23 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
   }, [selectedRegion, selectedSeverity, selectedType]);
 
   return (
-    <div className="w-full bg-cw-navy">
+    <div className="bg-cw-navy w-full">
       {/* Header */}
-      <div className="border-b border-gray-700 bg-cw-navy-dark">
+      <div className="bg-cw-navy-dark border-b border-gray-700">
         <div className="mx-auto max-w-7xl px-6 py-4 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white">Real-Time Alert Feed</h1>
+              <h1 className="text-2xl font-bold text-white">
+                Real-Time Alert Feed
+              </h1>
               <p className="mt-1 text-sm text-gray-400">
                 Community-reported incidents across the global freight network
               </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-cw-red">{INCIDENTS.length}</div>
+              <div className="text-cw-red text-2xl font-bold">
+                {INCIDENTS.length}
+              </div>
               <div className="text-xs text-gray-400">Total Alerts</div>
             </div>
           </div>
@@ -136,7 +141,7 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
       </div>
 
       {/* Filters */}
-      <div className="border-b border-gray-700 bg-cw-navy">
+      <div className="bg-cw-navy border-b border-gray-700">
         <div className="mx-auto max-w-7xl px-6 py-3 lg:px-8">
           <div className="mb-2 text-xs text-gray-400">
             Showing {filteredIncidents.length} of {INCIDENTS.length} alerts
@@ -148,24 +153,24 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
               <div className="relative">
                 <button
                   onClick={() => setShowRegionDropdown(!showRegionDropdown)}
-                  className="w-full rounded-md border border-gray-600 bg-cw-navy-light px-4 py-2 text-left text-sm text-white hover:bg-cw-navy"
+                  className="bg-cw-navy-light hover:bg-cw-navy w-full rounded-md border border-gray-600 px-4 py-2 text-left text-sm text-white"
                 >
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <span className="ml-6">
                     {selectedRegion === "all" ? "All Regions" : selectedRegion}
                   </span>
                 </button>
 
                 {showRegionDropdown && (
-                  <div className="absolute z-10 mt-1 max-h-96 w-full overflow-y-auto rounded-md border border-gray-600 bg-cw-navy-dark shadow-lg">
+                  <div className="bg-cw-navy-dark absolute z-10 mt-1 max-h-96 w-full overflow-y-auto rounded-md border border-gray-600 shadow-lg">
                     {/* Search Input */}
-                    <div className="sticky top-0 bg-cw-navy-dark p-2">
+                    <div className="bg-cw-navy-dark sticky top-0 p-2">
                       <input
                         type="text"
                         placeholder="Search regions..."
                         value={regionSearch}
                         onChange={(e) => setRegionSearch(e.target.value)}
-                        className="w-full rounded border border-gray-600 bg-cw-navy px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-cw-red focus:outline-none"
+                        className="bg-cw-navy focus:border-cw-red w-full rounded border border-gray-600 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
@@ -177,7 +182,7 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
                         setShowRegionDropdown(false);
                         setRegionSearch("");
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cw-navy"
+                      className="hover:bg-cw-navy w-full px-4 py-2 text-left text-sm text-white"
                     >
                       All Regions
                     </button>
@@ -191,7 +196,7 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
                           setShowRegionDropdown(false);
                           setRegionSearch("");
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cw-navy"
+                        className="hover:bg-cw-navy w-full px-4 py-2 text-left text-sm text-white"
                       >
                         {region.name}
                         <span className="ml-2 text-xs text-gray-500">
@@ -212,11 +217,13 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
 
             {/* Severity Filter */}
             <div className="min-w-[180px] flex-1">
-              <label className="mb-1 block text-xs text-gray-400">Severity</label>
+              <label className="mb-1 block text-xs text-gray-400">
+                Severity
+              </label>
               <select
                 value={selectedSeverity}
                 onChange={(e) => setSelectedSeverity(e.target.value)}
-                className="w-full rounded-md border border-gray-600 bg-cw-navy-light px-4 py-2 text-sm text-white"
+                className="bg-cw-navy-light w-full rounded-md border border-gray-600 px-4 py-2 text-sm text-white"
               >
                 <option value="all">All Severity</option>
                 <option value="critical">Critical</option>
@@ -228,11 +235,13 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
 
             {/* Type Filter */}
             <div className="min-w-[180px] flex-1">
-              <label className="mb-1 block text-xs text-gray-400">Incident Type</label>
+              <label className="mb-1 block text-xs text-gray-400">
+                Incident Type
+              </label>
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full rounded-md border border-gray-600 bg-cw-navy-light px-4 py-2 text-sm text-white"
+                className="bg-cw-navy-light w-full rounded-md border border-gray-600 px-4 py-2 text-sm text-white"
               >
                 <option value="all">All Types</option>
                 <option value="theft">Theft</option>
@@ -246,14 +255,16 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
       </div>
 
       {/* Scrollable Alerts Container */}
-      <div className="overflow-hidden bg-cw-navy px-6 py-4 lg:px-8">
+      <div className="bg-cw-navy overflow-hidden px-6 py-4 lg:px-8">
         <div className="mx-auto max-w-5xl">
-          <div className="max-h-[65vh] overflow-y-auto rounded-lg border-2 border-gray-700 bg-cw-navy-dark/30 p-4">
+          <div className="bg-cw-navy-dark/30 max-h-[65vh] overflow-y-auto rounded-lg border-2 border-gray-700 p-4">
             <div className="space-y-4">
               {filteredIncidents.length === 0 ? (
-                <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-12 text-center">
+                <div className="bg-cw-navy-light rounded-lg border border-gray-700 p-12 text-center">
                   <AlertTriangle className="mx-auto h-12 w-12 text-gray-500" />
-                  <h3 className="mt-4 text-lg font-semibold text-white">No alerts found</h3>
+                  <h3 className="mt-4 text-lg font-semibold text-white">
+                    No alerts found
+                  </h3>
                   <p className="mt-2 text-gray-400">
                     Try adjusting your filters to see more results
                   </p>
@@ -266,7 +277,7 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
                     expanded={expandedIncidentId === incident.id}
                     onToggle={() =>
                       setExpandedIncidentId(
-                        expandedIncidentId === incident.id ? null : incident.id,
+                        expandedIncidentId === incident.id ? null : incident.id
                       )
                     }
                   />
@@ -278,17 +289,17 @@ export function CargoWatchAlerts({ baseUrl }: { baseUrl: string }) {
       </div>
 
       {/* Fixed CTA Footer */}
-      <div className="border-t border-gray-700 bg-cw-navy-dark">
+      <div className="bg-cw-navy-dark border-t border-gray-700">
         <div className="mx-auto max-w-7xl px-6 py-6 lg:px-8">
-          <div className="rounded-lg border border-cw-red/50 bg-cw-red/10 p-6 text-center">
-            <AlertTriangle className="mx-auto h-10 w-10 text-cw-red" />
+          <div className="border-cw-red/50 bg-cw-red/10 rounded-lg border p-6 text-center">
+            <AlertTriangle className="text-cw-red mx-auto h-10 w-10" />
             <h3 className="mt-3 text-lg font-semibold text-white">
               See something suspicious?
             </h3>
             <p className="mt-1 text-sm text-gray-300">
               Report an incident to alert the community and law enforcement
             </p>
-            <button className="mt-4 inline-block rounded-md bg-cw-red px-6 py-2.5 text-sm font-semibold text-white hover:bg-cw-red-hover">
+            <button className="bg-cw-red hover:bg-cw-red-hover mt-4 inline-block rounded-md px-6 py-2.5 text-sm font-semibold text-white">
               Report an Incident
             </button>
           </div>
@@ -312,7 +323,7 @@ function IncidentCard({
   onToggle: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-gray-700 bg-cw-navy-light p-6 transition hover:border-gray-600">
+    <div className="bg-cw-navy-light rounded-lg border border-gray-700 p-6 transition hover:border-gray-600">
       {/* Header */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
@@ -343,7 +354,7 @@ function IncidentCard({
 
       {/* Location */}
       <div className="mb-3 flex items-center gap-2 text-gray-300">
-        <MapPin className="h-5 w-5 text-cw-red" />
+        <MapPin className="text-cw-red h-5 w-5" />
         <span className="font-medium">{incident.region}</span>
         <span className="text-gray-500">&bull;</span>
         <span className="text-gray-400">{incident.specificLocation}</span>
@@ -357,17 +368,19 @@ function IncidentCard({
         incident.estimatedLoss > 0 ||
         incident.incidentDate ||
         incident.reporterCompany) && (
-        <div className="mb-4 grid grid-cols-2 gap-4 rounded bg-cw-navy p-4 md:grid-cols-4">
+        <div className="bg-cw-navy mb-4 grid grid-cols-2 gap-4 rounded p-4 md:grid-cols-4">
           {incident.cargoType !== "None" && (
             <div>
               <div className="text-xs text-gray-500">Cargo Type</div>
-              <div className="font-medium capitalize text-white">{incident.cargoType}</div>
+              <div className="font-medium text-white capitalize">
+                {incident.cargoType}
+              </div>
             </div>
           )}
           {incident.estimatedLoss > 0 && (
             <div>
               <div className="text-xs text-gray-500">Estimated Loss</div>
-              <div className="font-medium text-cw-severity-critical">
+              <div className="text-cw-severity-critical font-medium">
                 ${incident.estimatedLoss.toLocaleString()}
               </div>
             </div>
@@ -383,7 +396,9 @@ function IncidentCard({
           {incident.reporterCompany && (
             <div>
               <div className="text-xs text-gray-500">Reported By</div>
-              <div className="font-medium text-white">{incident.reporterCompany}</div>
+              <div className="font-medium text-white">
+                {incident.reporterCompany}
+              </div>
             </div>
           )}
         </div>
@@ -421,7 +436,7 @@ function IncidentCard({
         </div>
         <button
           onClick={onToggle}
-          className="ml-auto text-cw-red hover:text-cw-red-hover"
+          className="text-cw-red hover:text-cw-red-hover ml-auto"
         >
           {expanded ? "Hide Details \u2191" : "View Details \u2192"}
         </button>
@@ -431,8 +446,10 @@ function IncidentCard({
       {expanded && (
         <div className="mt-4 space-y-4 border-t border-gray-700 pt-4">
           {/* Full Location Details */}
-          <div className="rounded-lg bg-cw-navy p-4">
-            <h4 className="mb-2 text-sm font-semibold text-white">Full Location Details</h4>
+          <div className="bg-cw-navy rounded-lg p-4">
+            <h4 className="mb-2 text-sm font-semibold text-white">
+              Full Location Details
+            </h4>
             <div className="grid gap-3 text-sm md:grid-cols-2">
               <div>
                 <span className="text-gray-500">Region:</span>
@@ -440,17 +457,23 @@ function IncidentCard({
               </div>
               <div>
                 <span className="text-gray-500">Specific Location:</span>
-                <span className="ml-2 text-white">{incident.specificLocation}</span>
+                <span className="ml-2 text-white">
+                  {incident.specificLocation}
+                </span>
               </div>
               {incident.latitude && incident.longitude && (
                 <>
                   <div>
                     <span className="text-gray-500">Latitude:</span>
-                    <span className="ml-2 font-mono text-white">{incident.latitude}</span>
+                    <span className="ml-2 font-mono text-white">
+                      {incident.latitude}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-500">Longitude:</span>
-                    <span className="ml-2 font-mono text-white">{incident.longitude}</span>
+                    <span className="ml-2 font-mono text-white">
+                      {incident.longitude}
+                    </span>
                   </div>
                 </>
               )}
@@ -458,14 +481,16 @@ function IncidentCard({
           </div>
 
           {/* Incident Timeline */}
-          <div className="rounded-lg bg-cw-navy p-4">
+          <div className="bg-cw-navy rounded-lg p-4">
             <h4 className="mb-2 text-sm font-semibold text-white">Timeline</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Incident Occurred:</span>
                 <span className="text-white">
                   {new Date(incident.incidentDate).toLocaleDateString()} at{" "}
-                  {incident.incidentTime !== "None" ? incident.incidentTime : "Unknown"}
+                  {incident.incidentTime !== "None"
+                    ? incident.incidentTime
+                    : "Unknown"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -478,9 +503,13 @@ function IncidentCard({
           </div>
 
           {/* Reporter Information */}
-          {(incident.reporterName || incident.reporterCompany || incident.reporterContact) && (
-            <div className="rounded-lg bg-cw-navy p-4">
-              <h4 className="mb-2 text-sm font-semibold text-white">Reporter Information</h4>
+          {(incident.reporterName ||
+            incident.reporterCompany ||
+            incident.reporterContact) && (
+            <div className="bg-cw-navy rounded-lg p-4">
+              <h4 className="mb-2 text-sm font-semibold text-white">
+                Reporter Information
+              </h4>
               <div className="space-y-2 text-sm">
                 {incident.reporterName && (
                   <div className="flex justify-between">
@@ -491,13 +520,17 @@ function IncidentCard({
                 {incident.reporterCompany && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Company:</span>
-                    <span className="text-white">{incident.reporterCompany}</span>
+                    <span className="text-white">
+                      {incident.reporterCompany}
+                    </span>
                   </div>
                 )}
                 {incident.reporterContact && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">Contact:</span>
-                    <span className="text-white">{incident.reporterContact}</span>
+                    <span className="text-white">
+                      {incident.reporterContact}
+                    </span>
                   </div>
                 )}
               </div>
@@ -505,19 +538,27 @@ function IncidentCard({
           )}
 
           {/* Engagement Stats */}
-          <div className="rounded-lg bg-cw-navy p-4">
-            <h4 className="mb-2 text-sm font-semibold text-white">Community Engagement</h4>
+          <div className="bg-cw-navy rounded-lg p-4">
+            <h4 className="mb-2 text-sm font-semibold text-white">
+              Community Engagement
+            </h4>
             <div className="grid grid-cols-3 gap-4 text-center text-sm">
               <div>
-                <div className="text-2xl font-bold text-blue-400">{incident.viewCount}</div>
+                <div className="text-2xl font-bold text-blue-400">
+                  {incident.viewCount}
+                </div>
                 <div className="text-gray-500">Views</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-400">{incident.commentCount}</div>
+                <div className="text-2xl font-bold text-green-400">
+                  {incident.commentCount}
+                </div>
                 <div className="text-gray-500">Comments</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-purple-400">{incident.shareCount}</div>
+                <div className="text-2xl font-bold text-purple-400">
+                  {incident.shareCount}
+                </div>
                 <div className="text-gray-500">Shares</div>
               </div>
             </div>
@@ -525,13 +566,13 @@ function IncidentCard({
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <button className="flex-1 rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-cw-navy">
+            <button className="hover:bg-cw-navy flex-1 rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-white">
               Share Alert
             </button>
-            <button className="flex-1 rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-cw-navy">
+            <button className="hover:bg-cw-navy flex-1 rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-white">
               Add Comment
             </button>
-            <button className="flex-1 rounded-md bg-cw-red px-4 py-2 text-sm font-semibold text-white hover:bg-cw-red-hover">
+            <button className="bg-cw-red hover:bg-cw-red-hover flex-1 rounded-md px-4 py-2 text-sm font-semibold text-white">
               Contact Reporter
             </button>
           </div>

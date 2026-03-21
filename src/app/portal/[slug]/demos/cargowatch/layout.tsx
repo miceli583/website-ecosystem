@@ -31,7 +31,7 @@ export default function CargoWatchLayout({
     pathname.includes("/profile");
 
   return (
-    <div className="min-h-screen bg-cw-navy">
+    <div className="bg-cw-navy min-h-screen">
       {/* Back to Demos sliver */}
       <div
         className="border-b px-4 py-1.5 sm:px-6"
@@ -49,16 +49,16 @@ export default function CargoWatchLayout({
       </div>
 
       {/* CargoWatch Main Nav */}
-      <nav className="sticky top-0 z-50 border-b border-gray-800 bg-cw-navy-dark">
+      <nav className="bg-cw-navy-dark sticky top-0 z-50 border-b border-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href={baseUrl} className="flex items-center space-x-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cw-red">
+              <div className="bg-cw-red flex h-10 w-10 items-center justify-center rounded-lg">
                 <ShieldCheck className="h-6 w-6 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold uppercase tracking-wide text-white">
+                <span className="text-sm font-bold tracking-wide text-white uppercase">
                   Cargo Watch
                 </span>
                 <span className="text-xs text-gray-400">
@@ -81,7 +81,7 @@ export default function CargoWatchLayout({
                     className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-cw-navy-light text-white"
-                        : "text-gray-300 hover:bg-cw-navy-light hover:text-white"
+                        : "hover:bg-cw-navy-light text-gray-300 hover:text-white"
                     }`}
                   >
                     {item.name}
@@ -90,7 +90,7 @@ export default function CargoWatchLayout({
               })}
               <Link
                 href={isDashboardRoute ? baseUrl : `${baseUrl}/dashboard`}
-                className="ml-2 rounded-md bg-cw-red px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cw-red-hover"
+                className="bg-cw-red hover:bg-cw-red-hover ml-2 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
               >
                 {isDashboardRoute ? "Back to Site" : "Go to Dashboard"}
               </Link>
@@ -99,7 +99,7 @@ export default function CargoWatchLayout({
             {/* Mobile menu button */}
             <button
               type="button"
-              className="rounded-md p-2 text-gray-400 hover:bg-cw-navy-light hover:text-white md:hidden"
+              className="hover:bg-cw-navy-light rounded-md p-2 text-gray-400 hover:text-white md:hidden"
               aria-label="Toggle menu"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
@@ -113,12 +113,12 @@ export default function CargoWatchLayout({
 
           {/* Mobile menu */}
           {mobileOpen && (
-            <div className="border-t border-gray-800 pb-3 pt-2 md:hidden">
+            <div className="border-t border-gray-800 pt-2 pb-3 md:hidden">
               {navLinks.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-cw-navy-light hover:text-white"
+                  className="hover:bg-cw-navy-light block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:text-white"
                   onClick={() => setMobileOpen(false)}
                 >
                   {item.name}
@@ -126,7 +126,7 @@ export default function CargoWatchLayout({
               ))}
               <Link
                 href={isDashboardRoute ? baseUrl : `${baseUrl}/dashboard`}
-                className="mt-1 block rounded-md bg-cw-red px-3 py-2 text-base font-medium text-white hover:bg-cw-red-hover"
+                className="bg-cw-red hover:bg-cw-red-hover mt-1 block rounded-md px-3 py-2 text-base font-medium text-white"
                 onClick={() => setMobileOpen(false)}
               >
                 {isDashboardRoute ? "Back to Site" : "Go to Dashboard"}

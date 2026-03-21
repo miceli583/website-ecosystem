@@ -59,7 +59,13 @@ function BlueCyanLaunchLanding1PageContent() {
 
 export default function BlueCyanLaunchLanding1Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <BlueCyanLaunchLanding1PageContent />
     </Suspense>
   );

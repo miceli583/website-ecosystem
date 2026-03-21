@@ -70,12 +70,12 @@ export const portalNotesRouter = createTRPCRouter({
         title: z.string().min(1).max(200),
         content: z.string().default(""),
         projectId: z.number().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { profile, client } = await getPortalAccess(
         ctx.user.id,
-        input.slug,
+        input.slug
       );
 
       const [note] = await db
@@ -106,7 +106,7 @@ export const portalNotesRouter = createTRPCRouter({
         isPinned: z.boolean().optional(),
         isArchived: z.boolean().optional(),
         projectId: z.number().nullable().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const { client } = await getPortalAccess(ctx.user.id, input.slug);
@@ -115,7 +115,7 @@ export const portalNotesRouter = createTRPCRouter({
       const existing = await db.query.clientNotes.findFirst({
         where: and(
           eq(clientNotes.id, input.noteId),
-          eq(clientNotes.clientId, client.id),
+          eq(clientNotes.clientId, client.id)
         ),
       });
 
@@ -132,7 +132,8 @@ export const portalNotesRouter = createTRPCRouter({
       if (input.title !== undefined) updateData.title = input.title;
       if (input.content !== undefined) updateData.content = input.content;
       if (input.isPinned !== undefined) updateData.isPinned = input.isPinned;
-      if (input.isArchived !== undefined) updateData.isArchived = input.isArchived;
+      if (input.isArchived !== undefined)
+        updateData.isArchived = input.isArchived;
       if (input.projectId !== undefined) updateData.projectId = input.projectId;
 
       const [updated] = await db
@@ -152,13 +153,13 @@ export const portalNotesRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { profile, client } = await getPortalAccess(
         ctx.user.id,
-        input.slug,
+        input.slug
       );
 
       const existing = await db.query.clientNotes.findFirst({
         where: and(
           eq(clientNotes.id, input.noteId),
-          eq(clientNotes.clientId, client.id),
+          eq(clientNotes.clientId, client.id)
         ),
       });
 

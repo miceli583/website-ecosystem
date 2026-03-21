@@ -223,7 +223,9 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
             <label className={labelClass}>Roles</label>
             <RoleCheckboxGroup
               selected={form.companyRoles}
-              onChange={(roles) => setForm((f) => ({ ...f, companyRoles: roles }))}
+              onChange={(roles) =>
+                setForm((f) => ({ ...f, companyRoles: roles }))
+              }
             />
           </div>
         </div>
@@ -309,9 +311,7 @@ function EditMemberModal({
         style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">
-            Edit Team Member
-          </h2>
+          <h2 className="text-lg font-semibold text-white">Edit Team Member</h2>
           <button
             onClick={onClose}
             className="rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
@@ -364,7 +364,9 @@ function EditMemberModal({
             <label className={labelClass}>Roles</label>
             <RoleCheckboxGroup
               selected={form.companyRoles}
-              onChange={(roles) => setForm((f) => ({ ...f, companyRoles: roles }))}
+              onChange={(roles) =>
+                setForm((f) => ({ ...f, companyRoles: roles }))
+              }
             />
           </div>
 
@@ -372,9 +374,7 @@ function EditMemberModal({
             <label className={labelClass}>Status</label>
             <button
               type="button"
-              onClick={() =>
-                setForm((f) => ({ ...f, isActive: !f.isActive }))
-              }
+              onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
               className="flex items-center gap-3 rounded-lg border px-3 py-2"
               style={borderStyle}
             >
@@ -461,7 +461,7 @@ export default function OrganizationPage() {
           className="relative flex-1"
           style={{ minWidth: "200px", maxWidth: "320px" }}
         >
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             placeholder="Search by name or email..."
@@ -470,7 +470,7 @@ export default function OrganizationPage() {
               setSearch(e.target.value);
               setPage(0);
             }}
-            className="w-full rounded-lg border bg-white/5 py-2 pl-10 pr-3 text-sm text-white placeholder:text-gray-500 focus:outline-none"
+            className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-10 text-sm text-white placeholder:text-gray-500 focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           />
         </div>
@@ -513,7 +513,7 @@ export default function OrganizationPage() {
           <table className="w-full text-sm">
             <thead>
               <tr
-                className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
                 <th className="px-4 py-3">Name</th>
@@ -639,9 +639,7 @@ export default function OrganizationPage() {
           onClose={() => setEditingMember(null)}
         />
       )}
-      {showCreate && (
-        <CreateMemberModal onClose={() => setShowCreate(false)} />
-      )}
+      {showCreate && <CreateMemberModal onClose={() => setShowCreate(false)} />}
     </div>
   );
 }

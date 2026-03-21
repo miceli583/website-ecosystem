@@ -34,9 +34,18 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
   // Hero carousel images - diverse healthcare workers (duplicated for seamless loop)
   const heroImages = [
     { src: "/chw/hero-image.png", alt: "Community Health Worker with tablet" },
-    { src: "/chw/hero-2.jpg", alt: "Diverse group of smiling healthcare professionals in scrubs" },
-    { src: "/chw/hero-3.jpg", alt: "Healthcare team collaborating around a laptop" },
-    { src: "/chw/hero-4.jpg", alt: "Diverse medical team standing together outside hospital" },
+    {
+      src: "/chw/hero-2.jpg",
+      alt: "Diverse group of smiling healthcare professionals in scrubs",
+    },
+    {
+      src: "/chw/hero-3.jpg",
+      alt: "Healthcare team collaborating around a laptop",
+    },
+    {
+      src: "/chw/hero-4.jpg",
+      alt: "Diverse medical team standing together outside hospital",
+    },
   ];
 
   const coreSupports = [
@@ -48,7 +57,8 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
     {
       icon: "workforce",
       title: "Workforce Development",
-      description: "Guidance-an-career growth-ath and professional development.",
+      description:
+        "Guidance-an-career growth-ath and professional development.",
     },
     {
       icon: "digital",
@@ -58,17 +68,20 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
     {
       icon: "community",
       title: "Expanded Community & Professional Connections",
-      description: "Network opportunities to contract with thilew CHWs and health professionals.",
+      description:
+        "Network opportunities to contract with thilew CHWs and health professionals.",
     },
     {
       icon: "application",
       title: "Application Submission Support",
-      description: "Assistance with the submission of CHW certification applications.",
+      description:
+        "Assistance with the submission of CHW certification applications.",
     },
     {
       icon: "application2",
       title: "Application Submission Support",
-      description: "Assistance with the submission of CHW certification applications.",
+      description:
+        "Assistance with the submission of CHW certification applications.",
     },
   ];
 
@@ -92,7 +105,8 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
 
   // Illustrated icon components matching the mockup style
   const CoreSupportIcon = ({ type }: { type: string }) => {
-    const iconStyles = "w-16 h-16 rounded-full flex items-center justify-center";
+    const iconStyles =
+      "w-16 h-16 rounded-full flex items-center justify-center";
 
     switch (type) {
       case "training":
@@ -112,7 +126,14 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
             <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
               <rect x="6" y="14" width="28" height="18" rx="3" fill="#C9725B" />
               <rect x="14" y="8" width="12" height="8" rx="1" fill="#A85A48" />
-              <rect x="10" y="18" width="20" height="2" fill="#FFF" opacity="0.5" />
+              <rect
+                x="10"
+                y="18"
+                width="20"
+                height="2"
+                fill="#FFF"
+                opacity="0.5"
+              />
             </svg>
           </div>
         );
@@ -134,7 +155,11 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
               <circle cx="12" cy="14" r="5" fill="#5B8A8A" />
               <circle cx="28" cy="14" r="5" fill="#5B8A8A" />
               <circle cx="20" cy="24" r="5" fill="#3D7A7A" />
-              <path d="M12 20C12 20 16 22 20 22C24 22 28 20 28 20" stroke="#5B8A8A" strokeWidth="2" />
+              <path
+                d="M12 20C12 20 16 22 20 22C24 22 28 20 28 20"
+                stroke="#5B8A8A"
+                strokeWidth="2"
+              />
             </svg>
           </div>
         );
@@ -179,12 +204,7 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
 
     return (
       <div className="relative mx-auto mb-4 h-20 w-24">
-        <Image
-          src={src}
-          alt=""
-          fill
-          className="object-contain"
-        />
+        <Image src={src} alt="" fill className="object-contain" />
       </div>
     );
   };
@@ -220,7 +240,10 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
       )}
 
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 px-4 py-3" style={{ backgroundColor: "#2D5A5A" }}>
+      <nav
+        className="sticky top-0 z-40 px-4 py-3"
+        style={{ backgroundColor: "#2D5A5A" }}
+      >
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -232,21 +255,24 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
               className="h-10 w-10"
             />
             <span className="text-2xl tracking-tight text-white">
-              <span className="font-semibold">CHW</span><span className="font-light text-white/80">360</span>
+              <span className="font-semibold">CHW</span>
+              <span className="font-light text-white/80">360</span>
             </span>
           </div>
 
           {/* Desktop Nav */}
           <div className="hidden items-center gap-8 md:flex">
-            {["Platform", "Core Supports", "Compliance", "Contact"].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                className="text-[15px] font-medium text-white/90 transition-colors hover:text-white"
-              >
-                {item}
-              </a>
-            ))}
+            {["Platform", "Core Supports", "Compliance", "Contact"].map(
+              (item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="text-[15px] font-medium text-white/90 transition-colors hover:text-white"
+                >
+                  {item}
+                </a>
+              )
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -265,24 +291,33 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
               className="rounded-lg p-2 text-white md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="absolute left-0 right-0 top-full px-4 py-4 shadow-lg md:hidden" style={{ backgroundColor: "#2D5A5A" }}>
-            {["Platform", "Core Supports", "Compliance", "Contact"].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                className="block py-3 text-sm font-medium text-white/90"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item}
-              </a>
-            ))}
+          <div
+            className="absolute top-full right-0 left-0 px-4 py-4 shadow-lg md:hidden"
+            style={{ backgroundColor: "#2D5A5A" }}
+          >
+            {["Platform", "Core Supports", "Compliance", "Contact"].map(
+              (item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="block py-3 text-sm font-medium text-white/90"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item}
+                </a>
+              )
+            )}
             <Button
               className="mt-4 w-full rounded-full"
               style={{ backgroundColor: "#C9725B", color: "white" }}
@@ -299,7 +334,7 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
         style={{ backgroundColor: "#F5EDE6" }}
       >
         {/* Hero Image Carousel - Positioned absolutely on the right */}
-        <div className="absolute bottom-0 right-0 top-0 hidden w-[60%] border-0 lg:block">
+        <div className="absolute top-0 right-0 bottom-0 hidden w-[60%] border-0 lg:block">
           {/* Outer container that clips the view */}
           <div className="relative h-full w-full overflow-hidden">
             {/* Continuous scrolling track - images duplicated for seamless loop */}
@@ -322,7 +357,10 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
                       alt={image.alt}
                       fill
                       className="border-0 object-cover"
-                      style={{ objectPosition: "center center", border: "none" }}
+                      style={{
+                        objectPosition: "center center",
+                        border: "none",
+                      }}
                       priority={index === 0}
                     />
                   </div>
@@ -341,7 +379,10 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
                       alt={image.alt}
                       fill
                       className="border-0 object-cover"
-                      style={{ objectPosition: "center center", border: "none" }}
+                      style={{
+                        objectPosition: "center center",
+                        border: "none",
+                      }}
                     />
                   </div>
                 </div>
@@ -353,28 +394,32 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
           <div
             className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1/3"
             style={{
-              background: "linear-gradient(to right, #F5EDE6 0%, #F5EDE6 30%, transparent 100%)",
+              background:
+                "linear-gradient(to right, #F5EDE6 0%, #F5EDE6 30%, transparent 100%)",
             }}
           />
           {/* Right gradient overlay - subtle fade showing peek */}
           <div
             className="pointer-events-none absolute inset-y-0 right-0 z-10 w-1/5"
             style={{
-              background: "linear-gradient(to left, #F5EDE6 0%, transparent 100%)",
+              background:
+                "linear-gradient(to left, #F5EDE6 0%, transparent 100%)",
             }}
           />
           {/* Top gradient overlay - subtle fade */}
           <div
             className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1/6"
             style={{
-              background: "linear-gradient(to bottom, #F5EDE6 0%, transparent 100%)",
+              background:
+                "linear-gradient(to bottom, #F5EDE6 0%, transparent 100%)",
             }}
           />
           {/* Bottom gradient overlay */}
           <div
             className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-1/6"
             style={{
-              background: "linear-gradient(to top, #F5EDE6 0%, transparent 100%)",
+              background:
+                "linear-gradient(to top, #F5EDE6 0%, transparent 100%)",
             }}
           />
         </div>
@@ -384,23 +429,23 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
             {/* Text Content */}
             <div className="max-w-xl">
               <h1
-                className={`${serif.className} mb-4 text-3xl font-normal leading-[1.15] tracking-tight sm:text-[2.5rem]`}
+                className={`${serif.className} mb-4 text-3xl leading-[1.15] font-normal tracking-tight sm:text-[2.5rem]`}
                 style={{ color: "#2D5A5A" }}
               >
                 Empowering
-                <br className="sm:hidden" />
-                {" "}Community
+                <br className="sm:hidden" /> Community
                 <br />
                 Health Workers
-                <br className="sm:hidden" />
-                {" "}Across Texas
+                <br className="sm:hidden" /> Across Texas
               </h1>
-              <p className="mb-6 text-[15px] leading-relaxed" style={{ color: "#5A6A6A" }}>
+              <p
+                className="mb-6 text-[15px] leading-relaxed"
+                style={{ color: "#5A6A6A" }}
+              >
                 CHW360 provides training, resources, and support to help
-                <br className="hidden lg:inline" />
-                {" "}Community Health Workers learn, grow, and make a difference
-                <br className="hidden lg:inline" />
-                {" "}in their communities.
+                <br className="hidden lg:inline" /> Community Health Workers
+                learn, grow, and make a difference
+                <br className="hidden lg:inline" /> in their communities.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button
@@ -422,7 +467,7 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
         </div>
 
         {/* Mobile Carousel - Below text on small screens */}
-        <div className="relative mb-8 mt-4 h-48 overflow-hidden lg:hidden">
+        <div className="relative mt-4 mb-8 h-48 overflow-hidden lg:hidden">
           {/* Continuous scrolling track */}
           <div
             className="absolute flex h-full"
@@ -472,14 +517,16 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
           <div
             className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8"
             style={{
-              background: "linear-gradient(to right, #F5EDE6 0%, transparent 100%)",
+              background:
+                "linear-gradient(to right, #F5EDE6 0%, transparent 100%)",
             }}
           />
           {/* Right gradient */}
           <div
             className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8"
             style={{
-              background: "linear-gradient(to left, #F5EDE6 0%, transparent 100%)",
+              background:
+                "linear-gradient(to left, #F5EDE6 0%, transparent 100%)",
             }}
           />
         </div>
@@ -500,7 +547,8 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
               Core Supports for CHWs
             </h2>
             <p className="text-base" style={{ color: "#4A5568" }}>
-              Equipping CHWs with skills and tools they need to serve Texas communities.
+              Equipping CHWs with skills and tools they need to serve Texas
+              communities.
             </p>
           </div>
 
@@ -514,13 +562,16 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
                 <div className="mb-3 flex items-center gap-3">
                   <CoreSupportIcon type={support.icon} />
                   <h3
-                    className="text-lg font-semibold leading-tight"
+                    className="text-lg leading-tight font-semibold"
                     style={{ color: "#2D5A5A" }}
                   >
                     {support.title}
                   </h3>
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: "#6B7280" }}>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "#6B7280" }}
+                >
                   {support.description}
                 </p>
               </div>
@@ -530,7 +581,11 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
       </section>
 
       {/* Who It's For + Get in Touch Section */}
-      <section id="contact" className="px-4 py-16" style={{ backgroundColor: "#F5EDE6" }}>
+      <section
+        id="contact"
+        className="px-4 py-16"
+        style={{ backgroundColor: "#F5EDE6" }}
+      >
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Left: Who It's For */}
@@ -541,7 +596,10 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
               >
                 Who It&apos;s For
               </h2>
-              <p className="mb-8 text-base leading-relaxed" style={{ color: "#4A5568" }}>
+              <p
+                className="mb-8 text-base leading-relaxed"
+                style={{ color: "#4A5568" }}
+              >
                 CHW360 delivers practical, standards-aligned training that
                 respects the CHW scope of practice and meets Texas state
                 requirements.
@@ -557,12 +615,15 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
                       <AudienceIcon type={audience.icon} />
                     </div>
                     <h3
-                      className="mb-2 min-h-[40px] whitespace-pre-line text-sm font-semibold"
+                      className="mb-2 min-h-[40px] text-sm font-semibold whitespace-pre-line"
                       style={{ color: "#2D5A5A" }}
                     >
                       {audience.title}
                     </h3>
-                    <p className="min-h-[48px] text-xs leading-relaxed" style={{ color: "#6B7280" }}>
+                    <p
+                      className="min-h-[48px] text-xs leading-relaxed"
+                      style={{ color: "#6B7280" }}
+                    >
                       {audience.description}
                     </p>
                   </div>
@@ -582,9 +643,8 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
                 Get in Touch
               </h2>
               <p className="mb-6 text-base" style={{ color: "#4A5568" }}>
-                Ready to learn more? Reach out to see how
-                CHW360 can support Community Health
-                Workers in your organization.
+                Ready to learn more? Reach out to see how CHW360 can support
+                Community Health Workers in your organization.
               </p>
 
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
@@ -637,21 +697,24 @@ export function CHW360MockupDemo({ backHref }: CHW360MockupDemoProps) {
                 className="h-8 w-8 brightness-0 invert"
               />
               <span className="text-xl tracking-tight text-white">
-                <span className="font-semibold">CHW</span><span className="font-light text-white/80">360</span>
+                <span className="font-semibold">CHW</span>
+                <span className="font-light text-white/80">360</span>
               </span>
             </div>
 
             {/* Nav Links */}
             <div className="flex flex-wrap justify-center gap-6">
-              {["Platform", "Core Supports", "Compliance", "Contact"].map((link) => (
-                <a
-                  key={link}
-                  href="#"
-                  className="text-sm text-white/80 transition-colors hover:text-white"
-                >
-                  {link}
-                </a>
-              ))}
+              {["Platform", "Core Supports", "Compliance", "Contact"].map(
+                (link) => (
+                  <a
+                    key={link}
+                    href="#"
+                    className="text-sm text-white/80 transition-colors hover:text-white"
+                  >
+                    {link}
+                  </a>
+                )
+              )}
             </div>
 
             {/* Social Icons */}

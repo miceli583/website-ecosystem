@@ -102,38 +102,41 @@ export default function CrmPage() {
           Array.from({ length: 5 }).map((_, i) => <MetricSkeleton key={i} />)
         ) : (
           <>
-            {(["lead", "prospect", "client", "inactive", "churned"] as const).map(
-              (status) => {
-                const config = STATUS_CONFIG[status]!;
-                const value = (pipeline as Record<string, number>)?.[status] ?? 0;
-                return (
-                  <div
-                    key={status}
-                    className="rounded-lg border bg-white/5 p-5"
-                    style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-                  >
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <span
-                        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-xs"
-                        style={{ backgroundColor: config.bg, color: config.color }}
-                      >
-                        {status === "lead" ? (
-                          <UserPlus className="h-3 w-3" />
-                        ) : status === "prospect" ? (
-                          <Users className="h-3 w-3" />
-                        ) : status === "client" ? (
-                          <UserCheck className="h-3 w-3" />
-                        ) : (
-                          <UserX className="h-3 w-3" />
-                        )}
-                      </span>
-                      {config.label}s
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-white">{value}</p>
+            {(
+              ["lead", "prospect", "client", "inactive", "churned"] as const
+            ).map((status) => {
+              const config = STATUS_CONFIG[status]!;
+              const value = (pipeline as Record<string, number>)?.[status] ?? 0;
+              return (
+                <div
+                  key={status}
+                  className="rounded-lg border bg-white/5 p-5"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                >
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-full text-xs"
+                      style={{
+                        backgroundColor: config.bg,
+                        color: config.color,
+                      }}
+                    >
+                      {status === "lead" ? (
+                        <UserPlus className="h-3 w-3" />
+                      ) : status === "prospect" ? (
+                        <Users className="h-3 w-3" />
+                      ) : status === "client" ? (
+                        <UserCheck className="h-3 w-3" />
+                      ) : (
+                        <UserX className="h-3 w-3" />
+                      )}
+                    </span>
+                    {config.label}s
                   </div>
-                );
-              }
-            )}
+                  <p className="mt-2 text-2xl font-bold text-white">{value}</p>
+                </div>
+              );
+            })}
           </>
         )}
       </div>
@@ -146,25 +149,26 @@ export default function CrmPage() {
             <span>{pipeline.total} total contacts</span>
           </div>
           <div className="flex h-3 overflow-hidden rounded-full bg-white/5">
-            {(["lead", "prospect", "client", "inactive", "churned"] as const).map(
-              (status) => {
-                const value = (pipeline as Record<string, number>)[status] ?? 0;
-                const pct = pipeline.total > 0 ? (value / pipeline.total) * 100 : 0;
-                if (pct === 0) return null;
-                return (
-                  <div
-                    key={status}
-                    className="transition-all"
-                    style={{
-                      width: `${pct}%`,
-                      backgroundColor: STATUS_CONFIG[status]!.color,
-                      opacity: 0.7,
-                    }}
-                    title={`${STATUS_CONFIG[status]!.label}: ${value}`}
-                  />
-                );
-              }
-            )}
+            {(
+              ["lead", "prospect", "client", "inactive", "churned"] as const
+            ).map((status) => {
+              const value = (pipeline as Record<string, number>)[status] ?? 0;
+              const pct =
+                pipeline.total > 0 ? (value / pipeline.total) * 100 : 0;
+              if (pct === 0) return null;
+              return (
+                <div
+                  key={status}
+                  className="transition-all"
+                  style={{
+                    width: `${pct}%`,
+                    backgroundColor: STATUS_CONFIG[status]!.color,
+                    opacity: 0.7,
+                  }}
+                  title={`${STATUS_CONFIG[status]!.label}: ${value}`}
+                />
+              );
+            })}
           </div>
         </div>
       )}
@@ -186,9 +190,7 @@ export default function CrmPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-white">All Contacts</h3>
-                <p className="text-sm text-gray-400">
-                  Master CRM database
-                </p>
+                <p className="text-sm text-gray-400">Master CRM database</p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
@@ -260,9 +262,16 @@ export default function CrmPage() {
                 No contacts yet
               </div>
             ) : (
-              <div className="divide-y" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <div
+                className="divide-y"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 {sources.map((source: { source: string; count: number }) => {
-                  const total = sources.reduce((sum: number, s: { source: string; count: number }) => sum + s.count, 0);
+                  const total = sources.reduce(
+                    (sum: number, s: { source: string; count: number }) =>
+                      sum + s.count,
+                    0
+                  );
                   const pct = total > 0 ? (source.count / total) * 100 : 0;
                   return (
                     <div
@@ -312,14 +321,23 @@ export default function CrmPage() {
                 No data yet
               </div>
             ) : (
-              <div className="divide-y" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
+              <div
+                className="divide-y"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
                 {growth.map((month: { month: string; count: number }) => {
-                  const maxCount = Math.max(...growth.map((m: { month: string; count: number }) => m.count));
-                  const pct = maxCount > 0 ? (month.count / maxCount) * 100 : 0;
-                  const label = new Date(month.month + "-01").toLocaleDateString(
-                    "en-US",
-                    { month: "short", year: "numeric" }
+                  const maxCount = Math.max(
+                    ...growth.map(
+                      (m: { month: string; count: number }) => m.count
+                    )
                   );
+                  const pct = maxCount > 0 ? (month.count / maxCount) * 100 : 0;
+                  const label = new Date(
+                    month.month + "-01"
+                  ).toLocaleDateString("en-US", {
+                    month: "short",
+                    year: "numeric",
+                  });
                   return (
                     <div
                       key={month.month}
@@ -365,43 +383,68 @@ export default function CrmPage() {
                 No contacts yet
               </div>
             ) : (
-              <div className="divide-y" style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}>
-                {contactsData.contacts.map((contact: { id: string; email: string; name: string; phone: string | null; status: string; source: string; tags: string[] | null; notes: string | null; firstContactAt: Date; lastContactAt: Date; createdAt: Date; updatedAt: Date; communicationPreferences: { email?: boolean; sms?: boolean; phone?: boolean } | null }) => {
-                  const config =
-                    STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.lead!;
-                  return (
-                    <div key={contact.id} className="px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-white">
-                            {contact.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {contact.email}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                            style={{
-                              backgroundColor: config.bg,
-                              color: config.color,
-                            }}
-                          >
-                            {config.label}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {new Date(contact.lastContactAt).toLocaleDateString(
-                              "en-US",
-                              { month: "short", day: "numeric" }
-                            )}
-                          </span>
+              <div
+                className="divide-y"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
+                {contactsData.contacts.map(
+                  (contact: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    phone: string | null;
+                    status: string;
+                    source: string;
+                    tags: string[] | null;
+                    notes: string | null;
+                    firstContactAt: Date;
+                    lastContactAt: Date;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    communicationPreferences: {
+                      email?: boolean;
+                      sms?: boolean;
+                      phone?: boolean;
+                    } | null;
+                  }) => {
+                    const config =
+                      STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.lead!;
+                    return (
+                      <div key={contact.id} className="px-4 py-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-white">
+                              {contact.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {contact.email}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                              style={{
+                                backgroundColor: config.bg,
+                                color: config.color,
+                              }}
+                            >
+                              {config.label}
+                            </span>
+                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                              <Clock className="h-3 w-3" />
+                              {new Date(
+                                contact.lastContactAt
+                              ).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                )}
               </div>
             )}
           </div>

@@ -253,8 +253,15 @@ export function DomainLayout({
   }
 
   // Miracle Mind routes that should always use dev config
-  const miracleMindRoutes = ["/banyan", "/services", "/contact", "/stewardship"];
-  const isMiracleMindRoute = miracleMindRoutes.some(route => pathname.startsWith(route));
+  const miracleMindRoutes = [
+    "/banyan",
+    "/services",
+    "/contact",
+    "/stewardship",
+  ];
+  const isMiracleMindRoute = miracleMindRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
   // Helper to build href with domain param preserved on localhost
   const buildHref = (path: string) => {
@@ -267,7 +274,11 @@ export function DomainLayout({
   // Force re-evaluation of domainConfig when domain param changes
   // On localhost, infer domain from pathname if it's a Miracle Mind route
   let effectiveHostname = currentHostname;
-  if (currentHostname.includes("localhost") && isMiracleMindRoute && !domainParam) {
+  if (
+    currentHostname.includes("localhost") &&
+    isMiracleMindRoute &&
+    !domainParam
+  ) {
     effectiveHostname = "miraclemind.dev"; // Force dev config for MM routes
   }
 
@@ -306,10 +317,14 @@ export function DomainLayout({
           {/* Left side: Logo */}
           <div className="flex items-center">
             <Link
-              href={currentHostname.includes("localhost") ? "/?domain=dev" : "https://miraclemind.dev"}
+              href={
+                currentHostname.includes("localhost")
+                  ? "/?domain=dev"
+                  : "https://miraclemind.dev"
+              }
               className="flex items-center"
             >
-              <div className="relative h-16 w-64 -mt-1">
+              <div className="relative -mt-1 h-16 w-64">
                 <Image
                   src="/brand/miracle-mind-logo-no-slogan.png"
                   alt="Miracle Mind"
@@ -322,7 +337,7 @@ export function DomainLayout({
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-white hover:text-white/80"
+            className="p-2 text-white hover:text-white/80 md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
           >
@@ -340,7 +355,7 @@ export function DomainLayout({
                 <Link
                   key={item.href}
                   href={buildHref(item.href)}
-                  className="text-white hover:text-white/80 text-xs font-semibold tracking-wider uppercase transition-colors"
+                  className="text-xs font-semibold tracking-wider text-white uppercase transition-colors hover:text-white/80"
                 >
                   {item.name}
                 </Link>
@@ -348,19 +363,23 @@ export function DomainLayout({
             </nav>
 
             {/* Explore Banyan Button - Show on Miracle Mind domains */}
-            {((currentHostname.includes("localhost") && (domainParam === "dev" || domainParam === "live")) ||
-              currentHostname.includes("miraclemind.dev") || currentHostname.includes("miraclemind.live")) && !isAdminPath(pathname) && (
-              <Link href={buildHref("/banyan")}>
-                <button
-                  className="px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 rounded-md"
-                  style={{
-                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                  }}
-                >
-                  Explore BANYAN
-                </button>
-              </Link>
-            )}
+            {((currentHostname.includes("localhost") &&
+              (domainParam === "dev" || domainParam === "live")) ||
+              currentHostname.includes("miraclemind.dev") ||
+              currentHostname.includes("miraclemind.live")) &&
+              !isAdminPath(pathname) && (
+                <Link href={buildHref("/banyan")}>
+                  <button
+                    className="rounded-md px-6 py-2 text-sm font-semibold text-black transition-all duration-300 hover:scale-105"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    }}
+                  >
+                    Explore BANYAN
+                  </button>
+                </Link>
+              )}
           </div>
         </div>
 
@@ -373,36 +392,43 @@ export function DomainLayout({
                   key={item.href}
                   href={buildHref(item.href)}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
+                  className="rounded-md px-4 py-3 text-sm font-semibold tracking-wider text-white uppercase transition-colors hover:bg-white/10"
                 >
                   {item.name}
                 </Link>
               ))}
 
               {/* Explore Banyan Button for mobile - Show on Miracle Mind domains */}
-              {((currentHostname.includes("localhost") && (domainParam === "dev" || domainParam === "live")) ||
-                currentHostname.includes("miraclemind.dev") || currentHostname.includes("miraclemind.live")) && !isAdminPath(pathname) && (
-                <Link
-                  href={buildHref("/banyan")}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <button
-                    className="w-full rounded-md px-4 py-3 text-sm font-semibold text-black transition-all duration-300"
-                    style={{
-                      background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                    }}
+              {((currentHostname.includes("localhost") &&
+                (domainParam === "dev" || domainParam === "live")) ||
+                currentHostname.includes("miraclemind.dev") ||
+                currentHostname.includes("miraclemind.live")) &&
+                !isAdminPath(pathname) && (
+                  <Link
+                    href={buildHref("/banyan")}
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    Explore BANYAN
-                  </button>
-                </Link>
-              )}
+                    <button
+                      className="w-full rounded-md px-4 py-3 text-sm font-semibold text-black transition-all duration-300"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                      }}
+                    >
+                      Explore BANYAN
+                    </button>
+                  </Link>
+                )}
             </nav>
           </div>
         )}
 
         {/* Header bottom divider */}
         <div className="w-full">
-          <div className="h-px w-full" style={{ backgroundColor: "rgba(212,175,55,0.4)" }} />
+          <div
+            className="h-px w-full"
+            style={{ backgroundColor: "rgba(212,175,55,0.4)" }}
+          />
         </div>
       </header>
 
@@ -412,7 +438,10 @@ export function DomainLayout({
       {/* Footer */}
       <footer
         className={`relative z-50 mt-auto border-t backdrop-blur-md ${footerClassName || ""}`}
-        style={{ backgroundColor: "#0b0b0b", borderColor: "rgba(212,175,55,0.4)" }}
+        style={{
+          backgroundColor: "#0b0b0b",
+          borderColor: "rgba(212,175,55,0.4)",
+        }}
       >
         <div className="container mx-auto px-4 py-12 sm:py-16">
           <div className="grid gap-12 md:grid-cols-3">
@@ -425,14 +454,16 @@ export function DomainLayout({
                 <button
                   className="mb-8 rounded-md px-6 py-3 text-sm font-medium text-black transition-all duration-300 hover:scale-105"
                   style={{
-                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   }}
                 >
                   Get In Touch
                 </button>
               </Link>
               <p className="text-sm text-gray-500">
-                © {new Date().getFullYear()} Miracle Mind LLC. All Rights Reserved.
+                © {new Date().getFullYear()} Miracle Mind LLC. All Rights
+                Reserved.
               </p>
             </div>
 
@@ -453,24 +484,33 @@ export function DomainLayout({
               {/* Navigate */}
               <div>
                 <h4
-                  className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                  className="mb-4 text-sm font-semibold tracking-wider uppercase"
                   style={{ color: "#D4AF37" }}
                 >
                   Navigate
                 </h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href={buildHref("/services")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/services")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       Services
                     </Link>
                   </li>
                   <li>
-                    <Link href={buildHref("/about")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/about")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       About
                     </Link>
                   </li>
                   <li>
-                    <Link href={buildHref("/contact")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/contact")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       Contact
                     </Link>
                   </li>
@@ -480,24 +520,33 @@ export function DomainLayout({
               {/* Products */}
               <div>
                 <h4
-                  className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                  className="mb-4 text-sm font-semibold tracking-wider uppercase"
                   style={{ color: "#D4AF37" }}
                 >
                   Products
                 </h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href={buildHref("/banyan")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/banyan")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       BANYAN
                     </Link>
                   </li>
                   <li>
-                    <Link href={buildHref("/stewardship")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/stewardship")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       Stewardship
                     </Link>
                   </li>
                   <li>
-                    <a href="https://miraclemind.live/" className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <a
+                      href="https://miraclemind.live/"
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       Client Portal
                     </a>
                   </li>
@@ -507,19 +556,25 @@ export function DomainLayout({
               {/* Legal */}
               <div>
                 <h4
-                  className="mb-4 text-sm font-semibold uppercase tracking-wider"
+                  className="mb-4 text-sm font-semibold tracking-wider uppercase"
                   style={{ color: "#D4AF37" }}
                 >
                   Legal
                 </h4>
                 <ul className="space-y-3">
                   <li>
-                    <Link href={buildHref("/privacy")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/privacy")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       Privacy Policy
                     </Link>
                   </li>
                   <li>
-                    <Link href={buildHref("/terms")} className="text-sm text-gray-400 transition-colors hover:text-white">
+                    <Link
+                      href={buildHref("/terms")}
+                      className="text-sm text-gray-400 transition-colors hover:text-white"
+                    >
                       Terms of Service
                     </Link>
                   </li>

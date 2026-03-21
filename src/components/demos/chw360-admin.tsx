@@ -137,12 +137,14 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-20 hidden h-full w-72 flex-col border-r border-gray-200/80 bg-white/80 backdrop-blur-xl lg:flex">
+      <aside className="fixed top-0 left-0 z-20 hidden h-full w-72 flex-col border-r border-gray-200/80 bg-white/80 backdrop-blur-xl lg:flex">
         {/* Logo */}
         <div className="flex h-20 items-center gap-3 border-b border-gray-200/80 px-6">
           <div
             className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white shadow-lg"
-            style={{ background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)" }}
+            style={{
+              background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
+            }}
           >
             360
           </div>
@@ -156,7 +158,7 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-4">
-          <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <p className="mb-3 px-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
             Menu
           </p>
           {sidebarItems.map((item) => {
@@ -171,12 +173,17 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                 }`}
                 style={
                   item.active
-                    ? { background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)" }
+                    ? {
+                        background:
+                          "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
+                      }
                     : {}
                 }
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`h-5 w-5 ${item.active ? "" : "text-gray-400 group-hover:text-gray-600"}`} />
+                  <Icon
+                    className={`h-5 w-5 ${item.active ? "" : "text-gray-400 group-hover:text-gray-600"}`}
+                  />
                   {item.label}
                 </div>
                 {item.badge && (
@@ -200,12 +207,16 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
           <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-3">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white shadow-md"
-              style={{ background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)" }}
+              style={{
+                background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
+              }}
             >
               SS
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900">Shechem Sauls</p>
+              <p className="text-sm font-semibold text-gray-900">
+                Shechem Sauls
+              </p>
               <p className="text-xs text-gray-500">Administrator</p>
             </div>
             <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -219,7 +230,9 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
         {backHref && (
           <div
             className="px-4 py-2 text-center text-sm text-white"
-            style={{ background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)" }}
+            style={{
+              background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
+            }}
           >
             <Link
               href={backHref}
@@ -240,20 +253,22 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
 
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="Search anything..."
                 className="w-72 rounded-xl border-gray-200 pl-11 transition-all focus:bg-white"
-                style={{ backgroundColor: '#f3f4f6' }}
+                style={{ backgroundColor: "#f3f4f6" }}
               />
             </div>
             <button className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-500 transition-all hover:bg-gray-200">
               <Bell className="h-5 w-5" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
             </button>
             <Button
               className="shadow-lg shadow-[#0D7377]/25 transition-all hover:scale-105"
-              style={{ background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)" }}
+              style={{
+                background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
+              }}
             >
               <Plus className="mr-2 h-4 w-4" />
               Add Lead
@@ -288,7 +303,9 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                               {stat.change}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400">vs last month</span>
+                          <span className="text-xs text-gray-400">
+                            vs last month
+                          </span>
                         </div>
                       </div>
                       <div
@@ -309,7 +326,9 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
             <Card className="overflow-hidden border-0 bg-white shadow-lg shadow-gray-200/50 lg:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 pb-4">
                 <div>
-                  <CardTitle className="text-lg font-bold">Weekly Traffic</CardTitle>
+                  <CardTitle className="text-lg font-bold">
+                    Weekly Traffic
+                  </CardTitle>
                   <p className="text-sm text-gray-500">Page views this week</p>
                 </div>
                 <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
@@ -319,7 +338,10 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
               <CardContent className="pt-6">
                 <div className="flex h-52 items-end justify-between gap-3">
                   {trafficData.map((data, index) => (
-                    <div key={data.day} className="group flex flex-1 flex-col items-center gap-2">
+                    <div
+                      key={data.day}
+                      className="group flex flex-1 flex-col items-center gap-2"
+                    >
                       <div className="relative w-full">
                         <div
                           className="w-full rounded-xl transition-all duration-300 group-hover:opacity-80"
@@ -333,14 +355,16 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                         />
                         {index === 3 && (
                           <div
-                            className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-semibold text-white shadow-lg"
+                            className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg px-2 py-1 text-xs font-semibold whitespace-nowrap text-white shadow-lg"
                             style={{ background: "#0D7377" }}
                           >
                             {data.views.toLocaleString()}
                           </div>
                         )}
                       </div>
-                      <span className={`text-xs font-medium ${index === 3 ? "text-[#0D7377]" : "text-gray-400"}`}>
+                      <span
+                        className={`text-xs font-medium ${index === 3 ? "text-[#0D7377]" : "text-gray-400"}`}
+                      >
                         {data.day}
                       </span>
                     </div>
@@ -349,7 +373,10 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                 <div className="mt-6 flex items-center justify-between rounded-xl bg-gray-50 p-4">
                   <div>
                     <p className="text-sm text-gray-500">Total this week</p>
-                    <p className="text-xl font-bold" style={{ color: "#0D7377" }}>
+                    <p
+                      className="text-xl font-bold"
+                      style={{ color: "#0D7377" }}
+                    >
                       24,000 views
                     </p>
                   </div>
@@ -365,10 +392,19 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
             <Card className="overflow-hidden border-0 bg-white shadow-lg shadow-gray-200/50 lg:col-span-3">
               <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 pb-4">
                 <div>
-                  <CardTitle className="text-lg font-bold">Recent Signups</CardTitle>
-                  <p className="text-sm text-gray-500">Latest leads from your website</p>
+                  <CardTitle className="text-lg font-bold">
+                    Recent Signups
+                  </CardTitle>
+                  <p className="text-sm text-gray-500">
+                    Latest leads from your website
+                  </p>
                 </div>
-                <Button variant="ghost" size="sm" className="text-sm font-medium" style={{ color: "#0D7377" }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm font-medium"
+                  style={{ color: "#0D7377" }}
+                >
                   View All
                   <ArrowUpRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -385,9 +421,17 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                           className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-white shadow-md"
                           style={{
                             background: `linear-gradient(135deg, ${
-                              index % 3 === 0 ? "#0D7377" : index % 3 === 1 ? "#14919B" : "#E07A5F"
+                              index % 3 === 0
+                                ? "#0D7377"
+                                : index % 3 === 1
+                                  ? "#14919B"
+                                  : "#E07A5F"
                             } 0%, ${
-                              index % 3 === 0 ? "#14919B" : index % 3 === 1 ? "#2D9596" : "#c9624a"
+                              index % 3 === 0
+                                ? "#14919B"
+                                : index % 3 === 1
+                                  ? "#2D9596"
+                                  : "#c9624a"
                             } 100%)`,
                           }}
                         >
@@ -397,8 +441,12 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                             .join("")}
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">{signup.name}</p>
-                          <p className="text-sm text-gray-500">{signup.organization}</p>
+                          <p className="font-semibold text-gray-900">
+                            {signup.name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {signup.organization}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
@@ -413,7 +461,9 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                         >
                           {signup.status}
                         </Badge>
-                        <span className="text-sm text-gray-400">{signup.date}</span>
+                        <span className="text-sm text-gray-400">
+                          {signup.date}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -444,7 +494,10 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                     }`}
                     style={
                       action.primary
-                        ? { background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)" }
+                        ? {
+                            background:
+                              "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
+                          }
                         : {}
                     }
                   >
@@ -471,8 +524,12 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
               <CardHeader className="border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg font-bold">Recent Activity</CardTitle>
-                    <p className="text-sm text-gray-500">What&apos;s happening on your site</p>
+                    <CardTitle className="text-lg font-bold">
+                      Recent Activity
+                    </CardTitle>
+                    <p className="text-sm text-gray-500">
+                      What&apos;s happening on your site
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 rounded-lg bg-gray-100 p-1">
                     <button className="rounded-md bg-white px-3 py-1 text-sm font-medium text-gray-900 shadow-sm">
@@ -490,10 +547,30 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
               <CardContent className="p-6">
                 <div className="space-y-6">
                   {[
-                    { icon: UserPlus, text: "New signup from Metro Health Department", time: "2 hours ago", color: "#0D7377" },
-                    { icon: Eye, text: "Training Programs page received 1,247 views", time: "4 hours ago", color: "#14919B" },
-                    { icon: Mail, text: "Email campaign sent to 500 subscribers", time: "Yesterday", color: "#E07A5F" },
-                    { icon: Zap, text: "Conversion rate increased by 0.3%", time: "2 days ago", color: "#2D9596" },
+                    {
+                      icon: UserPlus,
+                      text: "New signup from Metro Health Department",
+                      time: "2 hours ago",
+                      color: "#0D7377",
+                    },
+                    {
+                      icon: Eye,
+                      text: "Training Programs page received 1,247 views",
+                      time: "4 hours ago",
+                      color: "#14919B",
+                    },
+                    {
+                      icon: Mail,
+                      text: "Email campaign sent to 500 subscribers",
+                      time: "Yesterday",
+                      color: "#E07A5F",
+                    },
+                    {
+                      icon: Zap,
+                      text: "Conversion rate increased by 0.3%",
+                      time: "2 days ago",
+                      color: "#2D9596",
+                    },
                   ].map((activity, index) => {
                     const Icon = activity.icon;
                     return (
@@ -502,11 +579,18 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
                           className="flex h-10 w-10 items-center justify-center rounded-xl"
                           style={{ backgroundColor: `${activity.color}15` }}
                         >
-                          <Icon className="h-5 w-5" style={{ color: activity.color }} />
+                          <Icon
+                            className="h-5 w-5"
+                            style={{ color: activity.color }}
+                          />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{activity.text}</p>
-                          <p className="text-sm text-gray-500">{activity.time}</p>
+                          <p className="font-medium text-gray-900">
+                            {activity.text}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {activity.time}
+                          </p>
                         </div>
                       </div>
                     );
@@ -518,7 +602,8 @@ export function CHW360AdminDemo({ backHref }: CHW360AdminDemoProps) {
 
           {/* Footer Note */}
           <p className="mt-12 text-center text-sm text-gray-400">
-            This is a design preview. Final admin dashboard will include full CRUD functionality and real-time data.
+            This is a design preview. Final admin dashboard will include full
+            CRUD functionality and real-time data.
           </p>
         </div>
       </main>

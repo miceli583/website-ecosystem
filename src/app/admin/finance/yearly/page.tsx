@@ -153,10 +153,7 @@ export default function YearlyReviewPage() {
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
               <div className="flex items-center gap-2 text-sm text-gray-400">
-                <DollarSign
-                  className="h-4 w-4"
-                  style={{ color: "#D4AF37" }}
-                />
+                <DollarSign className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 Net Profit
               </div>
               <p
@@ -185,9 +182,7 @@ export default function YearlyReviewPage() {
 
       {/* Month-by-Month P&L Table */}
       <div>
-        <h2 className="mb-3 font-semibold text-white">
-          Monthly Profit & Loss
-        </h2>
+        <h2 className="mb-3 font-semibold text-white">Monthly Profit & Loss</h2>
         <div
           className="rounded-lg border bg-white/5"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -205,7 +200,7 @@ export default function YearlyReviewPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr
-                  className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Month</th>
@@ -285,9 +280,7 @@ export default function YearlyReviewPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-gray-400">
                       {data.totalRevenue > 0
-                        ? Math.round(
-                            (data.netProfit / data.totalRevenue) * 100
-                          )
+                        ? Math.round((data.netProfit / data.totalRevenue) * 100)
                         : 0}
                       %
                     </td>
@@ -312,7 +305,7 @@ export default function YearlyReviewPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr
-                  className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Category</th>

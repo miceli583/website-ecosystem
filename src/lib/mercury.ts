@@ -63,7 +63,9 @@ async function mercuryFetch<T>(endpoint: string): Promise<T | null> {
     });
 
     if (!response.ok) {
-      console.error(`Mercury API error: ${response.status} ${response.statusText}`);
+      console.error(
+        `Mercury API error: ${response.status} ${response.statusText}`
+      );
       return null;
     }
 
@@ -85,7 +87,9 @@ export async function getMercuryAccounts(): Promise<MercuryAccount[]> {
 /**
  * Get account details including balance
  */
-export async function getMercuryAccount(accountId: string): Promise<MercuryAccount | null> {
+export async function getMercuryAccount(
+  accountId: string
+): Promise<MercuryAccount | null> {
   return mercuryFetch<MercuryAccount>(`/account/${accountId}`);
 }
 
@@ -123,11 +127,19 @@ export async function getMercuryTransactions(
 export async function getMercuryTotalBalance(): Promise<{
   available: number;
   current: number;
-  accounts: Array<{ id: string; name: string; type: string; available: number }>;
+  accounts: Array<{
+    id: string;
+    name: string;
+    type: string;
+    available: number;
+  }>;
 }> {
   const accounts = await getMercuryAccounts();
 
-  const available = accounts.reduce((sum, acc) => sum + acc.availableBalance, 0);
+  const available = accounts.reduce(
+    (sum, acc) => sum + acc.availableBalance,
+    0
+  );
   const current = accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
 
   return {

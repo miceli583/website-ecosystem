@@ -43,7 +43,11 @@ function useBreadcrumbs() {
 
           const crumbs = [
             { label: item.title, href: undefined, isCurrent: false },
-            { label: subItem.title, href: subItem.href, isCurrent: isExactMatch },
+            {
+              label: subItem.title,
+              href: subItem.href,
+              isCurrent: isExactMatch,
+            },
           ];
 
           // Add deeper segments as additional breadcrumbs
@@ -72,7 +76,10 @@ function useBreadcrumbs() {
   if (segments[0] === "admin") {
     return segments.slice(1).map((seg, idx, arr) => ({
       label: formatSegment(seg),
-      href: idx < arr.length - 1 ? `/admin/${arr.slice(0, idx + 1).join("/")}` : undefined,
+      href:
+        idx < arr.length - 1
+          ? `/admin/${arr.slice(0, idx + 1).join("/")}`
+          : undefined,
       isCurrent: idx === arr.length - 1,
     }));
   }

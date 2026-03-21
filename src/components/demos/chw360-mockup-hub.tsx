@@ -13,9 +13,15 @@ export function CHW360MockupHub({ basePath, backHref }: CHW360MockupHubProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       {backHref && (
-        <header className="border-b px-4 py-4 sm:px-6" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+        <header
+          className="border-b px-4 py-4 sm:px-6"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
           <div className="mx-auto max-w-5xl">
-            <Link href={backHref} className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white">
+            <Link
+              href={backHref}
+              className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+            >
               <ArrowLeft className="h-4 w-4" />
               Back to Demos
             </Link>
@@ -29,8 +35,7 @@ export function CHW360MockupHub({ basePath, backHref }: CHW360MockupHubProps) {
             style={{
               fontFamily: "Quattrocento Sans, serif",
               letterSpacing: "0.08em",
-              background:
-                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",

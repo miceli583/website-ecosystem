@@ -23,7 +23,10 @@ export function StatusTabs({
   ];
 
   return (
-    <div className="mb-6 flex gap-1 border-b" style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}>
+    <div
+      className="mb-6 flex gap-1 border-b"
+      style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
+    >
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -48,7 +51,7 @@ export function StatusTabs({
           </span>
           {activeTab === tab.id && (
             <div
-              className="absolute bottom-0 left-0 right-0 h-0.5"
+              className="absolute right-0 bottom-0 left-0 h-0.5"
               style={{ backgroundColor: "#D4AF37" }}
             />
           )}

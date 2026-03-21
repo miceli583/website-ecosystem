@@ -25,9 +25,14 @@ export default function TermsPage() {
           Terms of Service
         </h1>
 
-        <div className="prose prose-invert max-w-none text-gray-300 [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-white [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-2">
+        <div className="prose prose-invert max-w-none text-gray-300 [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-white [&_li]:mb-2 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6">
           <p className="text-sm text-gray-500">
-            Last updated: {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            Last updated:{" "}
+            {new Date().toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </p>
 
           <h2>1. Acceptance of Terms</h2>
@@ -42,30 +47,30 @@ export default function TermsPage() {
           <h2>2. Services</h2>
           <p>
             Miracle Mind LLC provides software development services, AI
-            integrations, and digital products including but not limited to
-            the BANYAN platform. Services are provided on an as-available
-            basis and may be modified or discontinued at our discretion.
+            integrations, and digital products including but not limited to the
+            BANYAN platform. Services are provided on an as-available basis and
+            may be modified or discontinued at our discretion.
           </p>
 
           <h2>3. User Accounts</h2>
           <p>
-            Some services may require account creation. You are responsible
-            for maintaining the confidentiality of your account credentials
-            and for all activities under your account.
+            Some services may require account creation. You are responsible for
+            maintaining the confidentiality of your account credentials and for
+            all activities under your account.
           </p>
 
           <h2>4. Intellectual Property</h2>
           <p>
             All content, software, and materials on our platforms are owned by
-            Miracle Mind LLC and protected by intellectual property laws.
-            Client work is governed by individual service agreements.
+            Miracle Mind LLC and protected by intellectual property laws. Client
+            work is governed by individual service agreements.
           </p>
 
           <h2>5. Limitation of Liability</h2>
           <p>
-            To the maximum extent permitted by law, Miracle Mind LLC shall
-            not be liable for any indirect, incidental, special, or
-            consequential damages arising from use of our services.
+            To the maximum extent permitted by law, Miracle Mind LLC shall not
+            be liable for any indirect, incidental, special, or consequential
+            damages arising from use of our services.
           </p>
 
           <h2>6. Governing Law</h2>
@@ -77,8 +82,7 @@ export default function TermsPage() {
           <h2>7. Changes</h2>
           <p>
             We may update these terms from time to time. Continued use of our
-            services after changes constitutes acceptance of the revised
-            terms.
+            services after changes constitutes acceptance of the revised terms.
           </p>
 
           <h2>8. Contact</h2>

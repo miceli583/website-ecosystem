@@ -5,7 +5,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Blog | Matthew Miceli",
-  description: "Thoughts on technology, humanity, and building systems that honor what makes us human.",
+  description:
+    "Thoughts on technology, humanity, and building systems that honor what makes us human.",
 };
 
 // Blog post data structure
@@ -33,7 +34,7 @@ export default function BlogIndex() {
   return (
     <div className="relative min-h-screen bg-black">
       {/* Neural Net Shader Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="pointer-events-none fixed inset-0 z-0">
         <iframe
           src="/shaders/neural-net/embed"
           className="h-full w-full border-0 opacity-15"
@@ -44,7 +45,7 @@ export default function BlogIndex() {
       </div>
 
       {/* Gradient fade overlay */}
-      <div className="absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-transparent via-30% to-black to-70% pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-transparent via-30% to-black to-70%" />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen">
@@ -53,7 +54,7 @@ export default function BlogIndex() {
           <Link
             href="/"
             className="mb-8 inline-flex items-center gap-2 text-sm transition-colors hover:underline"
-            style={{ color: '#D4AF37' }}
+            style={{ color: "#D4AF37" }}
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
@@ -65,7 +66,8 @@ export default function BlogIndex() {
               Writing
             </h1>
             <p className="text-lg text-gray-300 sm:text-xl">
-              Thoughts on technology, humanity, and building systems that honor what makes us human.
+              Thoughts on technology, humanity, and building systems that honor
+              what makes us human.
             </p>
           </header>
 
@@ -73,21 +75,44 @@ export default function BlogIndex() {
           <div className="space-y-6">
             {blogPosts.map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`}>
-                <Card className="group cursor-pointer backdrop-blur-md transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl" style={{
-                  borderColor: 'rgba(212, 175, 55, 0.4)',
-                  borderWidth: '1px',
-                  background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.08) 0%, rgba(107, 29, 54, 0.08) 100%)'
-                }}>
+                <Card
+                  className="group cursor-pointer backdrop-blur-md transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl"
+                  style={{
+                    borderColor: "rgba(212, 175, 55, 0.4)",
+                    borderWidth: "1px",
+                    background:
+                      "linear-gradient(135deg, rgba(246, 230, 193, 0.08) 0%, rgba(107, 29, 54, 0.08) 100%)",
+                  }}
+                >
                   <CardContent className="p-6 sm:p-8">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg shadow-lg" style={{ background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)', boxShadow: '0 10px 25px -5px rgba(212, 175, 55, 0.3)' }}>
+                      <div
+                        className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg shadow-lg"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                          boxShadow: "0 10px 25px -5px rgba(212, 175, 55, 0.3)",
+                        }}
+                      >
                         <BookOpen className="h-6 w-6 text-black" />
                       </div>
                       <div className="flex-1">
                         <div className="mb-2 flex items-center gap-2">
-                          <span className="text-xs text-gray-400">{post.date}</span>
-                          <span className="text-xs" style={{ color: '#D4AF37' }}>•</span>
-                          <span className="text-xs" style={{ color: '#D4AF37' }}>{post.readTime}</span>
+                          <span className="text-xs text-gray-400">
+                            {post.date}
+                          </span>
+                          <span
+                            className="text-xs"
+                            style={{ color: "#D4AF37" }}
+                          >
+                            •
+                          </span>
+                          <span
+                            className="text-xs"
+                            style={{ color: "#D4AF37" }}
+                          >
+                            {post.readTime}
+                          </span>
                         </div>
                         <h2 className="mb-3 text-xl font-bold text-white group-hover:underline sm:text-2xl">
                           {post.title}
@@ -95,7 +120,10 @@ export default function BlogIndex() {
                         <p className="mb-4 text-sm leading-relaxed text-gray-200 sm:text-base">
                           {post.excerpt}
                         </p>
-                        <div className="flex items-center gap-2 text-sm font-semibold transition-all group-hover:gap-3" style={{ color: '#D4AF37' }}>
+                        <div
+                          className="flex items-center gap-2 text-sm font-semibold transition-all group-hover:gap-3"
+                          style={{ color: "#D4AF37" }}
+                        >
                           <span>Read article</span>
                           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                         </div>

@@ -1,7 +1,13 @@
 "use client";
 
 import { Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
@@ -27,7 +33,8 @@ function BlogManagementContent() {
     {
       slug: "honoring-our-humanity",
       title: "Honoring Our Humanity: Technology as Guardian, Not Replacement",
-      description: "In an age where AI can outperform us in countless tasks, we must ask: what does it mean to be human? And how do we build technology that strengthens—rather than erodes—the connections that make us whole?",
+      description:
+        "In an age where AI can outperform us in countless tasks, we must ask: what does it mean to be human? And how do we build technology that strengthens—rather than erodes—the connections that make us whole?",
       status: "published",
       category: "Technology & Humanity",
       estimatedReadTime: "8 min",
@@ -35,28 +42,32 @@ function BlogManagementContent() {
     {
       slug: "what-is-the-new-earth",
       title: "What is the New Earth?",
-      description: "Exploring the vision of New Earth—a world built on sovereignty, regeneration, authentic connection, and technologies that honor our humanity. Not a distant utopia, but an emerging reality being built by thousands of hands.",
+      description:
+        "Exploring the vision of New Earth—a world built on sovereignty, regeneration, authentic connection, and technologies that honor our humanity. Not a distant utopia, but an emerging reality being built by thousands of hands.",
       status: "seed",
       category: "New Earth Vision",
     },
     {
       slug: "web5-data-sovereignty",
       title: "Web5: Reclaiming Digital Sovereignty",
-      description: "How Web5's decentralized architecture gives us true ownership over our data and digital identity through Decentralized Identifiers, Verifiable Credentials, and personal data stores—making surveillance capitalism technologically impossible.",
+      description:
+        "How Web5's decentralized architecture gives us true ownership over our data and digital identity through Decentralized Identifiers, Verifiable Credentials, and personal data stores—making surveillance capitalism technologically impossible.",
       status: "seed",
       category: "Technology",
     },
     {
       slug: "regenerative-land-systems",
       title: "Regenerative Land Systems: Technology Meets Ecology",
-      description: "How regenerative agriculture, permaculture, and technology converge to heal ecosystems, reconnect humans to the land, and create abundance through restoration rather than extraction.",
+      description:
+        "How regenerative agriculture, permaculture, and technology converge to heal ecosystems, reconnect humans to the land, and create abundance through restoration rather than extraction.",
       status: "seed",
       category: "Ecology & Systems",
     },
     {
       slug: "current-threats-modern-technology",
       title: "The Hidden Costs: Current Threats of Modern Technology",
-      description: "An evidence-based deep dive into engineered addiction, surveillance capitalism, nervous system dysregulation, and the erosion of sovereignty—understanding what we're up against to build better alternatives.",
+      description:
+        "An evidence-based deep dive into engineered addiction, surveillance capitalism, nervous system dysregulation, and the erosion of sovereignty—understanding what we're up against to build better alternatives.",
       status: "seed",
       category: "Technology & Humanity",
       keyPoints: [
@@ -65,55 +76,62 @@ function BlogManagementContent() {
         "Manufactured scarcity and AI-driven behavioral targeting",
         "Nature deficit disorder and severed connection to land",
         "Surveillance capitalism and the death of digital sovereignty",
-        "Neurological parallels between social media and substance addiction"
+        "Neurological parallels between social media and substance addiction",
       ],
     },
     {
       slug: "integrating-spirituality-technology",
       title: "Integrating Spirituality with Technology",
-      description: "How can we build technology that honors the sacred? Exploring the intersection of ancient wisdom, energetic blueprints, and modern systems—creating tools that support spiritual growth rather than material consumption.",
+      description:
+        "How can we build technology that honors the sacred? Exploring the intersection of ancient wisdom, energetic blueprints, and modern systems—creating tools that support spiritual growth rather than material consumption.",
       status: "seed",
       category: "Spirituality & Technology",
     },
     {
       slug: "how-to-be-modern-polymath",
       title: "How to Be a Modern Polymath",
-      description: "In an age of hyperspecialization, the ability to integrate across disciplines becomes a superpower. Practical strategies for developing breadth without sacrificing depth, and synthesizing diverse knowledge into coherent wholes.",
+      description:
+        "In an age of hyperspecialization, the ability to integrate across disciplines becomes a superpower. Practical strategies for developing breadth without sacrificing depth, and synthesizing diverse knowledge into coherent wholes.",
       status: "seed",
       category: "Personal Development",
     },
     {
       slug: "meta-skills-meta-cognition",
       title: "Meta-Skills and Meta-Cognitive Abilities",
-      description: "Beyond domain-specific knowledge: learning how to learn, thinking about thinking, and developing the foundational capacities that amplify all other skills. The infrastructure of human excellence.",
+      description:
+        "Beyond domain-specific knowledge: learning how to learn, thinking about thinking, and developing the foundational capacities that amplify all other skills. The infrastructure of human excellence.",
       status: "seed",
       category: "Personal Development",
     },
     {
       slug: "geometry-and-resonance",
       title: "Geometry and Resonance: The Mathematics of Harmony",
-      description: "How sacred geometry, natural patterns, and resonance principles underlie everything from quantum mechanics to human relationships. Understanding the deep structures that create coherence in complex systems.",
+      description:
+        "How sacred geometry, natural patterns, and resonance principles underlie everything from quantum mechanics to human relationships. Understanding the deep structures that create coherence in complex systems.",
       status: "seed",
       category: "Systems & Philosophy",
     },
     {
       slug: "foundations-good-systems",
       title: "Foundations of Good Systems",
-      description: "What makes a system resilient, regenerative, and aligned with human flourishing? Core principles for designing technology, organizations, and communities that serve life rather than extract from it.",
+      description:
+        "What makes a system resilient, regenerative, and aligned with human flourishing? Core principles for designing technology, organizations, and communities that serve life rather than extract from it.",
       status: "seed",
       category: "Systems & Philosophy",
     },
     {
       slug: "yes-and-no-binary-reality",
       title: "Yes and No: The 1's and 0's of Your Reality",
-      description: "How the simple act of saying yes or no shapes your entire life. Understanding boundaries, sovereignty, and choice as the fundamental building blocks of your lived experience and emergent reality.",
+      description:
+        "How the simple act of saying yes or no shapes your entire life. Understanding boundaries, sovereignty, and choice as the fundamental building blocks of your lived experience and emergent reality.",
       status: "seed",
       category: "Personal Development",
     },
     {
       slug: "what-is-sovereignty-really",
       title: "What is Sovereignty, Really?",
-      description: "Beyond political definitions: sovereignty as the foundation of human agency, self-determination, and authentic power. Exploring personal sovereignty, data sovereignty, and collective sovereignty in the context of building regenerative futures.",
+      description:
+        "Beyond political definitions: sovereignty as the foundation of human agency, self-determination, and authentic power. Exploring personal sovereignty, data sovereignty, and collective sovereignty in the context of building regenerative futures.",
       status: "seed",
       category: "Philosophy & Systems",
     },
@@ -130,7 +148,9 @@ function BlogManagementContent() {
     }
   };
 
-  const publishedPosts = blogSeeds.filter((post) => post.status === "published");
+  const publishedPosts = blogSeeds.filter(
+    (post) => post.status === "published"
+  );
   const draftPosts = blogSeeds.filter((post) => post.status === "draft");
   const seedPosts = blogSeeds.filter((post) => post.status === "seed");
 
@@ -163,13 +183,13 @@ function BlogManagementContent() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Badge className="bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30">
+              <Badge className="border-[#D4AF37]/30 bg-[#D4AF37]/15 text-[#D4AF37]">
                 {publishedPosts.length} Published
               </Badge>
-              <Badge className="bg-white/10 text-white/60 border-white/20">
+              <Badge className="border-white/20 bg-white/10 text-white/60">
                 {draftPosts.length} Drafts
               </Badge>
-              <Badge className="bg-[#D4AF37]/5 text-[#D4AF37]/60 border-[#D4AF37]/15">
+              <Badge className="border-[#D4AF37]/15 bg-[#D4AF37]/5 text-[#D4AF37]/60">
                 {seedPosts.length} Seeds
               </Badge>
             </div>
@@ -195,9 +215,14 @@ function BlogManagementContent() {
                   Implementation Priorities:
                 </p>
                 <ul className="ml-6 list-disc space-y-2 text-sm leading-relaxed text-white/60">
-                  <li>Add Zapier automation for automatic posting to Substack when blog posts are published</li>
+                  <li>
+                    Add Zapier automation for automatic posting to Substack when
+                    blog posts are published
+                  </li>
                   <li>Integrate email newsletter signup feature</li>
-                  <li>Implement queue system for scheduled blog post publishing</li>
+                  <li>
+                    Implement queue system for scheduled blog post publishing
+                  </li>
                   <li>Add cross-posting to social platforms (optional)</li>
                 </ul>
               </div>
@@ -212,7 +237,9 @@ function BlogManagementContent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-white/50">Published</p>
-                  <p className="text-4xl font-bold text-[#D4AF37]">{publishedPosts.length}</p>
+                  <p className="text-4xl font-bold text-[#D4AF37]">
+                    {publishedPosts.length}
+                  </p>
                 </div>
                 <BookOpen className="h-12 w-12 text-[#D4AF37]/20" />
               </div>
@@ -224,7 +251,9 @@ function BlogManagementContent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-white/50">Drafts</p>
-                  <p className="text-4xl font-bold text-white/60">{draftPosts.length}</p>
+                  <p className="text-4xl font-bold text-white/60">
+                    {draftPosts.length}
+                  </p>
                 </div>
                 <Edit className="h-12 w-12 text-white/10" />
               </div>
@@ -236,7 +265,9 @@ function BlogManagementContent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-white/50">Seeds</p>
-                  <p className="text-4xl font-bold text-[#D4AF37]/60">{seedPosts.length}</p>
+                  <p className="text-4xl font-bold text-[#D4AF37]/60">
+                    {seedPosts.length}
+                  </p>
                 </div>
                 <BookOpen className="h-12 w-12 text-[#D4AF37]/10" />
               </div>
@@ -272,7 +303,10 @@ function BlogManagementContent() {
                       {post.description}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-neutral-500">
-                      <span className="font-medium" style={{ color: "#D4AF37" }}>
+                      <span
+                        className="font-medium"
+                        style={{ color: "#D4AF37" }}
+                      >
                         {post.category}
                       </span>
                       {post.estimatedReadTime && (
@@ -339,10 +373,16 @@ function BlogManagementContent() {
                 About Blog Seeds
               </h3>
               <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                Seeds are placeholder blog posts that outline future content. They serve as a roadmap for content creation and help organize ideas before writing begins. When you&apos;re ready to write a seed post, work with Claude to develop the full content, then update its status to &quot;draft&quot; for review before publishing.
+                Seeds are placeholder blog posts that outline future content.
+                They serve as a roadmap for content creation and help organize
+                ideas before writing begins. When you&apos;re ready to write a
+                seed post, work with Claude to develop the full content, then
+                update its status to &quot;draft&quot; for review before
+                publishing.
               </p>
               <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                These seeds can also help reduce density in existing posts by moving detailed content into dedicated topic-specific articles.
+                These seeds can also help reduce density in existing posts by
+                moving detailed content into dedicated topic-specific articles.
               </p>
             </div>
           </CardContent>

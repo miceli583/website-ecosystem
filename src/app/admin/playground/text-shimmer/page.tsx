@@ -254,7 +254,13 @@ function TextShimmerPageContent() {
 
 export default function TextShimmerPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <TextShimmerPageContent />
     </Suspense>
   );

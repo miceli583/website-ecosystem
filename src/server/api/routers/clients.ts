@@ -28,8 +28,10 @@ export const clientsRouter = createTRPCRouter({
       sql`SELECT DISTINCT company FROM master_crm WHERE company IS NOT NULL AND company != '' ORDER BY company`
     );
     const all = new Set<string>();
-    for (const row of result as unknown as { company: string }[]) all.add(row.company);
-    for (const row of crmResult as unknown as { company: string }[]) all.add(row.company);
+    for (const row of result as unknown as { company: string }[])
+      all.add(row.company);
+    for (const row of crmResult as unknown as { company: string }[])
+      all.add(row.company);
     return [...all].sort();
   }),
 
@@ -70,7 +72,10 @@ export const clientsRouter = createTRPCRouter({
       if (!client) return null;
 
       // Fetch Stripe lifetime spend if client has a Stripe customer ID
-      let stripeLifetimeSpend: { totalCents: number; chargeCount: number } | null = null;
+      let stripeLifetimeSpend: {
+        totalCents: number;
+        chargeCount: number;
+      } | null = null;
       if (client.stripeCustomerId && stripeLive) {
         try {
           let totalCents = 0;
@@ -128,7 +133,10 @@ export const clientsRouter = createTRPCRouter({
       if (!client) return null;
 
       // Fetch Stripe lifetime spend if client has a Stripe customer ID
-      let stripeLifetimeSpend: { totalCents: number; chargeCount: number } | null = null;
+      let stripeLifetimeSpend: {
+        totalCents: number;
+        chargeCount: number;
+      } | null = null;
       if (client.stripeCustomerId && stripeLive) {
         try {
           let totalCents = 0;
@@ -363,7 +371,9 @@ export const clientsRouter = createTRPCRouter({
         projectId: z.number(),
         title: z.string().min(1),
         content: z.string().min(1),
-        type: z.enum(["demo", "proposal", "update", "invoice"]).default("update"),
+        type: z
+          .enum(["demo", "proposal", "update", "invoice"])
+          .default("update"),
       })
     )
     .mutation(async ({ input }) => {

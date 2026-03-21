@@ -13,7 +13,8 @@ import { AdminNotificationEmail } from "~/lib/email-templates/admin-notification
  */
 export async function POST(request: NextRequest) {
   // Rate limit: 5 requests per 15 minutes per IP
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const { success: withinLimit } = rateLimit(
     `early-access:${ip}`,
     5,
@@ -157,7 +158,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "An error occurred while processing your request. Please try again.",
+        error:
+          "An error occurred while processing your request. Please try again.",
       },
       { status: 500 }
     );

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useCallback, useRef, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from "react";
 import type { SortOrder, ViewMode } from "./search-filter-bar";
 
 export interface TabFilterState {
@@ -40,7 +46,7 @@ export function PortalFilterProvider({ children }: { children: ReactNode }) {
       const prev = stateMap.current.get(tab) ?? { ...DEFAULT_STATE };
       stateMap.current.set(tab, { ...prev, ...partial });
     },
-    [],
+    []
   );
 
   return (
@@ -61,6 +67,7 @@ export function useTabFilters(tab: string) {
   }
   return {
     getState: () => ctx.getTabState(tab),
-    setState: (partial: Partial<TabFilterState>) => ctx.setTabState(tab, partial),
+    setState: (partial: Partial<TabFilterState>) =>
+      ctx.setTabState(tab, partial),
   };
 }

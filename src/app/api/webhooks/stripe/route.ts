@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
                 stripeSubscriptionId:
                   typeof session.subscription === "string"
                     ? session.subscription
-                    : session.subscription?.id ?? null,
+                    : (session.subscription?.id ?? null),
               },
               updatedAt: new Date(),
             })
@@ -115,16 +115,18 @@ export async function POST(request: NextRequest) {
           // Send receipt email
           const customerEmail = session.customer_email ?? proposal.client.email;
           if (customerEmail) {
-            const selectedPackageIds = session.metadata?.selectedPackageIds?.split(",") ?? [];
-            const packages = (metadata?.packages as Array<{
-              id: string;
-              name: string;
-              price: number;
-              type: string;
-              interval?: string;
-            }>) ?? [];
+            const selectedPackageIds =
+              session.metadata?.selectedPackageIds?.split(",") ?? [];
+            const packages =
+              (metadata?.packages as Array<{
+                id: string;
+                name: string;
+                price: number;
+                type: string;
+                interval?: string;
+              }>) ?? [];
 
-            const selectedPackages = packages.filter(pkg =>
+            const selectedPackages = packages.filter((pkg) =>
               selectedPackageIds.includes(pkg.id)
             );
 
@@ -134,13 +136,15 @@ export async function POST(request: NextRequest) {
               react: ProposalReceiptEmail({
                 clientName: proposal.client.name,
                 proposalTitle: proposal.title,
-                packages: selectedPackages.map(pkg => ({
+                packages: selectedPackages.map((pkg) => ({
                   name: pkg.name,
                   price: pkg.price,
                   type: pkg.type as "one-time" | "subscription",
                   interval: pkg.interval,
                 })),
-                totalAmount: session.amount_total ? session.amount_total / 100 : 0,
+                totalAmount: session.amount_total
+                  ? session.amount_total / 100
+                  : 0,
                 currency: session.currency ?? "usd",
                 paidAt: new Date(),
               }),

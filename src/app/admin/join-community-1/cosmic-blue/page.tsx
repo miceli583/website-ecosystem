@@ -33,7 +33,13 @@ function CosmicBlueJoinCommunity1PageContent() {
 
 export default function CosmicBlueJoinCommunity1Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <CosmicBlueJoinCommunity1PageContent />
     </Suspense>
   );

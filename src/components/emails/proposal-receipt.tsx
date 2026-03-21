@@ -44,7 +44,10 @@ export function ProposalReceiptEmail({
   const oneTimeItems = packages.filter((p) => p.type === "one-time");
   const subscriptionItems = packages.filter((p) => p.type === "subscription");
   const oneTimeTotal = oneTimeItems.reduce((sum, p) => sum + p.price, 0);
-  const subscriptionTotal = subscriptionItems.reduce((sum, p) => sum + p.price, 0);
+  const subscriptionTotal = subscriptionItems.reduce(
+    (sum, p) => sum + p.price,
+    0
+  );
 
   return (
     <Html>
@@ -119,13 +122,11 @@ export function ProposalReceiptEmail({
           </Section>
 
           <Text style={paragraph}>
-            If you have any questions about your purchase, please don&apos;t hesitate
-            to reach out.
+            If you have any questions about your purchase, please don&apos;t
+            hesitate to reach out.
           </Text>
 
-          <Text style={footer}>
-            — The Miracle Mind Team
-          </Text>
+          <Text style={footer}>— The Miracle Mind Team</Text>
         </Container>
       </Body>
     </Html>

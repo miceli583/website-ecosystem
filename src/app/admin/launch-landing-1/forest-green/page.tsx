@@ -59,7 +59,13 @@ function ForestGreenLaunchLanding1PageContent() {
 
 export default function ForestGreenLaunchLanding1Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <ForestGreenLaunchLanding1PageContent />
     </Suspense>
   );

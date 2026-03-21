@@ -38,16 +38,16 @@ export function DashboardShell({
   return (
     <div className="flex min-h-[calc(100vh-7rem)]">
       {/* Sidebar */}
-      <aside className="hidden w-64 flex-shrink-0 border-r border-gray-800 bg-cw-navy-dark md:block">
+      <aside className="bg-cw-navy-dark hidden w-64 flex-shrink-0 border-r border-gray-800 md:block">
         <div className="flex h-full flex-col">
           {/* Sidebar Header */}
           <div className="border-b border-gray-800 px-5 py-5">
             <Link href={baseUrl} className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cw-red/20">
-                <ShieldCheck className="h-5 w-5 text-cw-red" />
+              <div className="bg-cw-red/20 flex h-9 w-9 items-center justify-center rounded-lg">
+                <ShieldCheck className="text-cw-red h-5 w-5" />
               </div>
               <div>
-                <div className="text-sm font-bold uppercase tracking-wide text-white">
+                <div className="text-sm font-bold tracking-wide text-white uppercase">
                   Cargo Watch
                 </div>
                 <div className="text-xs text-gray-500">Command Center</div>
@@ -58,7 +58,7 @@ export function DashboardShell({
           {/* User Info */}
           <div className="border-b border-gray-800 px-5 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cw-red/20 text-sm font-medium text-cw-red">
+              <div className="bg-cw-red/20 text-cw-red flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium">
                 {DEMO_USER.fullName.charAt(0)}
               </div>
               <div>
@@ -77,7 +77,8 @@ export function DashboardShell({
             <ul className="space-y-1">
               {NAV_ITEMS.map((item) => {
                 const href = `${baseUrl}${item.path}`;
-                const isActive = pathname === href || pathname.startsWith(href + "/");
+                const isActive =
+                  pathname === href || pathname.startsWith(href + "/");
                 const Icon = item.icon;
 
                 if (item.highlight) {
@@ -85,7 +86,7 @@ export function DashboardShell({
                     <li key={item.label}>
                       <Link
                         href={href}
-                        className="flex items-center gap-3 rounded-lg bg-cw-red px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cw-red-hover"
+                        className="bg-cw-red hover:bg-cw-red-hover flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors"
                       >
                         <Icon className="h-5 w-5" />
                         {item.label}
@@ -101,7 +102,7 @@ export function DashboardShell({
                       className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         isActive
                           ? "bg-cw-navy-light text-white"
-                          : "text-gray-400 hover:bg-cw-navy-light hover:text-white"
+                          : "hover:bg-cw-navy-light text-gray-400 hover:text-white"
                       }`}
                     >
                       <Icon className="h-5 w-5" />

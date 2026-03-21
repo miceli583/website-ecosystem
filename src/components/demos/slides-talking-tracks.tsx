@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Mic, Clock, MessageSquare, ArrowRightLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  Mic,
+  Clock,
+  MessageSquare,
+  ArrowRightLeft,
+} from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 
 interface SlidesTalkingTracksDemoProps {
@@ -20,21 +26,26 @@ const SAMPLE_TRACKS = [
   {
     slide: 1,
     title: "Welcome & Introduction",
-    preview: "Begin by welcoming participants and establishing a comfortable learning environment...",
+    preview:
+      "Begin by welcoming participants and establishing a comfortable learning environment...",
   },
   {
     slide: 2,
     title: "Course Overview",
-    preview: "Walk through the module structure and set expectations for the training session...",
+    preview:
+      "Walk through the module structure and set expectations for the training session...",
   },
   {
     slide: 3,
     title: "Learning Objectives",
-    preview: "Highlight the key competencies participants will develop by the end of this module...",
+    preview:
+      "Highlight the key competencies participants will develop by the end of this module...",
   },
 ];
 
-export function SlidesTalkingTracksDemo({ backHref }: SlidesTalkingTracksDemoProps) {
+export function SlidesTalkingTracksDemo({
+  backHref,
+}: SlidesTalkingTracksDemoProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -103,10 +114,7 @@ export function SlidesTalkingTracksDemo({ backHref }: SlidesTalkingTracksDemoPro
                   className="mx-auto mb-2 h-5 w-5"
                   style={{ color: "#D4AF37" }}
                 />
-                <p
-                  className="text-2xl font-bold"
-                  style={{ color: "#D4AF37" }}
-                >
+                <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
                   {stat.value}
                 </p>
                 <p className="mt-1 text-xs text-gray-500">{stat.label}</p>

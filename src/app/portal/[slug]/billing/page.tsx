@@ -69,9 +69,7 @@ function getStatusBadge(status: string | null) {
         <span className={`${base} bg-[#D4AF37]/15 text-[#D4AF37]`}>Open</span>
       );
     case "draft":
-      return (
-        <span className={`${base} bg-white/10 text-gray-400`}>Draft</span>
-      );
+      return <span className={`${base} bg-white/10 text-gray-400`}>Draft</span>;
     case "uncollectible":
       return (
         <span className={`${base} bg-red-900/50 text-red-400`}>
@@ -79,9 +77,7 @@ function getStatusBadge(status: string | null) {
         </span>
       );
     case "void":
-      return (
-        <span className={`${base} bg-white/10 text-gray-500`}>Void</span>
-      );
+      return <span className={`${base} bg-white/10 text-gray-500`}>Void</span>;
     default:
       return (
         <span className={`${base} bg-white/10 text-gray-400`}>
@@ -93,7 +89,7 @@ function getStatusBadge(status: string | null) {
 
 function getSubscriptionStatusBadge(
   status: string,
-  cancelAtPeriodEnd?: boolean,
+  cancelAtPeriodEnd?: boolean
 ) {
   const base =
     "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
@@ -107,15 +103,11 @@ function getSubscriptionStatusBadge(
   switch (status) {
     case "active":
       return (
-        <span className={`${base} bg-green-900/50 text-green-400`}>
-          Active
-        </span>
+        <span className={`${base} bg-green-900/50 text-green-400`}>Active</span>
       );
     case "trialing":
       return (
-        <span className={`${base} bg-[#D4AF37]/15 text-[#D4AF37]`}>
-          Trial
-        </span>
+        <span className={`${base} bg-[#D4AF37]/15 text-[#D4AF37]`}>Trial</span>
       );
     case "past_due":
       return (
@@ -196,17 +188,23 @@ export default function PortalBillingPage({
     data: client,
     isLoading,
     error,
-  } = api.portal.getClientBySlug.useQuery({ slug }, { staleTime: 5 * 60 * 1000 });
+  } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { staleTime: 5 * 60 * 1000 }
+  );
 
   const {
     data: billing,
     isLoading: billingLoading,
     refetch: refetchBilling,
-  } = api.portal.getBillingInfo.useQuery({ slug }, { staleTime: 2 * 60 * 1000 });
+  } = api.portal.getBillingInfo.useQuery(
+    { slug },
+    { staleTime: 2 * 60 * 1000 }
+  );
 
   const { data: resources } = api.portal.getResources.useQuery(
     { slug, section: "proposals" },
-    { staleTime: 5 * 60 * 1000 },
+    { staleTime: 5 * 60 * 1000 }
   );
 
   // Persisted filter state
@@ -221,15 +219,25 @@ export default function PortalBillingPage({
   >(saved.selectedProject);
   const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups),
+    new Set(saved.collapsedGroups)
   );
 
   useEffect(() => {
     persistState({
-      searchQuery, sortOrder, selectedProject, viewMode,
+      searchQuery,
+      sortOrder,
+      selectedProject,
+      viewMode,
       collapsedGroups: Array.from(collapsedGroups),
     });
-  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, persistState]);
+  }, [
+    searchQuery,
+    sortOrder,
+    selectedProject,
+    viewMode,
+    collapsedGroups,
+    persistState,
+  ]);
 
   // Dialogs
   const [cancelDialog, setCancelDialog] = useState<{
@@ -239,7 +247,7 @@ export default function PortalBillingPage({
 
   // Proposal modal
   const [selectedProposalId, setSelectedProposalId] = useState<number | null>(
-    null,
+    null
   );
 
   // Mutations
@@ -273,7 +281,7 @@ export default function PortalBillingPage({
         cancelUrl: `${baseUrl}/portal/${slug}/billing?domain=live`,
       });
     },
-    [resubscribeMutation, slug],
+    [resubscribeMutation, slug]
   );
 
   // ---------------------------------------------------------------------------
@@ -292,7 +300,7 @@ export default function PortalBillingPage({
         .join(" + ");
       const totalAmount = sub.items.reduce(
         (sum, i) => sum + (i.unitAmount ?? 0),
-        0,
+        0
       );
       items.push({
         id: `sub-${sub.id}`,
@@ -391,7 +399,11 @@ export default function PortalBillingPage({
       }
     }
     return Array.from(map.values()).sort((a, b) =>
-      a.name === "Unassigned" ? 1 : b.name === "Unassigned" ? -1 : a.name.localeCompare(b.name),
+      a.name === "Unassigned"
+        ? 1
+        : b.name === "Unassigned"
+          ? -1
+          : a.name.localeCompare(b.name)
     );
   }, [allItems]);
 
@@ -406,7 +418,7 @@ export default function PortalBillingPage({
           i.title.toLowerCase().includes(q) ||
           (i.proposalName?.toLowerCase().includes(q) ?? false) ||
           i.projectName.toLowerCase().includes(q) ||
-          (i.invoiceData?.number?.toLowerCase().includes(q) ?? false),
+          (i.invoiceData?.number?.toLowerCase().includes(q) ?? false)
       );
     }
 
@@ -415,7 +427,7 @@ export default function PortalBillingPage({
       items = items.filter((i) =>
         selectedProject === "unassigned"
           ? i.projectId === null
-          : i.projectId === selectedProject,
+          : i.projectId === selectedProject
       );
     }
 
@@ -431,11 +443,13 @@ export default function PortalBillingPage({
 
   // Grouped by type (for list view)
   const groupedByType = useMemo(() => {
-    const subscriptions = filteredItems.filter((i) => i.kind === "subscription");
+    const subscriptions = filteredItems.filter(
+      (i) => i.kind === "subscription"
+    );
     const paid = filteredItems.filter(
       (i) =>
         (i.kind === "invoice" && i.status === "paid") ||
-        (i.kind === "payment" && i.status === "succeeded"),
+        (i.kind === "payment" && i.status === "succeeded")
     );
     return [
       { label: "Subscriptions", items: subscriptions },
@@ -454,7 +468,7 @@ export default function PortalBillingPage({
     }
     // Sort groups: alphabetical, "Unassigned" last
     return Array.from(groups.entries()).sort(([a], [b]) =>
-      a === "Unassigned" ? 1 : b === "Unassigned" ? -1 : a.localeCompare(b),
+      a === "Unassigned" ? 1 : b === "Unassigned" ? -1 : a.localeCompare(b)
     );
   }, [filteredItems]);
 
@@ -501,7 +515,7 @@ export default function PortalBillingPage({
       .filter(
         (i) =>
           i.kind === "subscription" &&
-          (i.status === "active" || i.status === "trialing"),
+          (i.status === "active" || i.status === "trialing")
       )
       .reduce((sum, i) => sum + i.amount, 0);
   }, [allItems]);
@@ -521,11 +535,11 @@ export default function PortalBillingPage({
       (i) =>
         i.kind === "subscription" &&
         (i.status === "active" || i.status === "trialing") &&
-        i.subscriptionData?.currentPeriodEnd,
+        i.subscriptionData?.currentPeriodEnd
     );
     if (activeSubs.length === 0) return null;
     const earliest = Math.min(
-      ...activeSubs.map((i) => i.subscriptionData!.currentPeriodEnd!),
+      ...activeSubs.map((i) => i.subscriptionData!.currentPeriodEnd!)
     );
     return earliest;
   }, [allItems]);
@@ -536,7 +550,9 @@ export default function PortalBillingPage({
 
   const selectedProposal = useMemo(() => {
     if (!selectedProposalId || !resources) return null;
-    return resources.find((r: { id: number }) => r.id === selectedProposalId) ?? null;
+    return (
+      resources.find((r: { id: number }) => r.id === selectedProposalId) ?? null
+    );
   }, [selectedProposalId, resources]);
 
   // ---------------------------------------------------------------------------
@@ -572,7 +588,7 @@ export default function PortalBillingPage({
               <span className="font-semibold text-white">{item.title}</span>
               {getSubscriptionStatusBadge(
                 isCanceling ? "active" : item.status,
-                isCanceling,
+                isCanceling
               )}
             </div>
             {item.proposalName && item.proposalName !== item.title && (
@@ -643,7 +659,9 @@ export default function PortalBillingPage({
             {/* Reactivate */}
             {isCanceling && (
               <button
-                onClick={() => reactivateMutation.mutate({ subscriptionId: sub.id })}
+                onClick={() =>
+                  reactivateMutation.mutate({ subscriptionId: sub.id })
+                }
                 disabled={reactivateMutation.isPending}
                 className="mt-1 flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs text-green-400 transition-colors hover:bg-green-900/20 hover:text-green-300"
               >
@@ -930,18 +948,13 @@ export default function PortalBillingPage({
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
               <div className="flex items-center gap-2 text-sm text-gray-400">
-                <DollarSign
-                  className="h-4 w-4"
-                  style={{ color: "#D4AF37" }}
-                />
+                <DollarSign className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 Total Paid
               </div>
               <p className="mt-2 text-2xl font-bold text-white">
                 {formatCurrency(totalPaid, "usd")}
               </p>
-              <p className="mt-0.5 text-xs text-gray-600">
-                All-time payments
-              </p>
+              <p className="mt-0.5 text-xs text-gray-600">All-time payments</p>
             </div>
             <div
               className="rounded-lg border bg-white/5 p-5"
@@ -955,7 +968,9 @@ export default function PortalBillingPage({
                 {nextPaymentDate ? formatDate(nextPaymentDate) : "—"}
               </p>
               <p className="mt-0.5 text-xs text-gray-600">
-                {nextPaymentDate ? "Upcoming billing date" : "No active subscriptions"}
+                {nextPaymentDate
+                  ? "Upcoming billing date"
+                  : "No active subscriptions"}
               </p>
             </div>
           </div>
@@ -1027,9 +1042,12 @@ export default function PortalBillingPage({
                     <div key={group.label}>
                       <button
                         onClick={() => toggleGroup(group.label)}
-                        className="mb-2 mt-4 flex w-full items-center gap-2 text-left first:mt-0"
+                        className="mt-4 mb-2 flex w-full items-center gap-2 text-left first:mt-0"
                       >
-                        <div className="h-4 w-0.5 rounded-full" style={{ backgroundColor: "#D4AF37" }} />
+                        <div
+                          className="h-4 w-0.5 rounded-full"
+                          style={{ backgroundColor: "#D4AF37" }}
+                        />
                         <h3 className="text-sm font-medium text-gray-400">
                           {group.label}
                         </h3>

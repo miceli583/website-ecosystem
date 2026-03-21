@@ -10,7 +10,12 @@ interface PartnerCardProps {
   icon: LucideIcon;
 }
 
-export function PartnerCard({ name, description, href, icon: Icon }: PartnerCardProps) {
+export function PartnerCard({
+  name,
+  description,
+  href,
+  icon: Icon,
+}: PartnerCardProps) {
   return (
     <Card
       className="bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
