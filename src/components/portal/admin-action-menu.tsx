@@ -27,7 +27,8 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
     }
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [open]);
 
@@ -47,7 +48,7 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
       </button>
       {open && (
         <div
-          className="absolute right-0 top-full z-50 mt-1 min-w-[160px] overflow-hidden rounded-lg border py-1 shadow-xl backdrop-blur-md"
+          className="absolute top-full right-0 z-50 mt-1 min-w-[160px] overflow-hidden rounded-lg border py-1 shadow-xl backdrop-blur-md"
           style={{
             borderColor: "rgba(212, 175, 55, 0.15)",
             backgroundColor: "rgba(0, 0, 0, 0.95)",
@@ -71,7 +72,9 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
                     : "text-gray-300 hover:bg-white/10 hover:text-white"
               }`}
             >
-              {action.icon && <span className="flex-shrink-0">{action.icon}</span>}
+              {action.icon && (
+                <span className="flex-shrink-0">{action.icon}</span>
+              )}
               {action.label}
             </button>
           ))}

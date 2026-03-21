@@ -6,14 +6,16 @@
 
 export async function generateResumePDF() {
   // Dynamically import libraries to avoid SSR issues
-  const html2canvas = (await import('html2canvas')).default;
-  const jsPDF = (await import('jspdf')).default;
+  const html2canvas = (await import("html2canvas")).default;
+  const jsPDF = (await import("jspdf")).default;
 
   // Get the resume container element
-  const resumeElement = document.querySelector('.resume-container') as HTMLElement;
+  const resumeElement = document.querySelector(
+    ".resume-container"
+  ) as HTMLElement;
 
   if (!resumeElement) {
-    console.error('Resume container not found');
+    console.error("Resume container not found");
     return;
   }
 
@@ -22,7 +24,7 @@ export async function generateResumePDF() {
     scale: 2, // Higher quality
     useCORS: true,
     logging: false,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   });
 
   // Calculate PDF dimensions
@@ -32,27 +34,27 @@ export async function generateResumePDF() {
 
   // Create PDF
   const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
   });
 
   let heightLeft = imgHeight;
   let position = 0;
 
   // Add image to PDF
-  const imgData = canvas.toDataURL('image/png');
-  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+  const imgData = canvas.toDataURL("image/png");
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
   heightLeft -= pageHeight;
 
   // Add additional pages if content exceeds one page
   while (heightLeft > 0) {
     position = heightLeft - imgHeight;
     pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
   }
 
   // Save the PDF
-  pdf.save('Matthew_Miceli_Resume.pdf');
+  pdf.save("Matthew_Miceli_Resume.pdf");
 }

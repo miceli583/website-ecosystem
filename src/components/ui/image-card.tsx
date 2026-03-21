@@ -58,7 +58,8 @@ export function ImageCard({
             <div
               className="absolute inset-0"
               style={{
-                background: "linear-gradient(135deg, rgba(246,230,193,0.4) 0%, rgba(212,175,55,0.5) 100%)",
+                background:
+                  "linear-gradient(135deg, rgba(246,230,193,0.4) 0%, rgba(212,175,55,0.5) 100%)",
                 mixBlendMode: "color",
               }}
             />
@@ -68,7 +69,7 @@ export function ImageCard({
         {/* Content - separate from image */}
         <div className="mt-4">
           <h3
-            className="mb-2 text-lg font-bold uppercase tracking-wide text-white"
+            className="mb-2 text-lg font-bold tracking-wide text-white uppercase"
             style={{
               fontFamily: "var(--font-quattrocento-sans)",
               letterSpacing: "0.05em",
@@ -76,9 +77,7 @@ export function ImageCard({
           >
             {title}
           </h3>
-          <p className="text-sm leading-relaxed text-gray-300">
-            {description}
-          </p>
+          <p className="text-sm leading-relaxed text-gray-300">{description}</p>
           {href && (
             <Link
               href={href}
@@ -97,10 +96,14 @@ export function ImageCard({
   return (
     <div
       className="group overflow-hidden rounded-lg bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-white/10"
-      style={noBorder ? {} : {
-        borderColor: "rgba(212, 175, 55, 0.3)",
-        borderWidth: "1px",
-      }}
+      style={
+        noBorder
+          ? {}
+          : {
+              borderColor: "rgba(212, 175, 55, 0.3)",
+              borderWidth: "1px",
+            }
+      }
     >
       {/* Image Container */}
       <div className="relative aspect-[16/10] w-full overflow-hidden">
@@ -118,7 +121,7 @@ export function ImageCard({
       {/* Content */}
       <div className="p-6">
         <h3
-          className="mb-2 text-lg font-bold uppercase tracking-wide text-white"
+          className="mb-2 text-lg font-bold tracking-wide text-white uppercase"
           style={{ fontFamily: "var(--font-quattrocento-sans)" }}
         >
           {title}

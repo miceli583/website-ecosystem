@@ -142,7 +142,7 @@ export default function ClientDashboardPage({
       )}
 
       {/* Projects list */}
-      <h2 className="mb-4 mt-10 text-xl font-semibold">Your Projects</h2>
+      <h2 className="mt-10 mb-4 text-xl font-semibold">Your Projects</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {client.projects.map((project: ClientProject) => (
           <Card

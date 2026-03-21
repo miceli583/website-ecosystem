@@ -26,10 +26,11 @@ export function ClientPortalLayout({
   const pathname = usePathname();
   const utils = api.useUtils();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { data: profile, isLoading: profileLoading } = api.portal.getMyProfile.useQuery(
-    undefined,
-    { staleTime: 0 } // Always fetch fresh profile data
-  );
+  const { data: profile, isLoading: profileLoading } =
+    api.portal.getMyProfile.useQuery(
+      undefined,
+      { staleTime: 0 } // Always fetch fresh profile data
+    );
   // Only show admin features when profile is loaded AND role is admin
   const isAdmin = !profileLoading && profile?.role === "admin";
   // Check if user is viewing their own portal (client viewing own, not admin viewing client)
@@ -43,7 +44,9 @@ export function ClientPortalLayout({
     { name: "Tooling", href: `${basePath}/${slug}/tooling` },
     { name: "Notes", href: `${basePath}/${slug}/notes` },
     { name: "Billing", href: `${basePath}/${slug}/billing` },
-    ...(isAdmin ? [{ name: "Projects", href: `${basePath}/${slug}/projects` }] : []),
+    ...(isAdmin
+      ? [{ name: "Projects", href: `${basePath}/${slug}/projects` }]
+      : []),
     { name: "Profile", href: `${basePath}/${slug}/profile` },
   ];
 
@@ -107,7 +110,9 @@ export function ClientPortalLayout({
                   key={item.href}
                   href={item.href}
                   className={`text-sm transition-colors hover:text-white ${
-                    isActiveLink(item.href) ? "font-medium text-[#D4AF37]" : "text-gray-400"
+                    isActiveLink(item.href)
+                      ? "font-medium text-[#D4AF37]"
+                      : "text-gray-400"
                   }`}
                 >
                   {item.name}
@@ -128,7 +133,11 @@ export function ClientPortalLayout({
               className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white md:hidden"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
@@ -144,7 +153,7 @@ export function ClientPortalLayout({
 
       {/* Mobile menu */}
       <div
-        className={`fixed right-0 top-0 z-50 h-full w-64 transform bg-black transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 z-50 h-full w-64 transform bg-black transition-transform duration-300 ease-in-out md:hidden ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{ borderLeft: "1px solid rgba(212, 175, 55, 0.2)" }}
@@ -194,9 +203,7 @@ export function ClientPortalLayout({
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {children}
-      </main>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

@@ -204,7 +204,10 @@ function PackageCard({
 
       {/* Line items toggle */}
       {hasLineItems && (
-        <div className="mt-3 border-t pt-3" style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}>
+        <div
+          className="mt-3 border-t pt-3"
+          style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
+        >
           <button
             onClick={() => setShowDetails(!showDetails)}
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300"
@@ -214,7 +217,8 @@ function PackageCard({
             ) : (
               <ChevronDown className="h-4 w-4" />
             )}
-            {showDetails ? "Hide" : "Show"} details ({pkg.lineItems!.length} items)
+            {showDetails ? "Hide" : "Show"} details ({pkg.lineItems!.length}{" "}
+            items)
           </button>
 
           {showDetails && (
@@ -225,7 +229,7 @@ function PackageCard({
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Layers className="h-3.5 w-3.5 text-[#D4AF37]/70" />
-                        <span className="text-xs font-medium uppercase tracking-wide text-[#D4AF37]/70">
+                        <span className="text-xs font-medium tracking-wide text-[#D4AF37]/70 uppercase">
                           {group.name}
                         </span>
                       </div>
@@ -234,7 +238,9 @@ function PackageCard({
                       </span>
                     </div>
                   )}
-                  <div className={`space-y-1 ${hasMultipleGroups ? "ml-5 border-l border-white/10 pl-3" : ""}`}>
+                  <div
+                    className={`space-y-1 ${hasMultipleGroups ? "ml-5 border-l border-white/10 pl-3" : ""}`}
+                  >
                     {group.items!.map((item, idx) => (
                       <div
                         key={idx}
@@ -246,7 +252,12 @@ function PackageCard({
                             .replace(/ - Slide Builder$/, "")}
                           {item.quantity > 1 && ` × ${item.quantity}`}
                         </span>
-                        <span className="flex-shrink-0 ml-2">{formatCurrency(item.unitPrice * item.quantity, currency)}</span>
+                        <span className="ml-2 flex-shrink-0">
+                          {formatCurrency(
+                            item.unitPrice * item.quantity,
+                            currency
+                          )}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -260,8 +271,16 @@ function PackageCard({
   );
 }
 
-export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: ProposalModalProps) {
-  const [selectedPackages, setSelectedPackages] = useState<Set<string>>(new Set());
+export function ProposalModal({
+  isOpen,
+  onClose,
+  proposal,
+  slug,
+  isAdmin,
+}: ProposalModalProps) {
+  const [selectedPackages, setSelectedPackages] = useState<Set<string>>(
+    new Set()
+  );
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
@@ -283,7 +302,13 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
   }, [packages]);
 
   // Calculate totals (separate one-time and recurring) with bundle discount
-  const { oneTimeTotal, recurringTotal, recurringInterval, bundleActive, bundleSavings } = useMemo(() => {
+  const {
+    oneTimeTotal,
+    recurringTotal,
+    recurringInterval,
+    bundleActive,
+    bundleSavings,
+  } = useMemo(() => {
     let oneTime = 0;
     let recurring = 0;
     let interval: "month" | "year" | null = null;
@@ -300,9 +325,11 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
 
     // Check if bundle discount applies (all one-time packages selected)
     const oneTimePackages = packages.filter((p) => p.type === "one-time");
-    const allOneTimeSelected = oneTimePackages.length > 1 &&
+    const allOneTimeSelected =
+      oneTimePackages.length > 1 &&
       oneTimePackages.every((p) => selectedPackages.has(p.id));
-    const hasBundlePrice = metadata?.bundlePrice != null && metadata.bundlePrice < oneTime;
+    const hasBundlePrice =
+      metadata?.bundlePrice != null && metadata.bundlePrice < oneTime;
     const isBundle = allOneTimeSelected && hasBundlePrice;
     const savings = isBundle ? oneTime - metadata!.bundlePrice! : 0;
 
@@ -356,7 +383,8 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
     });
   };
 
-  const hasSelection = selectedPackages.size > 0 && (oneTimeTotal > 0 || recurringTotal > 0);
+  const hasSelection =
+    selectedPackages.size > 0 && (oneTimeTotal > 0 || recurringTotal > 0);
   const canCheckout = hasSelection && (isAdmin || status === "sent");
 
   if (!isOpen) return null;
@@ -375,12 +403,23 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
       {/* Modal */}
       <div
         className="relative max-h-[95vh] w-full overflow-y-auto rounded-t-2xl border shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-xl md:max-w-3xl lg:max-w-4xl"
-        style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(5, 5, 5, 0.98)" }}
+        style={{
+          borderColor: "rgba(212, 175, 55, 0.2)",
+          backgroundColor: "rgba(5, 5, 5, 0.98)",
+        }}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-start justify-between border-b p-4 sm:p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(5, 5, 5, 0.98)" }}>
+        <div
+          className="sticky top-0 z-10 flex items-start justify-between border-b p-4 sm:p-6"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.15)",
+            backgroundColor: "rgba(5, 5, 5, 0.98)",
+          }}
+        >
           <div>
-            <h2 className="text-lg font-bold text-white sm:text-xl md:text-2xl">{proposal.title}</h2>
+            <h2 className="text-lg font-bold text-white sm:text-xl md:text-2xl">
+              {proposal.title}
+            </h2>
             <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               {new Date(proposal.createdAt).toLocaleDateString("en-US", {
                 month: "long",
@@ -392,7 +431,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
           </div>
           <button
             onClick={onClose}
-            className="-mr-2 -mt-2 rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white sm:mr-0 sm:mt-0"
+            className="-mt-2 -mr-2 rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10 hover:text-white sm:mt-0 sm:mr-0"
           >
             <X className="h-5 w-5" />
           </button>
@@ -416,79 +455,94 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
           {/* Description */}
           {proposal.description && (
             <div className="mb-6">
-              <p className="text-sm text-gray-300 sm:text-base">{proposal.description}</p>
+              <p className="text-sm text-gray-300 sm:text-base">
+                {proposal.description}
+              </p>
             </div>
           )}
 
           {/* Customer Info */}
-          {customerInfo && (customerInfo.name || customerInfo.email || customerInfo.company) && (
-            <div className="mb-6 rounded-lg border bg-white/5 p-4 sm:p-5" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
-              <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
-                <User className="h-4 w-4" />
-                Prepared For
-              </h3>
-              <div className="space-y-2 text-sm">
-                {customerInfo.name && (
-                  <p className="font-medium text-white">{customerInfo.name}</p>
-                )}
-                {customerInfo.company && (
-                  <p className="flex items-center gap-2 text-gray-400">
-                    <Building className="h-4 w-4 flex-shrink-0" />
-                    {customerInfo.company}
-                  </p>
-                )}
-                {customerInfo.email && (
-                  <p className="flex items-center gap-2 text-gray-400">
-                    <Mail className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{customerInfo.email}</span>
-                  </p>
-                )}
+          {customerInfo &&
+            (customerInfo.name ||
+              customerInfo.email ||
+              customerInfo.company) && (
+              <div
+                className="mb-6 rounded-lg border bg-white/5 p-4 sm:p-5"
+                style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+              >
+                <h3 className="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500 uppercase sm:text-sm">
+                  <User className="h-4 w-4" />
+                  Prepared For
+                </h3>
+                <div className="space-y-2 text-sm">
+                  {customerInfo.name && (
+                    <p className="font-medium text-white">
+                      {customerInfo.name}
+                    </p>
+                  )}
+                  {customerInfo.company && (
+                    <p className="flex items-center gap-2 text-gray-400">
+                      <Building className="h-4 w-4 flex-shrink-0" />
+                      {customerInfo.company}
+                    </p>
+                  )}
+                  {customerInfo.email && (
+                    <p className="flex items-center gap-2 text-gray-400">
+                      <Mail className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{customerInfo.email}</span>
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* One-time Packages */}
-          {packages.filter(p => p.type === "one-time").length > 0 && (
+          {packages.filter((p) => p.type === "one-time").length > 0 && (
             <div className="mb-6">
-              <h3 className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
+              <h3 className="mb-4 flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500 uppercase sm:text-sm">
                 <Package className="h-4 w-4" />
-                {packages.filter(p => p.type === "one-time").length === 1
-                  ? packages.find(p => p.type === "one-time")?.name ?? "Package"
+                {packages.filter((p) => p.type === "one-time").length === 1
+                  ? (packages.find((p) => p.type === "one-time")?.name ??
+                    "Package")
                   : "Packages"}
               </h3>
               <div className="space-y-3">
-                {packages.filter(p => p.type === "one-time").map((pkg) => (
-                  <PackageCard
-                    key={pkg.id}
-                    pkg={pkg}
-                    currency={currency}
-                    selected={selectedPackages.has(pkg.id)}
-                    onToggle={() => togglePackage(pkg.id)}
-                    disabled={!isAdmin && status !== "sent"}
-                  />
-                ))}
+                {packages
+                  .filter((p) => p.type === "one-time")
+                  .map((pkg) => (
+                    <PackageCard
+                      key={pkg.id}
+                      pkg={pkg}
+                      currency={currency}
+                      selected={selectedPackages.has(pkg.id)}
+                      onToggle={() => togglePackage(pkg.id)}
+                      disabled={!isAdmin && status !== "sent"}
+                    />
+                  ))}
               </div>
             </div>
           )}
 
           {/* Subscription Packages */}
-          {packages.filter(p => p.type === "subscription").length > 0 && (
+          {packages.filter((p) => p.type === "subscription").length > 0 && (
             <div className="mb-6">
-              <h3 className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
+              <h3 className="mb-4 flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500 uppercase sm:text-sm">
                 <Clock className="h-4 w-4" />
                 Hosting & Maintenance (Optional)
               </h3>
               <div className="space-y-3">
-                {packages.filter(p => p.type === "subscription").map((pkg) => (
-                  <PackageCard
-                    key={pkg.id}
-                    pkg={pkg}
-                    currency={currency}
-                    selected={selectedPackages.has(pkg.id)}
-                    onToggle={() => togglePackage(pkg.id)}
-                    disabled={!isAdmin && status !== "sent"}
-                  />
-                ))}
+                {packages
+                  .filter((p) => p.type === "subscription")
+                  .map((pkg) => (
+                    <PackageCard
+                      key={pkg.id}
+                      pkg={pkg}
+                      currency={currency}
+                      selected={selectedPackages.has(pkg.id)}
+                      onToggle={() => togglePackage(pkg.id)}
+                      disabled={!isAdmin && status !== "sent"}
+                    />
+                  ))}
               </div>
             </div>
           )}
@@ -496,7 +550,7 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
           {/* Legacy line items display */}
           {isLegacyProposal && metadata?.lineItems && (
             <div className="mb-6">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-gray-500">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-medium tracking-wide text-gray-500 uppercase">
                 <FileText className="h-4 w-4" />
                 Line Items
               </h3>
@@ -509,7 +563,9 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
                     <div>
                       <p className="font-medium text-white">{item.name}</p>
                       {item.description && (
-                        <p className="text-sm text-gray-500">{item.description}</p>
+                        <p className="text-sm text-gray-500">
+                          {item.description}
+                        </p>
                       )}
                     </div>
                     <p className="font-medium text-white">
@@ -523,12 +579,15 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
 
           {/* Notes */}
           {metadata?.notes && (
-            <div className="mb-6 rounded-lg border bg-white/5 p-4 sm:p-5 md:p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
-              <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 sm:text-sm">
+            <div
+              className="mb-6 rounded-lg border bg-white/5 p-4 sm:p-5 md:p-6"
+              style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+            >
+              <h3 className="mb-3 flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500 uppercase sm:text-sm">
                 <FileText className="h-4 w-4" />
                 Terms & Details
               </h3>
-              <div className="prose prose-invert max-w-none prose-headings:text-[#D4AF37] prose-headings:font-semibold prose-headings:text-sm prose-headings:mt-6 prose-headings:mb-3 sm:prose-headings:text-base prose-p:text-gray-300 prose-p:text-sm prose-p:my-2 prose-p:leading-relaxed sm:prose-p:text-base prose-li:text-gray-300 prose-li:text-sm prose-li:my-1 sm:prose-li:text-base prose-strong:text-white prose-ul:my-3 prose-ol:my-3 prose-hr:border-gray-700 prose-hr:my-6 prose-a:text-[#D4AF37] prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-[#D4AF37] prose-blockquote:text-gray-400 prose-code:text-[#D4AF37] prose-code:bg-white/5 prose-code:px-1 prose-code:rounded">
+              <div className="prose prose-invert prose-headings:text-[#D4AF37] prose-headings:font-semibold prose-headings:text-sm prose-headings:mt-6 prose-headings:mb-3 sm:prose-headings:text-base prose-p:text-gray-300 prose-p:text-sm prose-p:my-2 prose-p:leading-relaxed sm:prose-p:text-base prose-li:text-gray-300 prose-li:text-sm prose-li:my-1 sm:prose-li:text-base prose-strong:text-white prose-ul:my-3 prose-ol:my-3 prose-hr:border-gray-700 prose-hr:my-6 prose-a:text-[#D4AF37] prose-a:no-underline hover:prose-a:underline prose-blockquote:border-l-[#D4AF37] prose-blockquote:text-gray-400 prose-code:text-[#D4AF37] prose-code:bg-white/5 prose-code:px-1 prose-code:rounded max-w-none">
                 <ReactMarkdown>{metadata.notes}</ReactMarkdown>
               </div>
             </div>
@@ -543,7 +602,13 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
         </div>
 
         {/* Footer with total and checkout */}
-        <div className="sticky bottom-0 border-t p-4 sm:p-6" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(5, 5, 5, 0.98)" }}>
+        <div
+          className="sticky bottom-0 border-t p-4 sm:p-6"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.15)",
+            backgroundColor: "rgba(5, 5, 5, 0.98)",
+          }}
+        >
           {checkoutError && (
             <div className="mb-4 rounded-lg bg-red-900/30 p-3 text-sm text-red-400">
               {checkoutError}
@@ -553,7 +618,8 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center gap-2 sm:justify-start">
                 <p className="text-xs text-gray-500 sm:text-sm">
-                  {selectedPackages.size} package{selectedPackages.size !== 1 ? "s" : ""} selected
+                  {selectedPackages.size} package
+                  {selectedPackages.size !== 1 ? "s" : ""} selected
                 </p>
                 {bundleActive && (
                   <span className="rounded-full bg-green-900/50 px-2 py-0.5 text-xs font-medium text-green-400">
@@ -563,7 +629,10 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
               </div>
               <div className="flex items-baseline justify-center gap-2 sm:justify-start">
                 {oneTimeTotal > 0 && (
-                  <p className="text-xl font-bold sm:text-2xl md:text-3xl" style={{ color: "#D4AF37" }}>
+                  <p
+                    className="text-xl font-bold sm:text-2xl md:text-3xl"
+                    style={{ color: "#D4AF37" }}
+                  >
                     {formatCurrency(oneTimeTotal, currency)}
                   </p>
                 )}
@@ -571,7 +640,10 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
                   <span className="text-gray-500">+</span>
                 )}
                 {recurringTotal > 0 && (
-                  <p className="text-xl font-bold sm:text-2xl md:text-3xl" style={{ color: "#D4AF37" }}>
+                  <p
+                    className="text-xl font-bold sm:text-2xl md:text-3xl"
+                    style={{ color: "#D4AF37" }}
+                  >
                     {formatCurrency(recurringTotal, currency)}
                     <span className="text-xs font-normal text-gray-500 sm:text-sm">
                       /{recurringInterval}
@@ -579,7 +651,9 @@ export function ProposalModal({ isOpen, onClose, proposal, slug, isAdmin }: Prop
                   </p>
                 )}
                 {oneTimeTotal === 0 && recurringTotal === 0 && (
-                  <p className="text-xl font-bold text-gray-500 sm:text-2xl">$0.00</p>
+                  <p className="text-xl font-bold text-gray-500 sm:text-2xl">
+                    $0.00
+                  </p>
                 )}
               </div>
             </div>

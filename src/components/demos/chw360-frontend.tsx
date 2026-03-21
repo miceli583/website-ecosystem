@@ -192,7 +192,10 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
   ];
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ backgroundColor: "#FDF8F3" }}>
+    <div
+      className="min-h-screen overflow-hidden"
+      style={{ backgroundColor: "#FDF8F3" }}
+    >
       {/* Demo Banner */}
       {backHref && (
         <div
@@ -210,7 +213,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
       )}
 
       {/* Navigation */}
-      <nav className="sticky top-0 z-40 border-b bg-white/80 px-4 py-4 backdrop-blur-lg"
+      <nav
+        className="sticky top-0 z-40 border-b bg-white/80 px-4 py-4 backdrop-blur-lg"
         style={{ borderColor: "rgba(13, 115, 119, 0.1)" }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between">
@@ -253,14 +257,18 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               style={{ color: "#0D7377" }}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="absolute left-0 right-0 top-full border-b bg-white px-4 py-4 shadow-lg md:hidden">
+          <div className="absolute top-full right-0 left-0 border-b bg-white px-4 py-4 shadow-lg md:hidden">
             {["Services", "Who We Serve", "About", "Contact"].map((item) => (
               <a
                 key={item}
@@ -290,12 +298,18 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
         {/* Background gradient orbs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
-            className="absolute -right-40 -top-40 h-[250px] w-[250px] rounded-full opacity-30 blur-3xl sm:h-[500px] sm:w-[500px]"
-            style={{ background: "radial-gradient(circle, #14919B 0%, transparent 70%)" }}
+            className="absolute -top-40 -right-40 h-[250px] w-[250px] rounded-full opacity-30 blur-3xl sm:h-[500px] sm:w-[500px]"
+            style={{
+              background:
+                "radial-gradient(circle, #14919B 0%, transparent 70%)",
+            }}
           />
           <div
             className="absolute -bottom-40 -left-40 h-[200px] w-[200px] rounded-full opacity-20 blur-3xl sm:h-[400px] sm:w-[400px]"
-            style={{ background: "radial-gradient(circle, #E07A5F 0%, transparent 70%)" }}
+            style={{
+              background:
+                "radial-gradient(circle, #E07A5F 0%, transparent 70%)",
+            }}
           />
         </div>
 
@@ -303,11 +317,14 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <div className="text-center lg:text-left">
               <h1
-                className="mb-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+                className="mb-6 text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
                 style={{ color: "#0D7377" }}
               >
                 Empowering the{" "}
-                <span className="relative inline-block" style={{ color: "#E07A5F" }}>
+                <span
+                  className="relative inline-block"
+                  style={{ color: "#E07A5F" }}
+                >
                   Future
                   <svg
                     className="absolute -bottom-1 left-0 w-full"
@@ -340,7 +357,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                   size="lg"
                   className="group w-full px-8 shadow-xl shadow-[#E07A5F]/25 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-[#E07A5F]/30 sm:w-auto"
                   style={{
-                    background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
+                    background:
+                      "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
                     color: "white",
                   }}
                 >
@@ -401,14 +419,26 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
               <div
                 className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-3xl shadow-2xl"
                 style={{
-                  background: "linear-gradient(135deg, #0D7377 0%, #14919B 50%, #2D9596 100%)",
+                  background:
+                    "linear-gradient(135deg, #0D7377 0%, #14919B 50%, #2D9596 100%)",
                 }}
               >
                 {/* Abstract pattern overlay */}
                 <div className="absolute inset-0 opacity-10">
-                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <svg
+                    width="100%"
+                    height="100%"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <defs>
-                      <pattern id="heroPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <pattern
+                        id="heroPattern"
+                        x="0"
+                        y="0"
+                        width="40"
+                        height="40"
+                        patternUnits="userSpaceOnUse"
+                      >
                         <circle cx="20" cy="20" r="2" fill="white" />
                       </pattern>
                     </defs>
@@ -417,7 +447,7 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                 </div>
 
                 {/* Floating cards */}
-                <div className="absolute left-4 top-8 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:left-8 sm:p-4">
+                <div className="absolute top-8 left-4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:left-8 sm:p-4">
                   <div className="flex items-center gap-3">
                     <div className="rounded-full bg-green-100 p-2">
                       <TrendingUp className="h-5 w-5 text-green-600" />
@@ -429,7 +459,7 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                   </div>
                 </div>
 
-                <div className="absolute bottom-8 right-4 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:right-8 sm:p-4">
+                <div className="absolute right-4 bottom-8 rounded-xl bg-white/95 p-3 shadow-lg backdrop-blur sm:right-8 sm:p-4">
                   <div className="flex items-center gap-3">
                     <div className="rounded-full bg-[#E07A5F]/10 p-2">
                       <Award className="h-5 w-5 text-[#E07A5F]" />
@@ -457,8 +487,11 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
 
               {/* Floating badge */}
               <div
-                className="absolute -right-4 top-1/2 -translate-y-1/2 rotate-12 rounded-full px-4 py-2 text-sm font-bold text-white shadow-lg sm:-right-8"
-                style={{ background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)" }}
+                className="absolute top-1/2 -right-4 -translate-y-1/2 rotate-12 rounded-full px-4 py-2 text-sm font-bold text-white shadow-lg sm:-right-8"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
+                }}
               >
                 ACCREDITED
               </div>
@@ -468,9 +501,12 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
       </section>
 
       {/* Partner Logos */}
-      <section className="border-y bg-white/50 px-4 py-8" style={{ borderColor: "rgba(13, 115, 119, 0.1)" }}>
+      <section
+        className="border-y bg-white/50 px-4 py-8"
+        style={{ borderColor: "rgba(13, 115, 119, 0.1)" }}
+      >
         <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-center text-sm font-medium uppercase tracking-wider text-gray-500">
+          <p className="mb-6 text-center text-sm font-medium tracking-wider text-gray-500 uppercase">
             Trusted by leading health organizations
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 opacity-60 grayscale">
@@ -497,7 +533,14 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
         <div className="absolute inset-0 opacity-10">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="statsPattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+              <pattern
+                id="statsPattern"
+                x="0"
+                y="0"
+                width="60"
+                height="60"
+                patternUnits="userSpaceOnUse"
+              >
                 <path d="M0 30h60M30 0v60" stroke="white" strokeWidth="1" />
               </pattern>
             </defs>
@@ -509,9 +552,12 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
           {stats.map((stat) => (
             <div key={stat.label} className="group">
               <p className="text-4xl font-extrabold text-white transition-transform group-hover:scale-110 sm:text-5xl">
-                {stat.value.toLocaleString()}{stat.suffix}
+                {stat.value.toLocaleString()}
+                {stat.suffix}
               </p>
-              <p className="mt-2 text-sm font-medium text-white/80">{stat.label}</p>
+              <p className="mt-2 text-sm font-medium text-white/80">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
@@ -528,7 +574,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
               Comprehensive CHW Solutions
             </h2>
             <p className="mx-auto text-lg" style={{ color: "#4A5568" }}>
-              Everything you need to build, train, and sustain an effective community health workforce
+              Everything you need to build, train, and sustain an effective
+              community health workforce
             </p>
           </div>
 
@@ -547,15 +594,17 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                   <div
                     className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                     style={{
-                      background: "linear-gradient(135deg, rgba(13, 115, 119, 0.03) 0%, rgba(224, 122, 95, 0.03) 100%)",
+                      background:
+                        "linear-gradient(135deg, rgba(13, 115, 119, 0.03) 0%, rgba(224, 122, 95, 0.03) 100%)",
                     }}
                   />
 
                   {service.badge && (
                     <Badge
-                      className="absolute right-4 top-4 border-0 text-xs"
+                      className="absolute top-4 right-4 border-0 text-xs"
                       style={{
-                        background: service.badge === "New" ? "#E07A5F" : "#0D7377",
+                        background:
+                          service.badge === "New" ? "#E07A5F" : "#0D7377",
                         color: "white",
                       }}
                     >
@@ -567,7 +616,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                     <div
                       className="mb-5 inline-flex items-center justify-center rounded-2xl p-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                       style={{
-                        background: "linear-gradient(135deg, rgba(13, 115, 119, 0.1) 0%, rgba(20, 145, 155, 0.15) 100%)",
+                        background:
+                          "linear-gradient(135deg, rgba(13, 115, 119, 0.1) 0%, rgba(20, 145, 155, 0.15) 100%)",
                       }}
                     >
                       <Icon className="h-7 w-7" style={{ color: "#0D7377" }} />
@@ -578,7 +628,10 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                     >
                       {service.title}
                     </h3>
-                    <p className="mb-4 text-sm leading-relaxed" style={{ color: "#4A5568" }}>
+                    <p
+                      className="mb-4 text-sm leading-relaxed"
+                      style={{ color: "#4A5568" }}
+                    >
                       {service.description}
                     </p>
                     <span
@@ -632,7 +685,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                     <div
                       className="flex-shrink-0 rounded-xl p-3 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                       style={{
-                        background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
+                        background:
+                          "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
                       }}
                     >
                       <Icon className="h-6 w-6 text-white" />
@@ -689,7 +743,7 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                     ))}
                   </div>
                   <p
-                    className="mb-6 text-sm italic leading-relaxed"
+                    className="mb-6 text-sm leading-relaxed italic"
                     style={{ color: "#4A5568" }}
                   >
                     &quot;{testimonial.quote}&quot;
@@ -698,10 +752,14 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                     <div
                       className="flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white"
                       style={{
-                        background: "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
+                        background:
+                          "linear-gradient(135deg, #0D7377 0%, #14919B 100%)",
                       }}
                     >
-                      {testimonial.author.split(" ").map((n) => n[0]).join("")}
+                      {testimonial.author
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </div>
                     <div>
                       <p className="font-semibold" style={{ color: "#0D7377" }}>
@@ -729,7 +787,7 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
       >
         {/* Decorative elements */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute right-0 top-0 h-96 w-96 -translate-y-1/2 translate-x-1/2 rounded-full bg-white/5" />
+          <div className="absolute top-0 right-0 h-96 w-96 translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5" />
           <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full bg-white/5" />
         </div>
 
@@ -751,7 +809,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
               {
                 icon: Shield,
                 title: "Excellence",
-                description: "Evidence-based training meeting national standards",
+                description:
+                  "Evidence-based training meeting national standards",
               },
               {
                 icon: Users,
@@ -794,7 +853,7 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
           >
             {/* Decorative gradient */}
             <div
-              className="absolute -right-20 -top-20 h-40 w-40 rounded-full opacity-50 blur-3xl"
+              className="absolute -top-20 -right-20 h-40 w-40 rounded-full opacity-50 blur-3xl"
               style={{ background: "#E07A5F" }}
             />
             <div
@@ -810,15 +869,17 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                 Ready to Strengthen Your CHW Program?
               </h2>
               <p className="mx-auto mb-8 max-w-xl text-gray-600">
-                Join 150+ organizations that have transformed their community health
-                outcomes with CHW360&apos;s comprehensive training solutions.
+                Join 150+ organizations that have transformed their community
+                health outcomes with CHW360&apos;s comprehensive training
+                solutions.
               </p>
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button
                   size="lg"
                   className="w-full px-8 shadow-xl shadow-[#E07A5F]/25 transition-all hover:scale-105 sm:w-auto"
                   style={{
-                    background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
+                    background:
+                      "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
                     color: "white",
                   }}
                 >
@@ -840,7 +901,11 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="px-4 py-16 sm:py-24" style={{ backgroundColor: "rgba(13, 115, 119, 0.04)" }}>
+      <section
+        id="contact"
+        className="px-4 py-16 sm:py-24"
+        style={{ backgroundColor: "rgba(13, 115, 119, 0.04)" }}
+      >
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
@@ -859,22 +924,36 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                 {[
                   { icon: Mail, label: "Email", value: "info@chw360.org" },
                   { icon: Phone, label: "Phone", value: "(555) 360-0000" },
-                  { icon: MapPin, label: "Location", value: "Serving communities nationwide" },
+                  {
+                    icon: MapPin,
+                    label: "Location",
+                    value: "Serving communities nationwide",
+                  },
                 ].map((contact) => {
                   const Icon = contact.icon;
                   return (
-                    <div key={contact.label} className="flex items-center gap-4">
+                    <div
+                      key={contact.label}
+                      className="flex items-center gap-4"
+                    >
                       <div
                         className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg"
                         style={{
-                          background: "linear-gradient(135deg, rgba(13, 115, 119, 0.1) 0%, rgba(20, 145, 155, 0.15) 100%)",
+                          background:
+                            "linear-gradient(135deg, rgba(13, 115, 119, 0.1) 0%, rgba(20, 145, 155, 0.15) 100%)",
                         }}
                       >
-                        <Icon className="h-6 w-6" style={{ color: "#0D7377" }} />
+                        <Icon
+                          className="h-6 w-6"
+                          style={{ color: "#0D7377" }}
+                        />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">{contact.label}</p>
-                        <p className="font-semibold" style={{ color: "#0D7377" }}>
+                        <p
+                          className="font-semibold"
+                          style={{ color: "#0D7377" }}
+                        >
                           {contact.value}
                         </p>
                       </div>
@@ -885,7 +964,9 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
 
               {/* Social links */}
               <div className="mt-10">
-                <p className="mb-4 text-sm font-medium text-gray-500">Follow us</p>
+                <p className="mb-4 text-sm font-medium text-gray-500">
+                  Follow us
+                </p>
                 <div className="flex gap-3">
                   {[Facebook, Twitter, Linkedin, Instagram].map((Icon, i) => (
                     <a
@@ -906,56 +987,94 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
               style={{ border: "1px solid rgba(13, 115, 119, 0.15)" }}
             >
               <CardContent className="p-6 sm:p-8">
-                <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                <form
+                  className="space-y-5"
+                  onSubmit={(e) => e.preventDefault()}
+                >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-medium" style={{ color: "#0D7377" }}>
+                      <label
+                        className="mb-2 block text-sm font-medium"
+                        style={{ color: "#0D7377" }}
+                      >
                         First Name
                       </label>
                       <Input
                         placeholder="John"
-                        className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
+                        className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]"
+                        style={{
+                          backgroundColor: "#f9fafb",
+                          borderColor: "#e5e7eb",
+                        }}
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium" style={{ color: "#0D7377" }}>
+                      <label
+                        className="mb-2 block text-sm font-medium"
+                        style={{ color: "#0D7377" }}
+                      >
                         Last Name
                       </label>
                       <Input
                         placeholder="Doe"
-                        className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
+                        className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]"
+                        style={{
+                          backgroundColor: "#f9fafb",
+                          borderColor: "#e5e7eb",
+                        }}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium" style={{ color: "#0D7377" }}>
+                    <label
+                      className="mb-2 block text-sm font-medium"
+                      style={{ color: "#0D7377" }}
+                    >
                       Email
                     </label>
                     <Input
                       type="email"
                       placeholder="john@example.com"
-                      className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
+                      className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]"
+                      style={{
+                        backgroundColor: "#f9fafb",
+                        borderColor: "#e5e7eb",
+                      }}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium" style={{ color: "#0D7377" }}>
+                    <label
+                      className="mb-2 block text-sm font-medium"
+                      style={{ color: "#0D7377" }}
+                    >
                       Organization
                     </label>
                     <Input
                       placeholder="Your organization"
-                      className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
+                      className="h-12 transition-all focus:border-[#0D7377] focus:ring-[#0D7377]"
+                      style={{
+                        backgroundColor: "#f9fafb",
+                        borderColor: "#e5e7eb",
+                      }}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium" style={{ color: "#0D7377" }}>
+                    <label
+                      className="mb-2 block text-sm font-medium"
+                      style={{ color: "#0D7377" }}
+                    >
                       Message
                     </label>
                     <Textarea
                       placeholder="Tell us about your CHW program needs..."
-                      className="min-h-[130px] transition-all focus:border-[#0D7377] focus:ring-[#0D7377]" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}
+                      className="min-h-[130px] transition-all focus:border-[#0D7377] focus:ring-[#0D7377]"
+                      style={{
+                        backgroundColor: "#f9fafb",
+                        borderColor: "#e5e7eb",
+                      }}
                     />
                   </div>
 
@@ -963,7 +1082,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                     type="submit"
                     className="h-12 w-full text-base shadow-lg shadow-[#E07A5F]/25 transition-all hover:scale-[1.02] hover:shadow-xl"
                     style={{
-                      background: "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
+                      background:
+                        "linear-gradient(135deg, #E07A5F 0%, #c9624a 100%)",
                       color: "white",
                     }}
                   >
@@ -972,7 +1092,8 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
                   </Button>
 
                   <p className="text-center text-xs text-gray-500">
-                    We&apos;ll respond within 24 hours. Your information is secure.
+                    We&apos;ll respond within 24 hours. Your information is
+                    secure.
                   </p>
                 </form>
               </CardContent>
@@ -992,7 +1113,14 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
         <div className="absolute inset-0 opacity-5">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="footerPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <pattern
+                id="footerPattern"
+                x="0"
+                y="0"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
                 <circle cx="20" cy="20" r="1" fill="white" />
               </pattern>
             </defs>
@@ -1026,28 +1154,37 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
             <div>
               <h4 className="mb-4 font-bold text-white">Quick Links</h4>
               <ul className="space-y-3 text-sm text-white/70">
-                {["About Us", "Programs", "Resources", "Careers", "Blog"].map((link) => (
-                  <li key={link}>
-                    <a href="#" className="transition-colors hover:text-white">
-                      {link}
-                    </a>
-                  </li>
-                ))}
+                {["About Us", "Programs", "Resources", "Careers", "Blog"].map(
+                  (link) => (
+                    <li key={link}>
+                      <a
+                        href="#"
+                        className="transition-colors hover:text-white"
+                      >
+                        {link}
+                      </a>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
 
             <div>
               <h4 className="mb-4 font-bold text-white">For Partners</h4>
               <ul className="space-y-3 text-sm text-white/70">
-                {["Health Departments", "Healthcare Systems", "Academic Partners", "Funders", "Community Orgs"].map(
-                  (link) => (
-                    <li key={link}>
-                      <a href="#" className="transition-colors hover:text-white">
-                        {link}
-                      </a>
-                    </li>
-                  )
-                )}
+                {[
+                  "Health Departments",
+                  "Healthcare Systems",
+                  "Academic Partners",
+                  "Funders",
+                  "Community Orgs",
+                ].map((link) => (
+                  <li key={link}>
+                    <a href="#" className="transition-colors hover:text-white">
+                      {link}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -1071,7 +1208,10 @@ export function CHW360FrontendDemo({ backHref }: CHW360FrontendDemoProps) {
             className="mt-12 border-t pt-8 text-center text-sm text-white/50"
             style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
           >
-            <p>&copy; 2024 CHW360. All rights reserved. | Privacy Policy | Terms of Service</p>
+            <p>
+              &copy; 2024 CHW360. All rights reserved. | Privacy Policy | Terms
+              of Service
+            </p>
           </div>
         </div>
       </footer>

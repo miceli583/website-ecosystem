@@ -685,12 +685,11 @@ function DevHubContent() {
                   </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  Manage blog posts, drafts, and publish content to your public blog
+                  Manage blog posts, drafts, and publish content to your public
+                  blog
                 </p>
                 <button
-                  onClick={() =>
-                    router.push(`/admin/blog${domainParam}`)
-                  }
+                  onClick={() => router.push(`/admin/blog${domainParam}`)}
                   className="flex items-center justify-between rounded-lg border-2 border-purple-500/30 bg-white px-4 py-3 text-sm font-semibold text-purple-700 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-neutral-900 dark:text-purple-400"
                 >
                   <span>Open Dashboard</span>
@@ -760,10 +759,7 @@ function DevHubContent() {
               const colors = colorMap[feature.color] ?? colorMap.golden!;
 
               return (
-                <Link
-                  key={feature.title}
-                  href={feature.href}
-                >
+                <Link key={feature.title} href={feature.href}>
                   <Card
                     className={`group flex h-full cursor-pointer flex-col border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${colors.border}`}
                   >

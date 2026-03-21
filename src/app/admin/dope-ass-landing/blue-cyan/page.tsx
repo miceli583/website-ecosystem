@@ -154,7 +154,13 @@ function BlueCyanLandingPageContent() {
 
 export default function BlueCyanLandingPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <BlueCyanLandingPageContent />
     </Suspense>
   );

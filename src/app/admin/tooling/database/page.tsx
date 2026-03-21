@@ -41,60 +41,201 @@ interface TableGroup {
 const TABLE_GROUPS: TableGroup[] = [
   {
     label: "Daily Value Automation",
-    description: "Instagram content pipeline — values, quotes, image generation, posting queue",
+    description:
+      "Instagram content pipeline — values, quotes, image generation, posting queue",
     tables: [
-      { name: "supporting_values", columns: 4, purpose: "Master list of all possible values", hasRLS: true },
-      { name: "core_values", columns: 5, purpose: "Selected values with descriptions for posts", hasRLS: true },
-      { name: "authors", columns: 4, purpose: "Quote attribution", hasRLS: true },
-      { name: "quotes", columns: 8, purpose: "Inspirational quotes with tags and categories", fks: ["authors"], hasRLS: true },
-      { name: "core_value_quotes", columns: 3, purpose: "Junction: core values ↔ quotes (many-to-many)", fks: ["core_values", "quotes"], hasRLS: true },
-      { name: "quote_posts", columns: 11, purpose: "Generated Instagram posts — image URL, caption, queue position", fks: ["core_values", "quotes"], hasRLS: true },
-      { name: "pending_posts", columns: 6, purpose: "Singleton buffer: holds one scheduled post before Zapier send", hasRLS: true },
+      {
+        name: "supporting_values",
+        columns: 4,
+        purpose: "Master list of all possible values",
+        hasRLS: true,
+      },
+      {
+        name: "core_values",
+        columns: 5,
+        purpose: "Selected values with descriptions for posts",
+        hasRLS: true,
+      },
+      {
+        name: "authors",
+        columns: 4,
+        purpose: "Quote attribution",
+        hasRLS: true,
+      },
+      {
+        name: "quotes",
+        columns: 8,
+        purpose: "Inspirational quotes with tags and categories",
+        fks: ["authors"],
+        hasRLS: true,
+      },
+      {
+        name: "core_value_quotes",
+        columns: 3,
+        purpose: "Junction: core values ↔ quotes (many-to-many)",
+        fks: ["core_values", "quotes"],
+        hasRLS: true,
+      },
+      {
+        name: "quote_posts",
+        columns: 11,
+        purpose:
+          "Generated Instagram posts — image URL, caption, queue position",
+        fks: ["core_values", "quotes"],
+        hasRLS: true,
+      },
+      {
+        name: "pending_posts",
+        columns: 6,
+        purpose:
+          "Singleton buffer: holds one scheduled post before Zapier send",
+        hasRLS: true,
+      },
     ],
   },
   {
     label: "CRM & Contacts",
-    description: "Central contact hub — all sources feed into master_crm, pipeline management",
+    description:
+      "Central contact hub — all sources feed into master_crm, pipeline management",
     tables: [
-      { name: "master_crm", columns: 16, purpose: "Central contact database — email, status, pipeline, tags, account manager", fks: ["portal_users"], hasRLS: true },
-      { name: "contact_submissions", columns: 9, purpose: "Public contact form entries from miraclemind.dev", fks: ["master_crm"], hasRLS: true },
-      { name: "personal_contact_submissions", columns: 8, purpose: "Contact form entries from matthewmiceli.com", fks: ["master_crm"], hasRLS: true },
+      {
+        name: "master_crm",
+        columns: 16,
+        purpose:
+          "Central contact database — email, status, pipeline, tags, account manager",
+        fks: ["portal_users"],
+        hasRLS: true,
+      },
+      {
+        name: "contact_submissions",
+        columns: 9,
+        purpose: "Public contact form entries from miraclemind.dev",
+        fks: ["master_crm"],
+        hasRLS: true,
+      },
+      {
+        name: "personal_contact_submissions",
+        columns: 8,
+        purpose: "Contact form entries from matthewmiceli.com",
+        fks: ["master_crm"],
+        hasRLS: true,
+      },
     ],
   },
   {
     label: "Client Portal",
-    description: "Client management — auth, projects, demos, notes, proposals, billing",
+    description:
+      "Client management — auth, projects, demos, notes, proposals, billing",
     tables: [
-      { name: "portal_users", columns: 12, purpose: "Portal auth — links Supabase auth to roles (admin/client), company membership", hasRLS: true },
-      { name: "clients", columns: 12, purpose: "Client records — CRM link, account manager, slug, Stripe customer ID", fks: ["master_crm", "portal_users"], hasRLS: true },
-      { name: "client_projects", columns: 6, purpose: "Per-client project tracking with status (active/completed/paused)", fks: ["clients"], hasRLS: true },
-      { name: "client_updates", columns: 7, purpose: "Project updates — demos, proposals, invoices, general updates", fks: ["client_projects"], hasRLS: true },
-      { name: "client_resources", columns: 18, purpose: "Flexible content: links, embeds, credentials, files, microapps, rich text. JSONB metadata", fks: ["clients", "client_projects"], hasRLS: true },
-      { name: "client_agreements", columns: 8, purpose: "Contracts & proposals — draft/sent/signed/declined workflow", fks: ["clients", "client_projects"], hasRLS: true },
-      { name: "client_notes", columns: 10, purpose: "Collaborative notes — pinnable, archivable, per-project or client-wide", fks: ["clients", "client_projects"], hasRLS: true },
+      {
+        name: "portal_users",
+        columns: 12,
+        purpose:
+          "Portal auth — links Supabase auth to roles (admin/client), company membership",
+        hasRLS: true,
+      },
+      {
+        name: "clients",
+        columns: 12,
+        purpose:
+          "Client records — CRM link, account manager, slug, Stripe customer ID",
+        fks: ["master_crm", "portal_users"],
+        hasRLS: true,
+      },
+      {
+        name: "client_projects",
+        columns: 6,
+        purpose:
+          "Per-client project tracking with status (active/completed/paused)",
+        fks: ["clients"],
+        hasRLS: true,
+      },
+      {
+        name: "client_updates",
+        columns: 7,
+        purpose:
+          "Project updates — demos, proposals, invoices, general updates",
+        fks: ["client_projects"],
+        hasRLS: true,
+      },
+      {
+        name: "client_resources",
+        columns: 18,
+        purpose:
+          "Flexible content: links, embeds, credentials, files, microapps, rich text. JSONB metadata",
+        fks: ["clients", "client_projects"],
+        hasRLS: true,
+      },
+      {
+        name: "client_agreements",
+        columns: 8,
+        purpose: "Contracts & proposals — draft/sent/signed/declined workflow",
+        fks: ["clients", "client_projects"],
+        hasRLS: true,
+      },
+      {
+        name: "client_notes",
+        columns: 10,
+        purpose:
+          "Collaborative notes — pinnable, archivable, per-project or client-wide",
+        fks: ["clients", "client_projects"],
+        hasRLS: true,
+      },
     ],
   },
   {
     label: "Finance & Expenses",
-    description: "Expense tracking — IRS categories, manual entries, Mercury transaction mapping",
+    description:
+      "Expense tracking — IRS categories, manual entries, Mercury transaction mapping",
     tables: [
-      { name: "expense_categories", columns: 7, purpose: "IRS Schedule C aligned categories for tax reporting", hasRLS: true },
-      { name: "expenses", columns: 11, purpose: "Manual expense entries — amounts in cents, tax deductibility tracking", fks: ["expense_categories"], hasRLS: true },
-      { name: "mercury_transaction_categories", columns: 7, purpose: "Category overlay for Mercury bank transactions", fks: ["expense_categories"], hasRLS: true },
+      {
+        name: "expense_categories",
+        columns: 7,
+        purpose: "IRS Schedule C aligned categories for tax reporting",
+        hasRLS: true,
+      },
+      {
+        name: "expenses",
+        columns: 11,
+        purpose:
+          "Manual expense entries — amounts in cents, tax deductibility tracking",
+        fks: ["expense_categories"],
+        hasRLS: true,
+      },
+      {
+        name: "mercury_transaction_categories",
+        columns: 7,
+        purpose: "Category overlay for Mercury bank transactions",
+        fks: ["expense_categories"],
+        hasRLS: true,
+      },
     ],
   },
   {
     label: "Payments",
-    description: "Stripe customer records for subscription and billing management",
+    description:
+      "Stripe customer records for subscription and billing management",
     tables: [
-      { name: "customers", columns: 5, purpose: "Stripe customer IDs linked to portal emails", hasRLS: true },
+      {
+        name: "customers",
+        columns: 5,
+        purpose: "Stripe customer IDs linked to portal emails",
+        hasRLS: true,
+      },
     ],
   },
   {
     label: "Banyan",
     description: "BANYAN LifeOS early access waitlist",
     tables: [
-      { name: "banyan_early_access", columns: 10, purpose: "Beta signups — name, email, role, message, follow-up tracking", fks: ["master_crm"], hasRLS: true },
+      {
+        name: "banyan_early_access",
+        columns: 10,
+        purpose:
+          "Beta signups — name, email, role, message, follow-up tracking",
+        fks: ["master_crm"],
+        hasRLS: true,
+      },
     ],
   },
 ];
@@ -123,14 +264,39 @@ export default function DatabaseHealthPage() {
   type Advisor = { severity: Severity; message: string; url: string | null };
   const advisors: { security: Advisor[]; performance: Advisor[] } = {
     security: [
-      { severity: "success", message: "All 22 tables have RLS enabled", url: null },
-      { severity: "success", message: "No exposed service role key detected", url: null },
-      { severity: "info", message: "Consider adding rate limiting policies", url: "https://supabase.com/docs/guides/platform/performance#rate-limiting" },
+      {
+        severity: "success",
+        message: "All 22 tables have RLS enabled",
+        url: null,
+      },
+      {
+        severity: "success",
+        message: "No exposed service role key detected",
+        url: null,
+      },
+      {
+        severity: "info",
+        message: "Consider adding rate limiting policies",
+        url: "https://supabase.com/docs/guides/platform/performance#rate-limiting",
+      },
     ],
     performance: [
-      { severity: "success", message: "No missing indexes detected", url: null },
-      { severity: "info", message: "Consider adding indexes on frequently filtered columns (masterCrm.email, clients.slug)", url: "https://supabase.com/docs/guides/database/postgres/indexes" },
-      { severity: "info", message: "Enable connection pooling for production scale", url: "https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler" },
+      {
+        severity: "success",
+        message: "No missing indexes detected",
+        url: null,
+      },
+      {
+        severity: "info",
+        message:
+          "Consider adding indexes on frequently filtered columns (masterCrm.email, clients.slug)",
+        url: "https://supabase.com/docs/guides/database/postgres/indexes",
+      },
+      {
+        severity: "info",
+        message: "Enable connection pooling for production scale",
+        url: "https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler",
+      },
     ],
   };
 
@@ -173,7 +339,9 @@ export default function DatabaseHealthPage() {
           <div className="flex items-center justify-center gap-2">
             <Table2 className="h-4 w-4" style={{ color: "#D4AF37" }} />
           </div>
-          <p className="mt-2 text-2xl font-bold text-white">{ALL_TABLES.length}</p>
+          <p className="mt-2 text-2xl font-bold text-white">
+            {ALL_TABLES.length}
+          </p>
           <p className="text-xs text-gray-500">Tables</p>
         </div>
         <div
@@ -213,7 +381,9 @@ export default function DatabaseHealthPage() {
           <div className="flex items-center justify-center gap-2">
             <Users className="h-4 w-4" style={{ color: "#D4AF37" }} />
           </div>
-          <p className="mt-2 text-2xl font-bold text-white">{TABLE_GROUPS.length}</p>
+          <p className="mt-2 text-2xl font-bold text-white">
+            {TABLE_GROUPS.length}
+          </p>
           <p className="text-xs text-gray-500">Domains</p>
         </div>
       </div>
@@ -239,7 +409,8 @@ export default function DatabaseHealthPage() {
                 <div>
                   <span className="font-medium text-white">{group.label}</span>
                   <span className="ml-2 text-sm text-gray-500">
-                    {group.tables.length} table{group.tables.length > 1 ? "s" : ""}
+                    {group.tables.length} table
+                    {group.tables.length > 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
@@ -250,13 +421,15 @@ export default function DatabaseHealthPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr
-                    className="border-b bg-white/5 text-left text-xs uppercase tracking-wider text-gray-500"
+                    className="border-b bg-white/5 text-left text-xs tracking-wider text-gray-500 uppercase"
                     style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                   >
                     <th className="px-4 py-2">Table</th>
                     <th className="px-4 py-2 text-center">Cols</th>
                     <th className="hidden px-4 py-2 md:table-cell">Purpose</th>
-                    <th className="hidden px-4 py-2 lg:table-cell">References</th>
+                    <th className="hidden px-4 py-2 lg:table-cell">
+                      References
+                    </th>
                     <th className="px-4 py-2 text-center">RLS</th>
                   </tr>
                 </thead>
@@ -270,8 +443,12 @@ export default function DatabaseHealthPage() {
                       <td className="px-4 py-2">
                         <code className="text-gray-300">{table.name}</code>
                       </td>
-                      <td className="px-4 py-2 text-center text-gray-400">{table.columns}</td>
-                      <td className="hidden px-4 py-2 text-gray-400 md:table-cell">{table.purpose}</td>
+                      <td className="px-4 py-2 text-center text-gray-400">
+                        {table.columns}
+                      </td>
+                      <td className="hidden px-4 py-2 text-gray-400 md:table-cell">
+                        {table.purpose}
+                      </td>
                       <td className="hidden px-4 py-2 lg:table-cell">
                         {table.fks && table.fks.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
@@ -325,7 +502,10 @@ export default function DatabaseHealthPage() {
                   <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-400" />
                 )}
                 {advisor.severity === "info" && (
-                  <Zap className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: "#D4AF37" }} />
+                  <Zap
+                    className="mt-0.5 h-4 w-4 flex-shrink-0"
+                    style={{ color: "#D4AF37" }}
+                  />
                 )}
                 <div className="flex-1">
                   <p className="text-sm text-gray-300">{advisor.message}</p>
@@ -366,7 +546,10 @@ export default function DatabaseHealthPage() {
                   <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-400" />
                 )}
                 {advisor.severity === "info" && (
-                  <Zap className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: "#D4AF37" }} />
+                  <Zap
+                    className="mt-0.5 h-4 w-4 flex-shrink-0"
+                    style={{ color: "#D4AF37" }}
+                  />
                 )}
                 <div className="flex-1">
                   <p className="text-sm text-gray-300">{advisor.message}</p>
@@ -402,8 +585,9 @@ export default function DatabaseHealthPage() {
           <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs text-gray-400">
             src/server/db/schema.ts
           </code>
-          {" — "}All tables use Drizzle ORM with PostgreSQL. FK cascades handle child cleanup.
-          Amounts stored in cents (Stripe convention). All timestamps include timezone.
+          {" — "}All tables use Drizzle ORM with PostgreSQL. FK cascades handle
+          child cleanup. Amounts stored in cents (Stripe convention). All
+          timestamps include timezone.
         </p>
         <a
           href="https://supabase.com/dashboard"

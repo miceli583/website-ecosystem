@@ -15,7 +15,9 @@ export function BanyanEarlyAccessForm() {
     betaTester: false,
   });
 
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,14 +34,24 @@ export function BanyanEarlyAccessForm() {
         body: JSON.stringify(formData),
       });
 
-      const data = (await response.json()) as { error?: string; success?: boolean };
+      const data = (await response.json()) as {
+        error?: string;
+        success?: boolean;
+      };
 
       if (!response.ok) {
         throw new Error(data.error ?? "Something went wrong");
       }
 
       setStatus("success");
-      setFormData({ fullName: "", email: "", phone: "", role: "", message: "", betaTester: false });
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        role: "",
+        message: "",
+        betaTester: false,
+      });
     } catch (error) {
       setStatus("error");
       setErrorMessage(
@@ -69,9 +81,12 @@ export function BanyanEarlyAccessForm() {
           >
             You&apos;re on the List!
           </h3>
-          <p className="mb-6 text-lg text-gray-300" style={{ fontFamily: "var(--font-geist-sans)" }}>
-            Thank you for your interest in Banyan. We&apos;ll reach out within 48 hours
-            to get you started.
+          <p
+            className="mb-6 text-lg text-gray-300"
+            style={{ fontFamily: "var(--font-geist-sans)" }}
+          >
+            Thank you for your interest in Banyan. We&apos;ll reach out within
+            48 hours to get you started.
           </p>
           <Button
             variant="outline"
@@ -127,7 +142,7 @@ export function BanyanEarlyAccessForm() {
               onChange={(e) =>
                 setFormData({ ...formData, fullName: e.target.value })
               }
-              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/50 focus:outline-none"
               style={{
                 borderColor: "rgba(212, 175, 55, 0.3)",
               }}
@@ -152,7 +167,7 @@ export function BanyanEarlyAccessForm() {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/50 focus:outline-none"
               style={{
                 borderColor: "rgba(212, 175, 55, 0.3)",
               }}
@@ -176,7 +191,7 @@ export function BanyanEarlyAccessForm() {
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/50 focus:outline-none"
               style={{
                 borderColor: "rgba(212, 175, 55, 0.3)",
               }}
@@ -199,7 +214,7 @@ export function BanyanEarlyAccessForm() {
               onChange={(e) =>
                 setFormData({ ...formData, role: e.target.value })
               }
-              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/50 focus:outline-none"
               style={{
                 borderColor: "rgba(212, 175, 55, 0.3)",
               }}
@@ -242,7 +257,8 @@ export function BanyanEarlyAccessForm() {
               className="text-sm text-gray-300"
               style={{ fontFamily: "var(--font-geist-sans)" }}
             >
-              I&apos;m interested in beta testing and providing feedback on early builds
+              I&apos;m interested in beta testing and providing feedback on
+              early builds
             </label>
           </div>
 
@@ -262,7 +278,7 @@ export function BanyanEarlyAccessForm() {
               onChange={(e) =>
                 setFormData({ ...formData, message: e.target.value })
               }
-              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+              className="w-full rounded-lg border bg-white/5 px-4 py-3 text-white backdrop-blur-sm transition-all focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/50 focus:outline-none"
               style={{
                 borderColor: "rgba(212, 175, 55, 0.3)",
               }}

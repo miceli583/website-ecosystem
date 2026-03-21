@@ -93,7 +93,11 @@ export default function PortalToolingPage({
   const utils = api.useUtils();
 
   // Data queries
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = api.portal.getClientBySlug.useQuery(
     { slug },
     { staleTime: 5 * 60 * 1000 }
   );
@@ -103,10 +107,11 @@ export default function PortalToolingPage({
   const isAdmin = profile?.role === "admin";
 
   // Admin sees all resources; clients see only active
-  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
-    { slug, section: "tooling", ...(isAdmin ? {} : { isActive: true }) },
-    { staleTime: 5 * 60 * 1000 }
-  );
+  const { data: resources, isLoading: resourcesLoading } =
+    api.portal.getResources.useQuery(
+      { slug, section: "tooling", ...(isAdmin ? {} : { isActive: true }) },
+      { staleTime: 5 * 60 * 1000 }
+    );
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
     { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
@@ -117,9 +122,12 @@ export default function PortalToolingPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Tool archived");
       else if (variables.isActive === true) toast.success("Tool restored");
-      else if (variables.underDevelopment === true) toast.success("Tool marked as under development");
-      else if (variables.underDevelopment === false) toast.success("Tool is now visible to clients");
-      else if (variables.projectId !== undefined) toast.success("Project assigned");
+      else if (variables.underDevelopment === true)
+        toast.success("Tool marked as under development");
+      else if (variables.underDevelopment === false)
+        toast.success("Tool is now visible to clients");
+      else if (variables.projectId !== undefined)
+        toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
     },
   });
@@ -141,25 +149,39 @@ export default function PortalToolingPage({
   const saved = getState();
 
   // UI state
-  const [activeTab, setActiveTab] = useState<"active" | "archived">(saved.activeTab ?? "active");
-  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
-  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">(
-    saved.selectedProject as number | "all" | "unassigned",
+  const [activeTab, setActiveTab] = useState<"active" | "archived">(
+    saved.activeTab ?? "active"
   );
+  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
+  const [selectedProject, setSelectedProject] = useState<
+    number | "all" | "unassigned"
+  >(saved.selectedProject as number | "all" | "unassigned");
   const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
   const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
 
   // Collapsed project groups
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups),
+    new Set(saved.collapsedGroups)
   );
 
   useEffect(() => {
     persistState({
-      searchQuery, sortOrder, selectedProject, viewMode,
-      collapsedGroups: Array.from(collapsedGroups), activeTab,
+      searchQuery,
+      sortOrder,
+      selectedProject,
+      viewMode,
+      collapsedGroups: Array.from(collapsedGroups),
+      activeTab,
     });
-  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
+  }, [
+    searchQuery,
+    sortOrder,
+    selectedProject,
+    viewMode,
+    collapsedGroups,
+    activeTab,
+    persistState,
+  ]);
   const toggleGroup = useCallback((groupName: string) => {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);
@@ -170,11 +192,17 @@ export default function PortalToolingPage({
   }, []);
 
   // Dialog state
-  const [assignDialog, setAssignDialog] = useState<{ open: boolean; tool: NormalizedTool | null }>({
+  const [assignDialog, setAssignDialog] = useState<{
+    open: boolean;
+    tool: NormalizedTool | null;
+  }>({
     open: false,
     tool: null,
   });
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; tool: NormalizedTool | null }>({
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    tool: NormalizedTool | null;
+  }>({
     open: false,
     tool: null,
   });
@@ -214,7 +242,9 @@ export default function PortalToolingPage({
       projectMap.set(p.id, p.name);
     });
 
-    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(
+      ([id, name]) => ({ id, name })
+    );
     if (allTools.some((t) => t.projectId === null)) {
       filters.push({ id: "unassigned", name: "Unassigned" });
     }
@@ -222,8 +252,14 @@ export default function PortalToolingPage({
   }, [client, resources, projects, allTools]);
 
   // Split by active/archived
-  const activeTools = useMemo(() => allTools.filter((t) => t.isActive), [allTools]);
-  const archivedTools = useMemo(() => allTools.filter((t) => !t.isActive), [allTools]);
+  const activeTools = useMemo(
+    () => allTools.filter((t) => t.isActive),
+    [allTools]
+  );
+  const archivedTools = useMemo(
+    () => allTools.filter((t) => !t.isActive),
+    [allTools]
+  );
   const currentTools = activeTab === "active" ? activeTools : archivedTools;
 
   // Filter
@@ -237,7 +273,8 @@ export default function PortalToolingPage({
         if (!matchesTitle && !matchesDesc && !matchesProject) return false;
       }
       if (selectedProject === "unassigned") return tool.projectId === null;
-      if (selectedProject !== "all" && tool.projectId !== selectedProject) return false;
+      if (selectedProject !== "all" && tool.projectId !== selectedProject)
+        return false;
       return true;
     });
   }, [currentTools, searchQuery, selectedProject]);
@@ -304,7 +341,10 @@ export default function PortalToolingPage({
 
   const handleToggleUnderDevelopment = useCallback(
     (tool: NormalizedTool) => {
-      updateResource.mutate({ id: tool.resourceId, underDevelopment: !tool.underDevelopment });
+      updateResource.mutate({
+        id: tool.resourceId,
+        underDevelopment: !tool.underDevelopment,
+      });
     },
     [updateResource]
   );
@@ -313,13 +353,23 @@ export default function PortalToolingPage({
     (tool: NormalizedTool): AdminAction[] => {
       return [
         {
-          label: tool.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
-          icon: tool.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+          label: tool.underDevelopment
+            ? "Make Visible to Client"
+            : "Mark Under Development",
+          icon: tool.underDevelopment ? (
+            <Eye className="h-4 w-4" />
+          ) : (
+            <Construction className="h-4 w-4" />
+          ),
           onClick: () => handleToggleUnderDevelopment(tool),
         },
         {
           label: tool.isActive ? "Archive" : "Unarchive",
-          icon: tool.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+          icon: tool.isActive ? (
+            <Archive className="h-4 w-4" />
+          ) : (
+            <ArchiveRestore className="h-4 w-4" />
+          ),
           onClick: () => handleArchive(tool),
         },
         {
@@ -354,7 +404,10 @@ export default function PortalToolingPage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -378,7 +431,8 @@ export default function PortalToolingPage({
   }
 
   const hasContent = allTools.length > 0;
-  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const hasActiveFilters =
+    Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
   const showGrouping =
     viewMode === "grouped" &&
     selectedProject === "all" &&
@@ -413,7 +467,9 @@ export default function PortalToolingPage({
         onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
-        onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
+        onFilterChange={(id) =>
+          setSelectedProject(id as number | "all" | "unassigned")
+        }
         filterLabel="Project"
         viewMode={viewMode}
         onViewModeChange={setViewMode}
@@ -480,7 +536,9 @@ export default function PortalToolingPage({
                           disabledMessage="Subscription required"
                           actions={
                             isAdmin ? (
-                              <AdminActionMenu actions={getAdminActions(tool)} />
+                              <AdminActionMenu
+                                actions={getAdminActions(tool)}
+                              />
                             ) : undefined
                           }
                         />
@@ -520,7 +578,9 @@ export default function PortalToolingPage({
       {/* Project Assignment Dialog */}
       <ProjectAssignDialog
         open={assignDialog.open}
-        onOpenChange={(open) => setAssignDialog({ open, tool: open ? assignDialog.tool : null })}
+        onOpenChange={(open) =>
+          setAssignDialog({ open, tool: open ? assignDialog.tool : null })
+        }
         currentProjectId={assignDialog.tool?.projectId ?? null}
         projects={projects ?? []}
         onAssign={handleAssign}
@@ -531,7 +591,9 @@ export default function PortalToolingPage({
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open, tool: open ? deleteDialog.tool : null })}
+        onOpenChange={(open) =>
+          setDeleteDialog({ open, tool: open ? deleteDialog.tool : null })
+        }
         title="Delete Tool"
         description={`Are you sure you want to permanently delete "${deleteDialog.tool?.title}"? This action cannot be undone.`}
         confirmLabel="Delete"

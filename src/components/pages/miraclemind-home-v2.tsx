@@ -7,14 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { ImageCard } from "~/components/ui/image-card";
-import {
-  ArrowRight,
-  Sparkles,
-  Code,
-  Users,
-  Heart,
-  Leaf,
-} from "lucide-react";
+import { ArrowRight, Sparkles, Code, Users, Heart, Leaf } from "lucide-react";
 
 export function MiracleMindHomeV2() {
   const searchParams = useSearchParams();
@@ -67,7 +60,8 @@ export function MiracleMindHomeV2() {
       description:
         "Full-stack web apps, mobile apps, and custom CRMs w/ AI and LLM integration. From concept to production, we build systems that scale with your vision.",
       imageSrc: "/images/services/fingerprint-tech.avif",
-      imageAlt: "Fingerprint technology representing custom software development",
+      imageAlt:
+        "Fingerprint technology representing custom software development",
       goldTint: true,
     },
   ];
@@ -122,7 +116,7 @@ export function MiracleMindHomeV2() {
               }}
             >
               <span
-                className="block text-2xl font-medium uppercase tracking-widest text-gray-400 sm:text-3xl"
+                className="block text-2xl font-medium tracking-widest text-gray-400 uppercase sm:text-3xl"
                 style={{ letterSpacing: "0.25em" }}
               >
                 Technology
@@ -130,7 +124,8 @@ export function MiracleMindHomeV2() {
               <span
                 className="block text-4xl font-bold uppercase sm:text-5xl lg:text-6xl"
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -141,7 +136,7 @@ export function MiracleMindHomeV2() {
                 Empowering
               </span>
               <span
-                className="block text-2xl font-medium uppercase tracking-widest text-white sm:text-3xl"
+                className="block text-2xl font-medium tracking-widest text-white uppercase sm:text-3xl"
                 style={{ letterSpacing: "0.25em" }}
               >
                 Human Sovereignty
@@ -188,8 +183,10 @@ export function MiracleMindHomeV2() {
             <div
               className="relative mx-auto h-[250px] w-[250px] sm:h-[350px] sm:w-[350px] lg:h-[500px] lg:w-[500px]"
               style={{
-                maskImage: "radial-gradient(circle, black 40%, transparent 70%)",
-                WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+                maskImage:
+                  "radial-gradient(circle, black 40%, transparent 70%)",
+                WebkitMaskImage:
+                  "radial-gradient(circle, black 40%, transparent 70%)",
               }}
             >
               <iframe
@@ -222,8 +219,7 @@ export function MiracleMindHomeV2() {
             What We{" "}
             <span
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -311,8 +307,9 @@ export function MiracleMindHomeV2() {
                 finance, relationships, and personal growth into one coherent
                 platform. Not to dictate how you should live, but to help you
                 understand how the pieces of your life affect each other as part
-                of an interdependent whole—so you can make decisions from a place
-                of clarity, balance, and integrity with your deepest values.
+                of an interdependent whole—so you can make decisions from a
+                place of clarity, balance, and integrity with your deepest
+                values.
               </p>
               <Link href={buildHref("/banyan")}>
                 <Button
@@ -360,8 +357,7 @@ export function MiracleMindHomeV2() {
             Our{" "}
             <span
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -405,10 +401,7 @@ export function MiracleMindHomeV2() {
       </section>
 
       {/* Contact / CTA */}
-      <section
-        id="contact"
-        className="scroll-mt-20 px-4 py-20 sm:px-6"
-      >
+      <section id="contact" className="scroll-mt-20 px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <h2
             className="mb-4 text-3xl font-bold text-white sm:text-4xl"
@@ -417,8 +410,7 @@ export function MiracleMindHomeV2() {
             Ready to Build Something{" "}
             <span
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -429,7 +421,8 @@ export function MiracleMindHomeV2() {
             ?
           </h2>
           <p className="mb-8 text-gray-300">
-            Whether you need a custom application, AI integration, or want to explore
+            Whether you need a custom application, AI integration, or want to
+            explore
             <br />
             how BANYAN can transform your workflow—let&apos;s talk.
           </p>
@@ -438,8 +431,7 @@ export function MiracleMindHomeV2() {
               size="lg"
               className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
               style={{
-                background:
-                  "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               }}
             >
               Get In Touch

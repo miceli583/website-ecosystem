@@ -1,5 +1,16 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, unique, serial, integer, boolean, uuid, jsonb, date } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  serial,
+  integer,
+  boolean,
+  uuid,
+  jsonb,
+  date,
+} from "drizzle-orm/pg-core";
 
 // ============================================================================
 // DAILY VALUE POST AUTOMATION TABLES
@@ -139,7 +150,9 @@ export const pendingPosts = pgTable("pending_posts", {
  */
 export const banyanEarlyAccess = pgTable("banyan_early_access", {
   id: serial("id").primaryKey(),
-  crmId: uuid("crm_id").references(() => masterCrm.id, { onDelete: "set null" }),
+  crmId: uuid("crm_id").references(() => masterCrm.id, {
+    onDelete: "set null",
+  }),
   fullName: text("full_name").notNull(),
   email: text("email").notNull().unique(),
   phone: text("phone"),
@@ -190,8 +203,12 @@ export const expenseCategories = pgTable("expense_categories", {
   description: text("description"),
   isActive: boolean("is_active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 /**
@@ -211,26 +228,37 @@ export const expenses = pgTable("expenses", {
   isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
   receiptUrl: text("receipt_url"),
   createdByAuthId: uuid("created_by_auth_id").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 /**
  * Mercury Transaction Categories - Category overlay for Mercury transactions
  * Links Mercury transaction IDs to expense categories for reporting
  */
-export const mercuryTransactionCategories = pgTable("mercury_transaction_categories", {
-  id: serial("id").primaryKey(),
-  mercuryTransactionId: text("mercury_transaction_id").notNull().unique(),
-  categoryId: integer("category_id")
-    .notNull()
-    .references(() => expenseCategories.id, { onDelete: "restrict" }),
-  isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
-  counterpartyName: text("counterparty_name"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const mercuryTransactionCategories = pgTable(
+  "mercury_transaction_categories",
+  {
+    id: serial("id").primaryKey(),
+    mercuryTransactionId: text("mercury_transaction_id").notNull().unique(),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => expenseCategories.id, { onDelete: "restrict" }),
+    isTaxDeductible: boolean("is_tax_deductible").notNull().default(false),
+    counterpartyName: text("counterparty_name"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  }
+);
 
 // ============================================================================
 // CLIENT PORTAL / CRM
@@ -251,8 +279,12 @@ export const portalUsers = pgTable("portal_users", {
   companyRoles: text("company_roles").array(), // e.g. ["admin", "account_manager"]
   clientSlug: text("client_slug"), // NULL for admin, required for clients
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 /**
@@ -260,8 +292,13 @@ export const portalUsers = pgTable("portal_users", {
  */
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
-  crmId: uuid("crm_id").references(() => masterCrm.id, { onDelete: "set null" }),
-  accountManagerId: uuid("account_manager_id").references(() => portalUsers.id, { onDelete: "set null" }),
+  crmId: uuid("crm_id").references(() => masterCrm.id, {
+    onDelete: "set null",
+  }),
+  accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   slug: text("slug").notNull().unique(),
@@ -324,7 +361,9 @@ export const clientResources = pgTable("client_resources", {
   clientId: integer("client_id")
     .notNull()
     .references(() => clients.id, { onDelete: "cascade" }),
-  projectId: integer("project_id").references(() => clientProjects.id, { onDelete: "set null" }),
+  projectId: integer("project_id").references(() => clientProjects.id, {
+    onDelete: "set null",
+  }),
 
   // Categorization
   section: text("section").notNull().default("tooling"), // demos, tooling, billing, docs
@@ -356,8 +395,12 @@ export const clientResources = pgTable("client_resources", {
   publicToken: text("public_token").unique(),
   publicSlug: text("public_slug").unique(),
 
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 /**
@@ -417,7 +460,9 @@ export const clientNotes = pgTable("client_notes", {
  */
 export const contactSubmissions = pgTable("contact_submissions", {
   id: serial("id").primaryKey(),
-  crmId: uuid("crm_id").references(() => masterCrm.id, { onDelete: "set null" }),
+  crmId: uuid("crm_id").references(() => masterCrm.id, {
+    onDelete: "set null",
+  }),
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
@@ -444,17 +489,22 @@ export const masterCrm = pgTable("master_crm", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   phone: text("phone"),
-  communicationPreferences: jsonb("communication_preferences").$type<{
-    email?: boolean;
-    sms?: boolean;
-    phone?: boolean;
-  }>().default({ email: true }),
+  communicationPreferences: jsonb("communication_preferences")
+    .$type<{
+      email?: boolean;
+      sms?: boolean;
+      phone?: boolean;
+    }>()
+    .default({ email: true }),
   status: text("status").notNull().default("lead"), // lead | prospect | client | inactive | churned
   source: text("source").notNull(), // personal_site | miracle_mind | banyan_waitlist | referral | etc.
   company: text("company"),
   referredBy: uuid("referred_by"),
   referredByExternal: text("referred_by_external"),
-  accountManagerId: uuid("account_manager_id").references(() => portalUsers.id, { onDelete: "set null" }),
+  accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
   createdBy: text("created_by"),
   tags: text("tags").array(),
   notes: text("notes"),
@@ -476,20 +526,23 @@ export const masterCrm = pgTable("master_crm", {
  * Personal Contact Submissions - Contact form entries from matthewmiceli.com
  * Links to master_crm for unified contact management
  */
-export const personalContactSubmissions = pgTable("personal_contact_submissions", {
-  id: serial("id").primaryKey(),
-  crmId: uuid("crm_id")
-    .notNull()
-    .references(() => masterCrm.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone"),
-  message: text("message").notNull(),
-  read: boolean("read").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const personalContactSubmissions = pgTable(
+  "personal_contact_submissions",
+  {
+    id: serial("id").primaryKey(),
+    crmId: uuid("crm_id")
+      .notNull()
+      .references(() => masterCrm.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    phone: text("phone"),
+    message: text("message").notNull(),
+    read: boolean("read").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  }
+);
 
 // ============================================================================
 // RELATIONS
@@ -577,16 +630,19 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
   }),
 }));
 
-export const clientResourcesRelations = relations(clientResources, ({ one }) => ({
-  client: one(clients, {
-    fields: [clientResources.clientId],
-    references: [clients.id],
-  }),
-  project: one(clientProjects, {
-    fields: [clientResources.projectId],
-    references: [clientProjects.id],
-  }),
-}));
+export const clientResourcesRelations = relations(
+  clientResources,
+  ({ one }) => ({
+    client: one(clients, {
+      fields: [clientResources.clientId],
+      references: [clients.id],
+    }),
+    project: one(clientProjects, {
+      fields: [clientResources.projectId],
+      references: [clientProjects.id],
+    }),
+  })
+);
 
 export const clientProjectsRelations = relations(
   clientProjects,
@@ -756,8 +812,10 @@ export type NewContactSubmission = typeof contactSubmissions.$inferInsert;
 export type MasterCrm = typeof masterCrm.$inferSelect;
 export type NewMasterCrm = typeof masterCrm.$inferInsert;
 
-export type PersonalContactSubmission = typeof personalContactSubmissions.$inferSelect;
-export type NewPersonalContactSubmission = typeof personalContactSubmissions.$inferInsert;
+export type PersonalContactSubmission =
+  typeof personalContactSubmissions.$inferSelect;
+export type NewPersonalContactSubmission =
+  typeof personalContactSubmissions.$inferInsert;
 
 export type ExpenseCategory = typeof expenseCategories.$inferSelect;
 export type NewExpenseCategory = typeof expenseCategories.$inferInsert;
@@ -765,5 +823,7 @@ export type NewExpenseCategory = typeof expenseCategories.$inferInsert;
 export type Expense = typeof expenses.$inferSelect;
 export type NewExpense = typeof expenses.$inferInsert;
 
-export type MercuryTransactionCategory = typeof mercuryTransactionCategories.$inferSelect;
-export type NewMercuryTransactionCategory = typeof mercuryTransactionCategories.$inferInsert;
+export type MercuryTransactionCategory =
+  typeof mercuryTransactionCategories.$inferSelect;
+export type NewMercuryTransactionCategory =
+  typeof mercuryTransactionCategories.$inferInsert;

@@ -4,11 +4,11 @@ Multi-domain Next.js application serving three websites from a single codebase.
 
 ## Domains
 
-| Domain | Purpose | Audience |
-|--------|---------|----------|
-| **matthewmiceli.com** | Personal portfolio & playground | Clients, employers, collaborators |
-| **miraclemind.dev** | Main company site (BANYAN LifeOS) | Developers, early access users |
-| **miraclemind.live** | Legacy (redirects to .dev) | Existing users |
+| Domain                | Purpose                           | Audience                          |
+| --------------------- | --------------------------------- | --------------------------------- |
+| **matthewmiceli.com** | Personal portfolio & playground   | Clients, employers, collaborators |
+| **miraclemind.dev**   | Main company site (BANYAN LifeOS) | Developers, early access users    |
+| **miraclemind.live**  | Legacy (redirects to .dev)        | Existing users                    |
 
 ## Tech Stack
 
@@ -32,6 +32,7 @@ npm run dev
 ```
 
 Access locally:
+
 - `http://localhost:3000?domain=matthew` - Matthew's site
 - `http://localhost:3000?domain=dev` - MiracleMind Dev
 - `http://localhost:3000/admin?domain=dev` - Admin dashboard

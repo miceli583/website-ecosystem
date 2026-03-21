@@ -16,7 +16,10 @@ const APP_DIR = path.join(process.cwd(), "src/app");
  * Recursively scan src/app/ for page.tsx and route.ts files,
  * converting directory structure to Next.js route paths.
  */
-async function scanAppDirectory(dir: string, basePath = ""): Promise<ScannedRoute[]> {
+async function scanAppDirectory(
+  dir: string,
+  basePath = ""
+): Promise<ScannedRoute[]> {
   const routes: ScannedRoute[] = [];
 
   let entries;
@@ -59,7 +62,10 @@ async function scanAppDirectory(dir: string, basePath = ""): Promise<ScannedRout
 
     // Route groups contribute no path segment
     const nextPath = segment === "" ? basePath : `${basePath}/${segment}`;
-    const subRoutes = await scanAppDirectory(path.join(dir, entry.name), nextPath);
+    const subRoutes = await scanAppDirectory(
+      path.join(dir, entry.name),
+      nextPath
+    );
     routes.push(...subRoutes);
   }
 
@@ -69,7 +75,9 @@ async function scanAppDirectory(dir: string, basePath = ""): Promise<ScannedRout
 /**
  * Infer domain, access, and status from the route path.
  */
-function inferMetadata(routePath: string): Pick<ScannedRoute, "domain" | "access" | "status"> {
+function inferMetadata(
+  routePath: string
+): Pick<ScannedRoute, "domain" | "access" | "status"> {
   // Admin routes
   if (routePath.startsWith("/admin")) {
     if (routePath === "/admin/login") {
@@ -92,14 +100,22 @@ function inferMetadata(routePath: string): Pick<ScannedRoute, "domain" | "access
   }
 
   // Miracle Mind dev routes
-  const devRoutes = ["/services", "/stewardship", "/contact", "/blog", "/banyan"];
+  const devRoutes = [
+    "/services",
+    "/stewardship",
+    "/contact",
+    "/blog",
+    "/banyan",
+  ];
   if (devRoutes.some((r) => routePath === r || routePath.startsWith(r + "/"))) {
     return { domain: "dev", access: "public", status: "live" };
   }
 
   // Matthew personal routes
   const matthewRoutes = ["/playground", "/templates", "/resume", "/about"];
-  if (matthewRoutes.some((r) => routePath === r || routePath.startsWith(r + "/"))) {
+  if (
+    matthewRoutes.some((r) => routePath === r || routePath.startsWith(r + "/"))
+  ) {
     return { domain: "matthew", access: "public", status: "live" };
   }
 

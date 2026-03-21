@@ -40,7 +40,8 @@ const talkingTracks: Array<{
       "Ask participants to share one organizational challenge they currently face",
       "Set a welcoming tone - this is about building skills, not judging current habits",
     ],
-    transition: "Let's begin with a quick knowledge check to see where everyone is starting from.",
+    transition:
+      "Let's begin with a quick knowledge check to see where everyone is starting from.",
   },
   {
     num: 2,
@@ -97,7 +98,8 @@ const talkingTracks: Array<{
       "Everyone organizes differently. We'll explore options so you can find what works for YOUR style and setting.",
       "The goal is sustainable organization - systems you can maintain without burning out.",
     ],
-    transition: "Now that we know our objectives, let's explore why organization matters so much in CHW work.",
+    transition:
+      "Now that we know our objectives, let's explore why organization matters so much in CHW work.",
   },
   {
     num: 7,
@@ -129,9 +131,7 @@ const talkingTracks: Array<{
       "We'll explore time management, task tracking, documentation basics, prioritization, and ethical considerations.",
       "Each topic builds on the previous one, so we'll take them in order.",
     ],
-    presenterTips: [
-      "Point to each topic briefly but don't go into detail yet",
-    ],
+    presenterTips: ["Point to each topic briefly but don't go into detail yet"],
   },
   {
     num: 10,
@@ -258,7 +258,8 @@ const talkingTracks: Array<{
       "Allow 8-10 minutes for discussion, then 5 minutes for sharing",
       "Write strategies on a whiteboard or flip chart as groups share",
     ],
-    transition: "Great insights from everyone. Let's build on these ideas as we continue.",
+    transition:
+      "Great insights from everyone. Let's build on these ideas as we continue.",
   },
   {
     num: 21,
@@ -302,9 +303,7 @@ const talkingTracks: Array<{
       "Create a system for tracking follow-ups. This could be a list, a calendar reminder, or notes on each person's file.",
       "The key is having one place you check regularly so nothing slips through the cracks.",
     ],
-    presenterTips: [
-      "Demonstrate a simple follow-up tracking method",
-    ],
+    presenterTips: ["Demonstrate a simple follow-up tracking method"],
   },
   {
     num: 25,
@@ -389,9 +388,7 @@ const talkingTracks: Array<{
       "Whether it's a notebook you carry, an app on your phone, or both - make sure you can access your system anywhere.",
       "Flexibility is key. A system that only works at your desk won't work for CHW life.",
     ],
-    presenterTips: [
-      "Ask participants what they carry with them for fieldwork",
-    ],
+    presenterTips: ["Ask participants what they carry with them for fieldwork"],
   },
   {
     num: 33,
@@ -456,7 +453,8 @@ const talkingTracks: Array<{
       "Allow 10 minutes for individual mapping",
       "Optional pair-and-share after",
     ],
-    transition: "These maps give you a personal roadmap for improvement. Keep them for reference.",
+    transition:
+      "These maps give you a personal roadmap for improvement. Keep them for reference.",
   },
   {
     num: 38,
@@ -475,7 +473,8 @@ const talkingTracks: Array<{
       "You'll practice using organizational tools in simulated situations before applying them in your actual work.",
       "Between now and then, start noticing your organizational habits. What works? What doesn't?",
     ],
-    transition: "Let's summarize what we've covered before wrapping up this section.",
+    transition:
+      "Let's summarize what we've covered before wrapping up this section.",
   },
   {
     num: 40,
@@ -485,9 +484,7 @@ const talkingTracks: Array<{
       "We explored why organizational skills matter for CHW practice - reliability, trust, boundaries, and self-care.",
       "We introduced foundational practices for managing time, information, and responsibilities.",
     ],
-    presenterTips: [
-      "This is a good place to pause for questions",
-    ],
+    presenterTips: ["This is a good place to pause for questions"],
   },
   {
     num: 41,
@@ -524,9 +521,7 @@ const talkingTracks: Array<{
       "This prevents overcommitment - promising more than you can deliver, then letting people down.",
       "It's better to commit to less and follow through than to promise everything and struggle to deliver.",
     ],
-    presenterTips: [
-      "Connect this to boundary-setting discussed earlier",
-    ],
+    presenterTips: ["Connect this to boundary-setting discussed earlier"],
   },
   {
     num: 45,
@@ -584,9 +579,7 @@ const talkingTracks: Array<{
       "At the end of each week, take a few minutes: What went well organizationally? What could be better?",
       "This ongoing reflection leads to gradual improvement over time.",
     ],
-    presenterTips: [
-      "Suggest participants try weekly reflection as homework",
-    ],
+    presenterTips: ["Suggest participants try weekly reflection as homework"],
   },
   {
     num: 51,
@@ -684,7 +677,8 @@ const talkingTracks: Array<{
       "You'll practice with scenarios that reflect actual CHW work. It gets more hands-on.",
       "Between now and then, notice your organizational habits. Come ready to share observations.",
     ],
-    transition: "That's a preview of what's coming. Let's summarize the full foundation before we finish.",
+    transition:
+      "That's a preview of what's coming. Let's summarize the full foundation before we finish.",
   },
   {
     num: 60,
@@ -719,7 +713,12 @@ function getSlideType(title: string): string {
   if (lower.includes("case example")) return "case";
   if (lower.includes("reflection")) return "reflection";
   if (lower.includes("activity")) return "activity";
-  if (lower.includes("summary") || lower.includes("takeaway") || lower.includes("completion")) return "summary";
+  if (
+    lower.includes("summary") ||
+    lower.includes("takeaway") ||
+    lower.includes("completion")
+  )
+    return "summary";
   return "content";
 }
 
@@ -780,8 +779,12 @@ function TalkingTrackCard({
     <div
       className="overflow-hidden rounded-xl border transition-all"
       style={{
-        borderColor: isExpanded ? "rgba(212, 175, 55, 0.4)" : "rgba(212, 175, 55, 0.15)",
-        backgroundColor: isExpanded ? "rgba(212, 175, 55, 0.05)" : "rgba(255, 255, 255, 0.03)",
+        borderColor: isExpanded
+          ? "rgba(212, 175, 55, 0.4)"
+          : "rgba(212, 175, 55, 0.15)",
+        backgroundColor: isExpanded
+          ? "rgba(212, 175, 55, 0.05)"
+          : "rgba(255, 255, 255, 0.03)",
       }}
     >
       {/* Header */}
@@ -820,10 +823,13 @@ function TalkingTrackCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="border-t bg-black/30 p-5" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+        <div
+          className="border-t bg-black/30 p-5"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
           {/* Talking Points */}
           <div className="mb-5">
-            <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+            <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-400 uppercase">
               <Mic className="h-4 w-4" style={{ color: "#D4AF37" }} />
               Talking Points
             </h4>
@@ -845,7 +851,7 @@ function TalkingTrackCard({
           {/* Presenter Tips */}
           {track.presenterTips && track.presenterTips.length > 0 && (
             <div className="mb-5">
-              <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+              <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-400 uppercase">
                 <Lightbulb className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 Presenter Tips
               </h4>
@@ -855,7 +861,10 @@ function TalkingTrackCard({
                     key={idx}
                     className="flex items-start gap-2 rounded-lg border border-[#D4AF37]/20 bg-[#D4AF37]/5 p-3"
                   >
-                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: "#D4AF37" }} />
+                    <AlertCircle
+                      className="mt-0.5 h-4 w-4 flex-shrink-0"
+                      style={{ color: "#D4AF37" }}
+                    />
                     <p className="text-sm text-[#F6E6C1]">{tip}</p>
                   </li>
                 ))}
@@ -870,7 +879,9 @@ function TalkingTrackCard({
                 <ArrowLeft className="h-4 w-4 rotate-180" />
                 Transition to Next Slide
               </h4>
-              <p className="text-sm italic text-[#F6E6C1]">&ldquo;{track.transition}&rdquo;</p>
+              <p className="text-sm text-[#F6E6C1] italic">
+                &ldquo;{track.transition}&rdquo;
+              </p>
             </div>
           )}
         </div>
@@ -910,13 +921,23 @@ export default function TalkingTracksPage({
     setExpandAll(!expandAll);
   };
 
-  const slidesWithTips = talkingTracks.filter((t) => t.presenterTips && t.presenterTips.length > 0).length;
-  const slidesWithTransitions = talkingTracks.filter((t) => t.transition).length;
+  const slidesWithTips = talkingTracks.filter(
+    (t) => t.presenterTips && t.presenterTips.length > 0
+  ).length;
+  const slidesWithTransitions = talkingTracks.filter(
+    (t) => t.transition
+  ).length;
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b backdrop-blur-md" style={{ borderColor: "rgba(212, 175, 55, 0.2)", backgroundColor: "rgba(0, 0, 0, 0.8)" }}>
+      <header
+        className="border-b backdrop-blur-md"
+        style={{
+          borderColor: "rgba(212, 175, 55, 0.2)",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+        }}
+      >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link
             href={`/portal/${slug}/demos/slides`}
@@ -958,28 +979,44 @@ export default function TalkingTracksPage({
             Talking Tracks
           </h1>
           <p className="max-w-2xl text-lg text-gray-400">
-            Presenter talking points and delivery guidance for all 61 slides of the
-            Organizational Skills foundation module.
+            Presenter talking points and delivery guidance for all 61 slides of
+            the Organizational Skills foundation module.
           </p>
         </div>
 
         {/* Stats Bar */}
         <div className="mb-10 grid grid-cols-4 gap-4">
-          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+          <div
+            className="rounded-xl border bg-white/5 p-4"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
             <p className="text-2xl font-bold" style={{ color: "#D4AF37" }}>
               {talkingTracks.length}
             </p>
             <p className="text-sm text-gray-500">Slides</p>
           </div>
-          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
-            <p className="text-2xl font-bold text-[#D4AF37]">{slidesWithTips}</p>
+          <div
+            className="rounded-xl border bg-white/5 p-4"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <p className="text-2xl font-bold text-[#D4AF37]">
+              {slidesWithTips}
+            </p>
             <p className="text-sm text-gray-500">With Tips</p>
           </div>
-          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
-            <p className="text-2xl font-bold text-[#D4AF37]">{slidesWithTransitions}</p>
+          <div
+            className="rounded-xl border bg-white/5 p-4"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <p className="text-2xl font-bold text-[#D4AF37]">
+              {slidesWithTransitions}
+            </p>
             <p className="text-sm text-gray-500">With Transitions</p>
           </div>
-          <div className="rounded-xl border bg-white/5 p-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+          <div
+            className="rounded-xl border bg-white/5 p-4"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
             <p className="text-2xl font-bold text-[#D4AF37]">~45 min</p>
             <p className="text-sm text-gray-500">Est. Duration</p>
           </div>
@@ -994,7 +1031,9 @@ export default function TalkingTracksPage({
             <button
               onClick={() => setShowFullScript(true)}
               className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
+              style={{
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              }}
             >
               <ScrollText className="h-4 w-4" />
               Full Script
@@ -1032,13 +1071,20 @@ export default function TalkingTracksPage({
         </div>
 
         {/* Footer Note */}
-        <div className="mt-10 rounded-xl border p-6 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.15)", backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
+        <div
+          className="mt-10 rounded-xl border p-6 text-center"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.15)",
+            backgroundColor: "rgba(255, 255, 255, 0.02)",
+          }}
+        >
           <p className="text-sm text-gray-500">
             CHW360 | Educational Use Only | Not Medical Advice
           </p>
           <p className="mt-2 text-xs text-gray-600">
-            These talking tracks are designed to help trainers deliver the Organizational Skills
-            curriculum effectively. Adapt language and examples to your audience.
+            These talking tracks are designed to help trainers deliver the
+            Organizational Skills curriculum effectively. Adapt language and
+            examples to your audience.
           </p>
         </div>
       </main>
@@ -1046,16 +1092,26 @@ export default function TalkingTracksPage({
       {/* Full Script Modal */}
       {showFullScript && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[90vh] w-full max-w-3xl flex-col rounded-2xl border bg-black" style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}>
+          <div
+            className="relative flex h-[90vh] w-full max-w-3xl flex-col rounded-2xl border bg-black"
+            style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+          >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <div
+              className="flex items-center justify-between border-b px-6 py-4"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D4AF37]">
                   <ScrollText className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-white">Full Talking Track Script</h2>
-                  <p className="text-xs text-gray-500">Module 1: Organizational Skills Part 1</p>
+                  <h2 className="font-bold text-white">
+                    Full Talking Track Script
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    Module 1: Organizational Skills Part 1
+                  </p>
                 </div>
               </div>
               <button
@@ -1070,17 +1126,24 @@ export default function TalkingTracksPage({
             <div className="flex-1 overflow-y-auto px-6 py-6">
               <div className="prose prose-invert max-w-none">
                 {talkingTracks.map((track) => (
-                  <div key={track.num} className="mb-8 border-b pb-8 last:border-0" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
+                  <div
+                    key={track.num}
+                    className="mb-8 border-b pb-8 last:border-0"
+                    style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                  >
                     <h3 className="mb-4 text-lg font-bold text-[#D4AF37]">
                       Slide {track.num}: {track.title}
                     </h3>
 
                     <div className="mb-4">
-                      <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                      <p className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">
                         Talking Points
                       </p>
                       {track.talkingPoints.map((point, idx) => (
-                        <p key={idx} className="mb-3 leading-relaxed text-gray-300">
+                        <p
+                          key={idx}
+                          className="mb-3 leading-relaxed text-gray-300"
+                        >
                           {point}
                         </p>
                       ))}
@@ -1104,7 +1167,7 @@ export default function TalkingTracksPage({
                         <p className="mb-1 text-sm font-semibold text-[#D4AF37]">
                           Transition
                         </p>
-                        <p className="text-sm italic text-[#F6E6C1]/80">
+                        <p className="text-sm text-[#F6E6C1]/80 italic">
                           &ldquo;{track.transition}&rdquo;
                         </p>
                       </div>
@@ -1115,7 +1178,10 @@ export default function TalkingTracksPage({
             </div>
 
             {/* Modal Footer */}
-            <div className="border-t px-6 py-4" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+            <div
+              className="border-t px-6 py-4"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
               <p className="text-center text-xs text-gray-600">
                 {talkingTracks.length} slides • Scroll to read full script
               </p>

@@ -1,10 +1,17 @@
 import { type ReactNode } from "react";
 
-export default function PublicDemoLayout({ children }: { children: ReactNode }) {
+export default function PublicDemoLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-black text-white">
       {children}
-      <footer className="border-t px-4 py-4 text-center" style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}>
+      <footer
+        className="border-t px-4 py-4 text-center"
+        style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+      >
         <p className="text-xs text-gray-500">
           Shared via{" "}
           <a

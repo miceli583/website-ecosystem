@@ -188,7 +188,7 @@ export default function RevenuePage() {
             <table className="w-full text-sm">
               <thead>
                 <tr
-                  className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Description</th>
@@ -214,7 +214,7 @@ export default function RevenuePage() {
                     </td>
                     <td className="px-4 py-2.5 text-right font-medium text-white">
                       ${formatCents(payment.amount)}
-                      <span className="ml-1 text-xs uppercase text-gray-500">
+                      <span className="ml-1 text-xs text-gray-500 uppercase">
                         {payment.currency}
                       </span>
                     </td>
@@ -243,7 +243,7 @@ export default function RevenuePage() {
             <table className="w-full text-sm">
               <thead>
                 <tr
-                  className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Customer</th>

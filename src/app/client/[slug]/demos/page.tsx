@@ -67,7 +67,10 @@ export default function ClientDemosPage({
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
               <CardContent className="p-6">
-                <Monitor className="mb-3 h-8 w-8" style={{ color: "#D4AF37" }} />
+                <Monitor
+                  className="mb-3 h-8 w-8"
+                  style={{ color: "#D4AF37" }}
+                />
                 <h3 className="mb-1 text-lg font-semibold">{demo.title}</h3>
                 <p className="mb-3 text-sm text-gray-400">{demo.projectName}</p>
                 <div

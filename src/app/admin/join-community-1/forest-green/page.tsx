@@ -33,7 +33,13 @@ function ForestGreenJoinCommunity1PageContent() {
 
 export default function ForestGreenJoinCommunity1Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <ForestGreenJoinCommunity1PageContent />
     </Suspense>
   );

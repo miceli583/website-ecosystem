@@ -32,15 +32,18 @@ export default function PortalProfilePage({
 }) {
   const { slug } = use(params);
   const utils = api.useUtils();
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = api.portal.getClientBySlug.useQuery(
     { slug },
     { staleTime: 5 * 60 * 1000 } // 5 minutes
   );
   // Get logged-in user's profile to check if admin
-  const { data: myProfile } = api.portal.getMyProfile.useQuery(
-    undefined,
-    { staleTime: 0 }
-  );
+  const { data: myProfile } = api.portal.getMyProfile.useQuery(undefined, {
+    staleTime: 0,
+  });
   // Get the client's portal user profile (for this slug)
   const { data: clientProfile } = api.portal.getClientPortalUser.useQuery(
     { slug },
@@ -155,7 +158,9 @@ export default function PortalProfilePage({
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
 
       if (error) {
         setPasswordError(error.message);
@@ -176,7 +181,10 @@ export default function PortalProfilePage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -202,7 +210,9 @@ export default function PortalProfilePage({
   return (
     <ClientPortalLayout clientName={client.name} slug={slug}>
       <h1 className="mb-2 text-3xl font-bold">
-        {isAdmin && !isViewingOwnProfile ? `${client.name}'s Profile` : "Profile"}
+        {isAdmin && !isViewingOwnProfile
+          ? `${client.name}'s Profile`
+          : "Profile"}
       </h1>
       <p className="mb-8 text-gray-400">
         {isAdmin && !isViewingOwnProfile
@@ -226,13 +236,15 @@ export default function PortalProfilePage({
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Account</h2>
-                <p className="text-sm text-gray-400">Your portal account details</p>
+                <p className="text-sm text-gray-400">
+                  Your portal account details
+                </p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Name
                 </label>
                 {isEditingName ? (
@@ -267,7 +279,9 @@ export default function PortalProfilePage({
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <p className="text-white">{displayProfile?.name ?? client.name}</p>
+                    <p className="text-white">
+                      {displayProfile?.name ?? client.name}
+                    </p>
                     {canEdit && (
                       <button
                         onClick={handleStartEditName}
@@ -281,7 +295,7 @@ export default function PortalProfilePage({
                 )}
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Email
                 </label>
                 <p className="flex items-center gap-2 text-white">
@@ -290,7 +304,7 @@ export default function PortalProfilePage({
                 </p>
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Phone (optional)
                 </label>
                 {isEditingPhone ? (
@@ -343,10 +357,12 @@ export default function PortalProfilePage({
                 )}
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Role
                 </label>
-                <p className="text-white capitalize">{displayProfile?.role ?? "client"}</p>
+                <p className="text-white capitalize">
+                  {displayProfile?.role ?? "client"}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -367,13 +383,15 @@ export default function PortalProfilePage({
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Organization</h2>
-                <p className="text-sm text-gray-400">Your company information</p>
+                <p className="text-sm text-gray-400">
+                  Your company information
+                </p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Company
                 </label>
                 {isEditingCompany ? (
@@ -423,13 +441,13 @@ export default function PortalProfilePage({
                 )}
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Client ID
                 </label>
                 <p className="font-mono text-sm text-gray-400">{slug}</p>
               </div>
               <div>
-                <label className="text-xs uppercase tracking-wide text-gray-500">
+                <label className="text-xs tracking-wide text-gray-500 uppercase">
                   Member Since
                 </label>
                 <p className="flex items-center gap-2 text-white">
@@ -459,20 +477,24 @@ export default function PortalProfilePage({
                   <UserCheck className="h-6 w-6" style={{ color: "#D4AF37" }} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold">Your Account Manager</h2>
-                  <p className="text-sm text-gray-400">Your dedicated point of contact</p>
+                  <h2 className="text-lg font-semibold">
+                    Your Account Manager
+                  </h2>
+                  <p className="text-sm text-gray-400">
+                    Your dedicated point of contact
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                  <label className="text-xs tracking-wide text-gray-500 uppercase">
                     Name
                   </label>
                   <p className="text-white">{client.accountManager.name}</p>
                 </div>
                 <div>
-                  <label className="text-xs uppercase tracking-wide text-gray-500">
+                  <label className="text-xs tracking-wide text-gray-500 uppercase">
                     Email
                   </label>
                   <p className="flex items-center gap-2 text-white">
@@ -487,7 +509,7 @@ export default function PortalProfilePage({
                 </div>
                 {client.accountManager.phone && (
                   <div>
-                    <label className="text-xs uppercase tracking-wide text-gray-500">
+                    <label className="text-xs tracking-wide text-gray-500 uppercase">
                       Phone
                     </label>
                     <p className="flex items-center gap-2 text-white">
@@ -522,7 +544,9 @@ export default function PortalProfilePage({
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">Security</h2>
-                  <p className="text-sm text-gray-400">Manage your account security</p>
+                  <p className="text-sm text-gray-400">
+                    Manage your account security
+                  </p>
                 </div>
               </div>
 
@@ -543,7 +567,7 @@ export default function PortalProfilePage({
               ) : (
                 <div className="max-w-md space-y-4">
                   <div>
-                    <label className="mb-1 block text-xs uppercase tracking-wide text-gray-500">
+                    <label className="mb-1 block text-xs tracking-wide text-gray-500 uppercase">
                       New Password
                     </label>
                     <div className="relative">
@@ -557,8 +581,10 @@ export default function PortalProfilePage({
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        aria-label={showNewPassword ? "Hide password" : "Show password"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        aria-label={
+                          showNewPassword ? "Hide password" : "Show password"
+                        }
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showNewPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -569,7 +595,7 @@ export default function PortalProfilePage({
                     </div>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs uppercase tracking-wide text-gray-500">
+                    <label className="mb-1 block text-xs tracking-wide text-gray-500 uppercase">
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -582,9 +608,15 @@ export default function PortalProfilePage({
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        aria-label={
+                          showConfirmPassword
+                            ? "Hide password"
+                            : "Show password"
+                        }
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4" />

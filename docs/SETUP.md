@@ -129,6 +129,7 @@ INSERT INTO auth.users (
 All `/admin/*` routes require authentication except `/admin/login`.
 
 Middleware handles:
+
 - Session validation on every request
 - Redirect to login if unauthenticated
 - Automatic session refresh
@@ -160,6 +161,7 @@ For features that need file storage (e.g., daily anchor images).
 ### Public URLs
 
 Files are accessible at:
+
 ```
 https://[project-id].supabase.co/storage/v1/object/public/[bucket]/[filename]
 ```

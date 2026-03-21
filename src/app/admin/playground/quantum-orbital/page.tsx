@@ -551,7 +551,13 @@ function QuantumOrbitalPageContent() {
 
 export default function QuantumOrbitalPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <QuantumOrbitalPageContent />
     </Suspense>
   );

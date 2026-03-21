@@ -4,11 +4,11 @@ Domains, email routing, CI/CD, and deployment configuration.
 
 ## Domains
 
-| Domain | Purpose | Hosting |
-|--------|---------|---------|
-| **matthewmiceli.com** | Personal portfolio & playground | Vercel |
-| **miraclemind.dev** | Main platform & admin | Vercel |
-| **miraclemind.live** | Legacy (redirects to .dev) | Vercel |
+| Domain                | Purpose                         | Hosting |
+| --------------------- | ------------------------------- | ------- |
+| **matthewmiceli.com** | Personal portfolio & playground | Vercel  |
+| **miraclemind.dev**   | Main platform & admin           | Vercel  |
+| **miraclemind.live**  | Legacy (redirects to .dev)      | Vercel  |
 
 All three domains served from single Vercel project with middleware-based routing.
 
@@ -22,6 +22,7 @@ All three domains served from single Vercel project with middleware-based routin
 **Main Inbox:** admin@miraclemind.live
 
 **Aliases (all route to admin inbox):**
+
 - `waitlist@miraclemind.live`
 - `beta@miraclemind.live`
 - `support@miraclemind.live`
@@ -32,21 +33,25 @@ All three domains served from single Vercel project with middleware-based routin
 **Status:** Configured and active
 
 **Sending Addresses:**
+
 - `noreply@miraclemind.dev` - Auth emails (magic links, password resets)
 - `admin@miraclemind.dev` - Admin notifications
 - Any `@miraclemind.dev` address (domain verified)
 
 **SMTP Configuration:**
+
 - Host: `mail.smtp2go.com`
 - Port: `587`
 - Credentials stored in SMTP2GO dashboard and Supabase
 
 **DNS Records (Namecheap):**
+
 - `em826661.miraclemind.dev` → return.smtp2go.net
 - `s826661._domainkey.miraclemind.dev` → dkim.smtp2go.net
 - `link.miraclemind.dev` → track.smtp2go.net
 
 **Free Tier Limits:**
+
 - 1,000 emails/month
 - 200 emails/day
 

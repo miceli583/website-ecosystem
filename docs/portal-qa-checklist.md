@@ -5,6 +5,7 @@ Comprehensive testing protocol for the client portal at `/portal/[slug]/`.
 ## Test Data Requirements
 
 Before testing, ensure you have:
+
 - At least 2 test clients (one with full data, one minimal)
 - Admin user account
 - Client user account for one test client
@@ -16,48 +17,48 @@ Before testing, ensure you have:
 
 Test all checkout scenarios to ensure Stripe integration handles every case:
 
-| # | Scenario | Packages | Expected Behavior |
-|---|----------|----------|-------------------|
-| 1 | Single one-time | 1 package, type: "one-time" | Checkout mode: "payment", single line item |
-| 2 | Multiple one-time | 2-3 packages, all "one-time" | Checkout mode: "payment", multiple line items |
-| 3 | Single subscription | 1 package, type: "subscription", interval: "month" | Checkout mode: "subscription", recurring price |
-| 4 | Multiple subscriptions | 2+ subscription packages, same interval | Checkout mode: "subscription", multiple recurring items |
-| 5 | Mixed: one-time + sub | 1 one-time + 1 subscription | Checkout mode: "subscription" (takes precedence), mixed line items |
-| 6 | Optional packages | Required + optional packages, user selects subset | Only selected packages in checkout |
-| 7 | Annual subscription | Subscription with interval: "year" | Yearly billing cycle |
-| 8 | Trial period | Subscription with trial (if supported) | Trial flow, then billing |
+| #   | Scenario               | Packages                                           | Expected Behavior                                                  |
+| --- | ---------------------- | -------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | Single one-time        | 1 package, type: "one-time"                        | Checkout mode: "payment", single line item                         |
+| 2   | Multiple one-time      | 2-3 packages, all "one-time"                       | Checkout mode: "payment", multiple line items                      |
+| 3   | Single subscription    | 1 package, type: "subscription", interval: "month" | Checkout mode: "subscription", recurring price                     |
+| 4   | Multiple subscriptions | 2+ subscription packages, same interval            | Checkout mode: "subscription", multiple recurring items            |
+| 5   | Mixed: one-time + sub  | 1 one-time + 1 subscription                        | Checkout mode: "subscription" (takes precedence), mixed line items |
+| 6   | Optional packages      | Required + optional packages, user selects subset  | Only selected packages in checkout                                 |
+| 7   | Annual subscription    | Subscription with interval: "year"                 | Yearly billing cycle                                               |
+| 8   | Trial period           | Subscription with trial (if supported)             | Trial flow, then billing                                           |
 
 ---
 
 ## Billing Tab Edge Cases
 
-| # | Scenario | Test | Pass |
-|---|----------|------|------|
-| 1 | No Stripe customer | New client, no `stripeCustomerId` | [ ] Shows "Billing not configured" |
-| 2 | Empty billing | Customer exists but no subs/invoices | [ ] Shows "No billing history" |
-| 3 | Refunded payment | Payment with refund | [ ] Handled gracefully |
-| 4 | Canceled subscription | Sub with `status: "canceled"` | [ ] Shows "Canceled" badge, resubscribe button |
-| 5 | Canceling subscription | Sub with `cancel_at_period_end: true` | [ ] Shows "Canceling" badge, reactivate button |
-| 6 | Trialing subscription | Sub in trial | [ ] Shows "Trial" badge, trial end date |
-| 7 | Past due subscription | Sub with `status: "past_due"` | [ ] Shows "Past Due" badge |
-| 8 | Multiple projects | Items across 3+ projects | [ ] Grouped view shows all groups |
-| 9 | Orphaned Stripe data | Stripe objects with no proposal link | [ ] NOT displayed (filtered out) |
-| 10 | Large dataset | 20+ invoices, 10+ subs | [ ] Performs well, no lag |
+| #   | Scenario               | Test                                  | Pass                                           |
+| --- | ---------------------- | ------------------------------------- | ---------------------------------------------- |
+| 1   | No Stripe customer     | New client, no `stripeCustomerId`     | [ ] Shows "Billing not configured"             |
+| 2   | Empty billing          | Customer exists but no subs/invoices  | [ ] Shows "No billing history"                 |
+| 3   | Refunded payment       | Payment with refund                   | [ ] Handled gracefully                         |
+| 4   | Canceled subscription  | Sub with `status: "canceled"`         | [ ] Shows "Canceled" badge, resubscribe button |
+| 5   | Canceling subscription | Sub with `cancel_at_period_end: true` | [ ] Shows "Canceling" badge, reactivate button |
+| 6   | Trialing subscription  | Sub in trial                          | [ ] Shows "Trial" badge, trial end date        |
+| 7   | Past due subscription  | Sub with `status: "past_due"`         | [ ] Shows "Past Due" badge                     |
+| 8   | Multiple projects      | Items across 3+ projects              | [ ] Grouped view shows all groups              |
+| 9   | Orphaned Stripe data   | Stripe objects with no proposal link  | [ ] NOT displayed (filtered out)               |
+| 10  | Large dataset          | 20+ invoices, 10+ subs                | [ ] Performs well, no lag                      |
 
 ---
 
 ## Notes Tab Edge Cases
 
-| # | Scenario | Test | Pass |
-|---|----------|------|------|
-| 1 | Empty notes | No notes created | [ ] Shows empty state |
-| 2 | Pin behavior | Pin note | [ ] Moves to top, persists on refresh |
-| 3 | Archive flow | Archive note | [ ] Moves to archived tab, restore works |
-| 4 | Project assignment | Assign note to project | [ ] Shows in grouped view |
-| 5 | Client delete restriction | Client tries to delete admin's note | [ ] Fails with error |
-| 6 | Long content | Note with 5000+ chars | [ ] TipTap renders correctly |
-| 7 | Rapid edits | Quick pin → archive → unarchive | [ ] No race conditions |
-| 8 | Concurrent edits | Two users editing same note | [ ] Last write wins, no errors |
+| #   | Scenario                  | Test                                | Pass                                     |
+| --- | ------------------------- | ----------------------------------- | ---------------------------------------- |
+| 1   | Empty notes               | No notes created                    | [ ] Shows empty state                    |
+| 2   | Pin behavior              | Pin note                            | [ ] Moves to top, persists on refresh    |
+| 3   | Archive flow              | Archive note                        | [ ] Moves to archived tab, restore works |
+| 4   | Project assignment        | Assign note to project              | [ ] Shows in grouped view                |
+| 5   | Client delete restriction | Client tries to delete admin's note | [ ] Fails with error                     |
+| 6   | Long content              | Note with 5000+ chars               | [ ] TipTap renders correctly             |
+| 7   | Rapid edits               | Quick pin → archive → unarchive     | [ ] No race conditions                   |
+| 8   | Concurrent edits          | Two users editing same note         | [ ] Last write wins, no errors           |
 
 ---
 
@@ -171,13 +172,13 @@ Test all checkout scenarios to ensure Stripe integration handles every case:
 
 ## Performance Testing
 
-| Test | Target | Pass |
-|------|--------|------|
-| Initial page load (billing) | < 2s | [ ] |
-| Tab switch (cached) | < 200ms | [ ] |
-| Search filter response | < 100ms | [ ] |
-| Mutation feedback | < 500ms | [ ] |
-| Mobile Lighthouse score | > 80 | [ ] |
+| Test                        | Target  | Pass |
+| --------------------------- | ------- | ---- |
+| Initial page load (billing) | < 2s    | [ ]  |
+| Tab switch (cached)         | < 200ms | [ ]  |
+| Search filter response      | < 100ms | [ ]  |
+| Mutation feedback           | < 500ms | [ ]  |
+| Mobile Lighthouse score     | > 80    | [ ]  |
 
 ---
 
@@ -194,8 +195,8 @@ Test all checkout scenarios to ensure Stripe integration handles every case:
 
 ## Sign-off
 
-| Role | Name | Date | Status |
-|------|------|------|--------|
-| Developer | | | |
-| QA | | | |
-| Product | | | |
+| Role      | Name | Date | Status |
+| --------- | ---- | ---- | ------ |
+| Developer |      |      |        |
+| QA        |      |      |        |
+| Product   |      |      |        |

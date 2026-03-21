@@ -12,20 +12,24 @@ High-impact, low-effort improvements to boost portal quality.
 
 **Current Issue:** Inconsistent `staleTime` across queries causes unpredictable cache behavior.
 
-| Query | Current | Recommended |
-|-------|---------|-------------|
-| `getNotes` | 30 seconds | 5 minutes |
-| `getResources` | 2 minutes | 5 minutes |
-| All others | 5 minutes | 5 minutes |
+| Query          | Current    | Recommended |
+| -------------- | ---------- | ----------- |
+| `getNotes`     | 30 seconds | 5 minutes   |
+| `getResources` | 2 minutes  | 5 minutes   |
+| All others     | 5 minutes  | 5 minutes   |
 
 **Files:**
+
 - `src/app/portal/[slug]/notes/page.tsx` line 118
 - `src/app/portal/[slug]/demos/page.tsx` line 64
 
 **Fix:**
+
 ```typescript
 // Change staleTime to 5 * 60 * 1000 in all portal queries
-{ staleTime: 5 * 60 * 1000 }
+{
+  staleTime: 5 * 60 * 1000;
+}
 ```
 
 ---
@@ -39,6 +43,7 @@ High-impact, low-effort improvements to boost portal quality.
 **Lines:** 544-558 (verification) and 585 (balance fetch)
 
 **Fix:** Cache customer from first retrieve:
+
 ```typescript
 // Line 543-558: Store the customer object
 const customer = await stripe.customers.retrieve(validCustomerId);
@@ -55,11 +60,13 @@ const customer = await stripe.customers.retrieve(validCustomerId);
 **Current Issue:** No feedback after mutations (archive, delete, save).
 
 **Implementation:**
+
 1. Install sonner: `npm install sonner`
 2. Add `<Toaster />` to root layout
 3. Call `toast.success()` in mutation `onSuccess` callbacks
 
 **Example:**
+
 ```typescript
 const archiveNote = api.portalNotes.updateNote.useMutation({
   onSuccess: () => {
@@ -76,11 +83,13 @@ const archiveNote = api.portalNotes.updateNote.useMutation({
 **Current Issue:** Full-page spinner during data fetches looks unpolished.
 
 **Implementation:**
+
 1. Create `<CardSkeleton />` component
 2. Replace `<Loader2 />` spinners with skeleton arrays
 3. Match card dimensions to actual content
 
 **Example:**
+
 ```typescript
 if (isLoading) {
   return (
@@ -102,6 +111,7 @@ if (isLoading) {
 **Files:** All portal pages with icon buttons
 
 **Fix:**
+
 ```typescript
 // Before
 <button onClick={...}>
@@ -123,6 +133,7 @@ if (isLoading) {
 **Current Issue:** Notes tab flashes on rapid mutations due to full cache invalidation.
 
 **Implementation:**
+
 ```typescript
 const togglePin = api.portalNotes.updateNote.useMutation({
   onMutate: async ({ noteId, isPinned }) => {
@@ -149,6 +160,7 @@ const togglePin = api.portalNotes.updateNote.useMutation({
 ### 7. Add Keyboard Shortcuts
 
 **Implementation:**
+
 - `Cmd/Ctrl + K` — Focus search input
 - `Escape` — Close modal/drawer
 - `Cmd/Ctrl + N` — Create new note (on notes tab)
@@ -162,6 +174,7 @@ const togglePin = api.portalNotes.updateNote.useMutation({
 **Current Issue:** Product names fetched on every billing page load.
 
 **Implementation:**
+
 1. Create in-memory cache with 24-hour TTL
 2. Check cache before Stripe API call
 3. Populate cache on fetch
@@ -209,16 +222,16 @@ Extract all strings to translation files for future localization.
 
 Current scores and targets:
 
-| Category | Current | Target | Key Improvements |
-|----------|---------|--------|------------------|
-| Brand Consistency | 9/10 | 10/10 | Minor border cleanup |
-| Feature Completeness | 9/10 | 10/10 | Add toasts |
-| Code Quality | 8/10 | 9/10 | Standardize cache, optimistic updates |
-| Mobile Responsiveness | 8/10 | 9/10 | Add touch feedback |
-| Performance | 7/10 | 9/10 | Remove redundant calls, add caching |
-| UX Polish | 8/10 | 9/10 | Skeletons, toasts, keyboard shortcuts |
-| Error Handling | 8/10 | 9/10 | Error boundaries with retry |
-| Accessibility | 6/10 | 8/10 | Aria labels, keyboard nav |
+| Category              | Current | Target | Key Improvements                      |
+| --------------------- | ------- | ------ | ------------------------------------- |
+| Brand Consistency     | 9/10    | 10/10  | Minor border cleanup                  |
+| Feature Completeness  | 9/10    | 10/10  | Add toasts                            |
+| Code Quality          | 8/10    | 9/10   | Standardize cache, optimistic updates |
+| Mobile Responsiveness | 8/10    | 9/10   | Add touch feedback                    |
+| Performance           | 7/10    | 9/10   | Remove redundant calls, add caching   |
+| UX Polish             | 8/10    | 9/10   | Skeletons, toasts, keyboard shortcuts |
+| Error Handling        | 8/10    | 9/10   | Error boundaries with retry           |
+| Accessibility         | 6/10    | 8/10   | Aria labels, keyboard nav             |
 
 ---
 

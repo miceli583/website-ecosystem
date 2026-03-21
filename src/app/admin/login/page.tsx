@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 pl-10 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37] focus:outline-none focus:ring-1 focus:ring-[#D4AF37] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 pl-10 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 pl-10 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37] focus:outline-none focus:ring-1 focus:ring-[#D4AF37] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 pl-10 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
           </div>

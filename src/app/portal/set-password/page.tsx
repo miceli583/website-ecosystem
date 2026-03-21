@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import { ArrowRight, Loader2, Lock, CheckCircle, Eye, EyeOff } from "lucide-react";
+import {
+  ArrowRight,
+  Loader2,
+  Lock,
+  CheckCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { createClient } from "~/lib/supabase/client";
 import { api } from "~/trpc/react";
 
@@ -204,7 +211,7 @@ export default function SetPasswordPage() {
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-md border bg-white/5 px-4 py-3 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                    className="w-full rounded-md border bg-white/5 px-4 py-3 pr-12 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
                     style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
                     placeholder="Minimum 8 characters"
                     required
@@ -213,7 +220,7 @@ export default function SetPasswordPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -237,7 +244,7 @@ export default function SetPasswordPage() {
                     id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-md border bg-white/5 px-4 py-3 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
+                    className="w-full rounded-md border bg-white/5 px-4 py-3 pr-12 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
                     style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
                     placeholder="Re-enter your password"
                     required
@@ -245,7 +252,7 @@ export default function SetPasswordPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-5 w-5" />

@@ -28,7 +28,10 @@ export function StagingCard({
       href={href}
       className={`group relative overflow-hidden rounded-2xl border ${t.card.bg} p-6 backdrop-blur-md transition-all ${t.card.hoverBg} hover:shadow-xl`}
       style={
-        { borderColor: t.card.borderColor, "--hover-color": t.title.hoverColor } as React.CSSProperties
+        {
+          borderColor: t.card.borderColor,
+          "--hover-color": t.title.hoverColor,
+        } as React.CSSProperties
       }
     >
       <div
@@ -52,7 +55,7 @@ export function StagingCard({
         </div>
       )}
       <div
-        className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full blur-2xl transition-all"
+        className="pointer-events-none absolute -top-8 -right-8 h-32 w-32 rounded-full blur-2xl transition-all"
         style={t.orb}
       />
     </Link>

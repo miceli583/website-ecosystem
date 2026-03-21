@@ -31,7 +31,9 @@ export function MiracleMindDevHomePage() {
     document.title = "BANYAN";
 
     // Update favicon
-    const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+    const favicon = document.querySelector(
+      "link[rel='icon']"
+    ) as HTMLLinkElement;
     if (favicon) {
       favicon.href = "/brand/banyan-tree-icon.svg";
     } else {
@@ -45,7 +47,9 @@ export function MiracleMindDevHomePage() {
     // Cleanup: restore default on unmount
     return () => {
       document.title = "Miracle Mind";
-      const favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+      const favicon = document.querySelector(
+        "link[rel='icon']"
+      ) as HTMLLinkElement;
       if (favicon) {
         favicon.href = "/brand/miracle-mind-orbit-star-v3.svg";
       }
@@ -81,7 +85,8 @@ export function MiracleMindDevHomePage() {
               <span
                 className="block text-4xl font-bold uppercase sm:text-6xl md:text-7xl"
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -92,7 +97,7 @@ export function MiracleMindDevHomePage() {
                 BANYAN
               </span>
               <span
-                className="block w-full text-center text-base font-medium uppercase tracking-widest text-white sm:text-xl md:text-2xl"
+                className="block w-full text-center text-base font-medium tracking-widest text-white uppercase sm:text-xl md:text-2xl"
                 style={{
                   letterSpacing: "0.15em",
                 }}
@@ -105,7 +110,9 @@ export function MiracleMindDevHomePage() {
               className="mx-auto mb-8 max-w-3xl px-4 text-base text-gray-200 sm:mb-12 sm:text-xl"
               style={{ fontFamily: "var(--font-geist-sans)", fontWeight: 300 }}
             >
-              AI-powered integration across all life domains. So your daily habits align with your deepest values, and your goals emerge naturally from your way of being.
+              AI-powered integration across all life domains. So your daily
+              habits align with your deepest values, and your goals emerge
+              naturally from your way of being.
             </p>
 
             <div className="flex flex-col items-center gap-4">
@@ -124,7 +131,8 @@ export function MiracleMindDevHomePage() {
                   size="lg"
                   className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
                   style={{
-                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   }}
                 >
                   Request Early Access
@@ -136,7 +144,14 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* The Problem Section */}
@@ -152,7 +167,8 @@ export function MiracleMindDevHomePage() {
                 Life Feels{" "}
                 <span
                   style={{
-                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
@@ -167,27 +183,36 @@ export function MiracleMindDevHomePage() {
                 className="mx-auto mb-8 max-w-3xl px-4 text-base leading-relaxed text-gray-300 sm:mb-12 sm:text-lg"
                 style={{ fontFamily: "var(--font-geist-sans)" }}
               >
-                You&apos;re optimizing individual areas—health, work, relationships,
-                finances—but they compete for your time and attention instead of supporting each other.
-                You have goals but lack the systems to make them sustainable.
+                You&apos;re optimizing individual areas—health, work,
+                relationships, finances—but they compete for your time and
+                attention instead of supporting each other. You have goals but
+                lack the systems to make them sustainable.
               </p>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
-                {["Health", "Work", "Relationships", "Finances", "Learning", "Spirituality"].map(
-                  (domain) => (
-                    <div
-                      key={domain}
-                      className="rounded-lg border bg-white/5 p-3 backdrop-blur-sm sm:p-4"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.2)",
-                      }}
+                {[
+                  "Health",
+                  "Work",
+                  "Relationships",
+                  "Finances",
+                  "Learning",
+                  "Spirituality",
+                ].map((domain) => (
+                  <div
+                    key={domain}
+                    className="rounded-lg border bg-white/5 p-3 backdrop-blur-sm sm:p-4"
+                    style={{
+                      borderColor: "rgba(212, 175, 55, 0.2)",
+                    }}
+                  >
+                    <p
+                      className="text-sm text-gray-400 sm:text-base"
+                      style={{ fontFamily: "var(--font-geist-sans)" }}
                     >
-                      <p className="text-sm text-gray-400 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
-                        {domain}
-                      </p>
-                    </div>
-                  )
-                )}
+                      {domain}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               <p className="mt-8 text-sm text-gray-500">
@@ -198,7 +223,14 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* What You Actually Get */}
@@ -214,7 +246,8 @@ export function MiracleMindDevHomePage() {
                 Five Tools.{" "}
                 <span
                   style={{
-                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
@@ -229,7 +262,8 @@ export function MiracleMindDevHomePage() {
                 className="mx-auto mb-8 max-w-3xl px-4 text-base text-gray-300 sm:mb-12 sm:text-lg"
                 style={{ fontFamily: "var(--font-geist-sans)" }}
               >
-                Everything you need to run your life, designed to work together from day one.
+                Everything you need to run your life, designed to work together
+                from day one.
               </p>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
@@ -237,17 +271,20 @@ export function MiracleMindDevHomePage() {
                   {
                     icon: Activity,
                     title: "Habit Tracker",
-                    description: "Build and maintain practices aligned with your values",
+                    description:
+                      "Build and maintain practices aligned with your values",
                   },
                   {
                     icon: DollarSign,
                     title: "Finance Tracker",
-                    description: "Sustainable abundance through conscious resource management",
+                    description:
+                      "Sustainable abundance through conscious resource management",
                   },
                   {
                     icon: Zap,
                     title: "Fitness Planner",
-                    description: "Physical vitality as foundation for everything else",
+                    description:
+                      "Physical vitality as foundation for everything else",
                   },
                   {
                     icon: HeartHandshake,
@@ -264,28 +301,38 @@ export function MiracleMindDevHomePage() {
                   return (
                     <Card
                       key={tool.title}
-                      className="group bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10 hover:scale-[1.02]"
+                      className="group bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-white/10"
                       style={{
                         borderColor: "rgba(212, 175, 55, 0.3)",
                         borderWidth: "1px",
                       }}
                     >
                       <CardContent className="p-5 sm:p-6">
-                        <div className="mb-3 inline-flex items-center justify-center rounded-xl p-2.5 transition-all duration-300 group-hover:scale-110 sm:mb-4"
+                        <div
+                          className="mb-3 inline-flex items-center justify-center rounded-xl p-2.5 transition-all duration-300 group-hover:scale-110 sm:mb-4"
                           style={{
-                            background: "linear-gradient(135deg, rgba(246, 230, 193, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%)",
+                            background:
+                              "linear-gradient(135deg, rgba(246, 230, 193, 0.1) 0%, rgba(212, 175, 55, 0.15) 100%)",
                             border: "1px solid rgba(212, 175, 55, 0.2)",
                           }}
                         >
-                          <Icon className="h-6 w-6 sm:h-7 sm:w-7" style={{ color: "#D4AF37" }} />
+                          <Icon
+                            className="h-6 w-6 sm:h-7 sm:w-7"
+                            style={{ color: "#D4AF37" }}
+                          />
                         </div>
                         <h3
                           className="mb-1.5 text-base font-bold text-white sm:mb-2 sm:text-lg"
-                          style={{ fontFamily: "var(--font-quattrocento-sans)" }}
+                          style={{
+                            fontFamily: "var(--font-quattrocento-sans)",
+                          }}
                         >
                           {tool.title}
                         </h3>
-                        <p className="text-sm leading-relaxed text-gray-300 sm:text-sm" style={{ fontFamily: "var(--font-geist-sans)" }}>
+                        <p
+                          className="text-sm leading-relaxed text-gray-300 sm:text-sm"
+                          style={{ fontFamily: "var(--font-geist-sans)" }}
+                        >
                           {tool.description}
                         </p>
                       </CardContent>
@@ -296,16 +343,27 @@ export function MiracleMindDevHomePage() {
 
               <p
                 className="mt-6 px-4 text-base text-gray-400 sm:mt-8 sm:text-lg"
-                style={{ fontFamily: "var(--font-geist-sans)", fontStyle: "italic" }}
+                style={{
+                  fontFamily: "var(--font-geist-sans)",
+                  fontStyle: "italic",
+                }}
               >
-                Each tool is powerful on its own. Together, they&apos;re transformative.
+                Each tool is powerful on its own. Together, they&apos;re
+                transformative.
               </p>
             </div>
           </section>
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* The Solution Section */}
@@ -332,7 +390,8 @@ export function MiracleMindDevHomePage() {
                     <span
                       className="whitespace-normal sm:whitespace-nowrap"
                       style={{
-                        background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        background:
+                          "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
@@ -348,14 +407,23 @@ export function MiracleMindDevHomePage() {
                     className="mx-auto max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
                     style={{ fontFamily: "var(--font-geist-sans)" }}
                   >
-                    BANYAN&apos;s AI doesn&apos;t just track—it <strong style={{ color: "#D4AF37" }}>connects</strong>. It sees your morning run improving your work focus. Your creative practice deepening your relationships. Your financial clarity creating space for rest.
+                    BANYAN&apos;s AI doesn&apos;t just track—it{" "}
+                    <strong style={{ color: "#D4AF37" }}>connects</strong>. It
+                    sees your morning run improving your work focus. Your
+                    creative practice deepening your relationships. Your
+                    financial clarity creating space for rest.
                   </p>
 
                   <p
                     className="mx-auto mt-4 max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:mt-6 sm:text-base md:text-lg"
                     style={{ fontFamily: "var(--font-geist-sans)" }}
                   >
-                    The system accesses data across all five life domains, surfaces patterns you&apos;d never spot alone, and provides insights on how changes in one area ripple through your entire ecosystem. Over time, it learns what balance looks like <em>for you</em>—and guides you back when life pulls you off course.
+                    The system accesses data across all five life domains,
+                    surfaces patterns you&apos;d never spot alone, and provides
+                    insights on how changes in one area ripple through your
+                    entire ecosystem. Over time, it learns what balance looks
+                    like <em>for you</em>—and guides you back when life pulls
+                    you off course.
                   </p>
                 </div>
               </CardContent>
@@ -364,7 +432,14 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* Three Principles */}
@@ -379,7 +454,8 @@ export function MiracleMindDevHomePage() {
               Built on{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -399,15 +475,23 @@ export function MiracleMindDevHomePage() {
                 }}
               >
                 <CardContent className="p-6 sm:p-8">
-                  <Layers className="mb-3 h-8 w-8 sm:mb-4 sm:h-10 sm:w-10" style={{ color: "#D4AF37" }} />
+                  <Layers
+                    className="mb-3 h-8 w-8 sm:mb-4 sm:h-10 sm:w-10"
+                    style={{ color: "#D4AF37" }}
+                  />
                   <h3
                     className="mb-2 text-lg font-semibold text-white sm:mb-3 sm:text-xl"
                     style={{ fontFamily: "var(--font-quattrocento-sans)" }}
                   >
                     Master the Basics
                   </h3>
-                  <p className="text-sm text-gray-300 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
-                    All abundance flows from the fundamentals. Sleep, movement, nourishment, connection—BANYAN treats these as inseparable, because they are.
+                  <p
+                    className="text-sm text-gray-300 sm:text-base"
+                    style={{ fontFamily: "var(--font-geist-sans)" }}
+                  >
+                    All abundance flows from the fundamentals. Sleep, movement,
+                    nourishment, connection—BANYAN treats these as inseparable,
+                    because they are.
                   </p>
                 </CardContent>
               </Card>
@@ -420,15 +504,23 @@ export function MiracleMindDevHomePage() {
                 }}
               >
                 <CardContent className="p-6 sm:p-8">
-                  <Rocket className="mb-3 h-8 w-8 sm:mb-4 sm:h-10 sm:w-10" style={{ color: "#D4AF37" }} />
+                  <Rocket
+                    className="mb-3 h-8 w-8 sm:mb-4 sm:h-10 sm:w-10"
+                    style={{ color: "#D4AF37" }}
+                  />
                   <h3
                     className="mb-2 text-lg font-semibold text-white sm:mb-3 sm:text-xl"
                     style={{ fontFamily: "var(--font-quattrocento-sans)" }}
                   >
                     Harness the Overflow
                   </h3>
-                  <p className="text-sm text-gray-300 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
-                    When your basics are dialed, you create surplus energy. BANYAN channels that overflow toward your deepest aspirations, not just your urgent tasks.
+                  <p
+                    className="text-sm text-gray-300 sm:text-base"
+                    style={{ fontFamily: "var(--font-geist-sans)" }}
+                  >
+                    When your basics are dialed, you create surplus energy.
+                    BANYAN channels that overflow toward your deepest
+                    aspirations, not just your urgent tasks.
                   </p>
                 </CardContent>
               </Card>
@@ -441,15 +533,23 @@ export function MiracleMindDevHomePage() {
                 }}
               >
                 <CardContent className="p-6 sm:p-8">
-                  <RefreshCw className="mb-3 h-8 w-8 sm:mb-4 sm:h-10 sm:w-10" style={{ color: "#D4AF37" }} />
+                  <RefreshCw
+                    className="mb-3 h-8 w-8 sm:mb-4 sm:h-10 sm:w-10"
+                    style={{ color: "#D4AF37" }}
+                  />
                   <h3
                     className="mb-2 text-lg font-semibold text-white sm:mb-3 sm:text-xl"
                     style={{ fontFamily: "var(--font-quattrocento-sans)" }}
                   >
                     Review & Adapt
                   </h3>
-                  <p className="text-sm text-gray-300 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
-                    Life changes. You change. Our review system shows you what&apos;s working, recommends adjustments, and keeps you aligned over years, not just weeks.
+                  <p
+                    className="text-sm text-gray-300 sm:text-base"
+                    style={{ fontFamily: "var(--font-geist-sans)" }}
+                  >
+                    Life changes. You change. Our review system shows you
+                    what&apos;s working, recommends adjustments, and keeps you
+                    aligned over years, not just weeks.
                   </p>
                 </CardContent>
               </Card>
@@ -458,7 +558,14 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* How It Works */}
@@ -473,7 +580,8 @@ export function MiracleMindDevHomePage() {
               How It{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -523,7 +631,8 @@ export function MiracleMindDevHomePage() {
                     <div
                       className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-xl font-bold text-black sm:h-16 sm:w-16 sm:text-2xl"
                       style={{
-                        background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        background:
+                          "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                       }}
                     >
                       {item.step}
@@ -535,7 +644,10 @@ export function MiracleMindDevHomePage() {
                       >
                         {item.title}
                       </h3>
-                      <p className="text-sm text-gray-300 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
+                      <p
+                        className="text-sm text-gray-300 sm:text-base"
+                        style={{ fontFamily: "var(--font-geist-sans)" }}
+                      >
                         {item.description}
                       </p>
                     </div>
@@ -547,7 +659,14 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* For Whom */}
@@ -562,7 +681,8 @@ export function MiracleMindDevHomePage() {
               Who Is This{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -604,9 +724,13 @@ export function MiracleMindDevHomePage() {
                     }}
                   >
                     <CardContent className="p-6 text-center sm:p-8">
-                      <div className="mb-3 inline-flex items-center justify-center rounded-lg p-2.5 sm:mb-4 sm:p-3" style={{
-                        background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                      }}>
+                      <div
+                        className="mb-3 inline-flex items-center justify-center rounded-lg p-2.5 sm:mb-4 sm:p-3"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                        }}
+                      >
                         <Icon className="h-7 w-7 text-black sm:h-8 sm:w-8" />
                       </div>
                       <h3
@@ -615,7 +739,10 @@ export function MiracleMindDevHomePage() {
                       >
                         {segment.title}
                       </h3>
-                      <p className="text-sm text-gray-300 sm:text-base" style={{ fontFamily: "var(--font-geist-sans)" }}>
+                      <p
+                        className="text-sm text-gray-300 sm:text-base"
+                        style={{ fontFamily: "var(--font-geist-sans)" }}
+                      >
                         {segment.description}
                       </p>
                     </CardContent>
@@ -627,7 +754,14 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* Playing the Long Game */}
@@ -650,7 +784,8 @@ export function MiracleMindDevHomePage() {
                   This Is About{" "}
                   <span
                     style={{
-                      background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                      background:
+                        "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text",
@@ -664,7 +799,11 @@ export function MiracleMindDevHomePage() {
                   className="mx-auto max-w-3xl px-4 text-sm leading-relaxed text-gray-300 sm:text-base md:text-lg"
                   style={{ fontFamily: "var(--font-geist-sans)" }}
                 >
-                  BANYAN isn&apos;t another productivity hack or 30-day challenge. It&apos;s infrastructure for a life that compounds—where today&apos;s small choices become next year&apos;s transformation. Where your deepest values aren&apos;t aspirations, but the ground you stand on.
+                  BANYAN isn&apos;t another productivity hack or 30-day
+                  challenge. It&apos;s infrastructure for a life that
+                  compounds—where today&apos;s small choices become next
+                  year&apos;s transformation. Where your deepest values
+                  aren&apos;t aspirations, but the ground you stand on.
                 </p>
               </CardContent>
             </Card>
@@ -672,15 +811,21 @@ export function MiracleMindDevHomePage() {
 
           {/* Section Divider */}
           <div className="relative -mx-4 mb-16 sm:-mx-6 sm:mb-24">
-            <div className="h-px w-screen" style={{ marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }} />
+            <div
+              className="h-px w-screen"
+              style={{
+                marginLeft: "calc(-50vw + 50%)",
+                background:
+                  "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+              }}
+            />
           </div>
 
           {/* Early Access Form */}
           <section className="mb-16 sm:mb-24">
             <BanyanEarlyAccessForm />
           </section>
-
-                  </div>
+        </div>
       </div>
     </div>
   );

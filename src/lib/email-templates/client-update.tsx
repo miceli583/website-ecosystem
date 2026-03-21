@@ -30,7 +30,9 @@ export function ClientUpdateEmail({
   return (
     <Html>
       <Head />
-      <Preview>New {updateType} from Miracle Mind: {updateTitle}</Preview>
+      <Preview>
+        New {updateType} from Miracle Mind: {updateTitle}
+      </Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={heading}>New Update from Miracle Mind</Heading>
@@ -54,9 +56,7 @@ export function ClientUpdateEmail({
             </Button>
           </Section>
           <Section style={footer}>
-            <Text style={footerText}>
-              &mdash; The Miracle Mind Team
-            </Text>
+            <Text style={footerText}>&mdash; The Miracle Mind Team</Text>
           </Section>
         </Container>
       </Body>

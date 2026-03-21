@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { contactSubmissions, masterCrm, personalContactSubmissions } from "~/server/db/schema";
+import {
+  contactSubmissions,
+  masterCrm,
+  personalContactSubmissions,
+} from "~/server/db/schema";
 import { Resend } from "resend";
 import { ContactNotificationEmail } from "~/lib/email-templates/contact-notification";
 import { PersonalContactNotificationEmail } from "~/lib/email-templates/personal-contact-notification";
@@ -170,7 +174,10 @@ export const contactRouter = createTRPCRouter({
             }),
           });
         } catch (error) {
-          console.error("Failed to send personal contact notification email:", error);
+          console.error(
+            "Failed to send personal contact notification email:",
+            error
+          );
           // Don't throw - submission was saved, email is secondary
         }
       }

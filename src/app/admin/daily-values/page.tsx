@@ -1720,9 +1720,7 @@ Living with an embodied value system means letting principles like ${valueName} 
                         {Math.floor(bufferTimeRemaining / 60)}:
                         {String(bufferTimeRemaining % 60).padStart(2, "0")}
                       </div>
-                      <div className="text-xs text-white/50">
-                        until post
-                      </div>
+                      <div className="text-xs text-white/50">until post</div>
                     </div>
                     <div className="h-12 w-1 overflow-hidden rounded-full bg-[#D4AF37]/20">
                       <div

@@ -69,27 +69,28 @@ function CompanyPicker({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const filtered = suggestions.filter(
-    (c) => c.toLowerCase().includes(value.toLowerCase()) && c !== value,
+    (c) => c.toLowerCase().includes(value.toLowerCase()) && c !== value
   );
 
-  const showCreate = value.trim() && !suggestions.some(
-    (c) => c.toLowerCase() === value.trim().toLowerCase(),
-  );
+  const showCreate =
+    value.trim() &&
+    !suggestions.some((c) => c.toLowerCase() === value.trim().toLowerCase());
 
   return (
     <div ref={ref} className="relative">
       <div className="relative">
-        <Building2 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+        <Building2 className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         <input
           aria-label="Search companies"
-          className="w-full rounded-lg border bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50"
+          className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-9 text-sm text-white placeholder:text-gray-500 focus:border-[#D4AF37]/50 focus:outline-none"
           style={borderStyle}
           placeholder="Search or create company..."
           value={value}
@@ -150,11 +151,14 @@ function AccountManagerPicker({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const selected = value ? team.find((m: { id: string }) => m.id === value) : null;
+  const selected = value
+    ? team.find((m: { id: string }) => m.id === value)
+    : null;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -210,11 +214,15 @@ function AccountManagerPicker({
             >
               <Users className="h-3 w-3 text-gray-500" />
               <span>{member.name}</span>
-              <span className="ml-auto text-xs text-gray-600">{member.email}</span>
+              <span className="ml-auto text-xs text-gray-600">
+                {member.email}
+              </span>
             </button>
           ))}
           {team.length === 0 && (
-            <p className="px-3 py-2 text-xs text-gray-500">No team members found</p>
+            <p className="px-3 py-2 text-xs text-gray-500">
+              No team members found
+            </p>
           )}
         </div>
       )}
@@ -238,7 +246,8 @@ function TagPicker({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -246,8 +255,7 @@ function TagPicker({
 
   const filtered = suggestions.filter(
     (t) =>
-      !selected.includes(t) &&
-      t.toLowerCase().includes(input.toLowerCase()),
+      !selected.includes(t) && t.toLowerCase().includes(input.toLowerCase())
   );
 
   const addTag = (tag: string) => {
@@ -295,7 +303,9 @@ function TagPicker({
         <input
           aria-label="Search tags"
           className="min-w-[80px] flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none"
-          placeholder={selected.length === 0 ? "Search or add tags..." : "Add..."}
+          placeholder={
+            selected.length === 0 ? "Search or add tags..." : "Add..."
+          }
           value={input}
           onChange={(e) => {
             setInput(e.target.value);
@@ -414,7 +424,9 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
                 style={borderStyle}
                 placeholder="Full name"
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
               />
             </div>
             <div>
@@ -425,7 +437,9 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
                 type="email"
                 placeholder="email@example.com"
                 value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
               />
             </div>
           </div>
@@ -468,7 +482,9 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
           </button>
           <button
             onClick={handleCreate}
-            disabled={createClient.isPending || !form.name || !form.email || !form.slug}
+            disabled={
+              createClient.isPending || !form.name || !form.email || !form.slug
+            }
             className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
             style={{
               background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
@@ -504,7 +520,11 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
     name: string;
     email: string;
   } | null>(null);
-  const [form, setForm] = useState({ slug: "", company: "", accountManagerId: null as string | null });
+  const [form, setForm] = useState({
+    slug: "",
+    company: "",
+    accountManagerId: null as string | null,
+  });
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -531,7 +551,11 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
         : true)
   );
 
-  const handleSelect = (contact: { id: string; name: string; email: string }) => {
+  const handleSelect = (contact: {
+    id: string;
+    name: string;
+    email: string;
+  }) => {
     setSelectedContact(contact);
     setForm({
       slug: contact.name
@@ -599,7 +623,7 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
         {!selectedContact ? (
           <>
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
               <input
                 type="text"
                 placeholder="Search contacts by name or email..."
@@ -619,27 +643,33 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
                   </p>
                 </div>
               ) : (
-                available.map((c: { id: string; name: string; email: string }) => (
-                  <button
-                    key={c.id}
-                    onClick={() => handleSelect(c)}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/10"
-                  >
-                    <div
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium"
-                      style={{
-                        backgroundColor: "rgba(212, 175, 55, 0.15)",
-                        color: "#D4AF37",
-                      }}
+                available.map(
+                  (c: { id: string; name: string; email: string }) => (
+                    <button
+                      key={c.id}
+                      onClick={() => handleSelect(c)}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/10"
                     >
-                      {c.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-white">{c.name}</p>
-                      <p className="truncate text-xs text-gray-500">{c.email}</p>
-                    </div>
-                  </button>
-                ))
+                      <div
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: "rgba(212, 175, 55, 0.15)",
+                          color: "#D4AF37",
+                        }}
+                      >
+                        {c.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-white">
+                          {c.name}
+                        </p>
+                        <p className="truncate text-xs text-gray-500">
+                          {c.email}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                )
               )}
             </div>
           </>
@@ -647,8 +677,10 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
           <>
             <p className="mb-4 text-sm text-gray-400">
               Promoting{" "}
-              <span className="font-medium text-white">{selectedContact.name}</span> to
-              client. This will create a portal at{" "}
+              <span className="font-medium text-white">
+                {selectedContact.name}
+              </span>{" "}
+              to client. This will create a portal at{" "}
               <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
                 /portal/{form.slug}
               </span>
@@ -706,7 +738,9 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
                 <label className={labelClass}>Account Manager</label>
                 <AccountManagerPicker
                   value={form.accountManagerId}
-                  onChange={(id) => setForm((f) => ({ ...f, accountManagerId: id }))}
+                  onChange={(id) =>
+                    setForm((f) => ({ ...f, accountManagerId: id }))
+                  }
                 />
               </div>
 
@@ -733,7 +767,8 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
                   disabled={promote.isPending || !form.slug}
                   className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
                   style={{
-                    background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   }}
                 >
                   {promote.isPending ? "Creating..." : "Create Client Portal"}
@@ -776,9 +811,11 @@ function EditClientModal({
   const [name, setName] = useState(client.crmContact?.name ?? client.name);
   const [email, setEmail] = useState(client.crmContact?.email ?? client.email);
   const [phone, setPhone] = useState(client.crmContact?.phone ?? "");
-  const [company, setCompany] = useState(client.crmContact?.company ?? client.company ?? "");
+  const [company, setCompany] = useState(
+    client.crmContact?.company ?? client.company ?? ""
+  );
   const [accountManagerId, setAccountManagerId] = useState<string | null>(
-    client.crmContact?.accountManagerId ?? client.accountManagerId ?? null,
+    client.crmContact?.accountManagerId ?? client.accountManagerId ?? null
   );
   const [tags, setTags] = useState<string[]>(client.crmContact?.tags ?? []);
 
@@ -846,7 +883,7 @@ function EditClientModal({
         role="dialog"
         aria-modal="true"
         aria-label="Edit client"
-        className="relative mx-4 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
+        className="relative mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
         style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
       >
         <div className="mb-5 flex items-center justify-between">
@@ -863,7 +900,7 @@ function EditClientModal({
         {/* Contact Details Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-medium uppercase tracking-wider text-gray-400">
+            <h3 className="text-xs font-medium tracking-wider text-gray-400 uppercase">
               Contact Details
             </h3>
             {hasCrm ? (
@@ -917,10 +954,7 @@ function EditClientModal({
             </div>
             <div>
               <label className={labelClass}>Company</label>
-              <CompanyPicker
-                value={company}
-                onChange={setCompany}
-              />
+              <CompanyPicker value={company} onChange={setCompany} />
             </div>
           </div>
 
@@ -941,11 +975,17 @@ function EditClientModal({
         </div>
 
         {/* Divider */}
-        <div className="my-5 h-px" style={{ background: "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)" }} />
+        <div
+          className="my-5 h-px"
+          style={{
+            background:
+              "linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)",
+          }}
+        />
 
         {/* Portal Settings Section */}
         <div className="space-y-4">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-gray-400">
+          <h3 className="text-xs font-medium tracking-wider text-gray-400 uppercase">
             Portal Settings
           </h3>
 
@@ -959,9 +999,7 @@ function EditClientModal({
                 value={slug}
                 onChange={(e) =>
                   setSlug(
-                    e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9-]/g, "-"),
+                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
                   )
                 }
               />
@@ -972,13 +1010,13 @@ function EditClientModal({
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50"
+                  className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
                   style={borderStyle}
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
@@ -1068,16 +1106,15 @@ function ArchiveConfirmModal({
           </div>
           <div>
             <h2 className="text-lg font-semibold text-white">Archive Client</h2>
-            <p className="text-sm text-gray-400">
-              {client.name}
-            </p>
+            <p className="text-sm text-gray-400">{client.name}</p>
           </div>
         </div>
 
         <p className="mb-5 text-sm text-gray-400">
-          This will set the client portal to <strong className="text-white">inactive</strong>.
-          All data (projects, updates, agreements) will be preserved, but the
-          portal will no longer be accessible to the client.
+          This will set the client portal to{" "}
+          <strong className="text-white">inactive</strong>. All data (projects,
+          updates, agreements) will be preserved, but the portal will no longer
+          be accessible to the client.
         </p>
 
         <div className="flex items-center justify-end gap-3">
@@ -1152,15 +1189,13 @@ function DeleteConfirmModal({
           </div>
           <div>
             <h2 className="text-lg font-semibold text-white">Delete Client</h2>
-            <p className="text-sm text-gray-400">
-              {client.name}
-            </p>
+            <p className="text-sm text-gray-400">{client.name}</p>
           </div>
         </div>
 
         <p className="mb-2 text-sm text-gray-400">
-          This will <strong className="text-red-400">permanently delete</strong> this
-          client and all associated data:
+          This will <strong className="text-red-400">permanently delete</strong>{" "}
+          this client and all associated data:
         </p>
         <ul className="mb-4 space-y-1 text-sm text-gray-500">
           <li className="flex items-center gap-2">
@@ -1177,8 +1212,8 @@ function DeleteConfirmModal({
           </li>
         </ul>
         <p className="mb-5 text-sm text-gray-500">
-          The CRM contact record will <strong className="text-gray-300">not</strong> be
-          deleted.
+          The CRM contact record will{" "}
+          <strong className="text-gray-300">not</strong> be deleted.
         </p>
 
         <div className="flex items-center justify-end gap-3">
@@ -1220,7 +1255,8 @@ function ActionMenu({
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -1287,9 +1323,15 @@ export default function AdminClientsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showCreate, setShowCreate] = useState(false);
   const [showAddFromContact, setShowAddFromContact] = useState(false);
-  const [editingClient, setEditingClient] = useState<ClientListItem | null>(null);
-  const [archivingClient, setArchivingClient] = useState<ClientListItem | null>(null);
-  const [deletingClient, setDeletingClient] = useState<ClientListItem | null>(null);
+  const [editingClient, setEditingClient] = useState<ClientListItem | null>(
+    null
+  );
+  const [archivingClient, setArchivingClient] = useState<ClientListItem | null>(
+    null
+  );
+  const [deletingClient, setDeletingClient] = useState<ClientListItem | null>(
+    null
+  );
 
   const filtered = useMemo(() => {
     if (!clients) return [];
@@ -1305,7 +1347,7 @@ export default function AdminClientsPage() {
         (c: ClientListItem) =>
           c.name.toLowerCase().includes(q) ||
           c.email.toLowerCase().includes(q) ||
-          (c.company && c.company.toLowerCase().includes(q)),
+          (c.company && c.company.toLowerCase().includes(q))
       );
     }
 
@@ -1326,9 +1368,7 @@ export default function AdminClientsPage() {
           </Link>
         </div>
         <h1 className="text-2xl font-bold text-white">Clients</h1>
-        <p className="text-sm text-gray-400">
-          Active client management
-        </p>
+        <p className="text-sm text-gray-400">Active client management</p>
       </div>
 
       {/* Filters */}
@@ -1337,13 +1377,13 @@ export default function AdminClientsPage() {
           className="relative flex-1"
           style={{ minWidth: "200px", maxWidth: "320px" }}
         >
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             placeholder="Search by name, email, or company..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border bg-white/5 py-2 pl-10 pr-3 text-sm text-white placeholder:text-gray-500 focus:outline-none"
+            className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-10 text-sm text-white placeholder:text-gray-500 focus:outline-none"
             style={borderStyle}
           />
         </div>
@@ -1352,14 +1392,14 @@ export default function AdminClientsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pl-3 pr-8 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
             style={borderStyle}
           >
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         </div>
 
         {!isLoading && (
@@ -1391,10 +1431,7 @@ export default function AdminClientsPage() {
       </div>
 
       {/* Table */}
-      <div
-        className="rounded-lg border bg-white/5"
-        style={borderStyle}
-      >
+      <div className="rounded-lg border bg-white/5" style={borderStyle}>
         {isLoading ? (
           <TableSkeleton />
         ) : !filtered.length ? (
@@ -1410,7 +1447,7 @@ export default function AdminClientsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr
-                className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
                 <th className="px-4 py-3">Name</th>
@@ -1506,8 +1543,7 @@ export default function AdminClientsPage() {
                       className="inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
                       style={{ color: "#D4AF37" }}
                     >
-                      <ExternalLink className="h-3 w-3" />
-                      /{client.slug}
+                      <ExternalLink className="h-3 w-3" />/{client.slug}
                     </Link>
                   </td>
 
@@ -1528,9 +1564,7 @@ export default function AdminClientsPage() {
       </div>
 
       {/* Modals */}
-      {showCreate && (
-        <CreateClientModal onClose={() => setShowCreate(false)} />
-      )}
+      {showCreate && <CreateClientModal onClose={() => setShowCreate(false)} />}
       {showAddFromContact && (
         <AddFromContactModal onClose={() => setShowAddFromContact(false)} />
       )}

@@ -48,8 +48,21 @@ export default function AnalyticsPage() {
   const { data: activity, isLoading: activityLoading } =
     api.analytics.getRecentActivity.useQuery();
 
-  type Submission = { id: number; name: string; email: string; message: string; read: boolean; createdAt: Date };
-  type Signup = { id: number; name: string; email: string; role: string | null; createdAt: Date };
+  type Submission = {
+    id: number;
+    name: string;
+    email: string;
+    message: string;
+    read: boolean;
+    createdAt: Date;
+  };
+  type Signup = {
+    id: number;
+    name: string;
+    email: string;
+    role: string | null;
+    createdAt: Date;
+  };
 
   // Merge recent activity into a unified feed sorted by date
   const recentFeed = activity

@@ -103,7 +103,11 @@ export default function PortalProposalsPage({
   const utils = api.useUtils();
 
   // Data queries
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = api.portal.getClientBySlug.useQuery(
     { slug },
     { staleTime: 5 * 60 * 1000 }
   );
@@ -113,10 +117,11 @@ export default function PortalProposalsPage({
   const isAdmin = profile?.role === "admin";
 
   // Admin sees all resources; clients see only active
-  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
-    { slug, section: "proposals", ...(isAdmin ? {} : { isActive: true }) },
-    { staleTime: 5 * 60 * 1000 }
-  );
+  const { data: resources, isLoading: resourcesLoading } =
+    api.portal.getResources.useQuery(
+      { slug, section: "proposals", ...(isAdmin ? {} : { isActive: true }) },
+      { staleTime: 5 * 60 * 1000 }
+    );
   const { data: proposals } = api.portal.getProposals.useQuery(
     { slug },
     { staleTime: 5 * 60 * 1000 }
@@ -131,11 +136,16 @@ export default function PortalProposalsPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Proposal archived");
       else if (variables.isActive === true) toast.success("Proposal restored");
-      else if (variables.isPrivate === true) toast.success("Proposal is now private");
-      else if (variables.isPrivate === false) toast.success("Proposal is now public");
-      else if (variables.underDevelopment === true) toast.success("Proposal marked as under development");
-      else if (variables.underDevelopment === false) toast.success("Removed under development status");
-      else if (variables.projectId !== undefined) toast.success("Project assigned");
+      else if (variables.isPrivate === true)
+        toast.success("Proposal is now private");
+      else if (variables.isPrivate === false)
+        toast.success("Proposal is now public");
+      else if (variables.underDevelopment === true)
+        toast.success("Proposal marked as under development");
+      else if (variables.underDevelopment === false)
+        toast.success("Removed under development status");
+      else if (variables.projectId !== undefined)
+        toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
       void utils.portal.getProposals.invalidate();
     },
@@ -159,26 +169,42 @@ export default function PortalProposalsPage({
   const saved = getState();
 
   // UI state
-  const [activeTab, setActiveTab] = useState<"active" | "archived">(saved.activeTab ?? "active");
-  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
-  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">(
-    saved.selectedProject as number | "all" | "unassigned",
+  const [activeTab, setActiveTab] = useState<"active" | "archived">(
+    saved.activeTab ?? "active"
   );
+  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
+  const [selectedProject, setSelectedProject] = useState<
+    number | "all" | "unassigned"
+  >(saved.selectedProject as number | "all" | "unassigned");
   const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
   const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
+    null
+  );
 
   // Collapsed project groups
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups),
+    new Set(saved.collapsedGroups)
   );
 
   useEffect(() => {
     persistState({
-      searchQuery, sortOrder, selectedProject, viewMode,
-      collapsedGroups: Array.from(collapsedGroups), activeTab,
+      searchQuery,
+      sortOrder,
+      selectedProject,
+      viewMode,
+      collapsedGroups: Array.from(collapsedGroups),
+      activeTab,
     });
-  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
+  }, [
+    searchQuery,
+    sortOrder,
+    selectedProject,
+    viewMode,
+    collapsedGroups,
+    activeTab,
+    persistState,
+  ]);
   const toggleGroup = useCallback((groupName: string) => {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);
@@ -189,17 +215,26 @@ export default function PortalProposalsPage({
   }, []);
 
   // Dialog state
-  const [assignDialog, setAssignDialog] = useState<{ open: boolean; proposal: NormalizedProposal | null }>({
+  const [assignDialog, setAssignDialog] = useState<{
+    open: boolean;
+    proposal: NormalizedProposal | null;
+  }>({
     open: false,
     proposal: null,
   });
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; proposal: NormalizedProposal | null }>({
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    proposal: NormalizedProposal | null;
+  }>({
     open: false,
     proposal: null,
   });
 
   // Check for Stripe redirect
-  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
   const checkoutSuccess = searchParams?.get("success") === "true";
   const checkoutCanceled = searchParams?.get("canceled") === "true";
 
@@ -209,7 +244,11 @@ export default function PortalProposalsPage({
     return client.projects.flatMap((p: ClientProject) =>
       p.updates
         .filter((u: ClientUpdate) => u.type === "proposal")
-        .map((u: ClientUpdate) => ({ ...u, projectName: p.name, projectId: p.id }))
+        .map((u: ClientUpdate) => ({
+          ...u,
+          projectName: p.name,
+          projectId: p.id,
+        }))
     );
   }, [client]);
 
@@ -237,24 +276,26 @@ export default function PortalProposalsPage({
       });
     });
 
-    legacyProposals.forEach((d: ClientUpdate & { projectName: string; projectId: number }) => {
-      items.push({
-        id: `d-${d.id}`,
-        resourceId: null,
-        title: d.title,
-        description: d.content,
-        status: "sent",
-        projectId: d.projectId,
-        projectName: d.projectName,
-        createdAt: d.createdAt,
-        isActive: true,
-        isPrivate: false,
-        underDevelopment: false,
-        isLegacy: true,
-        metadata: null,
-        originalId: d.id,
-      });
-    });
+    legacyProposals.forEach(
+      (d: ClientUpdate & { projectName: string; projectId: number }) => {
+        items.push({
+          id: `d-${d.id}`,
+          resourceId: null,
+          title: d.title,
+          description: d.content,
+          status: "sent",
+          projectId: d.projectId,
+          projectName: d.projectName,
+          createdAt: d.createdAt,
+          isActive: true,
+          isPrivate: false,
+          underDevelopment: false,
+          isLegacy: true,
+          metadata: null,
+          originalId: d.id,
+        });
+      }
+    );
 
     return items;
   }, [resources, legacyProposals]);
@@ -274,7 +315,9 @@ export default function PortalProposalsPage({
       projectMap.set(p.id, p.name);
     });
 
-    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(
+      ([id, name]) => ({ id, name })
+    );
     if (allProposals.some((p) => p.projectId === null)) {
       filters.push({ id: "unassigned", name: "Unassigned" });
     }
@@ -282,9 +325,16 @@ export default function PortalProposalsPage({
   }, [client, resources, projects, allProposals]);
 
   // Split by active/archived
-  const activeProposals = useMemo(() => allProposals.filter((p) => p.isActive), [allProposals]);
-  const archivedProposals = useMemo(() => allProposals.filter((p) => !p.isActive), [allProposals]);
-  const currentProposals = activeTab === "active" ? activeProposals : archivedProposals;
+  const activeProposals = useMemo(
+    () => allProposals.filter((p) => p.isActive),
+    [allProposals]
+  );
+  const archivedProposals = useMemo(
+    () => allProposals.filter((p) => !p.isActive),
+    [allProposals]
+  );
+  const currentProposals =
+    activeTab === "active" ? activeProposals : archivedProposals;
 
   // Filter
   const filteredProposals = useMemo(() => {
@@ -293,11 +343,14 @@ export default function PortalProposalsPage({
         const query = searchQuery.toLowerCase();
         const matchesTitle = proposal.title.toLowerCase().includes(query);
         const matchesDesc = proposal.description?.toLowerCase().includes(query);
-        const matchesProject = proposal.projectName.toLowerCase().includes(query);
+        const matchesProject = proposal.projectName
+          .toLowerCase()
+          .includes(query);
         if (!matchesTitle && !matchesDesc && !matchesProject) return false;
       }
       if (selectedProject === "unassigned") return proposal.projectId === null;
-      if (selectedProject !== "all" && proposal.projectId !== selectedProject) return false;
+      if (selectedProject !== "all" && proposal.projectId !== selectedProject)
+        return false;
       return true;
     });
   }, [currentProposals, searchQuery, selectedProject]);
@@ -335,7 +388,10 @@ export default function PortalProposalsPage({
   const handleArchive = useCallback(
     (proposal: NormalizedProposal) => {
       if (!proposal.resourceId) return;
-      updateResource.mutate({ id: proposal.resourceId, isActive: !proposal.isActive });
+      updateResource.mutate({
+        id: proposal.resourceId,
+        isActive: !proposal.isActive,
+      });
     },
     [updateResource]
   );
@@ -352,7 +408,10 @@ export default function PortalProposalsPage({
   const handleAssign = useCallback(
     (projectId: number | null) => {
       if (!assignDialog.proposal?.resourceId) return;
-      updateResource.mutate({ id: assignDialog.proposal.resourceId, projectId });
+      updateResource.mutate({
+        id: assignDialog.proposal.resourceId,
+        projectId,
+      });
     },
     [assignDialog.proposal, updateResource]
   );
@@ -367,7 +426,10 @@ export default function PortalProposalsPage({
   const handleToggleUnderDevelopment = useCallback(
     (proposal: NormalizedProposal) => {
       if (!proposal.resourceId) return;
-      updateResource.mutate({ id: proposal.resourceId, underDevelopment: !proposal.underDevelopment });
+      updateResource.mutate({
+        id: proposal.resourceId,
+        underDevelopment: !proposal.underDevelopment,
+      });
     },
     [updateResource]
   );
@@ -375,7 +437,10 @@ export default function PortalProposalsPage({
   const handleTogglePrivate = useCallback(
     (proposal: NormalizedProposal) => {
       if (!proposal.resourceId) return;
-      updateResource.mutate({ id: proposal.resourceId, isPrivate: !proposal.isPrivate });
+      updateResource.mutate({
+        id: proposal.resourceId,
+        isPrivate: !proposal.isPrivate,
+      });
     },
     [updateResource]
   );
@@ -385,18 +450,32 @@ export default function PortalProposalsPage({
       if (proposal.isLegacy) return [];
       return [
         {
-          label: proposal.underDevelopment ? "Remove Under Development" : "Mark Under Development",
-          icon: proposal.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+          label: proposal.underDevelopment
+            ? "Remove Under Development"
+            : "Mark Under Development",
+          icon: proposal.underDevelopment ? (
+            <Eye className="h-4 w-4" />
+          ) : (
+            <Construction className="h-4 w-4" />
+          ),
           onClick: () => handleToggleUnderDevelopment(proposal),
         },
         {
           label: proposal.isPrivate ? "Make Public" : "Make Private",
-          icon: proposal.isPrivate ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />,
+          icon: proposal.isPrivate ? (
+            <Unlock className="h-4 w-4" />
+          ) : (
+            <Lock className="h-4 w-4" />
+          ),
           onClick: () => handleTogglePrivate(proposal),
         },
         {
           label: proposal.isActive ? "Archive" : "Unarchive",
-          icon: proposal.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+          icon: proposal.isActive ? (
+            <Archive className="h-4 w-4" />
+          ) : (
+            <ArchiveRestore className="h-4 w-4" />
+          ),
           onClick: () => handleArchive(proposal),
         },
         {
@@ -419,7 +498,9 @@ export default function PortalProposalsPage({
   const handleProposalClick = useCallback(
     (proposal: NormalizedProposal) => {
       if (proposal.isLegacy) return;
-      const found = proposals?.find((p: Proposal) => p.id === proposal.originalId);
+      const found = proposals?.find(
+        (p: Proposal) => p.id === proposal.originalId
+      );
       if (found) setSelectedProposal(found);
     },
     [proposals]
@@ -441,7 +522,10 @@ export default function PortalProposalsPage({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -466,12 +550,14 @@ export default function PortalProposalsPage({
 
   const hasContent = allProposals.length > 0;
   const hasAgreements = client.agreements.length > 0;
-  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const hasActiveFilters =
+    Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
   const showGrouping =
     viewMode === "grouped" &&
     selectedProject === "all" &&
     (groupedProposals.length > 1 ||
-      (groupedProposals.length === 1 && groupedProposals[0]![0] !== "Unassigned"));
+      (groupedProposals.length === 1 &&
+        groupedProposals[0]![0] !== "Unassigned"));
 
   // Render a proposal row
   const renderProposal = (proposal: NormalizedProposal) => (
@@ -501,7 +587,9 @@ export default function PortalProposalsPage({
             )}
             <span className="flex items-center gap-1">
               {getStatusIcon(proposal.status)}
-              <span className="text-gray-500">{getStatusLabel(proposal.status)}</span>
+              <span className="text-gray-500">
+                {getStatusLabel(proposal.status)}
+              </span>
             </span>
           </span>
         }
@@ -532,16 +620,25 @@ export default function PortalProposalsPage({
           <div>
             <p className="font-medium">Payment successful!</p>
             <p className="text-sm text-green-400/80">
-              Thank you for your payment. You&apos;ll receive a confirmation email shortly.
+              Thank you for your payment. You&apos;ll receive a confirmation
+              email shortly.
             </p>
           </div>
         </div>
       )}
 
       {checkoutCanceled && (
-        <div className="mb-6 flex items-center gap-3 rounded-md p-4" style={{ backgroundColor: "rgba(212, 175, 55, 0.1)", color: "#D4AF37" }}>
+        <div
+          className="mb-6 flex items-center gap-3 rounded-md p-4"
+          style={{
+            backgroundColor: "rgba(212, 175, 55, 0.1)",
+            color: "#D4AF37",
+          }}
+        >
           <AlertCircle className="h-5 w-5" />
-          <p>Checkout was canceled. You can try again when you&apos;re ready.</p>
+          <p>
+            Checkout was canceled. You can try again when you&apos;re ready.
+          </p>
         </div>
       )}
 
@@ -564,7 +661,9 @@ export default function PortalProposalsPage({
         onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
-        onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
+        onFilterChange={(id) =>
+          setSelectedProject(id as number | "all" | "unassigned")
+        }
         filterLabel="Project"
         viewMode={viewMode}
         onViewModeChange={setViewMode}
@@ -595,7 +694,9 @@ export default function PortalProposalsPage({
           {hasContent && (
             <div>
               {hasAgreements && (
-                <h2 className="mb-4 text-lg font-semibold text-gray-300">Proposals</h2>
+                <h2 className="mb-4 text-lg font-semibold text-gray-300">
+                  Proposals
+                </h2>
               )}
 
               <ListContainer
@@ -633,7 +734,9 @@ export default function PortalProposalsPage({
           {/* Agreements section */}
           {client.agreements.length > 0 && (
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-gray-300">Agreements</h2>
+              <h2 className="mb-4 text-lg font-semibold text-gray-300">
+                Agreements
+              </h2>
               <div className="space-y-2">
                 {client.agreements.map((agreement: ClientAgreement) => (
                   <Card
@@ -643,15 +746,23 @@ export default function PortalProposalsPage({
                   >
                     <CardContent className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-3">
-                        <FileText className="h-5 w-5" style={{ color: "#D4AF37" }} />
+                        <FileText
+                          className="h-5 w-5"
+                          style={{ color: "#D4AF37" }}
+                        />
                         <div>
-                          <h3 className="font-medium text-white">{agreement.title}</h3>
+                          <h3 className="font-medium text-white">
+                            {agreement.title}
+                          </h3>
                           <p className="text-sm text-gray-500">
-                            {new Date(agreement.createdAt).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {new Date(agreement.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
                           </p>
                         </div>
                       </div>
@@ -696,7 +807,12 @@ export default function PortalProposalsPage({
       {/* Project Assignment Dialog */}
       <ProjectAssignDialog
         open={assignDialog.open}
-        onOpenChange={(open) => setAssignDialog({ open, proposal: open ? assignDialog.proposal : null })}
+        onOpenChange={(open) =>
+          setAssignDialog({
+            open,
+            proposal: open ? assignDialog.proposal : null,
+          })
+        }
         currentProjectId={assignDialog.proposal?.projectId ?? null}
         projects={projects ?? []}
         onAssign={handleAssign}
@@ -707,12 +823,19 @@ export default function PortalProposalsPage({
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open, proposal: open ? deleteDialog.proposal : null })}
+        onOpenChange={(open) =>
+          setDeleteDialog({
+            open,
+            proposal: open ? deleteDialog.proposal : null,
+          })
+        }
         title="Delete Proposal"
         description={`Are you sure you want to permanently delete "${deleteDialog.proposal?.title}"? This action cannot be undone.`}
         confirmLabel="Delete"
         variant="danger"
-        onConfirm={() => deleteDialog.proposal && handleDelete(deleteDialog.proposal)}
+        onConfirm={() =>
+          deleteDialog.proposal && handleDelete(deleteDialog.proposal)
+        }
         isLoading={deleteResource.isPending}
       />
     </ClientPortalLayout>

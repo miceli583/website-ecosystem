@@ -2,7 +2,7 @@
 const config = {
   extends: ["next/core-web-vitals"],
   rules: {
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-console": ["warn", { allow: ["warn", "error"] }],
   },
 };
 

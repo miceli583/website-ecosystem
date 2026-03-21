@@ -3,7 +3,13 @@
  * Uses node-canvas to generate identical images to client-side version
  */
 
-import { createCanvas, Canvas, CanvasRenderingContext2D, loadImage, registerFont } from "canvas";
+import {
+  createCanvas,
+  Canvas,
+  CanvasRenderingContext2D,
+  loadImage,
+  registerFont,
+} from "canvas";
 import { join } from "path";
 import type { BrandTheme } from "./brand-themes";
 import { BRAND_TYPOGRAPHY } from "./brand-themes";
@@ -127,7 +133,12 @@ function wrapText(
  */
 async function drawLogo(ctx: CanvasRenderingContext2D, theme: BrandTheme) {
   try {
-    const logoPath = join(process.cwd(), "public", "brand", theme.logoFile.replace('.svg', '.png'));
+    const logoPath = join(
+      process.cwd(),
+      "public",
+      "brand",
+      theme.logoFile.replace(".svg", ".png")
+    );
     const logo = await loadImage(logoPath);
     const logoWidth = LOGO_HEIGHT * (logo.width / logo.height);
     const LOGO_HORIZONTAL_OFFSET = 130;

@@ -16,12 +16,14 @@ PUBLIC (Portfolio)              PRIVATE (Workshop)
 ```
 
 **Benefits:**
+
 - Safe experimentation without affecting public portfolio
 - Continuous improvement in private workspace
 - Professional presentation of polished work
 - Assets serve dual function as tools AND demonstrations
 
 **Workflow:**
+
 1. Build/experiment in `/admin/shaders`
 2. Test and refine privately
 3. When ready, add to public `/shaders` showcase
@@ -56,6 +58,7 @@ Middleware-based domain detection serves different content based on hostname:
 ### Domain Configuration
 
 Each domain has:
+
 - Custom navigation
 - Brand colors and logos
 - Description and tagline
@@ -64,6 +67,7 @@ Each domain has:
 ### Routing Logic
 
 The middleware (`src/middleware.ts`):
+
 1. Detects hostname
 2. Enforces authentication for `/admin/*` routes
 3. Redirects `miraclemind.live` to `miraclemind.dev`

@@ -9,15 +9,15 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   /* CargoWatch Demo Brand Colors (scoped to portal demo components) */
-  --color-cw-red: #D93025;
-  --color-cw-red-hover: #C72419;
-  --color-cw-navy: #1B202B;
+  --color-cw-red: #d93025;
+  --color-cw-red-hover: #c72419;
+  --color-cw-navy: #1b202b;
   --color-cw-navy-light: #242936;
   --color-cw-navy-dark: #151822;
-  --color-cw-severity-critical: #D93025;
-  --color-cw-severity-high: #F97316;
-  --color-cw-severity-medium: #FBBF24;
-  --color-cw-severity-low: #10B981;
+  --color-cw-severity-critical: #d93025;
+  --color-cw-severity-high: #f97316;
+  --color-cw-severity-medium: #fbbf24;
+  --color-cw-severity-low: #10b981;
 }
 
 @theme inline {
@@ -182,16 +182,16 @@
   }
 
   .blog-prose strong {
-    color: #D4AF37;
+    color: #d4af37;
     font-weight: 600;
   }
 
   .blog-prose a {
-    color: #D4AF37;
+    color: #d4af37;
     text-decoration: underline;
   }
 
   .blog-prose a:hover {
-    color: #F6E6C1;
+    color: #f6e6c1;
   }
 }

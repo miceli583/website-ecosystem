@@ -54,7 +54,10 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const SOURCE_COLORS: Record<string, { bg: string; color: string; label: string }> = {
+const SOURCE_COLORS: Record<
+  string,
+  { bg: string; color: string; label: string }
+> = {
   miraclemind: {
     bg: "rgba(139, 92, 246, 0.1)",
     color: "#a78bfa",
@@ -78,12 +81,9 @@ function PageSkeleton() {
       <div className="h-6 w-32 animate-pulse rounded bg-white/10" />
       <div className="h-10 w-64 animate-pulse rounded bg-white/10" />
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4 lg:col-span-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-24 animate-pulse rounded-lg bg-white/5"
-            />
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-white/5" />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-lg bg-white/5" />
@@ -149,9 +149,34 @@ export default function ContactDetailPage({
     extra?: Record<string, string | string[] | boolean | null>;
   };
 
-  type MmSubmission = { id: number; name: string; email: string; message: string; read: boolean; createdAt: Date; services: string[] | null; role: string | null; stewardshipInterest: boolean | null };
-  type PersonalSubmission = { id: number; name: string; email: string; message: string; read: boolean; createdAt: Date };
-  type BanyanSignup = { id: number; fullName: string; email: string; message: string | null; contacted: boolean; createdAt: Date; role: string | null };
+  type MmSubmission = {
+    id: number;
+    name: string;
+    email: string;
+    message: string;
+    read: boolean;
+    createdAt: Date;
+    services: string[] | null;
+    role: string | null;
+    stewardshipInterest: boolean | null;
+  };
+  type PersonalSubmission = {
+    id: number;
+    name: string;
+    email: string;
+    message: string;
+    read: boolean;
+    createdAt: Date;
+  };
+  type BanyanSignup = {
+    id: number;
+    fullName: string;
+    email: string;
+    message: string | null;
+    contacted: boolean;
+    createdAt: Date;
+    role: string | null;
+  };
 
   const timeline: TimelineItem[] = [
     ...contact.submissions.miracleMind.map((s: MmSubmission) => ({
@@ -188,8 +213,7 @@ export default function ContactDetailPage({
       extra: { role: s.role },
     })),
   ].sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
   // Derive which sources this contact has submissions in
@@ -239,7 +263,11 @@ export default function ContactDetailPage({
                 | "inactive"
                 | "churned";
               // Intercept promotion to client
-              if (newStatus === "client" && contact.status !== "client" && !contact.portalClient) {
+              if (
+                newStatus === "client" &&
+                contact.status !== "client" &&
+                !contact.portalClient
+              ) {
                 setPromoteSlug(
                   contact.name
                     .toLowerCase()
@@ -265,7 +293,7 @@ export default function ContactDetailPage({
             ))}
           </select>
           <ChevronDown
-            className="pointer-events-none absolute right-1 top-1/2 h-3 w-3 -translate-y-1/2"
+            className="pointer-events-none absolute top-1/2 right-1 h-3 w-3 -translate-y-1/2"
             style={{ color: statusConfig.color }}
           />
         </div>
@@ -384,7 +412,7 @@ export default function ContactDetailPage({
             className="rounded-lg border bg-white/5 p-4"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+            <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
               Submission Sources
             </h3>
             {activeSources.length > 0 ? (
@@ -418,12 +446,15 @@ export default function ContactDetailPage({
               className="rounded-lg border bg-white/5 p-4"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
-              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+              <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Account Manager
               </h3>
               <div className="space-y-1.5">
                 <p className="flex items-center gap-2 text-sm font-medium text-white">
-                  <UserCheck className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
+                  <UserCheck
+                    className="h-3.5 w-3.5"
+                    style={{ color: "#D4AF37" }}
+                  />
                   {contact.accountManager.name}
                 </p>
                 <p className="flex items-center gap-1.5 text-xs text-gray-400">
@@ -446,18 +477,22 @@ export default function ContactDetailPage({
               className="rounded-lg border bg-white/5 p-4"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
-              <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+              <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Stripe Lifetime Spend
               </h3>
               <p className="flex items-center gap-2 text-2xl font-bold text-white">
                 <DollarSign className="h-5 w-5" style={{ color: "#D4AF37" }} />
-                {(contact.stripeLifetimeSpend.totalCents / 100).toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                })}
+                {(contact.stripeLifetimeSpend.totalCents / 100).toLocaleString(
+                  "en-US",
+                  {
+                    style: "currency",
+                    currency: "USD",
+                  }
+                )}
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                {contact.stripeLifetimeSpend.chargeCount} successful charge{contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
+                {contact.stripeLifetimeSpend.chargeCount} successful charge
+                {contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
               </p>
             </div>
           )}
@@ -467,7 +502,7 @@ export default function ContactDetailPage({
             className="rounded-lg border bg-white/5 p-4"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+            <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
               Tags
             </h3>
             {contact.tags?.length ? (
@@ -496,7 +531,7 @@ export default function ContactDetailPage({
             className="rounded-lg border bg-white/5 p-4"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+            <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
               Notes
             </h3>
             <p className="text-sm text-gray-400">
@@ -509,7 +544,7 @@ export default function ContactDetailPage({
             className="rounded-lg border bg-white/5 p-4"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+            <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
               Dates
             </h3>
             <div className="space-y-1.5 text-sm">
@@ -525,10 +560,11 @@ export default function ContactDetailPage({
               <div className="flex justify-between">
                 <span className="text-gray-500">Last contact</span>
                 <span className="text-gray-300">
-                  {new Date(contact.lastContactAt).toLocaleDateString(
-                    "en-US",
-                    { month: "short", day: "numeric", year: "numeric" }
-                  )}
+                  {new Date(contact.lastContactAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -621,9 +657,7 @@ export default function ContactDetailPage({
                   value={promoteSlug}
                   onChange={(e) =>
                     setPromoteSlug(
-                      e.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9-]/g, "-")
+                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
                     )
                   }
                   placeholder="client-slug"

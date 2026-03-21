@@ -106,8 +106,7 @@ export default function PlaygroundPage() {
             style={{
               fontFamily: "'Quattrocento Sans', serif",
               letterSpacing: "0.08em",
-              background:
-                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -125,11 +124,7 @@ export default function PlaygroundPage() {
         {ANIMATIONS.map((animation) => {
           const Icon = animation.icon;
           return (
-            <Link
-              key={animation.id}
-              href={animation.href}
-              target="_blank"
-            >
+            <Link key={animation.id} href={animation.href} target="_blank">
               <div
                 className="group flex h-full cursor-pointer flex-col rounded-xl p-5 transition-colors"
                 style={{
@@ -141,8 +136,7 @@ export default function PlaygroundPage() {
                   e.currentTarget.style.borderColor = "rgba(212,175,55,0.4)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "rgba(255,255,255,0.05)";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.05)";
                   e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)";
                 }}
               >
@@ -154,10 +148,7 @@ export default function PlaygroundPage() {
                         "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                     }}
                   >
-                    <Icon
-                      className="h-4 w-4"
-                      style={{ color: "#D4AF37" }}
-                    />
+                    <Icon className="h-4 w-4" style={{ color: "#D4AF37" }} />
                   </div>
                 </div>
                 <h3 className="mb-1 text-sm font-semibold text-white">

@@ -119,72 +119,90 @@ export default async function PlaygroundPage({
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PlaygroundLayout>
-        <div className="via-background dark:via-background min-h-full bg-gradient-to-br from-amber-50 to-yellow-50 p-6 dark:from-amber-950/20 dark:to-yellow-950/20" style={{ background: 'linear-gradient(135deg, rgba(246, 230, 193, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%)' }}>
-            <div className="mx-auto max-w-7xl space-y-12">
-              {/* Header */}
-              <div className="space-y-4 text-center">
-                <div className="mb-4 flex items-center justify-center gap-2">
-                  <Sparkles className="h-10 w-10" style={{ color: '#D4AF37' }} />
-                  <h1 className="text-5xl font-bold" style={{
-                    background: 'linear-gradient(to right, #D4AF37, #B8942A)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
-                  }}>
-                    UI Playground
-                  </h1>
-                </div>
-                <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
-                  Explore interactive UI components and animations built with
-                  React, TypeScript, and Tailwind CSS
-                </p>
+        <div
+          className="via-background dark:via-background min-h-full bg-gradient-to-br from-amber-50 to-yellow-50 p-6 dark:from-amber-950/20 dark:to-yellow-950/20"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(246, 230, 193, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%)",
+          }}
+        >
+          <div className="mx-auto max-w-7xl space-y-12">
+            {/* Header */}
+            <div className="space-y-4 text-center">
+              <div className="mb-4 flex items-center justify-center gap-2">
+                <Sparkles className="h-10 w-10" style={{ color: "#D4AF37" }} />
+                <h1
+                  className="text-5xl font-bold"
+                  style={{
+                    background: "linear-gradient(to right, #D4AF37, #B8942A)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  UI Playground
+                </h1>
               </div>
+              <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
+                Explore interactive UI components and animations built with
+                React, TypeScript, and Tailwind CSS
+              </p>
+            </div>
 
-              {/* Animation Grid */}
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {ANIMATIONS.map((animation) => {
-                  const Icon = animation.icon;
-                  return (
-                    <Link
-                      key={animation.id}
-                      href={`${animation.href}${domainParam}`}
+            {/* Animation Grid */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {ANIMATIONS.map((animation) => {
+                const Icon = animation.icon;
+                return (
+                  <Link
+                    key={animation.id}
+                    href={`${animation.href}${domainParam}`}
+                  >
+                    <Card
+                      className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                      style={{
+                        borderColor: "rgba(212, 175, 55, 0.3)",
+                        borderWidth: "1px",
+                      }}
                     >
-                      <Card className="group h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl" style={{ borderColor: 'rgba(212, 175, 55, 0.3)', borderWidth: '1px' }}>
-                        <CardContent className="flex h-full flex-col p-6">
-                          <div className="mb-4 flex items-center gap-3">
-                            <div
-                              className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${animation.color}`}
-                            >
-                              <Icon className="h-5 w-5 text-white" />
-                            </div>
-                            <h3 className="text-lg font-semibold">
-                              {animation.title}
-                            </h3>
+                      <CardContent className="flex h-full flex-col p-6">
+                        <div className="mb-4 flex items-center gap-3">
+                          <div
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${animation.color}`}
+                          >
+                            <Icon className="h-5 w-5 text-white" />
                           </div>
-                          <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
-                            {animation.description}
-                          </p>
-                          <div className="flex items-center gap-2 text-sm font-medium" style={{ color: '#D4AF37' }}>
-                            <span>View Demo</span>
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-              </div>
+                          <h3 className="text-lg font-semibold">
+                            {animation.title}
+                          </h3>
+                        </div>
+                        <p className="text-muted-foreground mb-4 flex-1 text-sm leading-relaxed">
+                          {animation.description}
+                        </p>
+                        <div
+                          className="flex items-center gap-2 text-sm font-medium"
+                          style={{ color: "#D4AF37" }}
+                        >
+                          <span>View Demo</span>
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
 
-              {/* Footer */}
-              <div className="text-muted-foreground pt-8 text-center text-sm">
-                <p>
-                  All components are built with modern web technologies and are
-                  fully customizable
-                </p>
-              </div>
+            {/* Footer */}
+            <div className="text-muted-foreground pt-8 text-center text-sm">
+              <p>
+                All components are built with modern web technologies and are
+                fully customizable
+              </p>
             </div>
           </div>
-        </PlaygroundLayout>
-      </Suspense>
+        </div>
+      </PlaygroundLayout>
+    </Suspense>
   );
 }

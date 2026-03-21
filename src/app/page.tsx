@@ -75,7 +75,11 @@ function HomePageContent() {
   }
 
   // Matthew's personal page and client portal don't use the DomainLayout (no nav/footer)
-  if (isMatthewDomain() || domainParam === "live" || hostname.includes("miraclemind.live")) {
+  if (
+    isMatthewDomain() ||
+    domainParam === "live" ||
+    hostname.includes("miraclemind.live")
+  ) {
     return renderDomainPage();
   }
 
@@ -85,7 +89,13 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <HomePageContent />
     </Suspense>
   );

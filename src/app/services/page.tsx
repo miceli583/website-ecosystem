@@ -55,7 +55,8 @@ function ServicesContent() {
       description:
         "Full-stack web apps, mobile apps, and custom CRMs w/ AI and LLM integration. From concept to production, we build systems that scale with your vision.",
       imageSrc: "/images/services/fingerprint-tech.avif",
-      imageAlt: "Fingerprint technology representing custom software development",
+      imageAlt:
+        "Fingerprint technology representing custom software development",
       goldTint: true,
     },
     {
@@ -121,7 +122,8 @@ function ServicesContent() {
               Our{" "}
               <span
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -131,8 +133,9 @@ function ServicesContent() {
               </span>
             </h1>
             <p className="text-lg text-gray-300">
-              For founders, businesses, and enterprises aligned with our mission.
-              We build technology that expands your freedom, not your dependencies.
+              For founders, businesses, and enterprises aligned with our
+              mission. We build technology that expands your freedom, not your
+              dependencies.
             </p>
           </div>
         </section>
@@ -176,7 +179,8 @@ function ServicesContent() {
                 size="lg"
                 className="px-8 text-black shadow-xl transition-all duration-300 hover:scale-105"
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 }}
               >
                 Get In Touch

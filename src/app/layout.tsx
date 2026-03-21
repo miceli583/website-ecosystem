@@ -20,9 +20,23 @@ export const metadata: Metadata = {
   description: "Technology Empowering Human Sovereignty",
   icons: [
     { rel: "icon", url: "/favicon.ico", sizes: "32x32" },
-    { rel: "icon", url: "/brand/miracle-mind-orbit-star-v3.svg", type: "image/svg+xml" },
-    { rel: "icon", url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-    { rel: "icon", url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    {
+      rel: "icon",
+      url: "/brand/miracle-mind-orbit-star-v3.svg",
+      type: "image/svg+xml",
+    },
+    {
+      rel: "icon",
+      url: "/favicon-16x16.png",
+      sizes: "16x16",
+      type: "image/png",
+    },
+    {
+      rel: "icon",
+      url: "/favicon-32x32.png",
+      sizes: "32x32",
+      type: "image/png",
+    },
     { rel: "apple-touch-icon", url: "/apple-touch-icon.png", sizes: "180x180" },
   ],
   manifest: "/site.webmanifest",

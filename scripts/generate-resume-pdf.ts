@@ -5,34 +5,34 @@
  * Run: npm run generate-resume-pdf
  */
 
-import puppeteer from 'puppeteer';
-import { join } from 'path';
+import puppeteer from "puppeteer";
+import { join } from "path";
 
 async function generateResumePDF() {
-  console.log('🚀 Starting PDF generation...');
+  console.log("🚀 Starting PDF generation...");
 
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
 
   // Emulate print media type
-  await page.emulateMediaType('print');
+  await page.emulateMediaType("print");
 
   // Navigate to local resume page
-  const resumeUrl = 'http://localhost:3000/resume';
+  const resumeUrl = "http://localhost:3000/resume";
   console.log(`📄 Loading resume from ${resumeUrl}...`);
 
   await page.goto(resumeUrl, {
-    waitUntil: 'networkidle0',
+    waitUntil: "networkidle0",
     timeout: 30000,
   });
 
   // Wait for content to load
-  await page.waitForSelector('.resume-container');
-  console.log('✅ Resume content loaded');
+  await page.waitForSelector(".resume-container");
+  console.log("✅ Resume content loaded");
 
   // Disable all animations and fix page breaks
   await page.addStyleTag({
@@ -194,24 +194,24 @@ async function generateResumePDF() {
         width: 6rem !important;
         height: 6rem !important;
       }
-    `
+    `,
   });
 
   // Wait a bit for layout to settle after disabling animations
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  console.log('✅ Animations disabled, layout settled');
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  console.log("✅ Animations disabled, layout settled");
 
   // Generate PDF with optimized settings
-  const outputPath = join(process.cwd(), 'Matthew_Miceli_Resume.pdf');
+  const outputPath = join(process.cwd(), "Matthew_Miceli_Resume.pdf");
 
   await page.pdf({
     path: outputPath,
-    format: 'Letter',
+    format: "Letter",
     margin: {
-      top: '0.25in',
-      right: '0.25in',
-      bottom: '0.25in',
-      left: '0.25in',
+      top: "0.25in",
+      right: "0.25in",
+      bottom: "0.25in",
+      left: "0.25in",
     },
     printBackground: true,
     preferCSSPageSize: false,
@@ -220,10 +220,10 @@ async function generateResumePDF() {
   console.log(`✅ PDF generated successfully: ${outputPath}`);
 
   await browser.close();
-  console.log('🎉 Done!');
+  console.log("🎉 Done!");
 }
 
 generateResumePDF().catch((error) => {
-  console.error('❌ Error generating PDF:', error);
+  console.error("❌ Error generating PDF:", error);
   process.exit(1);
 });

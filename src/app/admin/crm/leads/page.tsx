@@ -62,9 +62,35 @@ const SOURCE_OPTIONS: { value: SourceKey; label: string }[] = [
 ];
 
 function normalizeLeads(data: {
-  banyan: { id: number; fullName: string; email: string; phone: string | null; role: string | null; message: string | null; contacted: boolean; createdAt: Date }[];
-  miracleMind: { id: number; name: string; email: string; phone: string | null; message: string; services: string[] | null; read: boolean; createdAt: Date }[];
-  personal: { id: number; name: string; email: string; phone: string | null; message: string; read: boolean; createdAt: Date }[];
+  banyan: {
+    id: number;
+    fullName: string;
+    email: string;
+    phone: string | null;
+    role: string | null;
+    message: string | null;
+    contacted: boolean;
+    createdAt: Date;
+  }[];
+  miracleMind: {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    message: string;
+    services: string[] | null;
+    read: boolean;
+    createdAt: Date;
+  }[];
+  personal: {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    message: string;
+    read: boolean;
+    createdAt: Date;
+  }[];
 }): NormalizedLead[] {
   const leads: NormalizedLead[] = [];
 
@@ -204,7 +230,7 @@ function LeadDetailModal({
           {/* Details (role / services) */}
           {(lead.details || lead.detailChips) && (
             <div>
-              <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-gray-500">
+              <p className="mb-1.5 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 {lead.source === "banyan" ? "Role" : "Services"}
               </p>
               {lead.detailChips ? (
@@ -230,7 +256,7 @@ function LeadDetailModal({
 
           {/* Message */}
           <div>
-            <p className="mb-1.5 text-xs font-medium uppercase tracking-wider text-gray-500">
+            <p className="mb-1.5 text-xs font-medium tracking-wider text-gray-500 uppercase">
               Message
             </p>
             {lead.message ? (
@@ -238,7 +264,7 @@ function LeadDetailModal({
                 className="rounded-lg border p-3"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-300">
                   {lead.message}
                 </p>
               </div>
@@ -249,7 +275,7 @@ function LeadDetailModal({
 
           {/* Status toggle */}
           <div className="flex items-center justify-between pt-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+            <p className="text-xs font-medium tracking-wider text-gray-500 uppercase">
               Status
             </p>
             {lead.source === "banyan" ? (
@@ -316,17 +342,14 @@ export default function CrmLeadsPage() {
   const markContacted = api.crm.markBanyanContacted.useMutation();
   const markRead = api.crm.markSubmissionRead.useMutation();
 
-  const allLeads = useMemo(
-    () => (data ? normalizeLeads(data) : []),
-    [data],
-  );
+  const allLeads = useMemo(() => (data ? normalizeLeads(data) : []), [data]);
 
   const filteredLeads = useMemo(
     () =>
       sourceFilter === "all"
         ? allLeads
         : allLeads.filter((l) => l.source === sourceFilter),
-    [allLeads, sourceFilter],
+    [allLeads, sourceFilter]
   );
 
   const handleToggle = (lead: NormalizedLead) => {
@@ -362,7 +385,7 @@ export default function CrmLeadsPage() {
           <select
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value as SourceKey)}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pl-3 pr-8 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
             {SOURCE_OPTIONS.map((opt) => (
@@ -371,7 +394,7 @@ export default function CrmLeadsPage() {
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         </div>
 
         {!isLoading && (
@@ -401,7 +424,7 @@ export default function CrmLeadsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr
-                className="border-b text-left text-xs uppercase tracking-wider text-gray-500"
+                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
                 <th className="px-4 py-3">Name</th>
@@ -508,7 +531,10 @@ export default function CrmLeadsPage() {
                   </td>
 
                   {/* Status */}
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className="px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {lead.source === "banyan" ? (
                       <button
                         onClick={() => handleToggle(lead)}

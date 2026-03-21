@@ -7,7 +7,10 @@ import { api, type RouterOutputs } from "~/trpc/react";
 type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
 type ClientProject = ClientBySlug["projects"][number];
 type ClientUpdate = ClientProject["updates"][number];
-type UpdateWithProject = ClientUpdate & { projectName: string; projectId: number };
+type UpdateWithProject = ClientUpdate & {
+  projectName: string;
+  projectId: number;
+};
 type Resource = RouterOutputs["portal"]["getResources"][number];
 
 import { ClientPortalLayout } from "~/components/pages/client-portal";
@@ -27,7 +30,24 @@ import {
   type AdminAction,
   useTabFilters,
 } from "~/components/portal";
-import { Monitor, Loader2, AlertCircle, Search, Archive, ArchiveRestore, FolderOpen, Trash2, Construction, Eye, Share2, EyeOff, Link2, Globe, ExternalLink, Pencil } from "lucide-react";
+import {
+  Monitor,
+  Loader2,
+  AlertCircle,
+  Search,
+  Archive,
+  ArchiveRestore,
+  FolderOpen,
+  Trash2,
+  Construction,
+  Eye,
+  Share2,
+  EyeOff,
+  Link2,
+  Globe,
+  ExternalLink,
+  Pencil,
+} from "lucide-react";
 
 interface NormalizedDemo {
   id: string;
@@ -63,47 +83,85 @@ function SlugEditDialog({
   onClose: () => void;
   isPending: boolean;
 }) {
-  const isValid = slugInput === "" || (slugInput.length >= 3 && slugInput.length <= 60 && SLUG_REGEX.test(slugInput));
+  const isValid =
+    slugInput === "" ||
+    (slugInput.length >= 3 &&
+      slugInput.length <= 60 &&
+      SLUG_REGEX.test(slugInput));
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-md rounded-xl border p-6"
-        style={{ backgroundColor: "#111", borderColor: "rgba(212, 175, 55, 0.2)" }}
+        style={{
+          backgroundColor: "#111",
+          borderColor: "rgba(212, 175, 55, 0.2)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-1 text-lg font-semibold text-white">Custom Share Slug</h3>
+        <h3 className="mb-1 text-lg font-semibold text-white">
+          Custom Share Slug
+        </h3>
         <p className="mb-4 text-sm text-gray-400">
           Set a human-readable URL for &ldquo;{demo.title}&rdquo;
         </p>
 
         <div className="mb-3">
-          <label className="mb-1 block text-xs font-medium text-gray-400">Slug</label>
+          <label className="mb-1 block text-xs font-medium text-gray-400">
+            Slug
+          </label>
           <input
             type="text"
             value={slugInput}
-            onChange={(e) => onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+            onChange={(e) =>
+              onSlugChange(
+                e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
+              )
+            }
             placeholder="e.g. tapchw-demo"
             className="w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder-gray-500 outline-none focus:ring-1"
             style={{
-              borderColor: !isValid && slugInput ? "rgba(239, 68, 68, 0.5)" : "rgba(212, 175, 55, 0.2)",
+              borderColor:
+                !isValid && slugInput
+                  ? "rgba(239, 68, 68, 0.5)"
+                  : "rgba(212, 175, 55, 0.2)",
               ...(isValid || !slugInput ? {} : {}),
             }}
-            onFocus={(e) => { e.target.style.borderColor = "rgba(212, 175, 55, 0.5)"; }}
-            onBlur={(e) => { e.target.style.borderColor = slugInput && !isValid ? "rgba(239, 68, 68, 0.5)" : "rgba(212, 175, 55, 0.2)"; }}
+            onFocus={(e) => {
+              e.target.style.borderColor = "rgba(212, 175, 55, 0.5)";
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor =
+                slugInput && !isValid
+                  ? "rgba(239, 68, 68, 0.5)"
+                  : "rgba(212, 175, 55, 0.2)";
+            }}
           />
           {!isValid && slugInput && (
             <p className="mt-1 text-xs text-red-400">
-              3-60 chars, lowercase letters, numbers, and hyphens. Cannot start or end with a hyphen.
+              3-60 chars, lowercase letters, numbers, and hyphens. Cannot start
+              or end with a hyphen.
             </p>
           )}
         </div>
 
         {/* URL preview */}
-        <div className="mb-4 rounded-lg border px-3 py-2" style={{ borderColor: "rgba(212, 175, 55, 0.1)", backgroundColor: "rgba(212, 175, 55, 0.05)" }}>
+        <div
+          className="mb-4 rounded-lg border px-3 py-2"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.1)",
+            backgroundColor: "rgba(212, 175, 55, 0.05)",
+          }}
+        >
           <p className="text-xs text-gray-500">Share URL</p>
-          <p className="truncate text-sm font-mono" style={{ color: "#D4AF37" }}>
+          <p
+            className="truncate font-mono text-sm"
+            style={{ color: "#D4AF37" }}
+          >
             {origin}/s/{slugInput || demo.publicToken || "..."}
           </p>
         </div>
@@ -131,9 +189,16 @@ function SlugEditDialog({
                 if (!demo.resourceId || !isValid || !slugInput) return;
                 onSave(demo.resourceId, slugInput);
               }}
-              disabled={!isValid || !slugInput || isPending || slugInput === demo.publicSlug}
+              disabled={
+                !isValid ||
+                !slugInput ||
+                isPending ||
+                slugInput === demo.publicSlug
+              }
               className="rounded-lg px-4 py-1.5 text-sm font-medium text-black transition-opacity disabled:opacity-40"
-              style={{ background: "linear-gradient(135deg, #F6E6C1, #D4AF37)" }}
+              style={{
+                background: "linear-gradient(135deg, #F6E6C1, #D4AF37)",
+              }}
             >
               {isPending ? "Saving..." : "Save"}
             </button>
@@ -153,7 +218,11 @@ export default function PortalDemosPage({
   const utils = api.useUtils();
 
   // Data queries
-  const { data: client, isLoading, error } = api.portal.getClientBySlug.useQuery(
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = api.portal.getClientBySlug.useQuery(
     { slug },
     { staleTime: 5 * 60 * 1000 }
   );
@@ -163,10 +232,11 @@ export default function PortalDemosPage({
   const isAdmin = profile?.role === "admin";
 
   // Admin sees all resources (no isActive filter); clients see only active
-  const { data: resources, isLoading: resourcesLoading } = api.portal.getResources.useQuery(
-    { slug, section: "demos", ...(isAdmin ? {} : { isActive: true }) },
-    { staleTime: 5 * 60 * 1000 }
-  );
+  const { data: resources, isLoading: resourcesLoading } =
+    api.portal.getResources.useQuery(
+      { slug, section: "demos", ...(isAdmin ? {} : { isActive: true }) },
+      { staleTime: 5 * 60 * 1000 }
+    );
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
     { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
@@ -177,9 +247,12 @@ export default function PortalDemosPage({
     onSuccess: (_, variables) => {
       if (variables.isActive === false) toast.success("Demo archived");
       else if (variables.isActive === true) toast.success("Demo restored");
-      else if (variables.underDevelopment === true) toast.success("Demo marked as under development");
-      else if (variables.underDevelopment === false) toast.success("Demo is now visible to clients");
-      else if (variables.projectId !== undefined) toast.success("Project assigned");
+      else if (variables.underDevelopment === true)
+        toast.success("Demo marked as under development");
+      else if (variables.underDevelopment === false)
+        toast.success("Demo is now visible to clients");
+      else if (variables.projectId !== undefined)
+        toast.success("Project assigned");
       void utils.portal.getResources.invalidate();
     },
   });
@@ -231,25 +304,39 @@ export default function PortalDemosPage({
   const saved = getState();
 
   // UI state
-  const [activeTab, setActiveTab] = useState<"active" | "archived">(saved.activeTab ?? "active");
-  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
-  const [selectedProject, setSelectedProject] = useState<number | "all" | "unassigned">(
-    saved.selectedProject as number | "all" | "unassigned",
+  const [activeTab, setActiveTab] = useState<"active" | "archived">(
+    saved.activeTab ?? "active"
   );
+  const [searchQuery, setSearchQuery] = useState(saved.searchQuery);
+  const [selectedProject, setSelectedProject] = useState<
+    number | "all" | "unassigned"
+  >(saved.selectedProject as number | "all" | "unassigned");
   const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
   const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
 
   // Collapsed project groups
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups),
+    new Set(saved.collapsedGroups)
   );
 
   useEffect(() => {
     persistState({
-      searchQuery, sortOrder, selectedProject, viewMode,
-      collapsedGroups: Array.from(collapsedGroups), activeTab,
+      searchQuery,
+      sortOrder,
+      selectedProject,
+      viewMode,
+      collapsedGroups: Array.from(collapsedGroups),
+      activeTab,
     });
-  }, [searchQuery, sortOrder, selectedProject, viewMode, collapsedGroups, activeTab, persistState]);
+  }, [
+    searchQuery,
+    sortOrder,
+    selectedProject,
+    viewMode,
+    collapsedGroups,
+    activeTab,
+    persistState,
+  ]);
   const toggleGroup = useCallback((groupName: string) => {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);
@@ -260,15 +347,24 @@ export default function PortalDemosPage({
   }, []);
 
   // Dialog state
-  const [assignDialog, setAssignDialog] = useState<{ open: boolean; demo: NormalizedDemo | null }>({
+  const [assignDialog, setAssignDialog] = useState<{
+    open: boolean;
+    demo: NormalizedDemo | null;
+  }>({
     open: false,
     demo: null,
   });
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; demo: NormalizedDemo | null }>({
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    demo: NormalizedDemo | null;
+  }>({
     open: false,
     demo: null,
   });
-  const [slugDialog, setSlugDialog] = useState<{ open: boolean; demo: NormalizedDemo | null }>({
+  const [slugDialog, setSlugDialog] = useState<{
+    open: boolean;
+    demo: NormalizedDemo | null;
+  }>({
     open: false,
     demo: null,
   });
@@ -280,7 +376,11 @@ export default function PortalDemosPage({
     return client.projects.flatMap((p: ClientProject) =>
       p.updates
         .filter((u: ClientUpdate) => u.type === "demo")
-        .map((u: ClientUpdate) => ({ ...u, projectName: p.name, projectId: p.id }))
+        .map((u: ClientUpdate) => ({
+          ...u,
+          projectName: p.name,
+          projectId: p.id,
+        }))
     );
   }, [client]);
 
@@ -330,8 +430,14 @@ export default function PortalDemosPage({
   }, [resources, legacyDemos]);
 
   // Split by active/archived
-  const activeDemos = useMemo(() => allDemos.filter((d) => d.isActive), [allDemos]);
-  const archivedDemos = useMemo(() => allDemos.filter((d) => !d.isActive), [allDemos]);
+  const activeDemos = useMemo(
+    () => allDemos.filter((d) => d.isActive),
+    [allDemos]
+  );
+  const archivedDemos = useMemo(
+    () => allDemos.filter((d) => !d.isActive),
+    [allDemos]
+  );
   const currentDemos = activeTab === "active" ? activeDemos : archivedDemos;
 
   // Project filters — include "Unassigned" when there are unassigned items
@@ -350,7 +456,9 @@ export default function PortalDemosPage({
       projectMap.set(p.id, p.name);
     });
 
-    const filters: FilterOption[] = Array.from(projectMap.entries()).map(([id, name]) => ({ id, name }));
+    const filters: FilterOption[] = Array.from(projectMap.entries()).map(
+      ([id, name]) => ({ id, name })
+    );
     if (hasUnassigned) {
       filters.push({ id: "unassigned", name: "Unassigned" });
     }
@@ -368,7 +476,8 @@ export default function PortalDemosPage({
         if (!matchesTitle && !matchesDesc && !matchesProject) return false;
       }
       if (selectedProject === "unassigned") return demo.projectId === null;
-      if (selectedProject !== "all" && demo.projectId !== selectedProject) return false;
+      if (selectedProject !== "all" && demo.projectId !== selectedProject)
+        return false;
       return true;
     });
   }, [currentDemos, searchQuery, selectedProject]);
@@ -448,7 +557,10 @@ export default function PortalDemosPage({
   const handleToggleUnderDevelopment = useCallback(
     (demo: NormalizedDemo) => {
       if (!demo.resourceId) return;
-      updateResource.mutate({ id: demo.resourceId, underDevelopment: !demo.underDevelopment });
+      updateResource.mutate({
+        id: demo.resourceId,
+        underDevelopment: !demo.underDevelopment,
+      });
     },
     [updateResource]
   );
@@ -462,8 +574,16 @@ export default function PortalDemosPage({
       if (demo.resourceId) {
         actions.push({
           label: demo.isPublic ? "Make Private" : "Make Public",
-          icon: demo.isPublic ? <EyeOff className="h-4 w-4" /> : <Share2 className="h-4 w-4" />,
-          onClick: () => togglePublic.mutate({ resourceId: demo.resourceId!, isPublic: !demo.isPublic }),
+          icon: demo.isPublic ? (
+            <EyeOff className="h-4 w-4" />
+          ) : (
+            <Share2 className="h-4 w-4" />
+          ),
+          onClick: () =>
+            togglePublic.mutate({
+              resourceId: demo.resourceId!,
+              isPublic: !demo.isPublic,
+            }),
         });
         if (demo.isPublic && demo.publicToken) {
           const shareIdentifier = demo.publicSlug ?? demo.publicToken;
@@ -493,13 +613,23 @@ export default function PortalDemosPage({
         }
         actions.push(
           {
-            label: demo.underDevelopment ? "Make Visible to Client" : "Mark Under Development",
-            icon: demo.underDevelopment ? <Eye className="h-4 w-4" /> : <Construction className="h-4 w-4" />,
+            label: demo.underDevelopment
+              ? "Make Visible to Client"
+              : "Mark Under Development",
+            icon: demo.underDevelopment ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <Construction className="h-4 w-4" />
+            ),
             onClick: () => handleToggleUnderDevelopment(demo),
           },
           {
             label: demo.isActive ? "Archive" : "Unarchive",
-            icon: demo.isActive ? <Archive className="h-4 w-4" /> : <ArchiveRestore className="h-4 w-4" />,
+            icon: demo.isActive ? (
+              <Archive className="h-4 w-4" />
+            ) : (
+              <ArchiveRestore className="h-4 w-4" />
+            ),
             onClick: () => handleArchive(demo),
           },
           {
@@ -512,7 +642,7 @@ export default function PortalDemosPage({
             icon: <Trash2 className="h-4 w-4" />,
             onClick: () => setDeleteDialog({ open: true, demo }),
             variant: "danger" as const,
-          },
+          }
         );
       }
 
@@ -536,7 +666,10 @@ export default function PortalDemosPage({
                 toast.success("Share link copied!");
               }}
               className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-white/10"
-              style={{ borderColor: "rgba(212, 175, 55, 0.3)", color: "#D4AF37" }}
+              style={{
+                borderColor: "rgba(212, 175, 55, 0.3)",
+                color: "#D4AF37",
+              }}
             >
               <Share2 className="h-3.5 w-3.5" />
               Share
@@ -557,12 +690,16 @@ export default function PortalDemosPage({
   };
 
   const hasContent = allDemos.length > 0;
-  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const hasActiveFilters =
+    Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#D4AF37" }} />
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "#D4AF37" }}
+        />
       </div>
     );
   }
@@ -613,7 +750,9 @@ export default function PortalDemosPage({
         onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
-        onFilterChange={(id) => setSelectedProject(id as number | "all" | "unassigned")}
+        onFilterChange={(id) =>
+          setSelectedProject(id as number | "all" | "unassigned")
+        }
         filterLabel="Project"
         viewMode={viewMode}
         onViewModeChange={setViewMode}
@@ -674,7 +813,13 @@ export default function PortalDemosPage({
                                 </span>
                               )}
                               {demo.isPublic && (
-                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: "rgba(212, 175, 55, 0.15)", color: "#D4AF37" }}>
+                                <span
+                                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                                  style={{
+                                    backgroundColor: "rgba(212, 175, 55, 0.15)",
+                                    color: "#D4AF37",
+                                  }}
+                                >
                                   <Globe className="h-3 w-3" />
                                   Public
                                 </span>
@@ -705,7 +850,13 @@ export default function PortalDemosPage({
                         </span>
                       )}
                       {demo.isPublic && (
-                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: "rgba(212, 175, 55, 0.15)", color: "#D4AF37" }}>
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: "rgba(212, 175, 55, 0.15)",
+                            color: "#D4AF37",
+                          }}
+                        >
                           <Globe className="h-3 w-3" />
                           Public
                         </span>
@@ -721,7 +872,9 @@ export default function PortalDemosPage({
       {/* Project Assignment Dialog */}
       <ProjectAssignDialog
         open={assignDialog.open}
-        onOpenChange={(open) => setAssignDialog({ open, demo: open ? assignDialog.demo : null })}
+        onOpenChange={(open) =>
+          setAssignDialog({ open, demo: open ? assignDialog.demo : null })
+        }
         currentProjectId={assignDialog.demo?.projectId ?? null}
         projects={projects ?? []}
         onAssign={handleAssign}
@@ -732,7 +885,9 @@ export default function PortalDemosPage({
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open, demo: open ? deleteDialog.demo : null })}
+        onOpenChange={(open) =>
+          setDeleteDialog({ open, demo: open ? deleteDialog.demo : null })
+        }
         title="Delete Demo"
         description={`Are you sure you want to permanently delete "${deleteDialog.demo?.title}"? This action cannot be undone.`}
         confirmLabel="Delete"
@@ -747,7 +902,9 @@ export default function PortalDemosPage({
           demo={slugDialog.demo}
           slugInput={slugInput}
           onSlugChange={setSlugInput}
-          onSave={(resourceId, slug) => setPublicSlug.mutate({ resourceId, slug })}
+          onSave={(resourceId, slug) =>
+            setPublicSlug.mutate({ resourceId, slug })
+          }
           onClose={() => setSlugDialog({ open: false, demo: null })}
           isPending={setPublicSlug.isPending}
         />

@@ -71,10 +71,10 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-gray-800 bg-cw-navy-light p-6">
+    <div className="bg-cw-navy-light rounded-lg border border-gray-800 p-6">
       <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-cw-red/10">
-          <Icon className="h-5 w-5 text-cw-red" />
+        <div className="bg-cw-red/10 flex h-9 w-9 items-center justify-center rounded-lg">
+          <Icon className="text-cw-red h-5 w-5" />
         </div>
         <h2 className="text-lg font-semibold text-white">{title}</h2>
       </div>
@@ -142,7 +142,7 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
         <div className="mx-auto max-w-5xl px-6 py-10 lg:px-8">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
             {/* Avatar */}
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-cw-red text-2xl font-bold text-white">
+            <div className="bg-cw-red flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white">
               {getInitials(user.fullName)}
             </div>
 
@@ -153,7 +153,7 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
                   {user.fullName}
                 </h1>
                 {user.isVerified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-cw-red/10 px-2.5 py-0.5 text-xs font-medium text-cw-red">
+                  <span className="bg-cw-red/10 text-cw-red inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
                     <BadgeCheck className="h-3.5 w-3.5" />
                     Verified
                   </span>
@@ -174,7 +174,7 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
             {/* Edit button (display only) */}
             <Link
               href={baseUrl}
-              className="shrink-0 rounded-md bg-cw-red px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cw-red-hover"
+              className="bg-cw-red hover:bg-cw-red-hover shrink-0 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
             >
               Edit Profile
             </Link>
@@ -183,13 +183,13 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
       </div>
 
       {/* Stats Bar */}
-      <div className="border-b border-gray-800 bg-cw-navy-dark">
+      <div className="bg-cw-navy-dark border-b border-gray-800">
         <div className="mx-auto max-w-5xl px-6 lg:px-8">
           <div className="grid grid-cols-3 divide-x divide-gray-800">
             {PROFILE_STATS.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center py-5">
                 <div className="flex items-center gap-2">
-                  <stat.icon className="h-4 w-4 text-cw-red" />
+                  <stat.icon className="text-cw-red h-4 w-4" />
                   <span className="text-2xl font-bold text-white">
                     {stat.value}
                   </span>
@@ -287,7 +287,7 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
                       key={idx}
                       className="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
                     >
-                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cw-navy">
+                      <div className="bg-cw-navy mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full">
                         <Activity className="h-3.5 w-3.5 text-gray-400" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -328,7 +328,7 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
                     <Link
                       key={link.label}
                       href={link.href}
-                      className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm text-gray-300 transition-colors hover:bg-cw-navy hover:text-white"
+                      className="hover:bg-cw-navy flex items-center justify-between rounded-md px-3 py-2.5 text-sm text-gray-300 transition-colors hover:text-white"
                     >
                       <span className="flex items-center gap-2">
                         <link.icon className="h-4 w-4 text-gray-500" />
@@ -345,7 +345,7 @@ export function CargoWatchProfile({ baseUrl }: { baseUrl: string }) {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 bg-cw-navy-dark py-8">
+      <footer className="bg-cw-navy-dark border-t border-gray-800 py-8">
         <div className="mx-auto max-w-5xl px-6 text-center lg:px-8">
           <p className="text-sm text-gray-500">
             &copy; {new Date().getFullYear()} CargoWatch. Profile data shown is

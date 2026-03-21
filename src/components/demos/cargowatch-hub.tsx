@@ -1,6 +1,13 @@
 "use client";
 
-import { ArrowLeft, Globe, LayoutDashboard, AlertTriangle, Map, BookOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  Globe,
+  LayoutDashboard,
+  AlertTriangle,
+  Map,
+  BookOpen,
+} from "lucide-react";
 import Link from "next/link";
 import { StagingCard } from "~/components/portal";
 
@@ -13,9 +20,15 @@ export function CargoWatchHub({ basePath, backHref }: CargoWatchHubProps) {
   return (
     <div className="min-h-screen bg-black text-white">
       {backHref && (
-        <header className="border-b px-4 py-4 sm:px-6" style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}>
+        <header
+          className="border-b px-4 py-4 sm:px-6"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
           <div className="mx-auto max-w-5xl">
-            <Link href={backHref} className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white">
+            <Link
+              href={backHref}
+              className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+            >
               <ArrowLeft className="h-4 w-4" />
               Back to Demos
             </Link>
@@ -38,7 +51,8 @@ export function CargoWatchHub({ basePath, backHref }: CargoWatchHubProps) {
             CargoWatch Demo
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-gray-400">
-            Freight protection platform — real-time cargo theft tracking and community alerts
+            Freight protection platform — real-time cargo theft tracking and
+            community alerts
           </p>
         </div>
         <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -161,13 +161,17 @@ function PlaygroundLayoutContent({
       </div>
 
       {/* Floating back button at top left */}
-      <Link href={isOverview ? `${backPath}${domainParam}` : `${basePath}${domainParam}`}>
+      <Link
+        href={
+          isOverview ? `${backPath}${domainParam}` : `${basePath}${domainParam}`
+        }
+      >
         <Button
           size="lg"
           className="fixed top-6 left-6 z-50 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl"
           style={{
-            background: 'linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)',
-            color: '#000000'
+            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            color: "#000000",
           }}
         >
           <ArrowLeft className="mr-2 h-5 w-5" />

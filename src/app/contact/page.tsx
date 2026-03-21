@@ -52,7 +52,15 @@ function ContactContent() {
   const submitMutation = api.contact.submit.useMutation({
     onSuccess: () => {
       setSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", message: "", services: [], role: "", stewardshipInterest: false });
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        services: [],
+        role: "",
+        stewardshipInterest: false,
+      });
     },
   });
 
@@ -77,283 +85,296 @@ function ContactContent() {
 
   return (
     <DomainLayout>
-    <div className="min-h-screen bg-black">
-      {/* Contact Section */}
-      <section className="px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-2xl">
-          <div className="mb-12 text-center">
-            <h1
-              className="mb-6 text-4xl font-bold text-white sm:text-5xl"
-              style={{
-                fontFamily: "var(--font-quattrocento-sans)",
-                letterSpacing: "0.02em",
-              }}
-            >
-              Get In{" "}
-              <span
+      <div className="min-h-screen bg-black">
+        {/* Contact Section */}
+        <section className="px-4 py-20 sm:px-6">
+          <div className="mx-auto max-w-2xl">
+            <div className="mb-12 text-center">
+              <h1
+                className="mb-6 text-4xl font-bold text-white sm:text-5xl"
                 style={{
-                  background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  fontFamily: "var(--font-quattrocento-sans)",
+                  letterSpacing: "0.02em",
                 }}
               >
-                Touch
-              </span>
-            </h1>
-            <p className="text-lg text-gray-300">
-              Have a project in mind or want to learn more about how we can help?
-              <br />
-              We&apos;d love to hear from you.
-            </p>
-          </div>
-          {submitted ? (
-            <Card
-              className="bg-white/5 backdrop-blur-md"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                borderWidth: "1px",
-              }}
-            >
-              <CardContent className="p-8 text-center">
-                <CheckCircle
-                  className="mx-auto mb-4 h-12 w-12"
-                  style={{ color: "#D4AF37" }}
-                />
-                <h2 className="mb-2 text-2xl font-bold text-white">
-                  Message Sent
-                </h2>
-                <p className="mb-6 text-gray-300">
-                  Thank you for reaching out. We&apos;ll get back to you soon.
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setSubmitted(false)}
-                  className="border-2 bg-white/5"
+                Get In{" "}
+                <span
                   style={{
-                    borderColor: "rgba(212, 175, 55, 0.5)",
-                    color: "#D4AF37",
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
                   }}
                 >
-                  Send Another Message
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card
-              className="bg-white/5 backdrop-blur-md"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                borderWidth: "1px",
-              }}
-            >
-              <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="mb-2 block text-sm font-medium text-gray-300"
-                    >
-                      Name <span style={{ color: "#D4AF37" }}>*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      required
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.3)",
-                      }}
-                      placeholder="Your name"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="mb-2 block text-sm font-medium text-gray-300"
-                    >
-                      Email <span style={{ color: "#D4AF37" }}>*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.3)",
-                      }}
-                      placeholder="you@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="mb-2 block text-sm font-medium text-gray-300"
-                    >
-                      Phone <span className="text-gray-500">(optional)</span>
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.3)",
-                      }}
-                      placeholder="+1 (555) 123-4567"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="role"
-                      className="mb-2 block text-sm font-medium text-gray-300"
-                    >
-                      Your Role <span className="text-gray-500">(optional)</span>
-                    </label>
-                    <select
-                      id="role"
-                      value={formData.role}
-                      onChange={(e) =>
-                        setFormData({ ...formData, role: e.target.value })
-                      }
-                      className="w-full rounded-md border bg-white/5 px-4 py-3 text-white focus:outline-none focus:ring-2"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.3)",
-                      }}
-                    >
-                      {roleOptions.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                          className="bg-black"
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="mb-3 block text-sm font-medium text-gray-300">
-                      Services of Interest <span className="text-gray-500">(optional)</span>
-                    </label>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {serviceOptions.map((service) => (
-                        <label
-                          key={service.value}
-                          className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/5 px-4 py-3 transition-colors hover:bg-white/10"
-                          style={{
-                            borderColor: formData.services.includes(service.value)
-                              ? "rgba(212, 175, 55, 0.6)"
-                              : "rgba(212, 175, 55, 0.3)",
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.services.includes(service.value)}
-                            onChange={() => toggleService(service.value)}
-                            className="h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
-                            style={{ accentColor: "#D4AF37" }}
-                          />
-                          <span className="text-sm text-gray-300">{service.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/5 px-4 py-3 transition-colors hover:bg-white/10"
-                      style={{
-                        borderColor: formData.stewardshipInterest
-                          ? "rgba(212, 175, 55, 0.6)"
-                          : "rgba(212, 175, 55, 0.3)",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.stewardshipInterest}
-                        onChange={(e) =>
-                          setFormData({ ...formData, stewardshipInterest: e.target.checked })
-                        }
-                        className="h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
-                        style={{ accentColor: "#D4AF37" }}
-                      />
-                      <span className="text-sm text-gray-300">
-                        I&apos;m interested in the Stewardship Program
-                      </span>
-                    </label>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="mb-2 block text-sm font-medium text-gray-300"
-                    >
-                      Message <span style={{ color: "#D4AF37" }}>*</span>
-                    </label>
-                    <textarea
-                      id="message"
-                      required
-                      rows={5}
-                      value={formData.message}
-                      onChange={(e) =>
-                        setFormData({ ...formData, message: e.target.value })
-                      }
-                      className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.3)",
-                      }}
-                      placeholder="Tell us about your project or question..."
-                    />
-                  </div>
-
-                  {submitMutation.error && (
-                    <p className="text-sm text-red-400">
-                      {getErrorMessage(submitMutation.error)}
-                    </p>
-                  )}
-
+                  Touch
+                </span>
+              </h1>
+              <p className="text-lg text-gray-300">
+                Have a project in mind or want to learn more about how we can
+                help?
+                <br />
+                We&apos;d love to hear from you.
+              </p>
+            </div>
+            {submitted ? (
+              <Card
+                className="bg-white/5 backdrop-blur-md"
+                style={{
+                  borderColor: "rgba(212, 175, 55, 0.3)",
+                  borderWidth: "1px",
+                }}
+              >
+                <CardContent className="p-8 text-center">
+                  <CheckCircle
+                    className="mx-auto mb-4 h-12 w-12"
+                    style={{ color: "#D4AF37" }}
+                  />
+                  <h2 className="mb-2 text-2xl font-bold text-white">
+                    Message Sent
+                  </h2>
+                  <p className="mb-6 text-gray-300">
+                    Thank you for reaching out. We&apos;ll get back to you soon.
+                  </p>
                   <Button
-                    type="submit"
-                    size="lg"
-                    disabled={submitMutation.isPending}
-                    className="w-full px-8 text-black shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                    variant="outline"
+                    onClick={() => setSubmitted(false)}
+                    className="border-2 bg-white/5"
                     style={{
-                      background:
-                        "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                      borderColor: "rgba(212, 175, 55, 0.5)",
+                      color: "#D4AF37",
                     }}
                   >
-                    {submitMutation.isPending ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        Send Message
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </>
-                    )}
+                    Send Another Message
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
-    </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card
+                className="bg-white/5 backdrop-blur-md"
+                style={{
+                  borderColor: "rgba(212, 175, 55, 0.3)",
+                  borderWidth: "1px",
+                }}
+              >
+                <CardContent className="p-8">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                      <label
+                        htmlFor="name"
+                        className="mb-2 block text-sm font-medium text-gray-300"
+                      >
+                        Name <span style={{ color: "#D4AF37" }}>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        required
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.3)",
+                        }}
+                        placeholder="Your name"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="mb-2 block text-sm font-medium text-gray-300"
+                      >
+                        Email <span style={{ color: "#D4AF37" }}>*</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.3)",
+                        }}
+                        placeholder="you@example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="phone"
+                        className="mb-2 block text-sm font-medium text-gray-300"
+                      >
+                        Phone <span className="text-gray-500">(optional)</span>
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                        className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.3)",
+                        }}
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="role"
+                        className="mb-2 block text-sm font-medium text-gray-300"
+                      >
+                        Your Role{" "}
+                        <span className="text-gray-500">(optional)</span>
+                      </label>
+                      <select
+                        id="role"
+                        value={formData.role}
+                        onChange={(e) =>
+                          setFormData({ ...formData, role: e.target.value })
+                        }
+                        className="w-full rounded-md border bg-white/5 px-4 py-3 text-white focus:ring-2 focus:outline-none"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.3)",
+                        }}
+                      >
+                        {roleOptions.map((option) => (
+                          <option
+                            key={option.value}
+                            value={option.value}
+                            className="bg-black"
+                          >
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-3 block text-sm font-medium text-gray-300">
+                        Services of Interest{" "}
+                        <span className="text-gray-500">(optional)</span>
+                      </label>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {serviceOptions.map((service) => (
+                          <label
+                            key={service.value}
+                            className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/5 px-4 py-3 transition-colors hover:bg-white/10"
+                            style={{
+                              borderColor: formData.services.includes(
+                                service.value
+                              )
+                                ? "rgba(212, 175, 55, 0.6)"
+                                : "rgba(212, 175, 55, 0.3)",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.services.includes(
+                                service.value
+                              )}
+                              onChange={() => toggleService(service.value)}
+                              className="h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
+                              style={{ accentColor: "#D4AF37" }}
+                            />
+                            <span className="text-sm text-gray-300">
+                              {service.label}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        className="flex cursor-pointer items-center gap-3 rounded-md border bg-white/5 px-4 py-3 transition-colors hover:bg-white/10"
+                        style={{
+                          borderColor: formData.stewardshipInterest
+                            ? "rgba(212, 175, 55, 0.6)"
+                            : "rgba(212, 175, 55, 0.3)",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.stewardshipInterest}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              stewardshipInterest: e.target.checked,
+                            })
+                          }
+                          className="h-4 w-4 rounded border-gray-600 bg-transparent text-yellow-600 focus:ring-yellow-500"
+                          style={{ accentColor: "#D4AF37" }}
+                        />
+                        <span className="text-sm text-gray-300">
+                          I&apos;m interested in the Stewardship Program
+                        </span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="message"
+                        className="mb-2 block text-sm font-medium text-gray-300"
+                      >
+                        Message <span style={{ color: "#D4AF37" }}>*</span>
+                      </label>
+                      <textarea
+                        id="message"
+                        required
+                        rows={5}
+                        value={formData.message}
+                        onChange={(e) =>
+                          setFormData({ ...formData, message: e.target.value })
+                        }
+                        className="w-full rounded-md border bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:outline-none"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.3)",
+                        }}
+                        placeholder="Tell us about your project or question..."
+                      />
+                    </div>
+
+                    {submitMutation.error && (
+                      <p className="text-sm text-red-400">
+                        {getErrorMessage(submitMutation.error)}
+                      </p>
+                    )}
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={submitMutation.isPending}
+                      className="w-full px-8 text-black shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                      }}
+                    >
+                      {submitMutation.isPending ? (
+                        "Sending..."
+                      ) : (
+                        <>
+                          Send Message
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      </div>
     </DomainLayout>
   );
 }

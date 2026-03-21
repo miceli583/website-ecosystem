@@ -19,17 +19,28 @@ interface DemoRendererProps {
   backHref?: string;
 }
 
-export function DemoRenderer({ demo, componentKey, basePath, backHref }: DemoRendererProps) {
+export function DemoRenderer({
+  demo,
+  componentKey,
+  basePath,
+  backHref,
+}: DemoRendererProps) {
   // Registry component (interactive page demos)
   if (componentKey && componentKey in DEMO_REGISTRY) {
     const loader = DEMO_REGISTRY[componentKey]!;
-    const LazyComponent = lazy(loader) as ComponentType<{ basePath?: string; backHref?: string }>;
+    const LazyComponent = lazy(loader) as ComponentType<{
+      basePath?: string;
+      backHref?: string;
+    }>;
 
     return (
       <Suspense
         fallback={
           <div className="flex min-h-[60vh] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-600" style={{ borderTopColor: "#D4AF37" }} />
+            <div
+              className="h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
+              style={{ borderTopColor: "#D4AF37" }}
+            />
           </div>
         }
       >
@@ -56,19 +67,25 @@ export function DemoRenderer({ demo, componentKey, basePath, backHref }: DemoRen
           {demo.title}
         </h1>
         {demo.description && (
-          <p className="mb-8 max-w-lg text-lg text-gray-400">{demo.description}</p>
+          <p className="mb-8 max-w-lg text-lg text-gray-400">
+            {demo.description}
+          </p>
         )}
         <a
           href={demo.url}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium text-black transition-opacity hover:opacity-90"
-          style={{ background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }}
+          style={{
+            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+          }}
         >
           <ExternalLink className="h-4 w-4" />
           Open Demo
         </a>
-        <p className="mt-6 text-sm text-gray-500">Shared by {demo.clientName}</p>
+        <p className="mt-6 text-sm text-gray-500">
+          Shared by {demo.clientName}
+        </p>
       </div>
     );
   }

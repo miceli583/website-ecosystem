@@ -54,7 +54,7 @@ export function ConfirmDialog({
       >
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 text-gray-500 hover:text-white"
+          className="absolute top-4 right-4 text-gray-500 hover:text-white"
         >
           <X className="h-4 w-4" />
         </button>
@@ -72,13 +72,14 @@ export function ConfirmDialog({
             onClick={onConfirm}
             disabled={isLoading}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50 ${
-              variant === "danger"
-                ? "bg-red-500/20 text-red-400"
-                : "text-black"
+              variant === "danger" ? "bg-red-500/20 text-red-400" : "text-black"
             }`}
             style={
               variant === "default"
-                ? { background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)" }
+                ? {
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }
                 : undefined
             }
           >

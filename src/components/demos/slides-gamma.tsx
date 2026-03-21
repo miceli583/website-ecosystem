@@ -139,18 +139,13 @@ export function SlidesGammaDemo({ backHref }: SlidesGammaDemoProps) {
                           "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                       }}
                     >
-                      <Icon
-                        className="h-5 w-5"
-                        style={{ color: "#D4AF37" }}
-                      />
+                      <Icon className="h-5 w-5" style={{ color: "#D4AF37" }} />
                     </div>
                     <div>
                       <h3 className="mb-1 font-semibold text-white">
                         {cap.title}
                       </h3>
-                      <p className="text-sm text-gray-400">
-                        {cap.description}
-                      </p>
+                      <p className="text-sm text-gray-400">{cap.description}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -182,7 +177,7 @@ export function SlidesGammaDemo({ backHref }: SlidesGammaDemoProps) {
                   />
                   <p className="font-semibold text-white">{fmt.format}</p>
                   <p
-                    className="mb-2 text-xs font-mono"
+                    className="mb-2 font-mono text-xs"
                     style={{ color: "#D4AF37" }}
                   >
                     {fmt.ext}
@@ -204,9 +199,7 @@ export function SlidesGammaDemo({ backHref }: SlidesGammaDemoProps) {
           }}
         >
           <Sparkles className="mx-auto mb-4 h-8 w-8 text-gray-500" />
-          <p className="mb-2 text-lg font-semibold text-white">
-            How It Works
-          </p>
+          <p className="mb-2 text-lg font-semibold text-white">How It Works</p>
           <p className="mx-auto max-w-lg text-sm text-gray-500">
             Select a training module, choose a theme, and Gamma AI generates a
             complete presentation deck. Review, refine, and export in your

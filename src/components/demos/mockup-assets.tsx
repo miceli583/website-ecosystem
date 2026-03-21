@@ -100,9 +100,14 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                       width={50}
                       height={50}
                     />
-                    <span className="text-3xl tracking-tight" style={{ color: "#2D5A5A" }}>
+                    <span
+                      className="text-3xl tracking-tight"
+                      style={{ color: "#2D5A5A" }}
+                    >
                       <span className="font-semibold">CHW</span>
-                      <span className="font-light" style={{ color: "#6B8A8A" }}>360</span>
+                      <span className="font-light" style={{ color: "#6B8A8A" }}>
+                        360
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -158,7 +163,8 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                   <div>
                     <p className="mb-2 font-medium text-white">Logo Icon</p>
                     <p className="text-sm text-gray-400">
-                      5-petal pinwheel design representing community, diversity, and health
+                      5-petal pinwheel design representing community, diversity,
+                      and health
                     </p>
                     <p className="mt-2 text-xs text-gray-500">
                       File: /chw/logo.png
@@ -177,7 +183,7 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
             {/* Headings */}
             <Card className="overflow-hidden border-0 bg-white/5">
               <CardContent className="p-6">
-                <p className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-500">
+                <p className="mb-4 text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Headings
                 </p>
                 <p
@@ -208,7 +214,7 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
             {/* Body Text */}
             <Card className="overflow-hidden border-0 bg-white/5">
               <CardContent className="p-6">
-                <p className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-500">
+                <p className="mb-4 text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Body Text
                 </p>
                 <p className="mb-2 text-3xl" style={{ color: "#4A5568" }}>
@@ -221,7 +227,10 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                   className="rounded-lg p-4"
                   style={{ backgroundColor: "#F5EDE6" }}
                 >
-                  <p className="text-[15px] leading-relaxed" style={{ color: "#4A5568" }}>
+                  <p
+                    className="text-[15px] leading-relaxed"
+                    style={{ color: "#4A5568" }}
+                  >
                     CHW360 provides training, resources, and support to help
                     Community Health Workers learn, grow, and make a difference.
                   </p>
@@ -234,7 +243,7 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
           <div className="mt-6">
             <Card className="overflow-hidden border-0 bg-white/5">
               <CardContent className="p-6">
-                <p className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-500">
+                <p className="mb-4 text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Logo Text Style
                 </p>
                 <div className="flex items-center gap-8">
@@ -249,10 +258,12 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                   </div>
                   <div>
                     <p className="text-sm text-gray-400">
-                      <span className="text-white">CHW</span> → font-semibold (600)
+                      <span className="text-white">CHW</span> → font-semibold
+                      (600)
                     </p>
                     <p className="text-sm text-gray-400">
-                      <span className="text-white">360</span> → font-light (300), reduced opacity
+                      <span className="text-white">360</span> → font-light
+                      (300), reduced opacity
                     </p>
                   </div>
                 </div>
@@ -263,7 +274,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
 
         {/* Color Palette Section */}
         <section className="mb-16">
-          <h2 className="mb-6 text-2xl font-semibold text-white">Color Palette</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-white">
+            Color Palette
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {colors.map((color) => (
               <Card key={color.hex} className="overflow-hidden border-0">
@@ -274,7 +287,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                   />
                   <div className="bg-white/10 p-4">
                     <p className="font-medium text-white">{color.name}</p>
-                    <p className="font-mono text-sm text-gray-400">{color.hex}</p>
+                    <p className="font-mono text-sm text-gray-400">
+                      {color.hex}
+                    </p>
                     <p className="mt-1 text-xs text-gray-500">{color.usage}</p>
                   </div>
                 </CardContent>
@@ -285,7 +300,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
 
         {/* Hero Images Section */}
         <section className="mb-16">
-          <h2 className="mb-6 text-2xl font-semibold text-white">Hero Images</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-white">
+            Hero Images
+          </h2>
           <p className="mb-6 text-gray-400">
             Rotating carousel images showcasing diverse healthcare workers
           </p>
@@ -303,7 +320,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                   </div>
                   <div className="bg-white/10 p-3">
                     <p className="text-sm text-white">{image.name}</p>
-                    <p className="mt-1 font-mono text-xs text-gray-500">{image.src}</p>
+                    <p className="mt-1 font-mono text-xs text-gray-500">
+                      {image.src}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -313,7 +332,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
 
         {/* Icons Section */}
         <section className="mb-16">
-          <h2 className="mb-6 text-2xl font-semibold text-white">Audience Icons</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-white">
+            Audience Icons
+          </h2>
           <p className="mb-6 text-gray-400">
             Illustrated icons for the &quot;Who It&apos;s For&quot; section
           </p>
@@ -336,7 +357,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                   </div>
                   <div className="bg-white/10 p-4">
                     <p className="font-medium text-white">{icon.name}</p>
-                    <p className="mt-1 font-mono text-xs text-gray-500">{icon.src}</p>
+                    <p className="mt-1 font-mono text-xs text-gray-500">
+                      {icon.src}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -346,7 +369,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
 
         {/* Usage Guidelines */}
         <section>
-          <h2 className="mb-6 text-2xl font-semibold text-white">Usage Guidelines</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-white">
+            Usage Guidelines
+          </h2>
           <div className="grid gap-6 sm:grid-cols-2">
             <Card className="border-0 bg-white/5">
               <CardContent className="p-6">
@@ -354,7 +379,9 @@ export function MockupAssetsDemo({ backHref }: MockupAssetsDemoProps) {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li>✓ Use Dark Teal for primary headings</li>
                   <li>✓ Use Coral for CTAs and interactive elements</li>
-                  <li>✓ Maintain contrast between CHW (bold) and 360 (light)</li>
+                  <li>
+                    ✓ Maintain contrast between CHW (bold) and 360 (light)
+                  </li>
                   <li>✓ Use cream backgrounds for warm, welcoming feel</li>
                   <li>✓ Keep imagery diverse and inclusive</li>
                 </ul>

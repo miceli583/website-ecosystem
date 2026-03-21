@@ -62,8 +62,7 @@ export function DemoHubLayout({
             style={{
               fontFamily: "Quattrocento Sans, serif",
               letterSpacing: "0.08em",
-              background:
-                "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
