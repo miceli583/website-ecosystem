@@ -1,8 +1,8 @@
 # Project Status
 
-**Version:** 0.7.4
-**Last Updated:** 2026-03-16
-**Commits:** 190+
+**Version:** 0.8.0
+**Last Updated:** 2026-03-21
+**Commits:** 195+
 
 ## Feature Status
 
@@ -37,12 +37,12 @@
 
 ## Recent Changes
 
-| Date   | Commit  | Description                                                                   |
-| ------ | ------- | ----------------------------------------------------------------------------- |
-| Mar 16 | d78db25 | Contact-to-client promotion flows, New Earth Media demo for Glo Moss portal   |
-| Mar 16 | —       | Switched DB to pooler URL, fixed AccountManagerPicker hydration bug           |
-| Feb 17 | 2770f0c | Proposals: separate Under Development, Private, Archive as 3-dot menu actions |
-| Feb 17 | 657d068 | Bundle discount for proposals, TAPCHW pricing update, bolstered terms         |
-| Feb 17 | 2d8bff3 | Fix ProjectAssignDialog to auto-assign after creating new project             |
+| Date   | Commit  | Description                                                                       |
+| ------ | ------- | --------------------------------------------------------------------------------- |
+| Mar 21 | 22c9b63 | Multi-dev collab infrastructure (Husky, lint-staged, Dependabot, CI, PR template) |
+| Mar 21 | f9874f2 | Bump next 16.1.7, jspdf 4.2.1, audit fix (consolidated Dependabot PRs #1-5)       |
+| Mar 21 | 8e952c2 | Format entire codebase with Prettier, framework v1.23.0                           |
+| Mar 16 | d78db25 | Contact-to-client promotion flows, New Earth Media demo for Glo Moss portal       |
+| Mar 16 | —       | Switched DB to pooler URL, fixed AccountManagerPicker hydration bug               |
 
 _Older changes: `git log --oneline`_

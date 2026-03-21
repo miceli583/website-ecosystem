@@ -122,13 +122,46 @@ Compare counts against the documented inventories:
 
 If no inventory pages exist, skip silently. This check is lightweight — for a full audit, suggest `/inventory`.
 
-### 7. Cross-Reference Check
+### 7. Cross-Reference Coherence Check
 
-Compare across files:
+Enforce coherence across ROADMAP.md, TODO.md, and STATUS.md by checking for drift:
 
-- Items marked done in ROADMAP.md but still open in TODO.md
-- Items in TODO.md with file:line references that no longer exist
-- Features in STATUS.md marked "Working" that have open bugs in TODO.md
+**ROADMAP → TODO flow:**
+
+- Every unchecked ROADMAP item should have a corresponding TODO.md entry (or be deferred to Backlog)
+- If a ROADMAP item is checked `[x]` but TODO.md still has it as `[ ]`, flag as `[WARN] Completed in ROADMAP but still open in TODO`
+- If TODO.md has items with no ROADMAP trace, note as `[INFO]` (organic work, not necessarily wrong)
+
+**ROADMAP → STATUS flow:**
+
+- Completed ROADMAP phases should be reflected as "Working" features in STATUS.md
+- If a whole ROADMAP phase is done but STATUS.md doesn't mention the feature, flag as `[WARN] Phase complete but not in STATUS`
+
+**TODO → STATUS flow:**
+
+- If TODO.md has bug items for a feature that STATUS.md shows as "Working", flag as `[WARN] STATUS shows "Working" but TODO has open bugs`
+- If TODO.md has critical items, STATUS.md should mention them in Known Limitations
+
+**TODO → Codebase flow:**
+
+- Items in TODO.md with `file:line` references — verify the file and line still exist
+- If the reference is stale (file deleted, line moved), flag as `[WARN] Stale file:line reference`
+
+**Version coherence:**
+
+- STATUS.md version should match package.json version (or be noted as intentionally different)
+- STATUS.md "Last Updated" should not be more than 2 sessions old
+
+**Output format for this section:**
+
+```
+### Coherence (ROADMAP ↔ TODO ↔ STATUS)
+- [WARN] ROADMAP Phase 3 "Customer notes" checked, but TODO still has it open
+- [WARN] TODO has 2 bug items for Auth, but STATUS shows Auth as "Working"
+- [INFO] TODO "Mercury as payment platform" has no ROADMAP entry (organic enhancement)
+- [PASS] All file:line references valid
+- [PASS] STATUS version matches package.json
+```
 
 ## Output Format
 
