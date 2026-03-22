@@ -21,42 +21,79 @@
 - [x] Admin login page rebranded to gold/black Miracle Mind theme
 - [x] Proposal spacing and markdown rendering improved
 
-## Session 4+ — Admin Overhaul (Phased)
+## Session 4 — Admin Overhaul Phase 1-2 (DONE)
 
-### Phase 1: Foundation (DONE)
-
-- [x] Admin-only route protection
-- [x] Dashboard layout + custom nav/footer
-
-### Phase 2: CRM Core (DONE)
-
-- [x] Input customers
-- [x] Search
-- [x] Pipeline view
-
-### Phase 3: CRM Advanced
-
-- [x] Source tracking from intake forms
-- [x] Stripe lifetime spend per customer
-- [x] Link admin notes to portal client view (collaborative notes tab)
-- [ ] Todo/checklist feature within customer notes
-
-### Phase 4: Analytics
-
+- [x] Admin-only route protection + dashboard layout + custom nav/footer
+- [x] CRM core: input customers, search, pipeline view
+- [x] CRM advanced: source tracking, Stripe lifetime spend, collaborative notes
 - [x] Site analytics (internal submission metrics)
-- [ ] Full-stack analytics (Vercel Analytics + PostHog across ecosystem)
-- [ ] Login frequency
-- [ ] Email sends
-- [ ] Click tracking
-
-### Phase 5: Platform Expansion
-
-- [ ] Account manager role-based permissions (filter clients, scoped editing)
-- [ ] CRM notes management + project management + outreach scheduling
-- [ ] CMS email/text sequence builder
-- [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
 - [x] Rename "Landing Pages" to "Web Design"; landing pages open in new tab
 - [x] Remove Assets page nav/footer remnants
+
+---
+
+## Phase 5 — Client Onboarding & Deliverables
+
+### Client Onboarding
+
+- [ ] Set up Marissa Lambert in client portal → prep Soul Map UI
+- [ ] Add Zoey Wind to client portal → start building website
+- [ ] Add Shane David Street to client portal → start building website
+
+### Active Client Deliverables
+
+- [ ] Glo Moss: next phase of website + connect re: Tony Cho
+- [ ] Shechem: TapCHW website, Gamma slide builder, LinkedIn photos, LMS prototype demo
+
+## Phase 6 — Role-Based Access & Permissions
+
+- [ ] Create role-based accounts: Account Management, Development, Sales
+- [ ] Build role-specific views/dashboards for each role
+- [ ] Account manager permissions: filter by assigned clients, scoped editing
+
+## Phase 7 — Client Portal UX Refresh
+
+- [ ] Client portal UI overhaul — friendlier, prettier, easier to read
+- [ ] Non-dev Account Manager interactability
+- [ ] Proposal Builder UI (admin-facing, replaces manual proposal creation)
+
+## Phase 8 — Admin Portal Expansion
+
+- [ ] Project management / task management UI in admin portal
+- [ ] Bug & ticketing system: clients submit via portal, team manages in admin (Open → In Progress → Resolved → Closed)
+- [ ] Profile view tab: role, contracts, legal, financial data, 1099/profit sharing payouts
+- [ ] Legal agreements for portal onboarding (bundled with profile/contracts)
+- [ ] Privacy policies and ToS improvements
+
+## Phase 9 — Team Scorecard & Accountability
+
+- [ ] Project health tracking: on-time delivery, scope changes, client satisfaction (1-5 rating at milestones)
+- [ ] Team member metrics: tasks completed, tickets resolved, active projects (auto-derived from project/task data)
+- [ ] Quarterly rocks: 3-5 goals per person per quarter, binary done/not-done, quarterly review
+- [ ] Definition of Done templates: per project type (website, demo, portal setup) — checklist before marking complete
+
+## Phase 10 — Payments & Billing
+
+- [ ] One-time invoice payment flow: Mercury linking for one-time payments in client portal
+- [ ] Mercury Plus investigation: recurring invoices as Stripe replacement
+- [ ] Stripe account configuration cleanup
+
+## Phase 11 — EOS Review Cadence
+
+- [ ] Weekly L10 meeting dashboard: scorecard metrics, rock status, to-do list, issues list (IDS: Identify → Discuss → Solve)
+- [ ] Monthly financial review: revenue vs forecast, expenses, profit margins, outstanding invoices, cash flow
+- [ ] Quarterly rock review: score rocks (done/not done), set next quarter's rocks, update scorecards
+- [ ] Annual planning view: yearly goals, revenue targets, key initiatives
+
+## Phase 12 — Business Development
+
+- [ ] Build funnel and ad campaign for website/CRM building services
+- [ ] Email/text marketing opt-in management (CRM, portal, intake forms)
+
+## Phase 13 — Observability
+
+- [ ] Full-stack analytics (Vercel Analytics + PostHog) — login frequency, email sends, click tracking
+- [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
 
 ## Target Admin Structure
 
@@ -71,26 +108,23 @@
 - Sentry (error tracking)
 - Custom admin nav/footer
 
-## Cross-Cutting / Ongoing
-
-- [ ] Privacy policies and ToS improvements
-- [ ] Legal agreements for portal onboarding
-- [ ] Email/text marketing opt-in management (CRM, portal, intake forms)
-- [ ] Stripe account configuration
-- [ ] Admin UI for proposals creation/editing + invoice submission to portal billing
-
 ## Backlog
 
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
+- [ ] CRM contact import (VCF bulk upload with duplicate detection)
+- [ ] CRM enhancements: notes management, outreach scheduling
+- [ ] Integrate brand tab into client portal
+- [ ] Keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
 - [ ] Bundle size optimization pass
 - [ ] Site efficiency improvements (caching, queries)
-- [ ] Page templating architecture
-- [ ] Shader creation skill
+- [ ] Page templating architecture (gallery exists, needs copy/scaffold)
 - [ ] Image carousel (continuous sliding) for matthewmiceli.com
 - [ ] Research device-independent magic links (Supabase auth)
-- [ ] Stress test portal flows (manual QA — checklist in docs/)
+- [ ] Stress test portal flows (after portal UI refresh — checklist in docs/)
+- [ ] Shader creation skill
+- [ ] Evaluate Turso for demo data isolation
 
 ## Low Priority
 
 - [ ] Blog automation system
-- [ ] Audit service inventory for completeness
+- [ ] CMS email/text sequence builder
