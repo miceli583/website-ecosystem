@@ -50,6 +50,8 @@
 - [ ] Create role-based accounts: Account Management, Development, Sales
 - [ ] Build role-specific views/dashboards for each role
 - [ ] Account manager permissions: filter by assigned clients, scoped editing
+- [ ] CRM contact page overhaul: comprehensive UI, inline editing, admin can assign devs/account managers
+- [ ] Notifications system: in-app + email alerts for tickets, payments, proposal actions, updates
 
 ## Phase 7 — Client Portal UX Refresh
 
@@ -61,6 +63,9 @@
 
 - [ ] Project management / task management UI in admin portal
 - [ ] Bug & ticketing system: clients submit via portal, team manages in admin (Open → In Progress → Resolved → Closed)
+- [ ] SOP tab: checklist-driven client onboarding workflow (create portal → magic link → assign AM → first project), reusable process templates
+- [ ] Activity log / audit trail: who did what and when, append-only, visible in admin
+- [ ] Global search (Cmd+K): search across contacts, clients, projects, tickets
 - [ ] Profile view tab: role, contracts, legal, financial data, 1099/profit sharing payouts
 - [ ] Legal agreements for portal onboarding (bundled with profile/contracts)
 - [ ] Privacy policies and ToS improvements

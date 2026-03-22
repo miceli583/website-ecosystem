@@ -25,10 +25,15 @@ _None currently_
 ### High Priority — Platform
 
 - [ ] **Role-based accounts**: Create Account Management, Development, Sales roles with role-specific views
+- [ ] **CRM contact page overhaul**: Comprehensive UI, inline editing, admin assigns devs/account managers
+- [ ] **Notifications system**: In-app + email alerts for tickets, payments, proposals, updates
 - [ ] **Client portal UI refresh**: Friendlier, prettier, easier to read
 - [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
 - [ ] **Project/task management UI**: Admin portal task tracking and project management
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management, linked to projects
+- [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
+- [ ] **Activity log**: Audit trail — who did what and when, visible in admin
+- [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
 - [ ] **Profile view tab**: Role, contracts, legal, financial data, 1099/profit sharing payouts
 
 ### Medium Priority
