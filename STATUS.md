@@ -2,7 +2,8 @@
 
 **Version:** 0.8.0
 **Last Updated:** 2026-03-21
-**Commits:** 195+
+**Last Updated By:** Matthew Miceli
+**Commits:** 197+
 
 ## Feature Status
 
@@ -37,12 +38,12 @@
 
 ## Recent Changes
 
-| Date   | Commit  | Description                                                                       |
-| ------ | ------- | --------------------------------------------------------------------------------- |
-| Mar 21 | 22c9b63 | Multi-dev collab infrastructure (Husky, lint-staged, Dependabot, CI, PR template) |
-| Mar 21 | f9874f2 | Bump next 16.1.7, jspdf 4.2.1, audit fix (consolidated Dependabot PRs #1-5)       |
-| Mar 21 | 8e952c2 | Format entire codebase with Prettier, framework v1.23.0                           |
-| Mar 16 | d78db25 | Contact-to-client promotion flows, New Earth Media demo for Glo Moss portal       |
-| Mar 16 | —       | Switched DB to pooler URL, fixed AccountManagerPicker hydration bug               |
+| Date   | Commit  | Description                                                                              |
+| ------ | ------- | ---------------------------------------------------------------------------------------- |
+| Mar 21 | 03e1a0e | Expand roadmap: ops infrastructure, notifications, SOP tab, audit trail, global search   |
+| Mar 21 | b07ce49 | Reorganize roadmap and reprioritize TODOs around client onboarding and platform buildout |
+| Mar 21 | 22c9b63 | Multi-dev collab infrastructure (Husky, lint-staged, Dependabot, CI, PR template)        |
+| Mar 21 | f9874f2 | Bump next 16.1.7, jspdf 4.2.1, audit fix (consolidated Dependabot PRs #1-5)              |
+| Mar 21 | 8e952c2 | Format entire codebase with Prettier, framework v1.23.0                                  |
 
 _Older changes: `git log --oneline`_
