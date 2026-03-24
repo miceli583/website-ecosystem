@@ -46,7 +46,7 @@
 
 | Date   | Commit  | Description                                                                              |
 | ------ | ------- | ---------------------------------------------------------------------------------------- |
-| Mar 24 | pending | Phase 8: Project/task management — schema, tRPC router, admin pages, portal integration  |
+| Mar 24 | f176d97 | Phase 8: Project/task management — schema, tRPC router, admin pages, portal integration  |
 | Mar 24 | 5053e50 | Phase 7: portal sidebar layout, client list redesign, Your Team card, notes formatting   |
 | Mar 24 | 78da76e | Phase 6: RBAC (4 roles), notifications, admin profile, CRM inline editing, org overhaul  |
 | Mar 21 | 03e1a0e | Expand roadmap: ops infrastructure, notifications, SOP tab, audit trail, global search   |
