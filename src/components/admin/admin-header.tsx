@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User, ChevronRight } from "lucide-react";
+import { LogOut, User, ChevronRight, Bell, Check } from "lucide-react";
 import { api } from "~/trpc/react";
 import { createClient } from "~/lib/supabase/client";
 import { AdminSidebarMobileToggle } from "./admin-sidebar";
@@ -95,6 +95,158 @@ function formatSegment(segment: string): string {
     .join(" ");
 }
 
+type Notification = {
+  id: number;
+  title: string;
+  message: string | null;
+  linkUrl: string | null;
+  isRead: boolean;
+  createdAt: Date;
+  type: string;
+  recipientId: string;
+};
+
+function NotificationBell() {
+  const router = useRouter();
+  const utils = api.useUtils();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { data: unreadCount } = api.notifications.getUnreadCount.useQuery(
+    undefined,
+    { refetchInterval: 30_000, staleTime: 10_000 }
+  );
+
+  const { data: unreadNotifications } = api.notifications.getUnread.useQuery(
+    undefined,
+    { enabled: isOpen, staleTime: 5_000 }
+  );
+
+  const markRead = api.notifications.markRead.useMutation({
+    onSuccess: () => {
+      void utils.notifications.getUnreadCount.invalidate();
+      void utils.notifications.getUnread.invalidate();
+    },
+  });
+
+  const markAllRead = api.notifications.markAllRead.useMutation({
+    onSuccess: () => {
+      void utils.notifications.getUnreadCount.invalidate();
+      void utils.notifications.getUnread.invalidate();
+    },
+  });
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [isOpen]);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="relative flex items-center text-gray-400 transition-colors hover:text-white"
+      >
+        <Bell className="h-4 w-4" />
+        {(unreadCount ?? 0) > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#D4AF37] text-[9px] font-bold text-black">
+            {unreadCount! > 9 ? "9+" : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {isOpen && (
+        <div
+          className="absolute top-full right-0 mt-2 w-80 rounded-lg border bg-[#0a0a0a] shadow-2xl"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div
+            className="flex items-center justify-between border-b px-4 py-3"
+            style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+          >
+            <h3 className="text-sm font-medium text-white">Notifications</h3>
+            {(unreadCount ?? 0) > 0 && (
+              <button
+                onClick={() => markAllRead.mutate()}
+                className="flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-[#D4AF37]"
+              >
+                <Check className="h-3 w-3" />
+                Mark all read
+              </button>
+            )}
+          </div>
+
+          <div className="max-h-80 overflow-y-auto">
+            {!unreadNotifications || unreadNotifications.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <Bell className="mx-auto mb-2 h-5 w-5 text-gray-700" />
+                <p className="text-xs text-gray-600">No new notifications</p>
+              </div>
+            ) : (
+              (unreadNotifications as Notification[]).map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => {
+                    markRead.mutate({ id: n.id });
+                    if (n.linkUrl) {
+                      router.push(n.linkUrl);
+                      setIsOpen(false);
+                    }
+                  }}
+                  className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-white/5"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.08)" }}
+                >
+                  <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-[#D4AF37]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-white">
+                      {n.title}
+                    </p>
+                    {n.message && (
+                      <p className="mt-0.5 line-clamp-2 text-xs text-gray-500">
+                        {n.message}
+                      </p>
+                    )}
+                    <p className="mt-1 text-[10px] text-gray-600">
+                      {new Date(n.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+
+          <div
+            className="border-t px-4 py-2"
+            style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+          >
+            <Link
+              href="/admin/notifications"
+              onClick={() => setIsOpen(false)}
+              className="block text-center text-xs text-gray-500 transition-colors hover:text-[#D4AF37]"
+            >
+              View all notifications
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AdminHeader() {
   const router = useRouter();
   const { isCollapsed } = useAdminSidebar();
@@ -158,11 +310,12 @@ export function AdminHeader() {
         )}
       </div>
 
-      {/* Right side: user info + sign out */}
+      {/* Right side: notifications + user info + sign out */}
       <div className="flex items-center gap-4">
+        <NotificationBell />
         {profile && (
           <Link
-            href="/portal/profile?domain=live"
+            href="/admin/profile"
             className="flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
           >
             <User className="h-4 w-4" />

@@ -55,6 +55,28 @@ export const portalRouter = createTRPCRouter({
   }),
 
   /**
+   * Get current user's roles for client-side permission checks.
+   * Used by admin nav filtering, UI gating, etc.
+   */
+  getMyRoles: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await db.query.portalUsers.findFirst({
+      where: eq(portalUsers.authUserId, ctx.user.id),
+    });
+
+    const companyRoles = (profile?.companyRoles ?? []) as string[];
+
+    return {
+      role: profile?.role ?? null,
+      companyRoles,
+      isFounder: companyRoles.includes("founder"),
+      isFullAccess:
+        companyRoles.includes("founder") || companyRoles.includes("admin"),
+      isCompanyMember: profile?.isCompanyMember ?? false,
+      profileId: profile?.id ?? null,
+    };
+  }),
+
+  /**
    * Get portal user profile for a specific client slug
    * Admins can view any client's profile, clients can only view their own
    */
@@ -146,6 +168,14 @@ export const portalRouter = createTRPCRouter({
               phone: true,
             },
           },
+          assignedDeveloper: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
       });
 
@@ -179,6 +209,12 @@ export const portalRouter = createTRPCRouter({
       orderBy: [desc(clients.createdAt)],
       with: {
         projects: true,
+        accountManager: {
+          columns: { id: true, name: true },
+        },
+        assignedDeveloper: {
+          columns: { id: true, name: true },
+        },
       },
     });
   }),
@@ -1815,7 +1851,8 @@ export const portalRouter = createTRPCRouter({
     }),
 
   /**
-   * Get all projects for a client
+   * Get all projects for a client (lightweight — used by project dropdowns).
+   * Full project management moved to projects router.
    */
   getProjects: protectedProcedure
     .input(z.object({ slug: z.string() }))
@@ -1823,32 +1860,22 @@ export const portalRouter = createTRPCRouter({
       const profile = await db.query.portalUsers.findFirst({
         where: eq(portalUsers.authUserId, ctx.user.id),
       });
-
-      if (!profile || !profile.isActive) {
+      if (!profile?.isActive) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Portal access denied",
         });
       }
-
       if (profile.role === "client" && profile.clientSlug !== input.slug) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You can only access your own projects",
-        });
+        throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
       }
-
       const client = await db.query.clients.findFirst({
         where: eq(clients.slug, input.slug),
+        columns: { id: true },
       });
-
       if (!client) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Client not found",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
       }
-
       return db.query.clientProjects.findMany({
         where: eq(clientProjects.clientId, client.id),
         orderBy: [desc(clientProjects.createdAt)],
@@ -1856,7 +1883,8 @@ export const portalRouter = createTRPCRouter({
     }),
 
   /**
-   * Create a project for a client (admin only)
+   * Create a project (lightweight — used by project dropdowns in other portal pages).
+   * Full project management moved to projects router.
    */
   createProject: protectedProcedure
     .input(
@@ -1870,25 +1898,19 @@ export const portalRouter = createTRPCRouter({
       const profile = await db.query.portalUsers.findFirst({
         where: eq(portalUsers.authUserId, ctx.user.id),
       });
-
       if (!profile || profile.role !== "admin") {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Admin access required",
         });
       }
-
       const client = await db.query.clients.findFirst({
         where: eq(clients.slug, input.slug),
+        columns: { id: true },
       });
-
       if (!client) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Client not found",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
       }
-
       const [project] = await db
         .insert(clientProjects)
         .values({
@@ -1897,79 +1919,6 @@ export const portalRouter = createTRPCRouter({
           description: input.description ?? null,
         })
         .returning();
-
       return project;
-    }),
-
-  /**
-   * Update a project (admin only)
-   */
-  updateProject: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string().min(1).optional(),
-        description: z.string().nullable().optional(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const profile = await db.query.portalUsers.findFirst({
-        where: eq(portalUsers.authUserId, ctx.user.id),
-      });
-
-      if (!profile || profile.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
-
-      const { id, ...data } = input;
-      const [updated] = await db
-        .update(clientProjects)
-        .set({ ...data, updatedAt: new Date() })
-        .where(eq(clientProjects.id, id))
-        .returning();
-
-      if (!updated) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Project not found",
-        });
-      }
-
-      return updated;
-    }),
-
-  /**
-   * Delete a project (admin only)
-   */
-  deleteProject: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ ctx, input }) => {
-      const profile = await db.query.portalUsers.findFirst({
-        where: eq(portalUsers.authUserId, ctx.user.id),
-      });
-
-      if (!profile || profile.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
-
-      const [deleted] = await db
-        .delete(clientProjects)
-        .where(eq(clientProjects.id, input.id))
-        .returning();
-
-      if (!deleted) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Project not found",
-        });
-      }
-
-      return { success: true };
     }),
 });

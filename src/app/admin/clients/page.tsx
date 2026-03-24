@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { api, type RouterOutputs } from "~/trpc/react";
 
-type ClientListItem = RouterOutputs["clients"]["list"][number];
+type ClientListItem = RouterOutputs["clients"]["list"]["items"][number];
 
 import {
   Plus,
@@ -26,6 +26,8 @@ import {
   AlertTriangle,
   Info,
   UserPlus,
+  UserCheck,
+  Code2,
   Shield,
 } from "lucide-react";
 
@@ -503,7 +505,9 @@ function CreateClientModal({ onClose }: { onClose: () => void }) {
 function AddFromContactModal({ onClose }: { onClose: () => void }) {
   const utils = api.useUtils();
   const { data: contacts = [] } = api.crm.getContactOptions.useQuery();
-  const { data: existingClients } = api.clients.list.useQuery();
+  const { data: existingClients } = api.clients.list.useQuery({
+    pageSize: 100,
+  });
   const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
   const promote = api.crm.promoteToClient.useMutation({
     onSuccess: () => {
@@ -540,7 +544,8 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
 
   // Filter out contacts that are already clients
   const existingEmails = new Set(
-    existingClients?.map((c: ClientListItem) => c.email.toLowerCase()) ?? []
+    existingClients?.items?.map((c: ClientListItem) => c.email.toLowerCase()) ??
+      []
   );
   const available = contacts.filter(
     (c: { id: string; name: string; email: string }) =>
@@ -1317,10 +1322,13 @@ function ActionMenu({
 /* ── Main Page ─────────────────────────────────────────────────── */
 
 export default function AdminClientsPage() {
-  const { data: clients, isLoading } = api.clients.list.useQuery();
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<
+    "newest" | "oldest" | "name" | "active" | "inactive"
+  >("newest");
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
   const [showCreate, setShowCreate] = useState(false);
   const [showAddFromContact, setShowAddFromContact] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientListItem | null>(
@@ -1333,26 +1341,37 @@ export default function AdminClientsPage() {
     null
   );
 
-  const filtered = useMemo(() => {
-    if (!clients) return [];
-    let list = clients;
+  const utils = api.useUtils();
+  const { data, isLoading } = api.clients.list.useQuery({
+    search: search || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    sortBy,
+    page,
+    pageSize,
+  });
+  const { data: myRoles } = api.portal.getMyRoles.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: teamMembers } = api.crm.getCompanyTeam.useQuery();
+  const updateClient = api.clients.update.useMutation({
+    onSuccess: () => void utils.clients.list.invalidate(),
+  });
 
-    if (statusFilter !== "all") {
-      list = list.filter((c: ClientListItem) => c.status === statusFilter);
-    }
+  const canAssign = myRoles?.isFullAccess ?? false;
+  const filtered = data?.items ?? [];
 
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (c: ClientListItem) =>
-          c.name.toLowerCase().includes(q) ||
-          c.email.toLowerCase().includes(q) ||
-          (c.company && c.company.toLowerCase().includes(q))
-      );
-    }
-
-    return list;
-  }, [clients, search, statusFilter]);
+  const accountManagers = (teamMembers ?? []).filter(
+    (m: { companyRoles: string[] | null }) =>
+      (m.companyRoles ?? []).some((r: string) =>
+        ["founder", "admin", "account_manager"].includes(r)
+      )
+  );
+  const developers = (teamMembers ?? []).filter(
+    (m: { companyRoles: string[] | null }) =>
+      (m.companyRoles ?? []).some((r: string) =>
+        ["founder", "admin", "developer"].includes(r)
+      )
+  );
 
   return (
     <div className="space-y-6">
@@ -1382,7 +1401,10 @@ export default function AdminClientsPage() {
             type="text"
             placeholder="Search by name, email, or company..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-10 text-sm text-white placeholder:text-gray-500 focus:outline-none"
             style={borderStyle}
           />
@@ -1391,7 +1413,10 @@ export default function AdminClientsPage() {
         <div className="relative">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
             className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
             style={borderStyle}
           >
@@ -1402,9 +1427,28 @@ export default function AdminClientsPage() {
           <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
         </div>
 
-        {!isLoading && (
+        <div className="relative">
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value as typeof sortBy);
+              setPage(1);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="name">Name</option>
+            <option value="active">Active First</option>
+            <option value="inactive">Inactive First</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        {data && (
           <span className="text-sm text-gray-500">
-            {filtered.length} client{filtered.length !== 1 ? "s" : ""}
+            {data.total} client{data.total !== 1 ? "s" : ""}
           </span>
         )}
 
@@ -1430,12 +1474,23 @@ export default function AdminClientsPage() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Client List */}
       <div className="rounded-lg border bg-white/5" style={borderStyle}>
         {isLoading ? (
-          <TableSkeleton />
+          <div
+            className="space-y-0 divide-y"
+            style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+          >
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-4 py-3">
+                <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
+                <div className="h-4 flex-1 animate-pulse rounded bg-white/5" />
+                <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
+              </div>
+            ))}
+          </div>
         ) : !filtered.length ? (
-          <div className="flex flex-col items-center justify-center py-12">
+          <div className="flex flex-col items-center justify-center py-16">
             <Users className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
               {search || statusFilter !== "all"
@@ -1444,124 +1499,183 @@ export default function AdminClientsPage() {
             </p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr
-                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
-                style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+          <div
+            className="divide-y"
+            style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+          >
+            {filtered.map((client: ClientListItem) => (
+              <div
+                key={client.id}
+                className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-white/5"
               >
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Projects</th>
-                <th className="px-4 py-3">Created</th>
-                <th className="px-4 py-3">Portal</th>
-                <th className="w-10 px-2 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((client: ClientListItem) => (
-                <tr
-                  key={client.id}
-                  className="border-b transition-colors hover:bg-white/5"
-                  style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
-                >
-                  {/* Name */}
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/clients/${client.slug}`}
-                      className="font-medium text-white transition-colors hover:text-[#D4AF37]"
-                    >
-                      {client.name}
-                    </Link>
+                {/* Name + company */}
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/admin/clients/${client.slug}`}
+                    className="text-sm font-medium text-white transition-colors hover:text-[#D4AF37]"
+                  >
+                    {client.name}
+                  </Link>
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
                     {client.company && (
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
                         <Building2 className="h-3 w-3" />
                         {client.company}
-                      </p>
+                      </span>
                     )}
-                    {client.accountManager && (
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-600">
-                        <Users className="h-3 w-3" />
-                        {client.accountManager.name}
-                      </p>
-                    )}
-                  </td>
+                    <span className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {client.email}
+                    </span>
+                  </div>
+                </div>
 
-                  {/* Contact */}
-                  <td className="px-4 py-3">
-                    <div className="space-y-0.5">
-                      <p className="flex items-center gap-1 text-gray-400">
-                        <Mail className="h-3 w-3" />
-                        {client.email}
-                      </p>
-                    </div>
-                  </td>
+                {/* Status badge */}
+                <span
+                  className="hidden flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline-flex"
+                  style={{
+                    backgroundColor:
+                      client.status === "active"
+                        ? "rgba(74, 222, 128, 0.1)"
+                        : "rgba(156, 163, 175, 0.1)",
+                    color: client.status === "active" ? "#4ade80" : "#9ca3af",
+                  }}
+                >
+                  {client.status === "active" ? "Active" : "Inactive"}
+                </span>
 
-                  {/* Status */}
-                  <td className="px-4 py-3">
-                    <span
-                      className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                      style={{
-                        backgroundColor:
-                          client.status === "active"
-                            ? "rgba(74, 222, 128, 0.1)"
-                            : "rgba(156, 163, 175, 0.1)",
-                        color:
-                          client.status === "active" ? "#4ade80" : "#9ca3af",
-                      }}
+                {/* Projects count */}
+                <span className="hidden flex-shrink-0 items-center gap-1 text-xs text-gray-500 md:inline-flex">
+                  <FolderKanban className="h-3 w-3" />
+                  {client.projects.length}
+                </span>
+
+                {/* Account Manager */}
+                <div
+                  className="hidden flex-shrink-0 items-center gap-1 text-xs lg:flex"
+                  style={{ minWidth: "120px" }}
+                >
+                  <UserCheck
+                    className="h-3 w-3 flex-shrink-0"
+                    style={{ color: "#D4AF37" }}
+                  />
+                  {canAssign ? (
+                    <select
+                      value={client.accountManagerId ?? ""}
+                      onChange={(e) =>
+                        updateClient.mutate({
+                          id: client.id,
+                          accountManagerId: e.target.value || null,
+                        })
+                      }
+                      className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
                     >
-                      {client.status === "active" ? "Active" : "Inactive"}
+                      <option value="">—</option>
+                      {accountManagers.map(
+                        (m: { id: string; name: string }) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  ) : (
+                    <span className="truncate text-gray-500">
+                      {client.accountManager?.name ?? "—"}
                     </span>
-                  </td>
+                  )}
+                </div>
 
-                  {/* Projects */}
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 text-gray-400">
-                      <FolderKanban className="h-3 w-3" />
-                      {client.projects.length} project
-                      {client.projects.length !== 1 ? "s" : ""}
-                    </span>
-                  </td>
-
-                  {/* Created */}
-                  <td className="px-4 py-3 text-gray-400">
-                    <span className="inline-flex items-center gap-1 text-xs">
-                      <Clock className="h-3 w-3" />
-                      {new Date(client.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </td>
-
-                  {/* Portal link */}
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/portal/${client.slug}`}
-                      className="inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
-                      style={{ color: "#D4AF37" }}
+                {/* Assigned Developer */}
+                <div
+                  className="hidden flex-shrink-0 items-center gap-1 text-xs xl:flex"
+                  style={{ minWidth: "120px" }}
+                >
+                  <Code2 className="h-3 w-3 flex-shrink-0 text-blue-400" />
+                  {canAssign ? (
+                    <select
+                      value={
+                        (
+                          client as ClientListItem & {
+                            assignedDeveloperId?: string | null;
+                          }
+                        ).assignedDeveloperId ?? ""
+                      }
+                      onChange={(e) =>
+                        updateClient.mutate({
+                          id: client.id,
+                          assignedDeveloperId: e.target.value || null,
+                        })
+                      }
+                      className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
                     >
-                      <ExternalLink className="h-3 w-3" />/{client.slug}
-                    </Link>
-                  </td>
+                      <option value="">—</option>
+                      {developers.map((m: { id: string; name: string }) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className="truncate text-gray-500">
+                      {(
+                        client as ClientListItem & {
+                          assignedDeveloper?: { name: string } | null;
+                        }
+                      ).assignedDeveloper?.name ?? "—"}
+                    </span>
+                  )}
+                </div>
 
-                  {/* Actions */}
-                  <td className="px-2 py-3">
-                    <ActionMenu
-                      client={client}
-                      onEdit={() => setEditingClient(client)}
-                      onArchive={() => setArchivingClient(client)}
-                      onDelete={() => setDeletingClient(client)}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                {/* Portal link */}
+                <Link
+                  href={`/portal/${client.slug}`}
+                  className="hidden flex-shrink-0 items-center gap-1 text-xs transition-colors hover:text-white sm:inline-flex"
+                  style={{ color: "#D4AF37" }}
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+
+                {/* Actions */}
+                <ActionMenu
+                  client={client}
+                  onEdit={() => setEditingClient(client)}
+                  onArchive={() => setArchivingClient(client)}
+                  onDelete={() => setDeletingClient(client)}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {data && data.total > pageSize && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, data.total)}{" "}
+            of {data.total}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+              style={borderStyle}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!data.hasMore}
+              className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+              style={borderStyle}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {showCreate && <CreateClientModal onClose={() => setShowCreate(false)} />}

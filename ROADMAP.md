@@ -21,42 +21,100 @@
 - [x] Admin login page rebranded to gold/black Miracle Mind theme
 - [x] Proposal spacing and markdown rendering improved
 
-## Session 4+ — Admin Overhaul (Phased)
+## Session 4 — Admin Overhaul Phase 1-2 (DONE)
 
-### Phase 1: Foundation (DONE)
-
-- [x] Admin-only route protection
-- [x] Dashboard layout + custom nav/footer
-
-### Phase 2: CRM Core (DONE)
-
-- [x] Input customers
-- [x] Search
-- [x] Pipeline view
-
-### Phase 3: CRM Advanced
-
-- [x] Source tracking from intake forms
-- [x] Stripe lifetime spend per customer
-- [ ] Customer notes with todos
-- [ ] Link admin notes to portal client view
-
-### Phase 4: Analytics
-
+- [x] Admin-only route protection + dashboard layout + custom nav/footer
+- [x] CRM core: input customers, search, pipeline view
+- [x] CRM advanced: source tracking, Stripe lifetime spend, collaborative notes
 - [x] Site analytics (internal submission metrics)
-- [ ] Full-stack analytics (Vercel Analytics + PostHog across ecosystem)
-- [ ] Login frequency
-- [ ] Email sends
-- [ ] Click tracking
-
-### Phase 5: Platform Expansion
-
-- [ ] Account manager role-based permissions (filter clients, scoped editing)
-- [ ] CRM notes management + project management + outreach scheduling
-- [ ] CMS email/text sequence builder
-- [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
 - [x] Rename "Landing Pages" to "Web Design"; landing pages open in new tab
 - [x] Remove Assets page nav/footer remnants
+
+---
+
+## Phase 5 — Client Onboarding & Deliverables (TABLED)
+
+_Client onboarding will happen individually as calls are scheduled._
+
+### Client Onboarding (on hold)
+
+- [ ] Set up Marissa Lambert in client portal → prep Soul Map UI
+- [ ] Add Zoey Wind to client portal → start building website
+- [ ] Add Shane David Street to client portal → start building website
+
+### Active Client Deliverables
+
+- [ ] Glo Moss: next phase of website + connect re: Tony Cho
+- [x] Shechem: LinkedIn photos
+- [ ] Shechem: TapCHW website, Gamma slide builder, LMS prototype demo (longer horizon)
+
+## Phase 6 — Role-Based Access & Permissions (DONE)
+
+- [x] Create role-based accounts: Account Management, Development, Sales
+- [x] Build role-specific views/dashboards for each role
+- [x] Account manager permissions: filter by assigned clients, scoped editing
+- [x] CRM contact page overhaul: comprehensive UI, inline editing, admin can assign devs/account managers
+- [x] Notifications system: in-app + email alerts for tickets, payments, proposal actions, updates
+
+## Phase 7 — Client Portal UX Refresh (DONE)
+
+- [x] Refactor client portal layout to match admin hub pattern (sidebar + header + content area)
+- [x] Sidebar navigation for portal tabs
+- [x] Redesign client cards — pagination, search/filter, role-scoped views
+- [x] Editable client metadata, reset password, "Your Team" card
+
+### Deferred to Phase 9+
+
+- [ ] Proposals modal UI refresh (friendlier, easier to read)
+- [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals)
+- [ ] Projects tab: internal notes section + task management UI (linked to admin hub task system)
+
+## Phase 8 — Admin Portal Expansion
+
+- [ ] Project management / task management UI in admin portal
+- [ ] Bug & ticketing system: clients submit via portal, team manages in admin (Open → In Progress → Resolved → Closed)
+- [ ] SOP tab: checklist-driven client onboarding workflow (create portal → magic link → assign AM → first project), reusable process templates
+- [ ] Activity log / audit trail: who did what and when, append-only, visible in admin
+- [ ] Global search (Cmd+K): search across contacts, clients, projects, tickets
+- [ ] Profile view tab: role, contracts, legal, financial data, 1099/profit sharing payouts
+- [ ] Legal agreements for portal onboarding (bundled with profile/contracts)
+- [ ] Privacy policies and ToS improvements
+- [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals from admin)
+- [ ] Proposals modal UI polish — better readability, package comparison
+
+## Phase 9 — Team Scorecard & Accountability
+
+- [ ] Role-specific KPI dashboards: Overview tab per role with relevant metrics (AM: client count, revenue per client; Dev: projects completed, tickets resolved)
+- [ ] KPI builder: Founder can define custom KPIs per role, assign targets, track actuals
+- [ ] Project health tracking: on-time delivery, scope changes, client satisfaction (1-5 rating at milestones)
+- [ ] Team member metrics: tasks completed, tickets resolved, active projects (auto-derived from project/task data)
+- [ ] Quarterly rocks: 3-5 goals per person per quarter, binary done/not-done, quarterly review
+- [ ] Definition of Done templates: per project type (website, demo, portal setup) — checklist before marking complete
+
+## Phase 10 — Payments & Billing
+
+- [ ] AM access to billing tab: search Mercury invoices/one-time bills charged outside portal
+- [ ] One-time invoice payment flow: Mercury linking for one-time payments in client portal
+- [ ] Custom Mercury invoice creation from portal (AM-facing, fold into proposal UI editor)
+- [ ] Mercury Plus investigation: recurring invoices as Stripe replacement
+- [ ] Stripe account configuration cleanup
+
+## Phase 11 — EOS Review Cadence
+
+- [ ] Weekly L10 meeting dashboard: scorecard metrics, rock status, to-do list, issues list (IDS: Identify → Discuss → Solve)
+- [ ] Monthly financial review: revenue vs forecast, expenses, profit margins, outstanding invoices, cash flow
+- [ ] Quarterly rock review: score rocks (done/not done), set next quarter's rocks, update scorecards
+- [ ] Annual planning view: yearly goals, revenue targets, key initiatives
+
+## Phase 12 — Business Development
+
+- [ ] Build funnel and ad campaign for website/CRM building services
+- [ ] Email/text marketing opt-in management (CRM, portal, intake forms)
+
+## Phase 13 — Observability
+
+- [ ] Full-stack analytics (Vercel Analytics + PostHog) — login frequency, email sends, click tracking
+- [ ] Sentry error tracking (ecosystem-wide, dedicated admin tab)
 
 ## Target Admin Structure
 
@@ -71,26 +129,47 @@
 - Sentry (error tracking)
 - Custom admin nav/footer
 
-## Cross-Cutting / Ongoing
+## Phase 14 — Environment Isolation & Sandbox (BLOCKED — needs free Supabase slot)
 
-- [ ] Privacy policies and ToS improvements
-- [ ] Legal agreements for portal onboarding
-- [ ] Email/text marketing opt-in management (CRM, portal, intake forms)
-- [ ] Stripe account configuration
-- [ ] Admin UI for proposals creation/editing + invoice submission to portal billing
+### Database Protection
+
+- [ ] Create sandbox Supabase project (free tier — auth + Postgres)
+- [ ] Switch from `db:push` to `db:generate` + `db:migrate` workflow for production
+- [ ] Commit migration files to git (`drizzle/` folder)
+- [ ] Add `db:push` guard script — warns/blocks if `DATABASE_URL` matches production
+- [ ] Document deploy process: code merges to main → `db:migrate` runs against prod
+
+### Sandbox Setup
+
+- [ ] Write `scripts/seed-sandbox.ts` — creates Supabase Auth accounts + matching portal_users rows (founder, AM, dev, client roles with known passwords)
+- [ ] Seed fake client data: 3-5 clients with proposals, notes, demos, billing history
+- [ ] Add production URL guard to seed script (refuse to run against prod Supabase)
+- [ ] Create `sandbox` long-lived branch from dev
+
+### Deployment & Onboarding
+
+- [ ] Pin Vercel preview deployment to `sandbox` branch (sandbox.miraclemind.dev)
+- [ ] Configure sandbox branch env vars in Vercel (sandbox Supabase URL, keys, DATABASE_URL)
+- [ ] Write team onboarding doc: sandbox URL, credentials per role, what to explore
+- [ ] Update `.env.example` with dual-environment documentation
 
 ## Backlog
 
 - [ ] Admin UI for managing client resources (demos, tooling, proposals)
+- [ ] CRM contact import (VCF bulk upload with duplicate detection)
+- [ ] CRM enhancements: notes management, outreach scheduling
+- [ ] Integrate brand tab into client portal
+- [ ] Keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
 - [ ] Bundle size optimization pass
 - [ ] Site efficiency improvements (caching, queries)
-- [ ] Page templating architecture
-- [ ] Shader creation skill
+- [ ] Page templating architecture (gallery exists, needs copy/scaffold)
 - [ ] Image carousel (continuous sliding) for matthewmiceli.com
 - [ ] Research device-independent magic links (Supabase auth)
-- [ ] Stress test portal flows (manual QA — checklist in docs/)
+- [ ] Stress test portal flows (after portal UI refresh — checklist in docs/)
+- [ ] Shader creation skill
+- [ ] Evaluate Turso for demo data isolation
 
 ## Low Priority
 
 - [ ] Blog automation system
-- [ ] Audit service inventory for completeness
+- [ ] CMS email/text sequence builder

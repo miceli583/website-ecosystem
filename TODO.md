@@ -2,38 +2,55 @@
 
 ## Critical (blocks production)
 
-_None currently — all critical security items resolved_
+_None currently_
 
 ## Bugs (broken functionality)
 
-_None currently_
+- [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow under concurrent queries — retry + staleTime added but root cause is connection pool pressure
 
 ## Tech Debt (code quality issues)
 
-_None currently_
+- [ ] **Type assertions in portal profile**: `assignedDeveloper` requires `as typeof client & {...}` casts — clean up when Drizzle relation types stabilize
 
 ## Enhancements (prioritized)
 
-### High Priority
+### High Priority — Client Onboarding & Deliverables
 
-- [ ] **Full-stack analytics**: Set up Vercel Analytics + PostHog across ecosystem — portal usage, site visits, form submissions, domain activity
-- [ ] **Sentry error tracking**: Implement across ecosystem (especially client portal); add dedicated "Sentry" tab in dev hub
-- [ ] Stress test portal flows using `docs/portal-qa-checklist.md`
-- [ ] Admin UI for managing client resources (demos, tooling, proposals)
-- [ ] **Mercury as payment platform**: Investigate Mercury Plus recurring invoices as Stripe replacement — recurring invoices, revenue dashboard integration (`admin/finance/revenue`), client portal checkout via Mercury invoicing. Mercury Plus is $35/mo; Stripe processing fee savings already cover the cost.
+- [ ] **Set up Marissa Lambert** in client portal → prep Soul Map UI
+- [ ] **Add Zoey Wind** to client portal → start building website
+- [ ] **Add Shane David Street** to client portal → start building website
+- [ ] **Glo Moss next phase**: website work + connect re: Tony Cho
+- [ ] **Shechem deliverables**: TapCHW website, Gamma slide builder, LMS prototype demo
+
+### High Priority — Platform (Phase 8+)
+
+- [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
+- [ ] **Proposals modal UI refresh**: Friendlier, easier to read
+- [x] **Project/task management UI**: Admin hub + portal — list/kanban, filters, sort, AM/dev/owner, standalone tasks
+- [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
+- [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
+- [ ] **Activity log**: Audit trail — who did what and when, visible in admin
+- [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
+- [ ] **Profile documents tab**: Contracts, agreements, file upload
+- [ ] **Profile bank balance tab**: Mercury direct deposit integration, 1099 payouts
 
 ### Medium Priority
 
-- [ ] **Account manager permissions**: Role-based access so account managers can filter by their clients, only edit projects for their assigned clients
-- [ ] **CRM contact import**: Bulk upload contacts from phone via VCF file — client-side vCard parser, preview table with duplicate detection (match by email), bulk `crm.importContacts` mutation
-- [ ] **CRM enhancements**: Notes management, deeper project management, in-site scheduling of emails/updates/outreach
-- [ ] **CMS email/text sequences**: Add email and text sequence builder to CMS
-- [ ] Add keyboard shortcuts (Cmd+K search, Esc close, Cmd+N new note)
-- [ ] Complete blog automation system `src/app/admin/blog/page.tsx:191`
-- [ ] **Integrate brand tab into client portal**: Each client gets a "Brand" tab with their guidelines, colors, fonts, logos
-- [ ] **Page templating architecture**: Design system to copy sample pages between routes
+- [ ] **Role-specific KPI dashboards**: Overview tab per role with relevant metrics
+- [ ] **KPI builder**: Founder defines custom KPIs per role, assigns targets
+- [ ] **Team scorecard**: Project health, team metrics, quarterly rocks, DoD templates
+- [ ] **AM billing access**: Search Mercury invoices/one-time bills, create custom invoices
+- [ ] **One-time invoice payments**: Mercury linking for one-time payment flow
+- [ ] **Mercury as payment platform**: Investigate Mercury Plus recurring invoices as Stripe replacement
+- [ ] **Funnel & ad campaign**: Build marketing funnel for website/CRM building services
+- [ ] **Privacy policies / ToS**: Legal agreements for portal onboarding
 
 ### Lower Priority
 
-- [ ] Evaluate Turso for demo data isolation
-- [ ] **Shader creation skill**: Evaluate creating a `/shader` skill for generating GLSL shaders
+- [ ] **Full-stack analytics**: Vercel Analytics + PostHog across ecosystem
+- [ ] **Sentry error tracking**: Ecosystem-wide, dedicated admin tab
+- [ ] **CRM contact import**: Bulk VCF upload with duplicate detection
+- [ ] **CRM enhancements**: Notes management, outreach scheduling
+- [ ] **Brand tab in client portal**: Per-client guidelines, colors, fonts, logos
+- [ ] **Keyboard shortcuts**: Cmd+K search, Esc close, Cmd+N new note
+- [ ] **Environment sandbox** (Phase 14, blocked): Needs free Supabase slot — second project for dev/sandbox with seed script, migration workflow, team onboarding

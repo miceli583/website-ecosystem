@@ -3,7 +3,6 @@
 import { use, useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   ConfirmDialog,
   SearchFilterBar,
@@ -889,7 +888,7 @@ export default function PortalBillingPage({
   // ---------------------------------------------------------------------------
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="mb-2 text-3xl font-bold">Billing</h1>
@@ -1147,6 +1146,6 @@ export default function PortalBillingPage({
           slug={slug}
         />
       )}
-    </ClientPortalLayout>
+    </>
   );
 }

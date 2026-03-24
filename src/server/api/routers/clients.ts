@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
+  adminProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -13,10 +14,12 @@ import {
   masterCrm,
   portalUsers,
 } from "~/server/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and, ilike, or, count } from "drizzle-orm";
 import { stripeLive } from "~/lib/stripe-live";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
+import { isFullAccess } from "~/lib/permissions";
+import { createNotification } from "~/lib/notifications";
 
 export const clientsRouter = createTRPCRouter({
   // Get distinct company names for picker
@@ -35,19 +38,86 @@ export const clientsRouter = createTRPCRouter({
     return [...all].sort();
   }),
 
-  // List all clients with CRM contact + account manager
-  list: protectedProcedure.query(async () => {
-    return db.query.clients.findMany({
-      orderBy: [desc(clients.createdAt)],
-      with: {
-        projects: true,
-        crmContact: true,
-        accountManager: {
-          columns: { id: true, name: true, email: true },
-        },
-      },
-    });
-  }),
+  // List clients with pagination, search, filtering
+  // Account managers see only their assigned clients
+  list: adminProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        status: z.string().optional(),
+        sortBy: z
+          .enum(["newest", "oldest", "name", "active", "inactive"])
+          .default("newest"),
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(12),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [];
+
+      // Role-based scoping
+      const roles = (ctx.profile.companyRoles ?? []) as string[];
+      if (!isFullAccess(roles) && roles.includes("account_manager")) {
+        conditions.push(eq(clients.accountManagerId, ctx.profile.id));
+      }
+
+      // Search
+      if (input.search) {
+        conditions.push(
+          or(
+            ilike(clients.name, `%${input.search}%`),
+            ilike(clients.email, `%${input.search}%`),
+            ilike(clients.company, `%${input.search}%`)
+          )
+        );
+      }
+
+      // Status filter
+      if (input.status) {
+        conditions.push(eq(clients.status, input.status));
+      }
+
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const orderBy =
+        input.sortBy === "name"
+          ? [clients.name]
+          : input.sortBy === "oldest"
+            ? [clients.createdAt]
+            : input.sortBy === "active"
+              ? [desc(clients.status), desc(clients.createdAt)]
+              : input.sortBy === "inactive"
+                ? [clients.status, desc(clients.createdAt)]
+                : [desc(clients.createdAt)];
+
+      const [items, totalResult] = await Promise.all([
+        db.query.clients.findMany({
+          where,
+          orderBy,
+          limit: input.pageSize,
+          offset: (input.page - 1) * input.pageSize,
+          with: {
+            projects: true,
+            crmContact: true,
+            accountManager: {
+              columns: { id: true, name: true, email: true },
+            },
+            assignedDeveloper: {
+              columns: { id: true, name: true, email: true },
+            },
+          },
+        }),
+        db.select({ count: count() }).from(clients).where(where),
+      ]);
+
+      return {
+        items,
+        total: totalResult[0]?.count ?? 0,
+        page: input.page,
+        pageSize: input.pageSize,
+        hasMore: input.page * input.pageSize < (totalResult[0]?.count ?? 0),
+      };
+    }),
 
   // Get single client by ID
   getById: protectedProcedure
@@ -259,6 +329,7 @@ export const clientsRouter = createTRPCRouter({
         company: z.string().nullable().optional(),
         notes: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
+        assignedDeveloperId: z.string().uuid().nullable().optional(),
         slug: z.string().min(1).optional(),
       })
     )
@@ -324,46 +395,6 @@ export const clientsRouter = createTRPCRouter({
       return updated;
     }),
 
-  // Create project for a client
-  createProject: protectedProcedure
-    .input(
-      z.object({
-        clientId: z.number(),
-        name: z.string().min(1),
-        description: z.string().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const [project] = await db
-        .insert(clientProjects)
-        .values({
-          clientId: input.clientId,
-          name: input.name,
-          description: input.description ?? null,
-        })
-        .returning();
-      return project;
-    }),
-
-  // Update project name/description
-  updateProject: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string().min(1).optional(),
-        description: z.string().nullable().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { id, ...data } = input;
-      const [updated] = await db
-        .update(clientProjects)
-        .set({ ...data, updatedAt: new Date() })
-        .where(eq(clientProjects.id, id))
-        .returning();
-      return updated;
-    }),
-
   // Push update to a project (also sends email notification)
   pushUpdate: protectedProcedure
     .input(
@@ -409,6 +440,17 @@ export const clientsRouter = createTRPCRouter({
             content: input.content,
           }),
         });
+
+        // Notify assigned account manager
+        if (project.client.accountManagerId) {
+          void createNotification({
+            recipientId: project.client.accountManagerId,
+            type: "client_update",
+            title: `Update pushed to ${project.client.name}`,
+            message: `${input.type}: ${input.title}`,
+            linkUrl: `/admin/clients/${project.client.slug}`,
+          });
+        }
       }
 
       return update;

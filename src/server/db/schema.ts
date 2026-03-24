@@ -288,6 +288,24 @@ export const portalUsers = pgTable("portal_users", {
 });
 
 /**
+ * Notifications - In-app notifications for admin users
+ */
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  recipientId: uuid("recipient_id")
+    .notNull()
+    .references(() => portalUsers.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // assignment | status_change | client_update | payment_received | proposal_action
+  title: text("title").notNull(),
+  message: text("message"),
+  linkUrl: text("link_url"), // relative URL for deep linking
+  isRead: boolean("is_read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
  * Clients - CRM client records
  */
 export const clients = pgTable("clients", {
@@ -296,6 +314,10 @@ export const clients = pgTable("clients", {
     onDelete: "set null",
   }),
   accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  assignedDeveloperId: uuid("assigned_developer_id").references(
     () => portalUsers.id,
     { onDelete: "set null" }
   ),
@@ -324,7 +346,50 @@ export const clientProjects = pgTable("client_projects", {
     .references(() => clients.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description"),
-  status: text("status").notNull().default("active"), // active | completed | paused
+  status: text("status").notNull().default("active"), // active | completed | on-hold | paused
+  accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  assignedDeveloperId: uuid("assigned_developer_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Project Tasks - Track tasks per project or standalone
+ */
+export const projectTasks = pgTable("project_tasks", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("todo"), // todo | in-progress | done
+  priority: text("priority").notNull().default("medium"), // low | medium | high | urgent
+  projectId: integer("project_id").references(() => clientProjects.id, {
+    onDelete: "cascade",
+  }),
+  clientId: integer("client_id").references(() => clients.id, {
+    onDelete: "set null",
+  }),
+  ownerId: uuid("owner_id").references(() => portalUsers.id, {
+    onDelete: "set null",
+  }),
+  accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  assignedDeveloperId: uuid("assigned_developer_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  dueDate: date("due_date"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -598,6 +663,13 @@ export const quotePostsRelations = relations(quotePosts, ({ one }) => ({
   }),
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  recipient: one(portalUsers, {
+    fields: [notifications.recipientId],
+    references: [portalUsers.id],
+  }),
+}));
+
 export const portalUsersRelations = relations(portalUsers, ({ one, many }) => ({
   // Client slug links to clients table
   client: one(clients, {
@@ -606,11 +678,26 @@ export const portalUsersRelations = relations(portalUsers, ({ one, many }) => ({
     relationName: "clientPortalUser",
   }),
   managedClients: many(clients, { relationName: "clientAccountManager" }),
+  developedClients: many(clients, { relationName: "clientAssignedDeveloper" }),
   managedCrmContacts: many(masterCrm, { relationName: "crmAccountManager" }),
+  notifications: many(notifications),
+  // Project/task relations
+  managedProjects: many(clientProjects, {
+    relationName: "projectAccountManager",
+  }),
+  developedProjects: many(clientProjects, {
+    relationName: "projectAssignedDeveloper",
+  }),
+  ownedTasks: many(projectTasks, { relationName: "taskOwner" }),
+  managedTasks: many(projectTasks, { relationName: "taskAccountManager" }),
+  developedTasks: many(projectTasks, {
+    relationName: "taskAssignedDeveloper",
+  }),
 }));
 
 export const clientsRelations = relations(clients, ({ many, one }) => ({
   projects: many(clientProjects),
+  tasks: many(projectTasks),
   agreements: many(clientAgreements),
   resources: many(clientResources),
   notes: many(clientNotes),
@@ -627,6 +714,11 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
     fields: [clients.accountManagerId],
     references: [portalUsers.id],
     relationName: "clientAccountManager",
+  }),
+  assignedDeveloper: one(portalUsers, {
+    fields: [clients.assignedDeveloperId],
+    references: [portalUsers.id],
+    relationName: "clientAssignedDeveloper",
   }),
 }));
 
@@ -652,8 +744,45 @@ export const clientProjectsRelations = relations(
       references: [clients.id],
     }),
     updates: many(clientUpdates),
+    tasks: many(projectTasks),
+    accountManager: one(portalUsers, {
+      fields: [clientProjects.accountManagerId],
+      references: [portalUsers.id],
+      relationName: "projectAccountManager",
+    }),
+    assignedDeveloper: one(portalUsers, {
+      fields: [clientProjects.assignedDeveloperId],
+      references: [portalUsers.id],
+      relationName: "projectAssignedDeveloper",
+    }),
   })
 );
+
+export const projectTasksRelations = relations(projectTasks, ({ one }) => ({
+  project: one(clientProjects, {
+    fields: [projectTasks.projectId],
+    references: [clientProjects.id],
+  }),
+  client: one(clients, {
+    fields: [projectTasks.clientId],
+    references: [clients.id],
+  }),
+  owner: one(portalUsers, {
+    fields: [projectTasks.ownerId],
+    references: [portalUsers.id],
+    relationName: "taskOwner",
+  }),
+  accountManager: one(portalUsers, {
+    fields: [projectTasks.accountManagerId],
+    references: [portalUsers.id],
+    relationName: "taskAccountManager",
+  }),
+  assignedDeveloper: one(portalUsers, {
+    fields: [projectTasks.assignedDeveloperId],
+    references: [portalUsers.id],
+    relationName: "taskAssignedDeveloper",
+  }),
+}));
 
 export const clientUpdatesRelations = relations(clientUpdates, ({ one }) => ({
   project: one(clientProjects, {
@@ -796,6 +925,9 @@ export type NewClient = typeof clients.$inferInsert;
 
 export type ClientProject = typeof clientProjects.$inferSelect;
 export type NewClientProject = typeof clientProjects.$inferInsert;
+
+export type ProjectTask = typeof projectTasks.$inferSelect;
+export type NewProjectTask = typeof projectTasks.$inferInsert;
 
 export type ClientUpdate = typeof clientUpdates.$inferSelect;
 export type NewClientUpdate = typeof clientUpdates.$inferInsert;

@@ -26,18 +26,14 @@ const ROLE_OPTIONS = [
   "founder",
   "admin",
   "account_manager",
-  "project_manager",
   "developer",
-  "designer",
 ] as const;
 
 const ROLE_LABELS: Record<string, string> = {
   founder: "Founder",
   admin: "Admin",
   account_manager: "Account Manager",
-  project_manager: "Project Manager",
   developer: "Developer",
-  designer: "Designer",
 };
 
 /* ── Types ─────────────────────────────────────────────────────── */
@@ -72,32 +68,24 @@ function TableSkeleton({ rows = 6 }: { rows?: number }) {
   );
 }
 
-/* ── Role Checkbox Group ───────────────────────────────────────── */
+/* ── Role Select (single-select) ──────────────────────────────── */
 
-function RoleCheckboxGroup({
+function RoleSelect({
   selected,
   onChange,
 }: {
-  selected: string[];
-  onChange: (roles: string[]) => void;
+  selected: string | null;
+  onChange: (role: string) => void;
 }) {
-  const toggle = (role: string) => {
-    if (selected.includes(role)) {
-      onChange(selected.filter((r) => r !== role));
-    } else {
-      onChange([...selected, role]);
-    }
-  };
-
   return (
     <div className="flex flex-wrap gap-2">
       {ROLE_OPTIONS.map((role) => {
-        const isSelected = selected.includes(role);
+        const isSelected = selected === role;
         return (
           <button
             key={role}
             type="button"
-            onClick={() => toggle(role)}
+            onClick={() => onChange(role)}
             className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
             style={
               isSelected
@@ -136,7 +124,7 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
     name: "",
     email: "",
     phone: "",
-    companyRoles: [] as string[],
+    companyRole: "" as string,
   });
 
   useEffect(() => {
@@ -152,7 +140,7 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
       name: form.name,
       email: form.email,
       phone: form.phone || null,
-      companyRoles: form.companyRoles,
+      companyRoles: form.companyRole ? [form.companyRole] : [],
     });
   };
 
@@ -220,12 +208,10 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className={labelClass}>Roles</label>
-            <RoleCheckboxGroup
-              selected={form.companyRoles}
-              onChange={(roles) =>
-                setForm((f) => ({ ...f, companyRoles: roles }))
-              }
+            <label className={labelClass}>Role</label>
+            <RoleSelect
+              selected={form.companyRole || null}
+              onChange={(role) => setForm((f) => ({ ...f, companyRole: role }))}
             />
           </div>
         </div>
@@ -240,7 +226,12 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
           </button>
           <button
             onClick={handleCreate}
-            disabled={createMember.isPending || !form.name || !form.email}
+            disabled={
+              createMember.isPending ||
+              !form.name ||
+              !form.email ||
+              !form.companyRole
+            }
             className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
             style={{
               background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
@@ -276,7 +267,7 @@ function EditMemberModal({
     name: member.name,
     email: member.email,
     phone: member.phone ?? "",
-    companyRoles: member.companyRoles ?? [],
+    companyRole: (member.companyRoles?.[0] ?? "") as string,
     isActive: member.isActive,
   });
 
@@ -294,7 +285,7 @@ function EditMemberModal({
       name: form.name,
       email: form.email,
       phone: form.phone || null,
-      companyRoles: form.companyRoles,
+      companyRoles: form.companyRole ? [form.companyRole] : [],
       isActive: form.isActive,
     });
   };
@@ -361,12 +352,10 @@ function EditMemberModal({
           </div>
 
           <div>
-            <label className={labelClass}>Roles</label>
-            <RoleCheckboxGroup
-              selected={form.companyRoles}
-              onChange={(roles) =>
-                setForm((f) => ({ ...f, companyRoles: roles }))
-              }
+            <label className={labelClass}>Role</label>
+            <RoleSelect
+              selected={form.companyRole || null}
+              onChange={(role) => setForm((f) => ({ ...f, companyRole: role }))}
             />
           </div>
 
@@ -439,6 +428,11 @@ export default function OrganizationPage() {
   const [showCreate, setShowCreate] = useState(false);
   const limit = 25;
 
+  const { data: myRoles } = api.portal.getMyRoles.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const isFounder = myRoles?.isFounder ?? false;
+
   const { data, isLoading } = api.crm.getTeamMembers.useQuery({
     search: search || undefined,
     limit,
@@ -481,16 +475,18 @@ export default function OrganizationPage() {
           </span>
         )}
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-          style={{
-            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add Member
-        </button>
+        {isFounder && (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Add Member
+          </button>
+        )}
       </div>
 
       {/* Members Table */}
@@ -519,7 +515,7 @@ export default function OrganizationPage() {
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Roles</th>
+                <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="w-10 px-2 py-3" />
               </tr>
@@ -551,21 +547,17 @@ export default function OrganizationPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {member.companyRoles?.length ? (
-                      <div className="flex flex-wrap gap-1">
-                        {member.companyRoles.map((role: string) => (
-                          <span
-                            key={role}
-                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                            style={{
-                              backgroundColor: "rgba(212, 175, 55, 0.1)",
-                              color: "#D4AF37",
-                            }}
-                          >
-                            {ROLE_LABELS[role] ?? role}
-                          </span>
-                        ))}
-                      </div>
+                    {member.companyRoles?.[0] ? (
+                      <span
+                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{
+                          backgroundColor: "rgba(212, 175, 55, 0.1)",
+                          color: "#D4AF37",
+                        }}
+                      >
+                        {ROLE_LABELS[member.companyRoles[0]] ??
+                          member.companyRoles[0]}
+                      </span>
                     ) : (
                       <span className="text-xs text-gray-600">—</span>
                     )}
@@ -589,13 +581,15 @@ export default function OrganizationPage() {
                     </span>
                   </td>
                   <td className="px-2 py-3">
-                    <button
-                      onClick={() => setEditingMember(member)}
-                      className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
-                      title="Edit member"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </button>
+                    {isFounder && (
+                      <button
+                        onClick={() => setEditingMember(member)}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+                        title="Edit member"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

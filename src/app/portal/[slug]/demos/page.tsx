@@ -13,7 +13,6 @@ type UpdateWithProject = ClientUpdate & {
 };
 type Resource = RouterOutputs["portal"]["getResources"][number];
 
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   SearchFilterBar,
   ListItem,
@@ -723,7 +722,7 @@ export default function PortalDemosPage({
   }
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <div className="mb-6">
         <h1 className="mb-2 text-3xl font-bold">Demos</h1>
         <p className="text-gray-400">
@@ -909,6 +908,6 @@ export default function PortalDemosPage({
           isPending={setPublicSlug.isPending}
         />
       )}
-    </ClientPortalLayout>
+    </>
   );
 }

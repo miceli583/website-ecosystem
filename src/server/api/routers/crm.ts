@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { createTRPCRouter, adminProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  adminProcedure,
+  fullAccessProcedure,
+} from "~/server/api/trpc";
+import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 import { stripeLive } from "~/lib/stripe-live";
 import {
@@ -21,24 +26,44 @@ import {
   gte,
   inArray,
 } from "drizzle-orm";
+import { isFullAccess } from "~/lib/permissions";
+import { createNotification } from "~/lib/notifications";
+
+/** Extract companyRoles from the admin profile context */
+function getProfileRoles(ctx: { profile: { companyRoles: string[] | null } }) {
+  return (ctx.profile.companyRoles ?? []) as string[];
+}
 
 /**
  * CRM Router
  *
  * Admin-only procedures for the master CRM dashboard.
  * Manages contacts across all sources: personal site, miracle mind, banyan waitlist.
+ * Account managers see only their assigned contacts (except leads, which are visible to all).
  */
 export const crmRouter = createTRPCRouter({
   /**
    * Get pipeline stats by status
    */
-  getPipelineStats: adminProcedure.query(async () => {
+  getPipelineStats: adminProcedure.query(async ({ ctx }) => {
+    const roles = getProfileRoles(
+      ctx as { profile: { companyRoles: string[] | null } }
+    );
+    const scoped = !isFullAccess(roles) && roles.includes("account_manager");
+    const scopeCondition = scoped
+      ? eq(
+          masterCrm.accountManagerId,
+          (ctx as { profile: { id: string } }).profile.id
+        )
+      : undefined;
+
     const statuses = await db
       .select({
         status: masterCrm.status,
         count: count(),
       })
       .from(masterCrm)
+      .where(scopeCondition)
       .groupBy(masterCrm.status);
 
     const pipeline: Record<string, number> = {
@@ -72,8 +97,21 @@ export const crmRouter = createTRPCRouter({
         offset: z.number().min(0).default(0),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const conditions = [];
+
+      // Account managers only see their assigned contacts
+      const roles = getProfileRoles(
+        ctx as { profile: { companyRoles: string[] | null } }
+      );
+      if (!isFullAccess(roles) && roles.includes("account_manager")) {
+        conditions.push(
+          eq(
+            masterCrm.accountManagerId,
+            (ctx as { profile: { id: string } }).profile.id
+          )
+        );
+      }
 
       if (input.search) {
         conditions.push(
@@ -250,7 +288,7 @@ export const crmRouter = createTRPCRouter({
    */
   getContact: adminProcedure
     .input(z.object({ id: z.string().uuid() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const contact = await db
         .select()
         .from(masterCrm)
@@ -258,6 +296,22 @@ export const crmRouter = createTRPCRouter({
         .limit(1);
 
       if (!contact[0]) return null;
+
+      // Account managers can only view their assigned contacts
+      const roles = getProfileRoles(
+        ctx as { profile: { companyRoles: string[] | null } }
+      );
+      if (!isFullAccess(roles) && roles.includes("account_manager")) {
+        if (
+          contact[0].accountManagerId !==
+          (ctx as { profile: { id: string } }).profile.id
+        ) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You can only view contacts assigned to you",
+          });
+        }
+      }
 
       const [
         mmSubmissions,
@@ -439,8 +493,20 @@ export const crmRouter = createTRPCRouter({
         notes: z.string().nullable().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
+
+      // Account managers cannot reassign accountManagerId
+      const roles = getProfileRoles(
+        ctx as { profile: { companyRoles: string[] | null } }
+      );
+      if (!isFullAccess(roles) && input.accountManagerId !== undefined) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only founders and admins can reassign account managers",
+        });
+      }
+
       const [updated] = await db
         .update(masterCrm)
         .set({ ...data, updatedAt: new Date() })
@@ -474,6 +540,17 @@ export const crmRouter = createTRPCRouter({
             .set(clientUpdate)
             .where(eq(clients.id, linkedClient[0].id));
         }
+      }
+
+      // Notify account manager on status change
+      if (data.status && updated?.accountManagerId) {
+        void createNotification({
+          recipientId: updated.accountManagerId,
+          type: "status_change",
+          title: `${updated.name} status → ${data.status}`,
+          message: `Contact status updated to ${data.status}`,
+          linkUrl: `/admin/crm/contacts/${id}`,
+        });
       }
 
       return updated;
@@ -601,7 +678,7 @@ export const crmRouter = createTRPCRouter({
   /**
    * Create a new team member (company member portal user)
    */
-  createTeamMember: adminProcedure
+  createTeamMember: fullAccessProcedure
     .input(
       z.object({
         name: z.string().min(1),
@@ -628,7 +705,7 @@ export const crmRouter = createTRPCRouter({
   /**
    * Update a team member
    */
-  updateTeamMember: adminProcedure
+  updateTeamMember: fullAccessProcedure
     .input(
       z.object({
         id: z.string().uuid(),
@@ -737,7 +814,7 @@ export const crmRouter = createTRPCRouter({
   /**
    * Promote a CRM contact to a portal client — creates client record + sets CRM status
    */
-  promoteToClient: adminProcedure
+  promoteToClient: fullAccessProcedure
     .input(
       z.object({
         crmId: z.string().uuid(),
@@ -788,13 +865,25 @@ export const crmRouter = createTRPCRouter({
         .set({ status: "client", updatedAt: new Date() })
         .where(eq(masterCrm.id, input.crmId));
 
+      // Notify assigned account manager
+      const amId = input.accountManagerId ?? contact[0].accountManagerId;
+      if (amId) {
+        void createNotification({
+          recipientId: amId,
+          type: "status_change",
+          title: `${contact[0].name} promoted to client`,
+          message: `Client portal created at /portal/${input.slug}`,
+          linkUrl: `/admin/clients/${input.slug}`,
+        });
+      }
+
       return newClient;
     }),
 
   /**
    * Demote a client contact — handles portal cleanup + CRM status update
    */
-  demoteClient: adminProcedure
+  demoteClient: fullAccessProcedure
     .input(
       z.object({
         crmId: z.string().uuid(),

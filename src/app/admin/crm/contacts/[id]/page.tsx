@@ -18,6 +18,9 @@ import {
   DollarSign,
   Shield,
   X,
+  Pencil,
+  Check,
+  Code2,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -26,6 +29,16 @@ const inputClass =
 const labelClass =
   "mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500";
 const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
+const selectClass =
+  "w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50";
+
+type TeamMember = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  companyRoles: string[] | null;
+};
 
 const STATUS_CONFIG: Record<
   string,
@@ -111,9 +124,50 @@ export default function ContactDetailPage({
     },
   });
 
+  const { data: myRoles } = api.portal.getMyRoles.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: teamMembers } = api.crm.getCompanyTeam.useQuery();
+
   const [showPromote, setShowPromote] = useState(false);
   const [promoteSlug, setPromoteSlug] = useState("");
   const [promoteError, setPromoteError] = useState("");
+
+  // Inline editing state
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+
+  const canAssign = myRoles?.isFullAccess ?? false;
+
+  function startEdit(field: string, currentValue: string) {
+    setEditingField(field);
+    setEditValue(currentValue);
+  }
+
+  function saveField(field: string, value: string | null) {
+    updateContact.mutate(
+      { id, [field]: value },
+      {
+        onSuccess: () => {
+          void utils.crm.getContact.invalidate({ id });
+          setEditingField(null);
+        },
+      }
+    );
+  }
+
+  function saveNotes() {
+    updateContact.mutate(
+      { id, notes: editNotes || null },
+      {
+        onSuccess: () => {
+          void utils.crm.getContact.invalidate({ id });
+          setEditingField(null);
+        },
+      }
+    );
+  }
 
   if (isLoading) return <PageSkeleton />;
 
@@ -238,16 +292,109 @@ export default function ContactDetailPage({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">{contact.name}</h1>
+          {editingField === "name" ? (
+            <div className="flex items-center gap-2">
+              <input
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                className="rounded border bg-white/5 px-2 py-1 text-2xl font-bold text-white focus:border-[#D4AF37]/50 focus:outline-none"
+                style={borderStyle}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveField("name", editValue);
+                  if (e.key === "Escape") setEditingField(null);
+                }}
+              />
+              <button
+                onClick={() => saveField("name", editValue)}
+                className="rounded p-1 text-[#D4AF37] hover:bg-white/5"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setEditingField(null)}
+                className="rounded p-1 text-gray-500 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <h1 className="group flex items-center gap-2 text-2xl font-bold text-white">
+              {contact.name}
+              <button
+                onClick={() => startEdit("name", contact.name)}
+                className="text-gray-700 opacity-0 transition-opacity group-hover:opacity-100 hover:text-gray-300"
+                title="Edit name"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            </h1>
+          )}
           <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-400">
-            <span className="flex items-center gap-1">
-              <Mail className="h-3.5 w-3.5" />
-              {contact.email}
-            </span>
-            {contact.phone && (
+            {editingField === "email" ? (
+              <span className="flex items-center gap-1">
+                <Mail className="h-3.5 w-3.5" />
+                <input
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  className="rounded border bg-white/5 px-1.5 py-0.5 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
+                  style={borderStyle}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveField("email", editValue);
+                    if (e.key === "Escape") setEditingField(null);
+                  }}
+                />
+                <button
+                  onClick={() => saveField("email", editValue)}
+                  className="text-[#D4AF37]"
+                >
+                  <Check className="h-3 w-3" />
+                </button>
+              </span>
+            ) : (
+              <span
+                className="group flex cursor-pointer items-center gap-1"
+                onClick={() => startEdit("email", contact.email)}
+                title="Click to edit"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                {contact.email}
+                <Pencil className="h-2.5 w-2.5 text-gray-700 opacity-0 group-hover:opacity-100" />
+              </span>
+            )}
+            {editingField === "phone" ? (
               <span className="flex items-center gap-1">
                 <Phone className="h-3.5 w-3.5" />
-                {contact.phone}
+                <input
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  className="rounded border bg-white/5 px-1.5 py-0.5 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
+                  style={borderStyle}
+                  autoFocus
+                  placeholder="(555) 000-0000"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter")
+                      saveField("phone", editValue || null);
+                    if (e.key === "Escape") setEditingField(null);
+                  }}
+                />
+                <button
+                  onClick={() => saveField("phone", editValue || null)}
+                  className="text-[#D4AF37]"
+                >
+                  <Check className="h-3 w-3" />
+                </button>
+              </span>
+            ) : (
+              <span
+                className="group flex cursor-pointer items-center gap-1"
+                onClick={() => startEdit("phone", contact.phone ?? "")}
+                title="Click to edit"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                {contact.phone || "Add phone"}
+                <Pencil className="h-2.5 w-2.5 text-gray-700 opacity-0 group-hover:opacity-100" />
               </span>
             )}
           </div>
@@ -440,36 +587,101 @@ export default function ContactDetailPage({
             )}
           </div>
 
-          {/* Account Manager */}
-          {contact.accountManager && (
-            <div
-              className="rounded-lg border bg-white/5 p-4"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            >
-              <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
-                Account Manager
-              </h3>
-              <div className="space-y-1.5">
-                <p className="flex items-center gap-2 text-sm font-medium text-white">
-                  <UserCheck
-                    className="h-3.5 w-3.5"
-                    style={{ color: "#D4AF37" }}
-                  />
-                  {contact.accountManager.name}
-                </p>
-                <p className="flex items-center gap-1.5 text-xs text-gray-400">
-                  <Mail className="h-3 w-3" />
-                  {contact.accountManager.email}
-                </p>
-                {contact.accountManager.phone && (
-                  <p className="flex items-center gap-1.5 text-xs text-gray-400">
-                    <Phone className="h-3 w-3" />
-                    {contact.accountManager.phone}
+          {/* Assignments */}
+          <div
+            className="rounded-lg border bg-white/5 p-4"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <h3 className="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Assignments
+            </h3>
+            <div className="space-y-3">
+              {/* Account Manager */}
+              <div>
+                <label className="mb-1 flex items-center gap-1.5 text-xs text-gray-500">
+                  <UserCheck className="h-3 w-3" style={{ color: "#D4AF37" }} />
+                  Account Manager
+                </label>
+                {canAssign ? (
+                  <select
+                    value={contact.accountManagerId ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value || null;
+                      updateContact.mutate(
+                        { id, accountManagerId: val },
+                        {
+                          onSuccess: () =>
+                            void utils.crm.getContact.invalidate({ id }),
+                        }
+                      );
+                    }}
+                    className={selectClass}
+                    style={borderStyle}
+                  >
+                    <option value="">Unassigned</option>
+                    {(teamMembers as TeamMember[] | undefined)
+                      ?.filter((m: TeamMember) =>
+                        m.companyRoles?.some((r: string) =>
+                          ["founder", "admin", "account_manager"].includes(r)
+                        )
+                      )
+                      .map((m: TeamMember) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                  </select>
+                ) : (
+                  <p className="text-sm text-white">
+                    {contact.accountManager?.name ?? (
+                      <span className="text-gray-600">Unassigned</span>
+                    )}
                   </p>
                 )}
               </div>
+
+              {/* Assigned Developer */}
+              {contact.portalClient && (
+                <div>
+                  <label className="mb-1 flex items-center gap-1.5 text-xs text-gray-500">
+                    <Code2 className="h-3 w-3" style={{ color: "#60a5fa" }} />
+                    Assigned Developer
+                  </label>
+                  {canAssign ? (
+                    <select
+                      value={contact.portalClient.assignedDeveloperId ?? ""}
+                      onChange={(e) => {
+                        // Developer assignment happens on the client record,
+                        // not CRM contact — would need a separate mutation.
+                        // For now, display-only until client update supports it.
+                      }}
+                      className={selectClass + " cursor-not-allowed opacity-60"}
+                      style={borderStyle}
+                      disabled
+                      title="Developer assignment coming soon"
+                    >
+                      <option value="">Unassigned</option>
+                      {(teamMembers as TeamMember[] | undefined)
+                        ?.filter((m: TeamMember) =>
+                          m.companyRoles?.some((r: string) =>
+                            ["founder", "admin", "developer"].includes(r)
+                          )
+                        )
+                        .map((m: TeamMember) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
+                    </select>
+                  ) : (
+                    <p className="text-sm text-white">
+                      <span className="text-gray-600">Unassigned</span>
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Stripe Lifetime Spend */}
           {contact.stripeLifetimeSpend && (
@@ -526,17 +738,63 @@ export default function ContactDetailPage({
             )}
           </div>
 
-          {/* Notes */}
+          {/* Notes (inline editable) */}
           <div
             className="rounded-lg border bg-white/5 p-4"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
-            <h3 className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
-              Notes
-            </h3>
-            <p className="text-sm text-gray-400">
-              {contact.notes ?? "No notes"}
-            </p>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+                Notes
+              </h3>
+              {editingField !== "notes" && (
+                <button
+                  onClick={() => {
+                    setEditingField("notes");
+                    setEditNotes(contact.notes ?? "");
+                  }}
+                  className="text-gray-600 transition-colors hover:text-gray-300"
+                  title="Edit notes"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {editingField === "notes" ? (
+              <div>
+                <textarea
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  rows={4}
+                  className={inputClass + " resize-none"}
+                  style={borderStyle}
+                  autoFocus
+                />
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={saveNotes}
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-black"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                    }}
+                  >
+                    <Check className="h-3 w-3" />
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingField(null)}
+                    className="rounded px-2 py-1 text-xs text-gray-500 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm whitespace-pre-wrap text-gray-400">
+                {contact.notes ?? "No notes"}
+              </p>
+            )}
           </div>
 
           {/* Dates */}

@@ -31,6 +31,9 @@ function createDatabase() {
       globalForDb.conn ??
       postgres(env.DATABASE_URL, {
         prepare: false,
+        max: 20, // Explicit pool limit (default was 10)
+        idle_timeout: 20, // Close idle connections after 20s
+        connect_timeout: 10, // Fail fast on connection issues
       });
     if (env.NODE_ENV !== "production") globalForDb.conn = conn;
 
