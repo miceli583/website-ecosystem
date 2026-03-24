@@ -168,6 +168,14 @@ export const portalRouter = createTRPCRouter({
               phone: true,
             },
           },
+          assignedDeveloper: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
       });
 
@@ -201,6 +209,12 @@ export const portalRouter = createTRPCRouter({
       orderBy: [desc(clients.createdAt)],
       with: {
         projects: true,
+        accountManager: {
+          columns: { id: true, name: true },
+        },
+        assignedDeveloper: {
+          columns: { id: true, name: true },
+        },
       },
     });
   }),

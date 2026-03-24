@@ -14,7 +14,7 @@ import {
   masterCrm,
   portalUsers,
 } from "~/server/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and, ilike, or, count } from "drizzle-orm";
 import { stripeLive } from "~/lib/stripe-live";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
@@ -38,27 +38,86 @@ export const clientsRouter = createTRPCRouter({
     return [...all].sort();
   }),
 
-  // List all clients with CRM contact + account manager
+  // List clients with pagination, search, filtering
   // Account managers see only their assigned clients
-  list: adminProcedure.query(async ({ ctx }) => {
-    const roles = (ctx.profile.companyRoles ?? []) as string[];
-    const scopeCondition =
-      !isFullAccess(roles) && roles.includes("account_manager")
-        ? eq(clients.accountManagerId, ctx.profile.id)
-        : undefined;
+  list: adminProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        status: z.string().optional(),
+        sortBy: z
+          .enum(["newest", "oldest", "name", "active", "inactive"])
+          .default("newest"),
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(12),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [];
 
-    return db.query.clients.findMany({
-      where: scopeCondition,
-      orderBy: [desc(clients.createdAt)],
-      with: {
-        projects: true,
-        crmContact: true,
-        accountManager: {
-          columns: { id: true, name: true, email: true },
-        },
-      },
-    });
-  }),
+      // Role-based scoping
+      const roles = (ctx.profile.companyRoles ?? []) as string[];
+      if (!isFullAccess(roles) && roles.includes("account_manager")) {
+        conditions.push(eq(clients.accountManagerId, ctx.profile.id));
+      }
+
+      // Search
+      if (input.search) {
+        conditions.push(
+          or(
+            ilike(clients.name, `%${input.search}%`),
+            ilike(clients.email, `%${input.search}%`),
+            ilike(clients.company, `%${input.search}%`)
+          )
+        );
+      }
+
+      // Status filter
+      if (input.status) {
+        conditions.push(eq(clients.status, input.status));
+      }
+
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const orderBy =
+        input.sortBy === "name"
+          ? [clients.name]
+          : input.sortBy === "oldest"
+            ? [clients.createdAt]
+            : input.sortBy === "active"
+              ? [desc(clients.status), desc(clients.createdAt)]
+              : input.sortBy === "inactive"
+                ? [clients.status, desc(clients.createdAt)]
+                : [desc(clients.createdAt)];
+
+      const [items, totalResult] = await Promise.all([
+        db.query.clients.findMany({
+          where,
+          orderBy,
+          limit: input.pageSize,
+          offset: (input.page - 1) * input.pageSize,
+          with: {
+            projects: true,
+            crmContact: true,
+            accountManager: {
+              columns: { id: true, name: true, email: true },
+            },
+            assignedDeveloper: {
+              columns: { id: true, name: true, email: true },
+            },
+          },
+        }),
+        db.select({ count: count() }).from(clients).where(where),
+      ]);
+
+      return {
+        items,
+        total: totalResult[0]?.count ?? 0,
+        page: input.page,
+        pageSize: input.pageSize,
+        hasMore: input.page * input.pageSize < (totalResult[0]?.count ?? 0),
+      };
+    }),
 
   // Get single client by ID
   getById: protectedProcedure
@@ -270,6 +329,7 @@ export const clientsRouter = createTRPCRouter({
         company: z.string().nullable().optional(),
         notes: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
+        assignedDeveloperId: z.string().uuid().nullable().optional(),
         slug: z.string().min(1).optional(),
       })
     )

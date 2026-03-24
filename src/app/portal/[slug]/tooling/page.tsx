@@ -3,7 +3,6 @@
 import { use, useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   SearchFilterBar,
   ListItem,
@@ -440,7 +439,7 @@ export default function PortalToolingPage({
       (groupedTools.length === 1 && groupedTools[0]![0] !== "Unassigned"));
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <div className="mb-6">
         <h1 className="mb-2 text-3xl font-bold">Tooling</h1>
         <p className="text-gray-400">
@@ -601,6 +600,6 @@ export default function PortalToolingPage({
         onConfirm={() => deleteDialog.tool && handleDelete(deleteDialog.tool)}
         isLoading={deleteResource.isPending}
       />
-    </ClientPortalLayout>
+    </>
   );
 }

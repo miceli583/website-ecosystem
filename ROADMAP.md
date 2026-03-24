@@ -58,9 +58,28 @@ _Client onboarding will happen individually as calls are scheduled._
 
 ## Phase 7 — Client Portal UX Refresh
 
-- [ ] Client portal UI overhaul — friendlier, prettier, easier to read
-- [ ] Non-dev Account Manager interactability
-- [ ] Proposal Builder UI (admin-facing, replaces manual proposal creation)
+### Portal Layout & Navigation
+
+- [ ] Refactor client portal layout to match admin hub pattern (sidebar + header + content area)
+- [ ] Sidebar navigation for portal tabs (Dashboard, Demos, Projects, Notes, Proposals, Billing, Profile, Tooling)
+
+### Clients List Page (Admin-Side)
+
+- [ ] Redesign client cards — sleeker, card-based with key info at a glance
+- [ ] Add pagination and search/filter (by status, account manager, name)
+- [ ] Role-scoped: AMs see only assigned clients, Devs see only clients with assigned projects
+
+### Client Profile (Portal-Side)
+
+- [ ] Editable client metadata (name, phone, company)
+- [ ] Reset password option for client users
+- [ ] "Your Team" card (replaces "Your Account Manager") — shows assigned AM + Dev, visible to active clients only
+
+### Deferred to Phase 8+
+
+- [ ] Proposals modal UI refresh (friendlier, easier to read)
+- [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals)
+- [ ] Projects tab: internal notes section + task management UI (linked to admin hub task system)
 
 ## Phase 8 — Admin Portal Expansion
 
@@ -72,6 +91,8 @@ _Client onboarding will happen individually as calls are scheduled._
 - [ ] Profile view tab: role, contracts, legal, financial data, 1099/profit sharing payouts
 - [ ] Legal agreements for portal onboarding (bundled with profile/contracts)
 - [ ] Privacy policies and ToS improvements
+- [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals from admin)
+- [ ] Proposals modal UI polish — better readability, package comparison
 
 ## Phase 9 — Team Scorecard & Accountability
 
@@ -84,7 +105,9 @@ _Client onboarding will happen individually as calls are scheduled._
 
 ## Phase 10 — Payments & Billing
 
+- [ ] AM access to billing tab: search Mercury invoices/one-time bills charged outside portal
 - [ ] One-time invoice payment flow: Mercury linking for one-time payments in client portal
+- [ ] Custom Mercury invoice creation from portal (AM-facing, fold into proposal UI editor)
 - [ ] Mercury Plus investigation: recurring invoices as Stripe replacement
 - [ ] Stripe account configuration cleanup
 

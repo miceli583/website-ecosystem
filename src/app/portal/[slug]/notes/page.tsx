@@ -3,7 +3,6 @@
 import { use, useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   SearchFilterBar,
   StatusTabs,
@@ -614,8 +613,11 @@ export default function PortalNotesPage({
                   />
                 )}
               </div>
-              {!isExpanded && preview && preview !== "No content." && (
-                <p className="truncate text-sm text-gray-500">{preview}</p>
+              {!isExpanded && note.content && note.content !== "<p></p>" && (
+                <div
+                  className="line-clamp-2 text-sm text-gray-500 [&_*]:!m-0 [&_*]:!p-0 [&_*]:!text-sm [&_*]:!font-normal [&_*]:!text-gray-500"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                />
               )}
             </div>
           </button>
@@ -708,7 +710,7 @@ export default function PortalNotesPage({
   // ── Render ──
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="mb-2 text-3xl font-bold">Notes</h1>
@@ -876,6 +878,6 @@ export default function PortalNotesPage({
         }
         isLoading={deleteNote.isPending}
       />
-    </ClientPortalLayout>
+    </>
   );
 }

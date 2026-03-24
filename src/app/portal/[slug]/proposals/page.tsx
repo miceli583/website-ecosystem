@@ -11,7 +11,6 @@ type ClientAgreement = ClientBySlug["agreements"][number];
 type Proposal = RouterOutputs["portal"]["getProposals"][number];
 type Resource = RouterOutputs["portal"]["getResources"][number];
 
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -605,7 +604,7 @@ export default function PortalProposalsPage({
   );
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <div className="mb-6">
         <h1 className="mb-2 text-3xl font-bold">Proposals & Agreements</h1>
         <p className="text-gray-400">
@@ -838,6 +837,6 @@ export default function PortalProposalsPage({
         }
         isLoading={deleteResource.isPending}
       />
-    </ClientPortalLayout>
+    </>
   );
 }

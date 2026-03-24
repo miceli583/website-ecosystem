@@ -4,7 +4,6 @@ import { use, useState } from "react";
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
 import { createClient } from "~/lib/supabase/client";
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -23,6 +22,8 @@ import {
   EyeOff,
   Lock,
   UserCheck,
+  Code2,
+  Users,
 } from "lucide-react";
 
 export default function PortalProfilePage({
@@ -208,7 +209,7 @@ export default function PortalProfilePage({
   }
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <h1 className="mb-2 text-3xl font-bold">
         {isAdmin && !isViewingOwnProfile
           ? `${client.name}'s Profile`
@@ -462,71 +463,151 @@ export default function PortalProfilePage({
           </CardContent>
         </Card>
 
-        {/* Account Manager */}
-        {client.accountManager && (
-          <Card
-            className="bg-white/5"
-            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-          >
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-full"
-                  style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
-                >
-                  <UserCheck className="h-6 w-6" style={{ color: "#D4AF37" }} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    Your Account Manager
-                  </h2>
-                  <p className="text-sm text-gray-400">
-                    Your dedicated point of contact
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs tracking-wide text-gray-500 uppercase">
-                    Name
-                  </label>
-                  <p className="text-white">{client.accountManager.name}</p>
-                </div>
-                <div>
-                  <label className="text-xs tracking-wide text-gray-500 uppercase">
-                    Email
-                  </label>
-                  <p className="flex items-center gap-2 text-white">
-                    <Mail className="h-4 w-4 text-gray-500" />
-                    <a
-                      href={`mailto:${client.accountManager.email}`}
-                      className="transition-colors hover:text-[#D4AF37]"
-                    >
-                      {client.accountManager.email}
-                    </a>
-                  </p>
-                </div>
-                {client.accountManager.phone && (
+        {/* Your Team — only show for active clients with assigned team */}
+        {client.status === "active" &&
+          (client.accountManager ||
+            (
+              client as typeof client & {
+                assignedDeveloper?: {
+                  id: string;
+                  name: string;
+                  email: string;
+                  phone: string | null;
+                };
+              }
+            ).assignedDeveloper) && (
+            <Card
+              className="bg-white/5"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              <CardContent className="p-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <div
+                    className="flex h-12 w-12 items-center justify-center rounded-full"
+                    style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
+                  >
+                    <Users className="h-6 w-6" style={{ color: "#D4AF37" }} />
+                  </div>
                   <div>
-                    <label className="text-xs tracking-wide text-gray-500 uppercase">
-                      Phone
-                    </label>
-                    <p className="flex items-center gap-2 text-white">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      <a
-                        href={`tel:${client.accountManager.phone}`}
-                        className="transition-colors hover:text-[#D4AF37]"
-                      >
-                        {client.accountManager.phone}
-                      </a>
+                    <h2 className="text-lg font-semibold">Your Team</h2>
+                    <p className="text-sm text-gray-400">
+                      Your dedicated team members
                     </p>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {/* Account Manager */}
+                  {client.accountManager && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <UserCheck
+                          className="h-4 w-4"
+                          style={{ color: "#D4AF37" }}
+                        />
+                        <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+                          Account Manager
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-white">
+                        {client.accountManager.name}
+                      </p>
+                      <p className="flex items-center gap-1.5 text-xs text-gray-400">
+                        <Mail className="h-3 w-3" />
+                        <a
+                          href={`mailto:${client.accountManager.email}`}
+                          className="transition-colors hover:text-[#D4AF37]"
+                        >
+                          {client.accountManager.email}
+                        </a>
+                      </p>
+                      {client.accountManager.phone && (
+                        <p className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <Phone className="h-3 w-3" />
+                          <a
+                            href={`tel:${client.accountManager.phone}`}
+                            className="transition-colors hover:text-[#D4AF37]"
+                          >
+                            {client.accountManager.phone}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Assigned Developer */}
+                  {(
+                    client as typeof client & {
+                      assignedDeveloper?: {
+                        id: string;
+                        name: string;
+                        email: string;
+                        phone: string | null;
+                      };
+                    }
+                  ).assignedDeveloper && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Code2 className="h-4 w-4 text-blue-400" />
+                        <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+                          Developer
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-white">
+                        {
+                          (
+                            client as typeof client & {
+                              assignedDeveloper: {
+                                name: string;
+                                email: string;
+                                phone: string | null;
+                              };
+                            }
+                          ).assignedDeveloper.name
+                        }
+                      </p>
+                      <p className="flex items-center gap-1.5 text-xs text-gray-400">
+                        <Mail className="h-3 w-3" />
+                        <a
+                          href={`mailto:${(client as typeof client & { assignedDeveloper: { email: string } }).assignedDeveloper.email}`}
+                          className="transition-colors hover:text-[#D4AF37]"
+                        >
+                          {
+                            (
+                              client as typeof client & {
+                                assignedDeveloper: { email: string };
+                              }
+                            ).assignedDeveloper.email
+                          }
+                        </a>
+                      </p>
+                      {(
+                        client as typeof client & {
+                          assignedDeveloper: { phone: string | null };
+                        }
+                      ).assignedDeveloper.phone && (
+                        <p className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <Phone className="h-3 w-3" />
+                          <a
+                            href={`tel:${(client as typeof client & { assignedDeveloper: { phone: string } }).assignedDeveloper.phone}`}
+                            className="transition-colors hover:text-[#D4AF37]"
+                          >
+                            {
+                              (
+                                client as typeof client & {
+                                  assignedDeveloper: { phone: string };
+                                }
+                              ).assignedDeveloper.phone
+                            }
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
         {/* Security - only show for own profile */}
         {canEdit && (
@@ -665,6 +746,6 @@ export default function PortalProfilePage({
           </Card>
         )}
       </div>
-    </ClientPortalLayout>
+    </>
   );
 }

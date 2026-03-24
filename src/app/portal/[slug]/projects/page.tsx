@@ -2,7 +2,6 @@
 
 import { use, useState, useRef } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { ClientPortalLayout } from "~/components/pages/client-portal";
 import {
   FolderKanban,
   Plus,
@@ -144,17 +143,15 @@ export default function PortalProjectsPage({
 
   if (!isAdmin) {
     return (
-      <ClientPortalLayout clientName={client.name} slug={slug}>
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <AlertCircle className="mb-4 h-12 w-12 text-gray-600" />
-          <p className="text-gray-500">Admin access required.</p>
-        </div>
-      </ClientPortalLayout>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertCircle className="mb-4 h-12 w-12 text-gray-600" />
+        <p className="text-gray-500">Admin access required.</p>
+      </div>
     );
   }
 
   return (
-    <ClientPortalLayout clientName={client.name} slug={slug}>
+    <>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="mb-2 text-3xl font-bold">Projects</h1>
@@ -498,6 +495,6 @@ export default function PortalProjectsPage({
           ))}
         </div>
       )}
-    </ClientPortalLayout>
+    </>
   );
 }
