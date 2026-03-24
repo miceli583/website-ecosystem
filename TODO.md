@@ -6,11 +6,11 @@ _None currently_
 
 ## Bugs (broken functionality)
 
-_None currently_
+- [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow under concurrent queries — retry + staleTime added but root cause is connection pool pressure
 
 ## Tech Debt (code quality issues)
 
-_None currently_
+- [ ] **Type assertions in portal profile**: `assignedDeveloper` requires `as typeof client & {...}` casts — clean up when Drizzle relation types stabilize
 
 ## Enhancements (prioritized)
 
@@ -20,30 +20,30 @@ _None currently_
 - [ ] **Add Zoey Wind** to client portal → start building website
 - [ ] **Add Shane David Street** to client portal → start building website
 - [ ] **Glo Moss next phase**: website work + connect re: Tony Cho
-- [ ] **Shechem deliverables**: TapCHW website, Gamma slide builder, LinkedIn photos, LMS prototype demo
+- [ ] **Shechem deliverables**: TapCHW website, Gamma slide builder, LMS prototype demo
 
-### High Priority — Platform
+### High Priority — Platform (Phase 8+)
 
-- [ ] **Role-based accounts**: Create Account Management, Development, Sales roles with role-specific views
-- [ ] **CRM contact page overhaul**: Comprehensive UI, inline editing, admin assigns devs/account managers
-- [ ] **Notifications system**: In-app + email alerts for tickets, payments, proposals, updates
-- [ ] **Client portal UI refresh**: Friendlier, prettier, easier to read
 - [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
-- [ ] **Project/task management UI**: Admin portal task tracking and project management
-- [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management, linked to projects
+- [ ] **Proposals modal UI refresh**: Friendlier, easier to read
+- [ ] **Project/task management UI**: Admin portal task tracking + portal projects internal notes
+- [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
 - [ ] **Activity log**: Audit trail — who did what and when, visible in admin
 - [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
-- [ ] **Profile view tab**: Role, contracts, legal, financial data, 1099/profit sharing payouts
+- [ ] **Profile documents tab**: Contracts, agreements, file upload
+- [ ] **Profile bank balance tab**: Mercury direct deposit integration, 1099 payouts
 
 ### Medium Priority
 
-- [ ] **Team scorecard**: Project health (on-time, satisfaction), team metrics (auto-derived), quarterly rocks, Definition of Done templates
-- [ ] **EOS review cadence**: Weekly L10 dashboard, monthly financial review, quarterly rock scoring, annual planning
-- [ ] **One-time invoice payments**: Mercury linking for one-time payment flow in client portal
+- [ ] **Role-specific KPI dashboards**: Overview tab per role with relevant metrics
+- [ ] **KPI builder**: Founder defines custom KPIs per role, assigns targets
+- [ ] **Team scorecard**: Project health, team metrics, quarterly rocks, DoD templates
+- [ ] **AM billing access**: Search Mercury invoices/one-time bills, create custom invoices
+- [ ] **One-time invoice payments**: Mercury linking for one-time payment flow
 - [ ] **Mercury as payment platform**: Investigate Mercury Plus recurring invoices as Stripe replacement
 - [ ] **Funnel & ad campaign**: Build marketing funnel for website/CRM building services
-- [ ] **Privacy policies / ToS**: Improvements and legal agreements for portal onboarding
+- [ ] **Privacy policies / ToS**: Legal agreements for portal onboarding
 
 ### Lower Priority
 
