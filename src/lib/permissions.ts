@@ -43,6 +43,9 @@ export const NAV_VISIBILITY: Record<string, string[]> = {
   "/admin/crm/leads": [...FULL_ACCESS_ROLES, "account_manager"],
   "/admin/clients": [...FULL_ACCESS_ROLES, "account_manager", "developer"],
 
+  // Projects — all roles
+  "/admin/projects": [...FULL_ACCESS_ROLES, "account_manager", "developer"],
+
   // Organization — read-only for AM/Dev (enforced at procedure level)
   "/admin/organization": [...FULL_ACCESS_ROLES, "account_manager", "developer"],
 

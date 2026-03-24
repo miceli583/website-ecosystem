@@ -31,6 +31,7 @@
 | Portal skeletons          | Working | Loading skeletons for all portal pages                                                                |
 | Portal proposals          | Working | Bundle discount, admin controls (WIP/private/archive), Stripe checkout                                |
 | Portal notes              | Working | Rich text formatting now renders in previews (TipTap HTML)                                            |
+| Project/task management   | **New** | Admin hub + portal, list/kanban views, filters, sort, AM/dev/client scoping, standalone tasks         |
 | Stripe integration        | Working | Billing, subscriptions, webhook events, proposal linking                                              |
 | Mercury integration       | Working | API client with date filtering, bearer token auth                                                     |
 
@@ -45,10 +46,10 @@
 
 | Date   | Commit  | Description                                                                              |
 | ------ | ------- | ---------------------------------------------------------------------------------------- |
+| Mar 24 | pending | Phase 8: Project/task management — schema, tRPC router, admin pages, portal integration  |
 | Mar 24 | 5053e50 | Phase 7: portal sidebar layout, client list redesign, Your Team card, notes formatting   |
 | Mar 24 | 78da76e | Phase 6: RBAC (4 roles), notifications, admin profile, CRM inline editing, org overhaul  |
 | Mar 21 | 03e1a0e | Expand roadmap: ops infrastructure, notifications, SOP tab, audit trail, global search   |
 | Mar 21 | b07ce49 | Reorganize roadmap and reprioritize TODOs around client onboarding and platform buildout |
-| Mar 21 | 22c9b63 | Multi-dev collab infrastructure (Husky, lint-staged, Dependabot, CI, PR template)        |
 
 _Older changes: `git log --oneline`_

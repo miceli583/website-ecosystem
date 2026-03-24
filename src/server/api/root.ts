@@ -9,6 +9,7 @@ import { analyticsRouter } from "~/server/api/routers/analytics";
 import { crmRouter } from "~/server/api/routers/crm";
 import { ecosystemRouter } from "~/server/api/routers/ecosystem";
 import { notificationsRouter } from "~/server/api/routers/notifications";
+import { projectsRouter } from "~/server/api/routers/projects";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -28,6 +29,7 @@ export const appRouter = createTRPCRouter({
   crm: crmRouter,
   ecosystem: ecosystemRouter,
   notifications: notificationsRouter,
+  projects: projectsRouter,
 });
 
 // export type definition of API

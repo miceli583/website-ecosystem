@@ -48,34 +48,22 @@ _Client onboarding will happen individually as calls are scheduled._
 - [x] Shechem: LinkedIn photos
 - [ ] Shechem: TapCHW website, Gamma slide builder, LMS prototype demo (longer horizon)
 
-## Phase 6 — Role-Based Access & Permissions
+## Phase 6 — Role-Based Access & Permissions (DONE)
 
-- [ ] Create role-based accounts: Account Management, Development, Sales
-- [ ] Build role-specific views/dashboards for each role
-- [ ] Account manager permissions: filter by assigned clients, scoped editing
-- [ ] CRM contact page overhaul: comprehensive UI, inline editing, admin can assign devs/account managers
-- [ ] Notifications system: in-app + email alerts for tickets, payments, proposal actions, updates
+- [x] Create role-based accounts: Account Management, Development, Sales
+- [x] Build role-specific views/dashboards for each role
+- [x] Account manager permissions: filter by assigned clients, scoped editing
+- [x] CRM contact page overhaul: comprehensive UI, inline editing, admin can assign devs/account managers
+- [x] Notifications system: in-app + email alerts for tickets, payments, proposal actions, updates
 
-## Phase 7 — Client Portal UX Refresh
+## Phase 7 — Client Portal UX Refresh (DONE)
 
-### Portal Layout & Navigation
+- [x] Refactor client portal layout to match admin hub pattern (sidebar + header + content area)
+- [x] Sidebar navigation for portal tabs
+- [x] Redesign client cards — pagination, search/filter, role-scoped views
+- [x] Editable client metadata, reset password, "Your Team" card
 
-- [ ] Refactor client portal layout to match admin hub pattern (sidebar + header + content area)
-- [ ] Sidebar navigation for portal tabs (Dashboard, Demos, Projects, Notes, Proposals, Billing, Profile, Tooling)
-
-### Clients List Page (Admin-Side)
-
-- [ ] Redesign client cards — sleeker, card-based with key info at a glance
-- [ ] Add pagination and search/filter (by status, account manager, name)
-- [ ] Role-scoped: AMs see only assigned clients, Devs see only clients with assigned projects
-
-### Client Profile (Portal-Side)
-
-- [ ] Editable client metadata (name, phone, company)
-- [ ] Reset password option for client users
-- [ ] "Your Team" card (replaces "Your Account Manager") — shows assigned AM + Dev, visible to active clients only
-
-### Deferred to Phase 8+
+### Deferred to Phase 9+
 
 - [ ] Proposals modal UI refresh (friendlier, easier to read)
 - [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals)
@@ -140,6 +128,30 @@ _Client onboarding will happen individually as calls are scheduled._
 - Tooling (service inventory, database health)
 - Sentry (error tracking)
 - Custom admin nav/footer
+
+## Phase 14 — Environment Isolation & Sandbox (BLOCKED — needs free Supabase slot)
+
+### Database Protection
+
+- [ ] Create sandbox Supabase project (free tier — auth + Postgres)
+- [ ] Switch from `db:push` to `db:generate` + `db:migrate` workflow for production
+- [ ] Commit migration files to git (`drizzle/` folder)
+- [ ] Add `db:push` guard script — warns/blocks if `DATABASE_URL` matches production
+- [ ] Document deploy process: code merges to main → `db:migrate` runs against prod
+
+### Sandbox Setup
+
+- [ ] Write `scripts/seed-sandbox.ts` — creates Supabase Auth accounts + matching portal_users rows (founder, AM, dev, client roles with known passwords)
+- [ ] Seed fake client data: 3-5 clients with proposals, notes, demos, billing history
+- [ ] Add production URL guard to seed script (refuse to run against prod Supabase)
+- [ ] Create `sandbox` long-lived branch from dev
+
+### Deployment & Onboarding
+
+- [ ] Pin Vercel preview deployment to `sandbox` branch (sandbox.miraclemind.dev)
+- [ ] Configure sandbox branch env vars in Vercel (sandbox Supabase URL, keys, DATABASE_URL)
+- [ ] Write team onboarding doc: sandbox URL, credentials per role, what to explore
+- [ ] Update `.env.example` with dual-environment documentation
 
 ## Backlog
 

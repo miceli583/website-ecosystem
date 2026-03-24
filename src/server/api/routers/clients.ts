@@ -395,46 +395,6 @@ export const clientsRouter = createTRPCRouter({
       return updated;
     }),
 
-  // Create project for a client
-  createProject: protectedProcedure
-    .input(
-      z.object({
-        clientId: z.number(),
-        name: z.string().min(1),
-        description: z.string().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const [project] = await db
-        .insert(clientProjects)
-        .values({
-          clientId: input.clientId,
-          name: input.name,
-          description: input.description ?? null,
-        })
-        .returning();
-      return project;
-    }),
-
-  // Update project name/description
-  updateProject: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string().min(1).optional(),
-        description: z.string().nullable().optional(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const { id, ...data } = input;
-      const [updated] = await db
-        .update(clientProjects)
-        .set({ ...data, updatedAt: new Date() })
-        .where(eq(clientProjects.id, id))
-        .returning();
-      return updated;
-    }),
-
   // Push update to a project (also sends email notification)
   pushUpdate: protectedProcedure
     .input(

@@ -9,6 +9,7 @@ import {
   DollarSign,
   BarChart3,
   UserCircle,
+  FolderKanban,
   type LucideIcon,
 } from "lucide-react";
 
@@ -63,6 +64,12 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
         requiredRoles: ["founder", "admin", "account_manager", "developer"],
       },
     ],
+  },
+  {
+    title: "Projects",
+    href: "/admin/projects",
+    icon: FolderKanban,
+    requiredRoles: ["founder", "admin", "account_manager", "developer"],
   },
   {
     title: "Finance",

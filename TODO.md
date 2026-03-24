@@ -26,7 +26,7 @@ _None currently_
 
 - [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
 - [ ] **Proposals modal UI refresh**: Friendlier, easier to read
-- [ ] **Project/task management UI**: Admin portal task tracking + portal projects internal notes
+- [x] **Project/task management UI**: Admin hub + portal — list/kanban, filters, sort, AM/dev/owner, standalone tasks
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
 - [ ] **Activity log**: Audit trail — who did what and when, visible in admin
@@ -53,3 +53,4 @@ _None currently_
 - [ ] **CRM enhancements**: Notes management, outreach scheduling
 - [ ] **Brand tab in client portal**: Per-client guidelines, colors, fonts, logos
 - [ ] **Keyboard shortcuts**: Cmd+K search, Esc close, Cmd+N new note
+- [ ] **Environment sandbox** (Phase 14, blocked): Needs free Supabase slot — second project for dev/sandbox with seed script, migration workflow, team onboarding

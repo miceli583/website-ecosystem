@@ -38,10 +38,10 @@ export default function AdminClientDetailPage({
     slug,
   });
 
-  const createProject = api.clients.createProject.useMutation({
+  const createProject = api.projects.create.useMutation({
     onSuccess: () => void refetch(),
   });
-  const updateProject = api.clients.updateProject.useMutation({
+  const updateProject = api.projects.update.useMutation({
     onSuccess: () => void refetch(),
   });
 
