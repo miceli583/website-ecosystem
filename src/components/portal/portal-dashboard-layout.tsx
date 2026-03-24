@@ -17,6 +17,13 @@ import {
 } from "./portal-sidebar";
 import { PortalHeader } from "./portal-header";
 
+// Demo sub-pages render full-screen without the dashboard shell.
+// The demos hub (/portal/[slug]/demos) keeps the sidebar.
+function isStandalonePage(pathname: string): boolean {
+  // Match /portal/<slug>/demos/<anything> but NOT /portal/<slug>/demos alone
+  return /^\/portal\/[^/]+\/demos\/.+/.test(pathname);
+}
+
 function PortalContent({
   children,
   slug,
@@ -27,6 +34,8 @@ function PortalContent({
   const router = useRouter();
   const pathname = usePathname();
   const { isCollapsed, closeMobile } = usePortalSidebar();
+
+  const standalone = isStandalonePage(pathname);
 
   const { data: profile, isLoading: profileLoading } =
     api.portal.getMyProfile.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
@@ -61,6 +70,11 @@ function PortalContent({
         <p className="text-gray-400">Portal not found.</p>
       </div>
     );
+  }
+
+  // Standalone pages (demo sub-pages) render without sidebar/header
+  if (standalone) {
+    return <div className="min-h-screen bg-black text-white">{children}</div>;
   }
 
   const isAdmin = profile.role === "admin";
