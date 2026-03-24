@@ -77,7 +77,7 @@ function PortalContent({
     return <div className="min-h-screen bg-black text-white">{children}</div>;
   }
 
-  const isAdmin = profile.role === "admin";
+  const isAdmin = profile.role === "admin" || profile.isCompanyMember;
   const clientName = client.name;
 
   return (
