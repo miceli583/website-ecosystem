@@ -55,6 +55,28 @@ export const portalRouter = createTRPCRouter({
   }),
 
   /**
+   * Get current user's roles for client-side permission checks.
+   * Used by admin nav filtering, UI gating, etc.
+   */
+  getMyRoles: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await db.query.portalUsers.findFirst({
+      where: eq(portalUsers.authUserId, ctx.user.id),
+    });
+
+    const companyRoles = (profile?.companyRoles ?? []) as string[];
+
+    return {
+      role: profile?.role ?? null,
+      companyRoles,
+      isFounder: companyRoles.includes("founder"),
+      isFullAccess:
+        companyRoles.includes("founder") || companyRoles.includes("admin"),
+      isCompanyMember: profile?.isCompanyMember ?? false,
+      profileId: profile?.id ?? null,
+    };
+  }),
+
+  /**
    * Get portal user profile for a specific client slug
    * Admins can view any client's profile, clients can only view their own
    */

@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
+  adminProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -17,6 +18,8 @@ import { eq, desc, sql } from "drizzle-orm";
 import { stripeLive } from "~/lib/stripe-live";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
+import { isFullAccess } from "~/lib/permissions";
+import { createNotification } from "~/lib/notifications";
 
 export const clientsRouter = createTRPCRouter({
   // Get distinct company names for picker
@@ -36,8 +39,16 @@ export const clientsRouter = createTRPCRouter({
   }),
 
   // List all clients with CRM contact + account manager
-  list: protectedProcedure.query(async () => {
+  // Account managers see only their assigned clients
+  list: adminProcedure.query(async ({ ctx }) => {
+    const roles = (ctx.profile.companyRoles ?? []) as string[];
+    const scopeCondition =
+      !isFullAccess(roles) && roles.includes("account_manager")
+        ? eq(clients.accountManagerId, ctx.profile.id)
+        : undefined;
+
     return db.query.clients.findMany({
+      where: scopeCondition,
       orderBy: [desc(clients.createdAt)],
       with: {
         projects: true,
@@ -409,6 +420,17 @@ export const clientsRouter = createTRPCRouter({
             content: input.content,
           }),
         });
+
+        // Notify assigned account manager
+        if (project.client.accountManagerId) {
+          void createNotification({
+            recipientId: project.client.accountManagerId,
+            type: "client_update",
+            title: `Update pushed to ${project.client.name}`,
+            message: `${input.type}: ${input.title}`,
+            linkUrl: `/admin/clients/${project.client.slug}`,
+          });
+        }
       }
 
       return update;

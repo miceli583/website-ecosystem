@@ -32,9 +32,11 @@
 
 ---
 
-## Phase 5 — Client Onboarding & Deliverables
+## Phase 5 — Client Onboarding & Deliverables (TABLED)
 
-### Client Onboarding
+_Client onboarding will happen individually as calls are scheduled._
+
+### Client Onboarding (on hold)
 
 - [ ] Set up Marissa Lambert in client portal → prep Soul Map UI
 - [ ] Add Zoey Wind to client portal → start building website
@@ -43,7 +45,8 @@
 ### Active Client Deliverables
 
 - [ ] Glo Moss: next phase of website + connect re: Tony Cho
-- [ ] Shechem: TapCHW website, Gamma slide builder, LinkedIn photos, LMS prototype demo
+- [x] Shechem: LinkedIn photos
+- [ ] Shechem: TapCHW website, Gamma slide builder, LMS prototype demo (longer horizon)
 
 ## Phase 6 — Role-Based Access & Permissions
 
@@ -72,6 +75,8 @@
 
 ## Phase 9 — Team Scorecard & Accountability
 
+- [ ] Role-specific KPI dashboards: Overview tab per role with relevant metrics (AM: client count, revenue per client; Dev: projects completed, tickets resolved)
+- [ ] KPI builder: Founder can define custom KPIs per role, assign targets, track actuals
 - [ ] Project health tracking: on-time delivery, scope changes, client satisfaction (1-5 rating at milestones)
 - [ ] Team member metrics: tasks completed, tickets resolved, active projects (auto-derived from project/task data)
 - [ ] Quarterly rocks: 3-5 goals per person per quarter, binary done/not-done, quarterly review

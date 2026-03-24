@@ -15,6 +15,7 @@ import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 import { portalUsers } from "~/server/db/schema";
 import { createClient } from "~/lib/supabase/server";
+import type { CompanyRole } from "~/lib/permissions";
 
 /**
  * 1. CONTEXT
@@ -187,3 +188,72 @@ const adminMiddleware = t.middleware(async ({ ctx, next }) => {
 export const adminProcedure = t.procedure
   .use(timingMiddleware)
   .use(adminMiddleware);
+
+/**
+ * Role-checking middleware factory.
+ * MUST be chained after adminMiddleware (reuses ctx.profile — no extra DB lookup).
+ * Checks if the user's companyRoles includes at least one required role.
+ * Founder always passes.
+ */
+function requireRoles(...requiredRoles: CompanyRole[]) {
+  return t.middleware(async ({ ctx, next }) => {
+    // Profile is already loaded by adminMiddleware — no duplicate DB call
+    const profile = (
+      ctx as unknown as { profile: { companyRoles: string[] | null } }
+    ).profile;
+
+    const roles = (profile.companyRoles ?? []) as string[];
+    const isFounder = roles.includes("founder");
+    const hasRequiredRole =
+      isFounder || requiredRoles.some((r) => roles.includes(r));
+
+    if (!hasRequiredRole) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `Required role: ${requiredRoles.join(" or ")}`,
+      });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        companyRoles: roles,
+        isFounder,
+        isFullAccess: isFounder || roles.includes("admin"),
+      },
+    });
+  });
+}
+
+/**
+ * Founder-only procedure (sensitive operations like finance)
+ * Chain: timingMiddleware → adminMiddleware (DB lookup) → requireRoles (no DB)
+ */
+export const founderProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(adminMiddleware)
+  .use(requireRoles("founder"));
+
+/**
+ * Founder + Admin procedure (full access tier)
+ */
+export const fullAccessProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(adminMiddleware)
+  .use(requireRoles("founder", "admin"));
+
+/**
+ * Account Manager procedure (founder, admin, account_manager)
+ */
+export const accountManagerProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(adminMiddleware)
+  .use(requireRoles("founder", "admin", "account_manager"));
+
+/**
+ * Developer procedure (founder, admin, developer)
+ */
+export const developerProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(adminMiddleware)
+  .use(requireRoles("founder", "admin", "developer"));

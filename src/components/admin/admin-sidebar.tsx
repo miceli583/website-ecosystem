@@ -36,6 +36,9 @@ import {
   type NavItem,
   type NavSubItem,
 } from "./admin-nav";
+import { api } from "~/trpc/react";
+import { useMemo, useSyncExternalStore } from "react";
+import { getRoleOverride, subscribeRoleOverride } from "~/lib/role-override";
 
 const SIDEBAR_WIDTH = 240;
 const SIDEBAR_WIDTH_COLLAPSED = 64;
@@ -120,8 +123,24 @@ function NavGroup({
       return (
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>{content}</TooltipTrigger>
-          <TooltipContent side="right" sideOffset={8}>
-            {item.title}
+          <TooltipContent
+            side="right"
+            sideOffset={8}
+            className="border border-[rgba(212,175,55,0.2)] bg-black p-0"
+          >
+            <div className="min-w-[160px] p-2">
+              <Link
+                href={item.href!}
+                className={cn(
+                  "flex items-center rounded-md px-2 py-1.5 text-sm font-semibold transition-colors",
+                  isActive
+                    ? "text-[#D4AF37]"
+                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                )}
+              >
+                {item.title}
+              </Link>
+            </div>
           </TooltipContent>
         </Tooltip>
       );
@@ -147,9 +166,13 @@ function NavGroup({
             <Icon className="h-5 w-5 flex-shrink-0" />
           </div>
         </TooltipTrigger>
-        <TooltipContent side="right" sideOffset={8} className="p-0">
+        <TooltipContent
+          side="right"
+          sideOffset={8}
+          className="border border-[rgba(212,175,55,0.2)] bg-black p-0"
+        >
           <div className="min-w-[160px] p-2">
-            <p className="mb-2 px-2 text-xs font-semibold text-gray-400">
+            <p className="mb-2 px-2 text-xs font-semibold text-[#D4AF37]">
               {item.title}
             </p>
             {item.items?.map((sub) => (
@@ -209,8 +232,52 @@ function NavGroup({
   );
 }
 
+/** Filter nav items by user's companyRoles */
+function filterNavByRoles(items: NavItem[], userRoles: string[]): NavItem[] {
+  const isFounder = userRoles.includes("founder");
+
+  return items
+    .filter((item) => {
+      if (!item.requiredRoles || item.requiredRoles.length === 0) return true;
+      if (isFounder) return true;
+      return item.requiredRoles.some((r) => userRoles.includes(r));
+    })
+    .map((item) => {
+      if (!item.items) return item;
+      const filteredSubs = item.items.filter((sub) => {
+        if (!sub.requiredRoles || sub.requiredRoles.length === 0) return true;
+        if (isFounder) return true;
+        return sub.requiredRoles.some((r) => userRoles.includes(r));
+      });
+      return { ...item, items: filteredSubs };
+    });
+}
+
 function SidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
   const pathname = usePathname();
+  const { data: myRoles } = api.portal.getMyRoles.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Subscribe to founder "View As" role override (reactive)
+  const roleOverride = useSyncExternalStore(
+    subscribeRoleOverride,
+    getRoleOverride,
+    () => null // server snapshot
+  );
+
+  const effectiveRoles = useMemo(() => {
+    const roles = myRoles?.companyRoles ?? [];
+    if (roleOverride && roles.includes("founder")) {
+      return [roleOverride];
+    }
+    return roles;
+  }, [myRoles?.companyRoles, roleOverride]);
+
+  const filteredNav = useMemo(
+    () => filterNavByRoles(ADMIN_SIDEBAR_NAV, effectiveRoles),
+    [effectiveRoles]
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -240,7 +307,7 @@ function SidebarContent({ isCollapsed }: { isCollapsed: boolean }) {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-        {ADMIN_SIDEBAR_NAV.map((item) => (
+        {filteredNav.map((item) => (
           <NavGroup
             key={item.title}
             item={item}

@@ -41,12 +41,16 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
 }
 
 export default function AnalyticsPage() {
-  const { data: overview, isLoading: overviewLoading } =
-    api.analytics.getOverview.useQuery();
+  const queryOpts = { retry: 2, retryDelay: 1000, staleTime: 60_000 } as const;
+  const {
+    data: overview,
+    isLoading: overviewLoading,
+    isError: overviewError,
+  } = api.analytics.getOverview.useQuery(undefined, queryOpts);
   const { data: growth, isLoading: growthLoading } =
-    api.analytics.getSubmissionGrowth.useQuery();
+    api.analytics.getSubmissionGrowth.useQuery(undefined, queryOpts);
   const { data: activity, isLoading: activityLoading } =
-    api.analytics.getRecentActivity.useQuery();
+    api.analytics.getRecentActivity.useQuery(undefined, queryOpts);
 
   type Submission = {
     id: number;
@@ -111,6 +115,16 @@ export default function AnalyticsPage() {
             <MetricSkeleton />
             <MetricSkeleton />
           </>
+        ) : overviewError ? (
+          <div
+            className="col-span-full rounded-lg border bg-white/5 p-5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <AlertCircle className="h-4 w-4 text-red-400" />
+              Failed to load analytics. Try refreshing the page.
+            </div>
+          </div>
         ) : (
           <>
             <div

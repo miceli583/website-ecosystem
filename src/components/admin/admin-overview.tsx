@@ -79,14 +79,18 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function AdminOverview() {
-  const { data: analyticsData, isLoading: analyticsLoading } =
-    api.analytics.getOverview.useQuery();
+  const queryOpts = { retry: 2, retryDelay: 1000, staleTime: 60_000 } as const;
+  const {
+    data: analyticsData,
+    isLoading: analyticsLoading,
+    isError: analyticsError,
+  } = api.analytics.getOverview.useQuery(undefined, queryOpts);
   const { data: pipelineData, isLoading: pipelineLoading } =
-    api.crm.getPipelineStats.useQuery();
+    api.crm.getPipelineStats.useQuery(undefined, queryOpts);
   const { data: financeData, isLoading: financeLoading } =
-    api.finance.getOverview.useQuery();
+    api.finance.getOverview.useQuery(undefined, queryOpts);
   const { data: recentContacts, isLoading: contactsLoading } =
-    api.crm.getContacts.useQuery({ limit: 5 });
+    api.crm.getContacts.useQuery({ limit: 5 }, queryOpts);
 
   return (
     <div className="space-y-8">
@@ -191,10 +195,12 @@ export function AdminOverview() {
               Unread Submissions
             </div>
             <p className="mt-2 text-2xl font-bold text-white">
-              {analyticsData?.unreadSubmissions ?? 0}
+              {analyticsError ? "—" : (analyticsData?.unreadSubmissions ?? 0)}
             </p>
             <p className="mt-1 text-xs text-gray-500">
-              {analyticsData?.submissionsThisMonth ?? 0} this month
+              {analyticsError
+                ? "Failed to load"
+                : `${analyticsData?.submissionsThisMonth ?? 0} this month`}
             </p>
           </div>
         )}
@@ -339,6 +345,8 @@ export function AdminOverview() {
                 <div className="h-3 w-3/4 animate-pulse rounded bg-white/5" />
                 <div className="h-3 w-1/2 animate-pulse rounded bg-white/5" />
               </div>
+            ) : analyticsError ? (
+              <p className="text-sm text-gray-500">Failed to load analytics</p>
             ) : (
               <div className="space-y-1 text-sm text-gray-400">
                 <p>

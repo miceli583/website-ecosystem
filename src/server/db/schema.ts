@@ -288,6 +288,24 @@ export const portalUsers = pgTable("portal_users", {
 });
 
 /**
+ * Notifications - In-app notifications for admin users
+ */
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  recipientId: uuid("recipient_id")
+    .notNull()
+    .references(() => portalUsers.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // assignment | status_change | client_update | payment_received | proposal_action
+  title: text("title").notNull(),
+  message: text("message"),
+  linkUrl: text("link_url"), // relative URL for deep linking
+  isRead: boolean("is_read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
  * Clients - CRM client records
  */
 export const clients = pgTable("clients", {
@@ -296,6 +314,10 @@ export const clients = pgTable("clients", {
     onDelete: "set null",
   }),
   accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  assignedDeveloperId: uuid("assigned_developer_id").references(
     () => portalUsers.id,
     { onDelete: "set null" }
   ),
@@ -598,6 +620,13 @@ export const quotePostsRelations = relations(quotePosts, ({ one }) => ({
   }),
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  recipient: one(portalUsers, {
+    fields: [notifications.recipientId],
+    references: [portalUsers.id],
+  }),
+}));
+
 export const portalUsersRelations = relations(portalUsers, ({ one, many }) => ({
   // Client slug links to clients table
   client: one(clients, {
@@ -606,7 +635,9 @@ export const portalUsersRelations = relations(portalUsers, ({ one, many }) => ({
     relationName: "clientPortalUser",
   }),
   managedClients: many(clients, { relationName: "clientAccountManager" }),
+  developedClients: many(clients, { relationName: "clientAssignedDeveloper" }),
   managedCrmContacts: many(masterCrm, { relationName: "crmAccountManager" }),
+  notifications: many(notifications),
 }));
 
 export const clientsRelations = relations(clients, ({ many, one }) => ({
@@ -627,6 +658,11 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
     fields: [clients.accountManagerId],
     references: [portalUsers.id],
     relationName: "clientAccountManager",
+  }),
+  assignedDeveloper: one(portalUsers, {
+    fields: [clients.assignedDeveloperId],
+    references: [portalUsers.id],
+    relationName: "clientAssignedDeveloper",
   }),
 }));
 
