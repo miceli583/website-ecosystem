@@ -14,6 +14,7 @@ import {
   personalContactSubmissions,
   clients,
   portalUsers,
+  formRegistry,
 } from "~/server/db/schema";
 import {
   and,
@@ -49,13 +50,20 @@ export const crmRouter = createTRPCRouter({
     const roles = getProfileRoles(
       ctx as { profile: { companyRoles: string[] | null } }
     );
-    const scoped = !isFullAccess(roles) && roles.includes("account_manager");
-    const scopeCondition = scoped
-      ? eq(
-          masterCrm.accountManagerId,
-          (ctx as { profile: { id: string } }).profile.id
-        )
-      : undefined;
+    let scopeCondition = undefined;
+    if (!isFullAccess(roles)) {
+      const profileId = (ctx as { profile: { id: string } }).profile.id;
+      const scopeConditions = [];
+      if (roles.includes("account_manager")) {
+        scopeConditions.push(eq(masterCrm.accountManagerId, profileId));
+      }
+      if (roles.includes("connector")) {
+        scopeConditions.push(eq(masterCrm.connectorId, profileId));
+      }
+      if (scopeConditions.length > 0 && !roles.includes("developer")) {
+        scopeCondition = or(...scopeConditions);
+      }
+    }
 
     const statuses = await db
       .select({
@@ -100,17 +108,24 @@ export const crmRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
-      // Account managers only see their assigned contacts
+      // Non-full-access users see only their assigned contacts
       const roles = getProfileRoles(
         ctx as { profile: { companyRoles: string[] | null } }
       );
-      if (!isFullAccess(roles) && roles.includes("account_manager")) {
-        conditions.push(
-          eq(
-            masterCrm.accountManagerId,
-            (ctx as { profile: { id: string } }).profile.id
-          )
-        );
+      if (!isFullAccess(roles)) {
+        const profileId = (ctx as { profile: { id: string } }).profile.id;
+        const scopeConditions = [];
+        if (roles.includes("account_manager")) {
+          scopeConditions.push(eq(masterCrm.accountManagerId, profileId));
+        }
+        if (roles.includes("connector")) {
+          scopeConditions.push(eq(masterCrm.connectorId, profileId));
+        }
+        // Developers can see all contacts (they need CRM visibility per plan)
+        // but their clients tab is scoped
+        if (scopeConditions.length > 0 && !roles.includes("developer")) {
+          conditions.push(or(...scopeConditions)!);
+        }
       }
 
       if (input.search) {
@@ -559,6 +574,14 @@ export const crmRouter = createTRPCRouter({
   /**
    * Get leads: Banyan early access signups + contact form submissions
    */
+  getFormRegistry: adminProcedure.query(async () => {
+    return db
+      .select()
+      .from(formRegistry)
+      .where(eq(formRegistry.isActive, true))
+      .orderBy(formRegistry.id);
+  }),
+
   getLeads: adminProcedure.query(async () => {
     const [banyanLeads, mmLeads, personalLeads] = await Promise.all([
       db
@@ -639,6 +662,9 @@ export const crmRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().optional(),
+        role: z.string().optional(),
+        status: z.enum(["active", "inactive"]).optional(),
+        sortBy: z.enum(["name", "newest", "oldest"]).default("name"),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
       })
@@ -655,14 +681,31 @@ export const crmRouter = createTRPCRouter({
         );
       }
 
+      if (input.role) {
+        conditions.push(sql`${input.role} = ANY(${portalUsers.companyRoles})`);
+      }
+
+      if (input.status === "active") {
+        conditions.push(eq(portalUsers.isActive, true));
+      } else if (input.status === "inactive") {
+        conditions.push(eq(portalUsers.isActive, false));
+      }
+
       const where = and(...conditions);
+
+      const orderBy =
+        input.sortBy === "newest"
+          ? [desc(portalUsers.createdAt)]
+          : input.sortBy === "oldest"
+            ? [portalUsers.createdAt]
+            : [portalUsers.name];
 
       const [memberRows, totalResult] = await Promise.all([
         db
           .select()
           .from(portalUsers)
           .where(where)
-          .orderBy(portalUsers.name)
+          .orderBy(...orderBy)
           .limit(input.limit)
           .offset(input.offset),
         db.select({ count: count() }).from(portalUsers).where(where),
@@ -685,6 +728,7 @@ export const crmRouter = createTRPCRouter({
         email: z.string().email(),
         phone: z.string().nullable().optional(),
         companyRoles: z.array(z.string()).optional(),
+        clientSlug: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -697,6 +741,7 @@ export const crmRouter = createTRPCRouter({
           role: "admin",
           isCompanyMember: true,
           companyRoles: input.companyRoles ?? [],
+          clientSlug: input.clientSlug ?? null,
         })
         .returning();
       return created;
@@ -713,6 +758,7 @@ export const crmRouter = createTRPCRouter({
         email: z.string().email().optional(),
         phone: z.string().nullable().optional(),
         companyRoles: z.array(z.string()).optional(),
+        clientSlug: z.string().nullable().optional(),
         isActive: z.boolean().optional(),
       })
     )
@@ -723,6 +769,91 @@ export const crmRouter = createTRPCRouter({
         .set({ ...data, updatedAt: new Date() })
         .where(eq(portalUsers.id, id))
         .returning();
+      return updated;
+    }),
+
+  /**
+   * Create a client portal for an existing team member.
+   * Creates a clients record + links the portal_users record via clientSlug.
+   */
+  createTeamPortal: fullAccessProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid(),
+        slug: z.string().min(1),
+        company: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Get the team member
+      const member = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.id, input.memberId),
+      });
+
+      if (!member || !member.isCompanyMember) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Team member not found",
+        });
+      }
+
+      if (member.clientSlug) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Team member already has a client portal",
+        });
+      }
+
+      // Check slug isn't taken
+      const existing = await db.query.clients.findFirst({
+        where: eq(clients.slug, input.slug),
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This slug is already in use",
+        });
+      }
+
+      // Look up or create CRM record
+      let crmId: string | null = null;
+      const existingCrm = await db
+        .select({ id: masterCrm.id })
+        .from(masterCrm)
+        .where(eq(masterCrm.email, member.email))
+        .limit(1);
+
+      if (existingCrm[0]) {
+        crmId = existingCrm[0].id;
+      } else {
+        const [newCrm] = await db
+          .insert(masterCrm)
+          .values({
+            email: member.email,
+            name: member.name,
+            source: "portal",
+            status: "client",
+          })
+          .returning({ id: masterCrm.id });
+        crmId = newCrm!.id;
+      }
+
+      // Create client record
+      await db.insert(clients).values({
+        crmId,
+        name: member.name,
+        email: member.email,
+        slug: input.slug,
+        company: input.company ?? null,
+      });
+
+      // Link team member to client portal
+      const [updated] = await db
+        .update(portalUsers)
+        .set({ clientSlug: input.slug, updatedAt: new Date() })
+        .where(eq(portalUsers.id, input.memberId))
+        .returning();
+
       return updated;
     }),
 

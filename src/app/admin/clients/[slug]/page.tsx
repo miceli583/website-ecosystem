@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
 import Link from "next/link";
 import { api, type RouterOutputs } from "~/trpc/react";
 
@@ -431,6 +431,9 @@ export default function AdminClientDetailPage({
           </>
         )}
 
+        {/* Assigned Team */}
+        <ProjectTeamSection clientId={client.id} />
+
         {/* Portal link */}
         <Link
           href={`/portal/${client.slug}`}
@@ -454,5 +457,70 @@ export default function AdminClientDetailPage({
         </Link>
       </div>
     </div>
+  );
+}
+
+/* ── Project Team Section ─────────────────────────────────────── */
+
+function ProjectTeamSection({ clientId }: { clientId: number }) {
+  const { data: projectTeam } = api.clients.getProjectTeam.useQuery(
+    { clientId },
+    { staleTime: 60_000 }
+  );
+
+  if (!projectTeam) return null;
+
+  const hasTeam =
+    projectTeam.accountManagers.length > 0 || projectTeam.developers.length > 0;
+
+  if (!hasTeam) return null;
+
+  return (
+    <>
+      <h2 className="mt-10 mb-4 text-xl font-semibold">Assigned Team</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {projectTeam.accountManagers.length > 0 && (
+          <Card
+            className="bg-white/5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <CardContent className="p-4">
+              <p className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
+                Account Manager
+                {projectTeam.accountManagers.length > 1 ? "s" : ""}
+              </p>
+              <div className="space-y-1">
+                {projectTeam.accountManagers.map((am) => (
+                  <p key={am.id} className="text-sm text-white">
+                    {am.name}{" "}
+                    <span className="text-xs text-gray-500">{am.email}</span>
+                  </p>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {projectTeam.developers.length > 0 && (
+          <Card
+            className="bg-white/5"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <CardContent className="p-4">
+              <p className="mb-2 text-xs font-medium tracking-wider text-gray-500 uppercase">
+                Developer{projectTeam.developers.length > 1 ? "s" : ""}
+              </p>
+              <div className="space-y-1">
+                {projectTeam.developers.map((dev) => (
+                  <p key={dev.id} className="text-sm text-white">
+                    {dev.name}{" "}
+                    <span className="text-xs text-gray-500">{dev.email}</span>
+                  </p>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </>
   );
 }

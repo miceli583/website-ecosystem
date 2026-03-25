@@ -9,6 +9,9 @@ import {
   X,
   Plus,
   MoreVertical,
+  ExternalLink,
+  Loader2,
+  ChevronDown,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -27,6 +30,7 @@ const ROLE_OPTIONS = [
   "admin",
   "account_manager",
   "developer",
+  "connector",
 ] as const;
 
 const ROLE_LABELS: Record<string, string> = {
@@ -34,6 +38,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
   account_manager: "Account Manager",
   developer: "Developer",
+  connector: "Connector",
 };
 
 /* ── Types ─────────────────────────────────────────────────────── */
@@ -46,6 +51,7 @@ type TeamMember = {
   role: string;
   isCompanyMember: boolean;
   companyRoles: string[] | null;
+  clientSlug: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -68,24 +74,32 @@ function TableSkeleton({ rows = 6 }: { rows?: number }) {
   );
 }
 
-/* ── Role Select (single-select) ──────────────────────────────── */
+/* ── Role Select (multi-select) ───────────────────────────────── */
 
 function RoleSelect({
   selected,
   onChange,
 }: {
-  selected: string | null;
-  onChange: (role: string) => void;
+  selected: string[];
+  onChange: (roles: string[]) => void;
 }) {
+  const toggle = (role: string) => {
+    if (selected.includes(role)) {
+      onChange(selected.filter((r) => r !== role));
+    } else {
+      onChange([...selected, role]);
+    }
+  };
+
   return (
     <div className="flex flex-wrap gap-2">
       {ROLE_OPTIONS.map((role) => {
-        const isSelected = selected === role;
+        const isSelected = selected.includes(role);
         return (
           <button
             key={role}
             type="button"
-            onClick={() => onChange(role)}
+            onClick={() => toggle(role)}
             className="rounded-full border px-3 py-1 text-xs font-medium transition-colors"
             style={
               isSelected
@@ -124,7 +138,7 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
     name: "",
     email: "",
     phone: "",
-    companyRole: "" as string,
+    companyRoles: [] as string[],
   });
 
   useEffect(() => {
@@ -140,7 +154,7 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
       name: form.name,
       email: form.email,
       phone: form.phone || null,
-      companyRoles: form.companyRole ? [form.companyRole] : [],
+      companyRoles: form.companyRoles,
     });
   };
 
@@ -208,10 +222,12 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className={labelClass}>Role</label>
+            <label className={labelClass}>Roles</label>
             <RoleSelect
-              selected={form.companyRole || null}
-              onChange={(role) => setForm((f) => ({ ...f, companyRole: role }))}
+              selected={form.companyRoles}
+              onChange={(roles) =>
+                setForm((f) => ({ ...f, companyRoles: roles }))
+              }
             />
           </div>
         </div>
@@ -230,7 +246,7 @@ function CreateMemberModal({ onClose }: { onClose: () => void }) {
               createMember.isPending ||
               !form.name ||
               !form.email ||
-              !form.companyRole
+              form.companyRoles.length === 0
             }
             className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
             style={{
@@ -267,7 +283,7 @@ function EditMemberModal({
     name: member.name,
     email: member.email,
     phone: member.phone ?? "",
-    companyRole: (member.companyRoles?.[0] ?? "") as string,
+    companyRoles: (member.companyRoles ?? []) as string[],
     isActive: member.isActive,
   });
 
@@ -285,7 +301,7 @@ function EditMemberModal({
       name: form.name,
       email: form.email,
       phone: form.phone || null,
-      companyRoles: form.companyRole ? [form.companyRole] : [],
+      companyRoles: form.companyRoles,
       isActive: form.isActive,
     });
   };
@@ -352,12 +368,16 @@ function EditMemberModal({
           </div>
 
           <div>
-            <label className={labelClass}>Role</label>
+            <label className={labelClass}>Roles</label>
             <RoleSelect
-              selected={form.companyRole || null}
-              onChange={(role) => setForm((f) => ({ ...f, companyRole: role }))}
+              selected={form.companyRoles}
+              onChange={(roles) =>
+                setForm((f) => ({ ...f, companyRoles: roles }))
+              }
             />
           </div>
+
+          <ClientPortalSection member={member} onCreated={onClose} />
 
           <div>
             <label className={labelClass}>Status</label>
@@ -423,6 +443,9 @@ function EditMemberModal({
 
 export default function OrganizationPage() {
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "newest" | "oldest">("oldest");
   const [page, setPage] = useState(0);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -435,6 +458,9 @@ export default function OrganizationPage() {
 
   const { data, isLoading } = api.crm.getTeamMembers.useQuery({
     search: search || undefined,
+    role: roleFilter || undefined,
+    status: (statusFilter as "active" | "inactive") || undefined,
+    sortBy,
     limit,
     offset: page * limit,
   });
@@ -443,9 +469,9 @@ export default function OrganizationPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Organization</h1>
+        <h1 className="text-2xl font-bold text-white">Team</h1>
         <p className="text-sm text-gray-400">
-          Manage your company team members and roles
+          Manage your team members and roles
         </p>
       </div>
 
@@ -467,6 +493,57 @@ export default function OrganizationPage() {
             className="w-full rounded-lg border bg-white/5 py-2 pr-3 pl-10 text-sm text-white placeholder:text-gray-500 focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           />
+        </div>
+
+        <div className="relative">
+          <select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setPage(0);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="">All Roles</option>
+            {ROLE_OPTIONS.map((role) => (
+              <option key={role} value={role}>
+                {ROLE_LABELS[role]}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(0);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="name">Name</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         {data && (
@@ -500,8 +577,8 @@ export default function OrganizationPage() {
           <div className="flex flex-col items-center justify-center py-12">
             <Building2 className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
-              {search
-                ? "No team members match your search"
+              {search || roleFilter || statusFilter
+                ? "No team members match your filters"
                 : "No team members yet"}
             </p>
           </div>
@@ -515,7 +592,7 @@ export default function OrganizationPage() {
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Roles</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="w-10 px-2 py-3" />
               </tr>
@@ -547,17 +624,21 @@ export default function OrganizationPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {member.companyRoles?.[0] ? (
-                      <span
-                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                        style={{
-                          backgroundColor: "rgba(212, 175, 55, 0.1)",
-                          color: "#D4AF37",
-                        }}
-                      >
-                        {ROLE_LABELS[member.companyRoles[0]] ??
-                          member.companyRoles[0]}
-                      </span>
+                    {member.companyRoles?.length ? (
+                      <div className="flex flex-wrap gap-1">
+                        {member.companyRoles.map((role: string) => (
+                          <span
+                            key={role}
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: "rgba(212, 175, 55, 0.1)",
+                              color: "#D4AF37",
+                            }}
+                          >
+                            {ROLE_LABELS[role] ?? role}
+                          </span>
+                        ))}
+                      </div>
                     ) : (
                       <span className="text-xs text-gray-600">—</span>
                     )}
@@ -634,6 +715,147 @@ export default function OrganizationPage() {
         />
       )}
       {showCreate && <CreateMemberModal onClose={() => setShowCreate(false)} />}
+    </div>
+  );
+}
+
+/* ── Client Portal Section (inside edit modal) ────────────────── */
+
+function ClientPortalSection({
+  member,
+  onCreated,
+}: {
+  member: TeamMember;
+  onCreated: () => void;
+}) {
+  const utils = api.useUtils();
+  const [showForm, setShowForm] = useState(false);
+  const [slug, setSlug] = useState(
+    member.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+  );
+  const [company, setCompany] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const createPortal = api.crm.createTeamPortal.useMutation({
+    onSuccess: () => {
+      void utils.crm.getTeamMembers.invalidate();
+      void utils.crm.getCompanyTeam.invalidate();
+      void utils.clients.list.invalidate();
+      onCreated();
+    },
+    onError: (err) => setError(err.message),
+  });
+
+  // Already has a portal
+  if (member.clientSlug) {
+    return (
+      <div>
+        <label className={labelClass}>Client Portal</label>
+        <a
+          href={`/portal/${member.clientSlug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-white/5"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)", color: "#D4AF37" }}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          /portal/{member.clientSlug}
+        </a>
+      </div>
+    );
+  }
+
+  // Show create form
+  if (showForm) {
+    return (
+      <div>
+        <label className={labelClass}>Create Client Portal</label>
+        <div
+          className="space-y-3 rounded-lg border p-3"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div>
+            <label className="mb-1 block text-xs text-gray-500">Slug</label>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-600">/portal/</span>
+              <input
+                className={inputClass}
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                value={slug}
+                onChange={(e) => {
+                  setSlug(
+                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
+                  );
+                  setError(null);
+                }}
+                placeholder="john-doe"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-gray-500">
+              Company (optional)
+            </label>
+            <input
+              className={inputClass}
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Company name"
+            />
+          </div>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowForm(false)}
+              className="rounded-lg border px-3 py-1.5 text-xs text-gray-400 transition-colors hover:text-white"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() =>
+                createPortal.mutate({
+                  memberId: member.id,
+                  slug,
+                  company: company || undefined,
+                })
+              }
+              disabled={!slug || createPortal.isPending}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-black disabled:opacity-50"
+              style={{
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              }}
+            >
+              {createPortal.isPending && (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              )}
+              Create Portal
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show button to start
+  return (
+    <div>
+      <label className={labelClass}>Client Portal</label>
+      <button
+        onClick={() => setShowForm(true)}
+        className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+        style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Create Portal
+      </button>
+      <p className="mt-1 text-xs text-gray-600">
+        Give this team member their own client portal
+      </p>
     </div>
   );
 }

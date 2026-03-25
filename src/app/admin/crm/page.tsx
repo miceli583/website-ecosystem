@@ -72,6 +72,7 @@ const SOURCE_LABELS: Record<string, string> = {
   miracle_mind: "miraclemind.dev",
   banyan_waitlist: "Banyan Waitlist",
   referral: "Referral",
+  portal: "Client Portal",
 };
 
 export default function CrmPage() {
@@ -176,6 +177,28 @@ export default function CrmPage() {
       {/* Quick Links */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Link
+          href="/admin/crm/leads"
+          className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
+              >
+                <Inbox className="h-5 w-5" style={{ color: "#D4AF37" }} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Leads & Signups</h3>
+                <p className="text-sm text-gray-400">Form submissions</p>
+              </div>
+            </div>
+            <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+          </div>
+        </Link>
+
+        <Link
           href="/admin/crm/contacts"
           className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -191,30 +214,6 @@ export default function CrmPage() {
               <div>
                 <h3 className="font-semibold text-white">All Contacts</h3>
                 <p className="text-sm text-gray-400">Master CRM database</p>
-              </div>
-            </div>
-            <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
-          </div>
-        </Link>
-
-        <Link
-          href="/admin/crm/leads"
-          className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
-          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
-              >
-                <Inbox className="h-5 w-5" style={{ color: "#D4AF37" }} />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Leads & Signups</h3>
-                <p className="text-sm text-gray-400">
-                  Contact forms & Banyan waitlist
-                </p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />

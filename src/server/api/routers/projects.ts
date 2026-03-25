@@ -43,15 +43,24 @@ export const projectsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
-      // Role-based scoping
+      // Role-based scoping — union of all assigned roles
       const roles = (ctx.profile.companyRoles ?? []) as string[];
       if (!isFullAccess(roles)) {
+        const scopeConditions = [];
         if (roles.includes("account_manager")) {
-          conditions.push(eq(clientProjects.accountManagerId, ctx.profile.id));
-        } else if (roles.includes("developer")) {
-          conditions.push(
+          scopeConditions.push(
+            eq(clientProjects.accountManagerId, ctx.profile.id)
+          );
+        }
+        if (roles.includes("developer")) {
+          scopeConditions.push(
             eq(clientProjects.assignedDeveloperId, ctx.profile.id)
           );
+        }
+        if (scopeConditions.length > 0) {
+          conditions.push(or(...scopeConditions)!);
+        } else {
+          conditions.push(sql`false`);
         }
       }
 
@@ -158,19 +167,15 @@ export const projectsRouter = createTRPCRouter({
         });
       }
 
-      // Role-scoping: AM/dev can only see their assigned projects
+      // Role-scoping: non-full-access users can only see assigned projects
       const roles = (ctx.profile.companyRoles ?? []) as string[];
       if (!isFullAccess(roles)) {
-        if (
-          roles.includes("account_manager") &&
-          project.accountManagerId !== ctx.profile.id
-        ) {
-          throw new TRPCError({ code: "FORBIDDEN" });
-        }
-        if (
-          roles.includes("developer") &&
-          project.assignedDeveloperId !== ctx.profile.id
-        ) {
+        const isAssigned =
+          (roles.includes("account_manager") &&
+            project.accountManagerId === ctx.profile.id) ||
+          (roles.includes("developer") &&
+            project.assignedDeveloperId === ctx.profile.id);
+        if (!isAssigned) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
       }

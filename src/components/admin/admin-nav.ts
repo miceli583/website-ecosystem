@@ -45,23 +45,29 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     requiredRoles: ["founder", "admin"],
   },
   {
-    title: "Organization",
+    title: "Team",
     href: "/admin/organization",
     icon: Building2,
-    // All roles can see (AM/Dev get read-only, enforced server-side)
+    // All roles can see (non-admins get read-only, enforced server-side)
   },
   {
     title: "CRM",
     icon: Users,
-    requiredRoles: ["founder", "admin", "account_manager"],
+    requiredRoles: ["founder", "admin", "account_manager", "connector"],
     items: [
-      { title: "Dashboard", href: "/admin/crm" },
-      { title: "Contacts", href: "/admin/crm/contacts" },
+      { title: "Overview", href: "/admin/crm" },
       { title: "Leads", href: "/admin/crm/leads" },
+      { title: "Contacts", href: "/admin/crm/contacts" },
       {
         title: "Clients",
         href: "/admin/clients",
-        requiredRoles: ["founder", "admin", "account_manager", "developer"],
+        requiredRoles: [
+          "founder",
+          "admin",
+          "account_manager",
+          "developer",
+          "connector",
+        ],
       },
     ],
   },
@@ -69,7 +75,13 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     title: "Projects",
     href: "/admin/projects",
     icon: FolderKanban,
-    requiredRoles: ["founder", "admin", "account_manager", "developer"],
+    requiredRoles: [
+      "founder",
+      "admin",
+      "account_manager",
+      "developer",
+      "connector",
+    ],
   },
   {
     title: "Finance",

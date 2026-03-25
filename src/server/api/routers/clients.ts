@@ -55,10 +55,25 @@ export const clientsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
-      // Role-based scoping
+      // Role-based scoping — non-full-access users see only assigned clients
       const roles = (ctx.profile.companyRoles ?? []) as string[];
-      if (!isFullAccess(roles) && roles.includes("account_manager")) {
-        conditions.push(eq(clients.accountManagerId, ctx.profile.id));
+      if (!isFullAccess(roles)) {
+        const scopeConditions = [];
+        if (roles.includes("account_manager")) {
+          scopeConditions.push(eq(clients.accountManagerId, ctx.profile.id));
+        }
+        if (roles.includes("developer")) {
+          scopeConditions.push(eq(clients.assignedDeveloperId, ctx.profile.id));
+        }
+        if (roles.includes("connector")) {
+          scopeConditions.push(eq(clients.connectorId, ctx.profile.id));
+        }
+        if (scopeConditions.length > 0) {
+          conditions.push(or(...scopeConditions)!);
+        } else {
+          // User has no client-facing roles — show nothing
+          conditions.push(sql`false`);
+        }
       }
 
       // Search
@@ -239,6 +254,48 @@ export const clientsRouter = createTRPCRouter({
       }
 
       return { ...client, stripeLifetimeSpend };
+    }),
+
+  // Get all team members assigned across a client's projects
+  // Returns distinct AMs and Devs from project-level assignments
+  getProjectTeam: adminProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const projects = await db.query.clientProjects.findMany({
+        where: eq(clientProjects.clientId, input.clientId),
+        with: {
+          accountManager: {
+            columns: { id: true, name: true, email: true },
+          },
+          assignedDeveloper: {
+            columns: { id: true, name: true, email: true },
+          },
+        },
+      });
+
+      // Collect unique team members from project assignments
+      const ams = new Map<
+        string,
+        { id: string; name: string; email: string }
+      >();
+      const devs = new Map<
+        string,
+        { id: string; name: string; email: string }
+      >();
+
+      for (const project of projects) {
+        if (project.accountManager) {
+          ams.set(project.accountManager.id, project.accountManager);
+        }
+        if (project.assignedDeveloper) {
+          devs.set(project.assignedDeveloper.id, project.assignedDeveloper);
+        }
+      }
+
+      return {
+        accountManagers: [...ams.values()],
+        developers: [...devs.values()],
+      };
     }),
 
   // Get client by slug (used for client portal)

@@ -32,11 +32,9 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
   );
 }
 
-type SourceKey = "all" | "banyan" | "miracleMind" | "personal";
-
 type NormalizedLead = {
   id: number;
-  source: "banyan" | "miracleMind" | "personal";
+  source: string;
   sourceLabel: string;
   name: string;
   email: string;
@@ -48,57 +46,75 @@ type NormalizedLead = {
   isActioned: boolean;
 };
 
-const SOURCE_LABELS: Record<NormalizedLead["source"], string> = {
-  banyan: "Early Access Form · miraclemind.dev/banyan",
-  miracleMind: "Contact Form · miraclemind.dev/contact",
-  personal: "Contact Form · matthewmiceli.com",
+type FormRegistryEntry = {
+  key: string;
+  name: string;
+  url: string | null;
 };
 
-const SOURCE_OPTIONS: { value: SourceKey; label: string }[] = [
-  { value: "all", label: "All Sources" },
-  { value: "banyan", label: "Early Access Form · miraclemind.dev/banyan" },
-  { value: "miracleMind", label: "Contact Form · miraclemind.dev/contact" },
-  { value: "personal", label: "Contact Form · matthewmiceli.com" },
-];
+function buildSourceLabel(form: FormRegistryEntry): string {
+  return form.url ? `${form.name} · ${form.url}` : form.name;
+}
 
-function normalizeLeads(data: {
-  banyan: {
-    id: number;
-    fullName: string;
-    email: string;
-    phone: string | null;
-    role: string | null;
-    message: string | null;
-    contacted: boolean;
-    createdAt: Date;
-  }[];
-  miracleMind: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string | null;
-    message: string;
-    services: string[] | null;
-    read: boolean;
-    createdAt: Date;
-  }[];
-  personal: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string | null;
-    message: string;
-    read: boolean;
-    createdAt: Date;
-  }[];
-}): NormalizedLead[] {
+function buildSourceOptions(
+  forms: FormRegistryEntry[]
+): { value: string; label: string }[] {
+  return [
+    { value: "all", label: "All Sources" },
+    ...forms.map((f) => ({
+      value: f.key,
+      label: buildSourceLabel(f),
+    })),
+  ];
+}
+
+function normalizeLeads(
+  data: {
+    banyan: {
+      id: number;
+      fullName: string;
+      email: string;
+      phone: string | null;
+      role: string | null;
+      message: string | null;
+      contacted: boolean;
+      createdAt: Date;
+    }[];
+    miracleMind: {
+      id: number;
+      name: string;
+      email: string;
+      phone: string | null;
+      message: string;
+      services: string[] | null;
+      read: boolean;
+      createdAt: Date;
+    }[];
+    personal: {
+      id: number;
+      name: string;
+      email: string;
+      phone: string | null;
+      message: string;
+      read: boolean;
+      createdAt: Date;
+    }[];
+  },
+  forms: FormRegistryEntry[]
+): NormalizedLead[] {
+  const formMap = new Map(forms.map((f) => [f.key, f]));
+  const getLabel = (key: string) => {
+    const f = formMap.get(key);
+    return f ? buildSourceLabel(f) : key;
+  };
+
   const leads: NormalizedLead[] = [];
 
   for (const b of data.banyan) {
     leads.push({
       id: b.id,
       source: "banyan",
-      sourceLabel: SOURCE_LABELS.banyan,
+      sourceLabel: getLabel("banyan"),
       name: b.fullName,
       email: b.email,
       phone: b.phone,
@@ -114,7 +130,7 @@ function normalizeLeads(data: {
     leads.push({
       id: m.id,
       source: "miracleMind",
-      sourceLabel: SOURCE_LABELS.miracleMind,
+      sourceLabel: getLabel("miracleMind"),
       name: m.name,
       email: m.email,
       phone: m.phone,
@@ -130,7 +146,7 @@ function normalizeLeads(data: {
     leads.push({
       id: p.id,
       source: "personal",
-      sourceLabel: SOURCE_LABELS.personal,
+      sourceLabel: getLabel("personal"),
       name: p.name,
       email: p.email,
       phone: p.phone,
@@ -335,14 +351,32 @@ function LeadDetailModal({
 }
 
 export default function CrmLeadsPage() {
-  const [sourceFilter, setSourceFilter] = useState<SourceKey>("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [selectedLead, setSelectedLead] = useState<NormalizedLead | null>(null);
   const { data, isLoading } = api.crm.getLeads.useQuery();
+  const { data: formRegistryData } = api.crm.getFormRegistry.useQuery();
 
   const markContacted = api.crm.markBanyanContacted.useMutation();
   const markRead = api.crm.markSubmissionRead.useMutation();
 
-  const allLeads = useMemo(() => (data ? normalizeLeads(data) : []), [data]);
+  const forms: FormRegistryEntry[] = useMemo(
+    () =>
+      (formRegistryData ?? []).map(
+        (f: { key: string; name: string; url: string | null }) => ({
+          key: f.key,
+          name: f.name,
+          url: f.url,
+        })
+      ),
+    [formRegistryData]
+  );
+
+  const sourceOptions = useMemo(() => buildSourceOptions(forms), [forms]);
+
+  const allLeads = useMemo(
+    () => (data ? normalizeLeads(data, forms) : []),
+    [data, forms]
+  );
 
   const filteredLeads = useMemo(
     () =>
@@ -356,7 +390,10 @@ export default function CrmLeadsPage() {
     if (lead.source === "banyan") {
       markContacted.mutate({ id: lead.id });
     } else {
-      markRead.mutate({ id: lead.id, type: lead.source });
+      markRead.mutate({
+        id: lead.id,
+        type: lead.source as "miracleMind" | "personal",
+      });
     }
   };
 
@@ -384,17 +421,17 @@ export default function CrmLeadsPage() {
         <div className="relative">
           <select
             value={sourceFilter}
-            onChange={(e) => setSourceFilter(e.target.value as SourceKey)}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
-            {SOURCE_OPTIONS.map((opt) => (
+            {sourceOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         {!isLoading && (
@@ -416,7 +453,7 @@ export default function CrmLeadsPage() {
             <Inbox className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
               {sourceFilter !== "all"
-                ? `No leads from ${SOURCE_OPTIONS.find((o) => o.value === sourceFilter)?.label ?? "this source"}`
+                ? `No leads from ${sourceOptions.find((o) => o.value === sourceFilter)?.label ?? "this source"}`
                 : "No leads found"}
             </p>
           </div>

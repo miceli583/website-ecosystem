@@ -27,7 +27,7 @@ import { api } from "~/trpc/react";
 const inputClass =
   "w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50";
 const selectClass =
-  "w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50";
+  "w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50";
 const labelClass =
   "mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500";
 const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
@@ -1046,7 +1046,7 @@ function EditContactModal({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
             <div>
@@ -1066,7 +1066,7 @@ function EditContactModal({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
@@ -1469,7 +1469,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
             <div>
@@ -1489,7 +1489,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
@@ -1657,7 +1657,7 @@ export default function CrmContactsPage() {
               setStatusFilter(e.target.value || undefined);
               setPage(0);
             }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
             <option value="">All Statuses</option>
@@ -1667,7 +1667,7 @@ export default function CrmContactsPage() {
             <option value="inactive">Inactive</option>
             <option value="churned">Churned</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         <div className="relative">
@@ -1677,7 +1677,7 @@ export default function CrmContactsPage() {
               setSourceFilter(e.target.value || undefined);
               setPage(0);
             }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
             <option value="">All Sources</option>
@@ -1686,7 +1686,7 @@ export default function CrmContactsPage() {
             <option value="banyan_waitlist">Banyan Waitlist</option>
             <option value="referral">Referral</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         {data && (

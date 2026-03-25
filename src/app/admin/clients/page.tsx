@@ -1021,7 +1021,7 @@ function EditClientModal({
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
@@ -1417,14 +1417,14 @@ export default function AdminClientsPage() {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={borderStyle}
           >
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         <div className="relative">
@@ -1434,7 +1434,7 @@ export default function AdminClientsPage() {
               setSortBy(e.target.value as typeof sortBy);
               setPage(1);
             }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={borderStyle}
           >
             <option value="newest">Newest</option>
@@ -1443,7 +1443,7 @@ export default function AdminClientsPage() {
             <option value="active">Active First</option>
             <option value="inactive">Inactive First</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
         {data && (

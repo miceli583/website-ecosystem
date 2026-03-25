@@ -303,17 +303,19 @@ export default function PortalProjectsPage({
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger
-              value="tasks"
-              className="text-gray-400 data-[state=active]:bg-[#D4AF37]/10 data-[state=active]:text-[#D4AF37]"
-            >
-              Tasks
-              {tasks && (
-                <span className="ml-1.5 text-xs text-gray-600">
-                  {tasks.length}
-                </span>
-              )}
-            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger
+                value="tasks"
+                className="text-gray-400 data-[state=active]:bg-[#D4AF37]/10 data-[state=active]:text-[#D4AF37]"
+              >
+                Tasks
+                {tasks && (
+                  <span className="ml-1.5 text-xs text-gray-600">
+                    {tasks.length}
+                  </span>
+                )}
+              </TabsTrigger>
+            )}
           </TabsList>
           <ViewToggle
             view={activeTab === "projects" ? projectView : taskView}
