@@ -67,13 +67,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const SOURCE_LABELS: Record<string, string> = {
-  personal_site: "matthewmiceli.com",
-  miracle_mind: "miraclemind.dev",
-  banyan_waitlist: "Banyan Waitlist",
-  referral: "Referral",
-  portal: "Client Portal",
-};
+import { getSourceLabel } from "~/lib/source-labels";
 
 export default function CrmPage() {
   const { data: pipeline, isLoading: pipelineLoading } =
@@ -280,7 +274,7 @@ export default function CrmPage() {
                       <div className="flex items-center gap-3">
                         <Globe className="h-4 w-4 text-gray-500" />
                         <span className="text-sm text-gray-300">
-                          {SOURCE_LABELS[source.source] ?? source.source}
+                          {getSourceLabel(source.source)}
                         </span>
                       </div>
                       <div className="flex items-center gap-3">

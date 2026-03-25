@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -19,6 +19,8 @@ import {
   Plus,
   AlertTriangle,
   Shield,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 
@@ -172,14 +174,24 @@ function ReferralPicker({
   ) => void;
 }) {
   const { data: contacts = [] } = api.crm.getContactOptions.useQuery();
+  const { data: teamMembers = [] } = api.crm.getCompanyTeam.useQuery();
   const [search, setSearch] = useState(referredByExternal ?? "");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Resolve display name for selected internal contact
+  // Resolve display name for selected internal contact (could be contact or team member)
   const selectedContact = referredBy
     ? contacts.find((c: { id: string }) => c.id === referredBy)
     : null;
+  const selectedTeamMember =
+    !selectedContact && referredBy
+      ? teamMembers.find((m: { id: string }) => m.id === referredBy)
+      : null;
+  const selectedName = selectedContact
+    ? `${(selectedContact as { name: string }).name} (contact)`
+    : selectedTeamMember
+      ? `${(selectedTeamMember as { name: string }).name} (team)`
+      : null;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -190,11 +202,15 @@ function ReferralPicker({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const filtered = contacts.filter(
+  const q = search.toLowerCase();
+  const filteredContacts = contacts.filter(
     (c: { id: string; name: string; email: string }) =>
       c.id !== contactId &&
-      (c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.email.toLowerCase().includes(search.toLowerCase()))
+      (c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q))
+  );
+  const filteredTeam = teamMembers.filter(
+    (m: { name: string; email: string }) =>
+      m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q)
   );
 
   return (
@@ -206,9 +222,7 @@ function ReferralPicker({
           style={borderStyle}
         >
           <span className="text-sm text-white">
-            {selectedContact
-              ? `${(selectedContact as { name: string }).name} (contact)`
-              : referredByExternal}
+            {selectedName ?? referredByExternal}
           </span>
           <button
             aria-label="Clear referral"
@@ -247,45 +261,81 @@ function ReferralPicker({
               }}
             />
           </div>
-          {open && (filtered.length > 0 || search.trim()) && (
-            <div
-              className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            >
-              {filtered.map(
-                (c: { id: string; name: string; email: string }) => (
+          {open &&
+            (filteredTeam.length > 0 ||
+              filteredContacts.length > 0 ||
+              search.trim()) && (
+              <div
+                className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                {filteredTeam.length > 0 && (
+                  <>
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-medium tracking-wider text-gray-600 uppercase">
+                      Team
+                    </p>
+                    {filteredTeam.map(
+                      (m: { id: string; name: string; email: string }) => (
+                        <button
+                          key={`team-${m.id}`}
+                          onClick={() => {
+                            onChange(m.id, null);
+                            setSearch("");
+                            setOpen(false);
+                          }}
+                          className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+                        >
+                          <Users className="h-3 w-3 text-gray-500" />
+                          <span>{m.name}</span>
+                          <span className="ml-auto text-xs text-gray-600">
+                            {m.email}
+                          </span>
+                        </button>
+                      )
+                    )}
+                  </>
+                )}
+                {filteredContacts.length > 0 && (
+                  <>
+                    <p className="px-3 pt-1.5 pb-1 text-[10px] font-medium tracking-wider text-gray-600 uppercase">
+                      Contacts
+                    </p>
+                    {filteredContacts.map(
+                      (c: { id: string; name: string; email: string }) => (
+                        <button
+                          key={`contact-${c.id}`}
+                          onClick={() => {
+                            onChange(c.id, null);
+                            setSearch("");
+                            setOpen(false);
+                          }}
+                          className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+                        >
+                          <UserPlus className="h-3 w-3 text-gray-500" />
+                          <span>{c.name}</span>
+                          <span className="ml-auto text-xs text-gray-600">
+                            {c.email}
+                          </span>
+                        </button>
+                      )
+                    )}
+                  </>
+                )}
+                {search.trim() && (
                   <button
-                    key={c.id}
                     onClick={() => {
-                      onChange(c.id, null);
-                      setSearch("");
+                      onChange(null, search.trim());
                       setOpen(false);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-white/10"
+                    style={{ color: "#D4AF37" }}
                   >
-                    <UserPlus className="h-3 w-3 text-gray-500" />
-                    <span>{c.name}</span>
-                    <span className="ml-auto text-xs text-gray-600">
-                      {c.email}
-                    </span>
+                    <Plus className="h-3 w-3" />
+                    Add external: &ldquo;{search.trim()}&rdquo;
                   </button>
-                )
-              )}
-              {search.trim() && (
-                <button
-                  onClick={() => {
-                    onChange(null, search.trim());
-                    setOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-white/10"
-                  style={{ color: "#D4AF37" }}
-                >
-                  <Plus className="h-3 w-3" />
-                  Add external: &ldquo;{search.trim()}&rdquo;
-                </button>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
         </>
       )}
 
@@ -389,27 +439,40 @@ function CompanyPicker({
   );
 }
 
-/* ── Account Manager Picker ────────────────────────────────────── */
+/* ── Team Member Picker (searchable, reusable) ────────────────── */
 
-function AccountManagerPicker({
+function TeamMemberPicker({
   value,
   onChange,
+  placeholder = "Select team member...",
 }: {
   value: string | null;
   onChange: (id: string | null) => void;
+  placeholder?: string;
 }) {
   const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
 
   const selected = value
     ? team.find((m: { id: string }) => m.id === value)
     : null;
 
+  const filtered = search
+    ? team.filter(
+        (m: { name: string; email: string }) =>
+          m.name.toLowerCase().includes(search.toLowerCase()) ||
+          m.email.toLowerCase().includes(search.toLowerCase())
+      )
+    : team;
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
+        setSearch("");
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -424,13 +487,13 @@ function AccountManagerPicker({
         style={borderStyle}
       >
         <span className={selected ? "text-white" : "text-gray-500"}>
-          {selected ? selected.name : "Select account manager..."}
+          {selected ? selected.name : placeholder}
         </span>
         {value ? (
           <span
             role="button"
             tabIndex={0}
-            aria-label="Clear account manager"
+            aria-label="Clear selection"
             onClick={(e) => {
               e.stopPropagation();
               onChange(null);
@@ -451,35 +514,68 @@ function AccountManagerPicker({
       </button>
       {open && (
         <div
-          className="absolute z-10 mt-1 max-h-40 w-full overflow-y-auto rounded-lg border bg-[#0a0a0a] py-1 shadow-xl"
+          className="absolute z-10 mt-1 w-full rounded-lg border bg-[#0a0a0a] shadow-xl"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
         >
-          {team.map((member: { id: string; name: string; email: string }) => (
-            <button
-              key={member.id}
-              onClick={() => {
-                onChange(member.id);
-                setOpen(false);
-              }}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
-            >
-              <Users className="h-3 w-3 text-gray-500" />
-              <span>{member.name}</span>
-              <span className="ml-auto text-xs text-gray-600">
-                {member.email}
-              </span>
-            </button>
-          ))}
-          {team.length === 0 && (
-            <p className="px-3 py-2 text-xs text-gray-500">
-              No team members found
-            </p>
-          )}
+          <div
+            className="border-b px-3 py-2"
+            style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+          >
+            <input
+              type="text"
+              className="w-full bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none"
+              placeholder="Search by name or email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div className="max-h-40 overflow-y-auto py-1">
+            {filtered.map(
+              (member: { id: string; name: string; email: string }) => (
+                <button
+                  key={member.id}
+                  onClick={() => {
+                    onChange(member.id);
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
+                >
+                  <Users className="h-3 w-3 text-gray-500" />
+                  <span>{member.name}</span>
+                  <span className="ml-auto text-xs text-gray-600">
+                    {member.email}
+                  </span>
+                </button>
+              )
+            )}
+            {filtered.length === 0 && (
+              <p className="px-3 py-2 text-xs text-gray-500">
+                {search ? "No matches" : "No team members found"}
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>
   );
 }
+
+/** @deprecated Use TeamMemberPicker instead */
+const AccountManagerPicker = ({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (id: string | null) => void;
+}) => (
+  <TeamMemberPicker
+    value={value}
+    onChange={onChange}
+    placeholder="Select account manager..."
+  />
+);
 
 /* ── Skeleton ──────────────────────────────────────────────────── */
 
@@ -527,13 +623,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const SOURCE_OPTIONS = [
-  { value: "personal_site", label: "matthewmiceli.com" },
-  { value: "miracle_mind", label: "miraclemind.dev" },
-  { value: "banyan_waitlist", label: "Banyan Waitlist" },
-  { value: "referral", label: "Referral" },
-  { value: "portal", label: "Portal" },
-];
+import { SOURCE_OPTIONS } from "~/lib/source-labels";
 
 type ContactRow = {
   id: string;
@@ -878,6 +968,8 @@ function EditContactModal({
     { enabled: false }
   );
 
+  const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
+
   const [form, setForm] = useState({
     name: contact.name,
     email: contact.email,
@@ -888,10 +980,24 @@ function EditContactModal({
     referredBy: contact.referredBy,
     referredByExternal: contact.referredByExternal,
     accountManagerId: contact.accountManagerId,
-    createdBy: contact.createdBy ?? "",
+    createdById: null as string | null,
     tags: contact.tags ?? [],
     notes: contact.notes ?? "",
   });
+
+  // Resolve createdBy name to team member ID once team data loads
+  const [createdByResolved, setCreatedByResolved] = useState(false);
+  useEffect(() => {
+    if (team.length > 0 && !createdByResolved && contact.createdBy) {
+      const match = team.find(
+        (m: { name: string }) => m.name === contact.createdBy
+      );
+      if (match) {
+        setForm((f) => ({ ...f, createdById: match.id }));
+      }
+      setCreatedByResolved(true);
+    }
+  }, [team, createdByResolved, contact.createdBy]);
 
   const [showPromote, setShowPromote] = useState(false);
   const [demotionInfo, setDemotionInfo] = useState<{
@@ -935,6 +1041,12 @@ function EditContactModal({
     }
 
     // Normal save
+    // Resolve createdById to name for storage
+    const createdByName = form.createdById
+      ? (team.find((m: { id: string }) => m.id === form.createdById)?.name ??
+        null)
+      : null;
+
     updateContact.mutate({
       id: contact.id,
       name: form.name,
@@ -951,7 +1063,7 @@ function EditContactModal({
       referredBy: form.referredBy,
       referredByExternal: form.referredByExternal,
       accountManagerId: form.accountManagerId,
-      createdBy: form.createdBy || null,
+      createdBy: createdByName,
       tags: form.tags,
       notes: form.notes || null,
     });
@@ -1060,6 +1172,7 @@ function EditContactModal({
                     setForm((f) => ({ ...f, source: e.target.value }))
                   }
                 >
+                  <option value="">—</option>
                   {SOURCE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -1095,25 +1208,11 @@ function EditContactModal({
           )}
 
           <div>
-            <label className={labelClass}>Account Manager</label>
-            <AccountManagerPicker
-              value={form.accountManagerId}
-              onChange={(id) =>
-                setForm((f) => ({ ...f, accountManagerId: id }))
-              }
-            />
-          </div>
-
-          <div>
             <label className={labelClass}>Created By</label>
-            <input
-              className={inputClass}
-              style={borderStyle}
-              placeholder="Who created this contact"
-              value={form.createdBy}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, createdBy: e.target.value }))
-              }
+            <TeamMemberPicker
+              value={form.createdById}
+              onChange={(id) => setForm((f) => ({ ...f, createdById: id }))}
+              placeholder="Select who created this contact..."
             />
           </div>
 
@@ -1483,6 +1582,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
                     setForm((f) => ({ ...f, source: e.target.value }))
                   }
                 >
+                  <option value="">—</option>
                   {SOURCE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -1594,10 +1694,65 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
 
 /* ── Main Page ─────────────────────────────────────────────────── */
 
+type SortLevel = { field: string; order: "asc" | "desc" };
+
+function SortHeader({
+  field,
+  label,
+  sorts,
+  onSort,
+}: {
+  field: string;
+  label: string;
+  sorts: SortLevel[];
+  onSort: (field: string) => void;
+}) {
+  const idx = sorts.findIndex((s) => s.field === field);
+  const isActive = idx !== -1;
+  const order = isActive ? sorts[idx]!.order : null;
+  const priority = isActive && sorts.length > 1 ? idx + 1 : null;
+
+  return (
+    <th className="px-4 py-3">
+      <button
+        onClick={() => onSort(field)}
+        className="flex items-center gap-1 transition-colors hover:text-white"
+      >
+        {label}
+        {isActive ? (
+          <span className="flex items-center gap-0.5">
+            {order === "asc" ? (
+              <ArrowUp className="h-3 w-3" style={{ color: "#D4AF37" }} />
+            ) : (
+              <ArrowDown className="h-3 w-3" style={{ color: "#D4AF37" }} />
+            )}
+            {priority !== null && (
+              <span
+                className="text-[9px] font-bold"
+                style={{ color: "#D4AF37" }}
+              >
+                {priority}
+              </span>
+            )}
+          </span>
+        ) : (
+          <span className="flex h-3 w-3 flex-col items-center justify-center">
+            <ArrowUp className="h-2 w-2" />
+            <ArrowDown className="-mt-0.5 h-2 w-2" />
+          </span>
+        )}
+      </button>
+    </th>
+  );
+}
+
 export default function CrmContactsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [sourceFilter, setSourceFilter] = useState<string | undefined>();
+  const [sorts, setSorts] = useState<SortLevel[]>([
+    { field: "name", order: "asc" },
+  ]);
   const [page, setPage] = useState(0);
   const [editingContact, setEditingContact] = useState<ContactRow | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -1610,6 +1765,60 @@ export default function CrmContactsPage() {
     limit,
     offset: page * limit,
   });
+
+  const handleSort = (field: string) => {
+    setSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) {
+        // Add as new sort level
+        return [...prev, { field, order: "asc" as const }];
+      }
+      if (prev[idx]!.order === "asc") {
+        // Toggle to desc
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      }
+      // Third click — remove this sort level
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
+
+  const compareField = (
+    a: ContactRow,
+    b: ContactRow,
+    field: string
+  ): number => {
+    switch (field) {
+      case "name":
+        return a.name.localeCompare(b.name);
+      case "email":
+        return a.email.localeCompare(b.email);
+      case "status":
+        return a.status.localeCompare(b.status);
+      case "lastContact":
+        return (
+          new Date(a.lastContactAt).getTime() -
+          new Date(b.lastContactAt).getTime()
+        );
+      default:
+        return 0;
+    }
+  };
+
+  const sortedContacts = useMemo(() => {
+    if (!data?.contacts) return [];
+    if (sorts.length === 0) return data.contacts as ContactRow[];
+    const contacts = [...data.contacts] as ContactRow[];
+    contacts.sort((a, b) => {
+      for (const { field, order } of sorts) {
+        const cmp = compareField(a, b, field);
+        if (cmp !== 0) return order === "desc" ? -cmp : cmp;
+      }
+      return 0;
+    });
+    return contacts;
+  }, [data?.contacts, sorts]);
 
   return (
     <div className="space-y-6">
@@ -1681,10 +1890,11 @@ export default function CrmContactsPage() {
             style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
           >
             <option value="">All Sources</option>
-            <option value="personal_site">matthewmiceli.com</option>
-            <option value="miracle_mind">miraclemind.dev</option>
-            <option value="banyan_waitlist">Banyan Waitlist</option>
-            <option value="referral">Referral</option>
+            {SOURCE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
@@ -1730,17 +1940,37 @@ export default function CrmContactsPage() {
                 className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                 style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Contact</th>
+                <SortHeader
+                  field="name"
+                  label="Name"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="email"
+                  label="Contact"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
                 <th className="px-4 py-3">Sources</th>
-                <th className="px-4 py-3">Status</th>
+                <SortHeader
+                  field="status"
+                  label="Status"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
                 <th className="px-4 py-3">Tags</th>
-                <th className="px-4 py-3">Last Contact</th>
+                <SortHeader
+                  field="lastContact"
+                  label="Last Contact"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
                 <th className="w-10 px-2 py-3" />
               </tr>
             </thead>
             <tbody>
-              {data.contacts.map((contact: ContactRow) => {
+              {sortedContacts.map((contact: ContactRow) => {
                 const config =
                   STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.lead!;
                 return (
