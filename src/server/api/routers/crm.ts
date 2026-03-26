@@ -112,25 +112,8 @@ export const crmRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
-      // Non-full-access users see only their assigned contacts
-      const roles = getProfileRoles(
-        ctx as { profile: { companyRoles: string[] | null } }
-      );
-      if (!isFullAccess(roles)) {
-        const profileId = (ctx as { profile: { id: string } }).profile.id;
-        const scopeConditions = [];
-        if (roles.includes("account_manager")) {
-          scopeConditions.push(eq(masterCrm.accountManagerId, profileId));
-        }
-        if (roles.includes("connector")) {
-          scopeConditions.push(eq(masterCrm.connectorId, profileId));
-        }
-        // Developers can see all contacts (they need CRM visibility per plan)
-        // but their clients tab is scoped
-        if (scopeConditions.length > 0 && !roles.includes("developer")) {
-          conditions.push(or(...scopeConditions)!);
-        }
-      }
+      // CRM contacts are unscoped — all team members see the full pipeline.
+      // Portal link visibility is gated client-side by assignment.
 
       if (input.search) {
         conditions.push(

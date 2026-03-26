@@ -71,6 +71,8 @@ type ContactRow = {
   referredByExternal: string | null;
   accountManagerId: string | null;
   accountManagerName: string | null;
+  connectorId: string | null;
+  assignedDeveloperId: string | null;
   createdBy: string | null;
   tags: string[] | null;
   notes: string | null;
@@ -1175,6 +1177,9 @@ export default function CrmContactsPage() {
   const utils = api.useUtils();
   const { data: tagOptions = [] } = api.crm.getTagOptions.useQuery();
   const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
+  const { data: myRoles } = api.portal.getMyRoles.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
 
   const { data, isLoading } = api.crm.getContacts.useQuery({
     search: search || undefined,
@@ -1200,6 +1205,19 @@ export default function CrmContactsPage() {
     newStatus: string;
     client: { id: number; slug: string; status: string; name: string };
   } | null>(null);
+
+  /** Check if current user can access a contact's portal */
+  const canAccessPortal = (contact: ContactRow) => {
+    if (!contact.portalClient) return false;
+    if (myRoles?.isFullAccess) return true;
+    const pid = myRoles?.profileId;
+    if (!pid) return false;
+    return (
+      contact.accountManagerId === pid ||
+      contact.connectorId === pid ||
+      contact.assignedDeveloperId === pid
+    );
+  };
 
   // Smart status change handler that routes to promote/demote/direct-update
   const handleSmartStatusChange = (contactId: string, newStatus: string) => {
@@ -1716,9 +1734,9 @@ export default function CrmContactsPage() {
                             {contact.company}
                           </p>
                         )}
-                        {contact.portalClient && (
+                        {canAccessPortal(contact) && (
                           <Link
-                            href={`/portal/${contact.portalClient.slug}`}
+                            href={`/portal/${contact.portalClient!.slug}`}
                             className="mt-0.5 flex items-center gap-1 text-xs transition-colors hover:text-white"
                             style={{ color: "#4ade80" }}
                           >
@@ -1811,16 +1829,21 @@ export default function CrmContactsPage() {
                       </td>
                       <td className="px-2 py-3">
                         <div className="flex items-center gap-1">
-                          {!contact.portalClient && (
-                            <button
-                              onClick={() => setCreatePortalContact(contact)}
-                              className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-[#D4AF37]"
-                              title="Create portal"
-                              aria-label="Create portal"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </button>
-                          )}
+                          {!contact.portalClient &&
+                            (myRoles?.isFullAccess ||
+                              contact.accountManagerId === myRoles?.profileId ||
+                              contact.connectorId === myRoles?.profileId ||
+                              contact.assignedDeveloperId ===
+                                myRoles?.profileId) && (
+                              <button
+                                onClick={() => setCreatePortalContact(contact)}
+                                className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-[#D4AF37]"
+                                title="Create portal"
+                                aria-label="Create portal"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </button>
+                            )}
                           <button
                             onClick={() => setEditingContact(contact)}
                             className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
