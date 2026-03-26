@@ -1697,12 +1697,12 @@ export default function CrmContactsPage() {
                         )}
                         {contact.portalClient && (
                           <Link
-                            href={`/admin/clients/${contact.portalClient.slug}`}
+                            href={`/portal/${contact.portalClient.slug}`}
                             className="mt-0.5 flex items-center gap-1 text-xs transition-colors hover:text-white"
                             style={{ color: "#4ade80" }}
                           >
                             <ExternalLink className="h-3 w-3" />
-                            Portal Client
+                            Portal
                           </Link>
                         )}
                       </td>

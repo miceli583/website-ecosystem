@@ -1337,28 +1337,6 @@ export default function AdminClientDetailPage({
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* ── 5. Portal Link Banner ───────────────────────────────── */}
-      <Link
-        href={`/portal/${client.slug}`}
-        className="flex items-center gap-3 rounded-lg border p-4 transition-all hover:bg-white/5"
-        style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
-      >
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-lg"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
-          }}
-        >
-          <ExternalLink className="h-4 w-4" style={{ color: "#D4AF37" }} />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-white">Client Portal</p>
-          <p className="text-xs text-gray-500">/portal/{client.slug}</p>
-        </div>
-        <span className="text-xs text-gray-500">Open portal &rarr;</span>
-      </Link>
     </div>
   );
 }
