@@ -14,6 +14,14 @@ _None currently_
 
 ## Enhancements (prioritized)
 
+### High Priority — CRM Enhancements (next session)
+
+- [ ] **Rename Leads → Form Submissions**: Nav tab, overview card, page title
+- [ ] **CRM contacts filters**: Add Created By and Tags filter dropdowns
+- [ ] **Contact/client status sync**: Bidirectional status reconciliation with portal archive prompts
+- [ ] **CRM kanban pipeline view**: 5-column kanban (lead/prospect/client/inactive/churned) with status change
+- [ ] **CSV import + export**: Bulk import with column mapping and shared metadata, filtered export download
+
 ### High Priority — Client Onboarding & Deliverables
 
 - [ ] **Set up Marissa Lambert** in client portal → prep Soul Map UI
@@ -50,8 +58,6 @@ _None currently_
 
 - [ ] **Full-stack analytics**: Vercel Analytics + PostHog across ecosystem
 - [ ] **Sentry error tracking**: Ecosystem-wide, dedicated admin tab
-- [ ] **CRM contact import**: Bulk VCF upload with duplicate detection
-- [ ] **CRM enhancements**: Notes management, outreach scheduling
 - [ ] **Brand tab in client portal**: Per-client guidelines, colors, fonts, logos
 - [ ] **Keyboard shortcuts**: Cmd+K search, Esc close, Cmd+N new note
 - [ ] **Environment sandbox** (Phase 14, blocked): Needs free Supabase slot — second project for dev/sandbox with seed script, migration workflow, team onboarding
