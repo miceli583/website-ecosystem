@@ -14,14 +14,6 @@ _None currently_
 
 ## Enhancements (prioritized)
 
-### High Priority — CRM Enhancements (next session)
-
-- [ ] **Rename Leads → Form Submissions**: Nav tab, overview card, page title
-- [ ] **CRM contacts filters**: Add Created By and Tags filter dropdowns
-- [ ] **Contact/client status sync**: Bidirectional status reconciliation with portal archive prompts
-- [ ] **CRM kanban pipeline view**: 5-column kanban (lead/prospect/client/inactive/churned) with status change
-- [ ] **CSV import + export**: Bulk import with column mapping and shared metadata, filtered export download
-
 ### High Priority — Client Onboarding & Deliverables
 
 - [ ] **Set up Marissa Lambert** in client portal → prep Soul Map UI
@@ -34,10 +26,8 @@ _None currently_
 
 - [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
 - [ ] **Proposals modal UI refresh**: Friendlier, easier to read
-- [x] **Project/task management UI**: Admin hub + portal — list/kanban, filters, sort, AM/dev/owner, standalone tasks
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
-- [x] **Activity log**: CRM activities table with auto-logging, activity feed on contact/client detail pages
 - [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs)
 - [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
 - [ ] **Profile documents tab**: Contracts, agreements, file upload
