@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { api, type RouterOutputs } from "~/trpc/react";
 
@@ -12,7 +12,6 @@ import {
   Building2,
   ArrowLeft,
   Search,
-  Clock,
   Mail,
   ChevronDown,
   ExternalLink,
@@ -29,32 +28,21 @@ import {
   UserCheck,
   Code2,
   Shield,
+  Download,
+  CheckSquare,
+  Link2,
 } from "lucide-react";
+import {
+  SortHeader,
+  type SortLevel,
+  inputClass,
+  borderStyle,
+} from "~/components/crm";
 
 /* ── Shared styles ─────────────────────────────────────────────── */
 
-const inputClass =
-  "w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50";
 const labelClass =
   "mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500";
-const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
-
-/* ── Skeleton ──────────────────────────────────────────────────── */
-
-function TableSkeleton({ rows = 8 }: { rows?: number }) {
-  return (
-    <div className="space-y-3 p-4">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4">
-          <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
-          <div className="h-4 flex-1 animate-pulse rounded bg-white/10" />
-          <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
-          <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Company Picker ────────────────────────────────────────────── */
 
@@ -542,7 +530,6 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose, selectedContact]);
 
-  // Filter out contacts that are already clients
   const existingEmails = new Set(
     existingClients?.items?.map((c: ClientListItem) => c.email.toLowerCase()) ??
       []
@@ -757,7 +744,7 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
                 onClick={() => setSelectedContact(null)}
                 className="text-sm text-gray-500 transition-colors hover:text-white"
               >
-                ← Back to search
+                &larr; Back to search
               </button>
               <div className="flex items-center gap-3">
                 <button
@@ -812,7 +799,6 @@ function EditClientModal({
     },
   });
 
-  // CRM-synced fields
   const [name, setName] = useState(client.crmContact?.name ?? client.name);
   const [email, setEmail] = useState(client.crmContact?.email ?? client.email);
   const [phone, setPhone] = useState(client.crmContact?.phone ?? "");
@@ -823,8 +809,6 @@ function EditClientModal({
     client.crmContact?.accountManagerId ?? client.accountManagerId ?? null
   );
   const [tags, setTags] = useState<string[]>(client.crmContact?.tags ?? []);
-
-  // Portal-only fields
   const [slug, setSlug] = useState(client.slug);
   const [status, setStatus] = useState(client.status);
   const [notes, setNotes] = useState(client.notes ?? "");
@@ -843,8 +827,6 @@ function EditClientModal({
     if (!name || !email || !slug) return;
 
     if (hasCrm && client.crmContact) {
-      // CRM fields → crm.updateContact (sync-on-save pushes to client automatically)
-      // Portal-only fields → clients.update
       await Promise.all([
         updateContact.mutateAsync({
           id: client.crmContact.id,
@@ -863,7 +845,6 @@ function EditClientModal({
         }),
       ]);
     } else {
-      // No CRM link — all fields go to clients.update
       await updateClient.mutateAsync({
         id: client.id,
         name,
@@ -902,7 +883,6 @@ function EditClientModal({
           </button>
         </div>
 
-        {/* Contact Details Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-medium tracking-wider text-gray-400 uppercase">
@@ -979,7 +959,6 @@ function EditClientModal({
           )}
         </div>
 
-        {/* Divider */}
         <div
           className="my-5 h-px"
           style={{
@@ -988,7 +967,6 @@ function EditClientModal({
           }}
         />
 
-        {/* Portal Settings Section */}
         <div className="space-y-4">
           <h3 className="text-xs font-medium tracking-wider text-gray-400 uppercase">
             Portal Settings
@@ -1323,12 +1301,17 @@ function ActionMenu({
 
 export default function AdminClientsPage() {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<
-    "newest" | "oldest" | "name" | "active" | "inactive"
-  >("newest");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [amFilter, setAmFilter] = useState<string | undefined>();
+  const [devFilter, setDevFilter] = useState<string | undefined>();
+  const [connectorFilter, setConnectorFilter] = useState<string | undefined>();
   const [page, setPage] = useState(1);
-  const pageSize = 12;
+  const [pageSize, setPageSize] = useState(25);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [sorts, setSorts] = useState<SortLevel[]>([
+    { field: "name", order: "asc" },
+  ]);
   const [showCreate, setShowCreate] = useState(false);
   const [showAddFromContact, setShowAddFromContact] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientListItem | null>(
@@ -1344,8 +1327,10 @@ export default function AdminClientsPage() {
   const utils = api.useUtils();
   const { data, isLoading } = api.clients.list.useQuery({
     search: search || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
-    sortBy,
+    status: statusFilter,
+    accountManagerId: amFilter,
+    assignedDeveloperId: devFilter,
+    connectorId: connectorFilter,
     page,
     pageSize,
   });
@@ -1358,7 +1343,7 @@ export default function AdminClientsPage() {
   });
 
   const canAssign = myRoles?.isFullAccess ?? false;
-  const filtered = data?.items ?? [];
+  const items = data?.items ?? [];
 
   const accountManagers = (teamMembers ?? []).filter(
     (m: { companyRoles: string[] | null }) =>
@@ -1372,26 +1357,257 @@ export default function AdminClientsPage() {
         ["founder", "admin", "developer"].includes(r)
       )
   );
+  const connectors = (teamMembers ?? []).filter(
+    (m: { companyRoles: string[] | null }) =>
+      (m.companyRoles ?? []).some((r: string) =>
+        ["founder", "admin", "connector"].includes(r)
+      )
+  );
+
+  /* ── Client-side multi-column sort ──────────────────────────── */
+  const handleSort = (field: string) => {
+    setSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
+
+  const sortedClients = useMemo((): ClientListItem[] => {
+    if (!items.length || !sorts.length) return items;
+    return [...items].sort((a: ClientListItem, b: ClientListItem) => {
+      for (const { field, order } of sorts) {
+        let cmp = 0;
+        const dir = order === "asc" ? 1 : -1;
+        switch (field) {
+          case "name":
+            cmp = (a.name ?? "").localeCompare(b.name ?? "");
+            break;
+          case "email":
+            cmp = (a.email ?? "").localeCompare(b.email ?? "");
+            break;
+          case "company":
+            cmp = (a.company ?? "").localeCompare(b.company ?? "");
+            break;
+          case "status":
+            cmp = (a.status ?? "").localeCompare(b.status ?? "");
+            break;
+          case "projects":
+            cmp = (a.projects?.length ?? 0) - (b.projects?.length ?? 0);
+            break;
+          case "am":
+            cmp = (a.accountManager?.name ?? "").localeCompare(
+              b.accountManager?.name ?? ""
+            );
+            break;
+          case "dev":
+            cmp = (
+              (
+                a as ClientListItem & {
+                  assignedDeveloper?: { name: string } | null;
+                }
+              ).assignedDeveloper?.name ?? ""
+            ).localeCompare(
+              (
+                b as ClientListItem & {
+                  assignedDeveloper?: { name: string } | null;
+                }
+              ).assignedDeveloper?.name ?? ""
+            );
+            break;
+          case "connector":
+            cmp = (
+              (a as ClientListItem & { connector?: { name: string } | null })
+                .connector?.name ?? ""
+            ).localeCompare(
+              (b as ClientListItem & { connector?: { name: string } | null })
+                .connector?.name ?? ""
+            );
+            break;
+        }
+        if (cmp !== 0) return cmp * dir;
+      }
+      return 0;
+    });
+  }, [items, sorts]);
+
+  /* ── CSV Export ──────────────────────────────────────────────── */
+  const handleExport = () => {
+    if (!items.length) return;
+    const exportItems =
+      selectionMode && selectedIds.size > 0
+        ? sortedClients.filter((c) => selectedIds.has(c.id))
+        : sortedClients;
+    if (!exportItems.length) return;
+
+    const header = [
+      "Name",
+      "Email",
+      "Company",
+      "Status",
+      "Projects",
+      "Account Manager",
+      "Developer",
+      "Connector",
+      "Portal Slug",
+    ];
+    const rows = exportItems.map((c: ClientListItem) => [
+      c.name,
+      c.email,
+      c.company ?? "",
+      c.status,
+      String(c.projects?.length ?? 0),
+      c.accountManager?.name ?? "",
+      (c as ClientListItem & { assignedDeveloper?: { name: string } | null })
+        .assignedDeveloper?.name ?? "",
+      (c as ClientListItem & { connector?: { name: string } | null }).connector
+        ?.name ?? "",
+      c.slug,
+    ]);
+
+    const csv = [header, ...rows]
+      .map((r) =>
+        r.map((v: string) => `"${String(v).replace(/"/g, '""')}"`).join(",")
+      )
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `clients-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  /* ── Pagination helpers ─────────────────────────────────────── */
+  const totalPages = data ? Math.ceil(data.total / pageSize) : 0;
+  const limit = pageSize;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="mb-2">
-          <Link
-            href="/admin/crm"
-            className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to CRM
-          </Link>
+      {/* ── Header Row ─────────────────────────────────────────── */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <div className="mb-2">
+            <Link
+              href="/admin/crm"
+              className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to CRM
+            </Link>
+          </div>
+          <h1 className="text-2xl font-bold text-white">Clients</h1>
+          <p className="text-sm text-gray-400">Active client management</p>
         </div>
-        <h1 className="text-2xl font-bold text-white">Clients</h1>
-        <p className="text-sm text-gray-400">Active client management</p>
+
+        <div className="flex items-center gap-2">
+          {/* Page size */}
+          <div className="relative">
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-gray-400 focus:outline-none"
+              style={borderStyle}
+            >
+              <option value={10}>10 / page</option>
+              <option value={25}>25 / page</option>
+              <option value={50}>50 / page</option>
+              <option value={100}>100 / page</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+          </div>
+
+          {/* Selection toggle */}
+          <button
+            onClick={() => {
+              setSelectionMode((v) => !v);
+              if (selectionMode) setSelectedIds(new Set());
+            }}
+            className={`rounded-lg border p-2 text-sm transition-colors ${
+              selectionMode
+                ? "border-[#D4AF37]/40 bg-[#D4AF37]/10 text-[#D4AF37]"
+                : "text-gray-500 hover:bg-white/5 hover:text-white"
+            }`}
+            style={
+              selectionMode
+                ? undefined
+                : { borderColor: "rgba(212, 175, 55, 0.2)" }
+            }
+            title={selectionMode ? "Exit selection mode" : "Select clients"}
+          >
+            <CheckSquare className="h-4 w-4" />
+          </button>
+
+          {/* Export */}
+          <button
+            onClick={handleExport}
+            disabled={!items.length}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+            style={borderStyle}
+          >
+            <Download className="h-4 w-4" />
+            {selectionMode && selectedIds.size > 0
+              ? `Export (${selectedIds.size})`
+              : "Export"}
+          </button>
+
+          {/* Add from Contacts */}
+          <button
+            onClick={() => setShowAddFromContact(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10"
+            style={{ borderColor: "rgba(212, 175, 55, 0.3)", color: "#D4AF37" }}
+          >
+            <UserPlus className="h-4 w-4" />
+            Add from Contacts
+          </button>
+
+          {/* New Client */}
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            New Client
+          </button>
+        </div>
       </div>
 
-      {/* Filters */}
+      {/* ── Selection Bar ──────────────────────────────────────── */}
+      {selectionMode && selectedIds.size > 0 && (
+        <div
+          className="flex items-center gap-3 rounded-lg border px-4 py-2"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.3)",
+            background: "rgba(212, 175, 55, 0.05)",
+          }}
+        >
+          <span className="text-sm font-medium text-white">
+            {selectedIds.size} selected
+          </span>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-sm text-gray-400 hover:text-white"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* ── Filter Bar ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
+        {/* Search */}
         <div
           className="relative flex-1"
           style={{ minWidth: "200px", maxWidth: "320px" }}
@@ -1410,274 +1626,468 @@ export default function AdminClientsPage() {
           />
         </div>
 
+        {/* Status filter */}
         <div className="relative">
           <select
-            value={statusFilter}
+            value={statusFilter ?? ""}
             onChange={(e) => {
-              setStatusFilter(e.target.value);
+              setStatusFilter(e.target.value || undefined);
               setPage(1);
             }}
             className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={borderStyle}
           >
-            <option value="all">All Statuses</option>
+            <option value="">All Statuses</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
+        {/* AM filter */}
         <div className="relative">
           <select
-            value={sortBy}
+            value={amFilter ?? ""}
             onChange={(e) => {
-              setSortBy(e.target.value as typeof sortBy);
+              setAmFilter(e.target.value || undefined);
               setPage(1);
             }}
             className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
             style={borderStyle}
           >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="name">Name</option>
-            <option value="active">Active First</option>
-            <option value="inactive">Inactive First</option>
+            <option value="">All AMs</option>
+            {accountManagers.map((m: { id: string; name: string }) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
           </select>
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
-        {data && (
-          <span className="text-sm text-gray-500">
-            {data.total} client{data.total !== 1 ? "s" : ""}
-          </span>
-        )}
-
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            onClick={() => setShowAddFromContact(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10"
-            style={{ borderColor: "rgba(212, 175, 55, 0.3)", color: "#D4AF37" }}
-          >
-            <UserPlus className="h-4 w-4" />
-            Add from Contacts
-          </button>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-            style={{
-              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+        {/* Dev filter */}
+        <div className="relative">
+          <select
+            value={devFilter ?? ""}
+            onChange={(e) => {
+              setDevFilter(e.target.value || undefined);
+              setPage(1);
             }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
           >
-            <Plus className="h-4 w-4" />
-            New Client
-          </button>
+            <option value="">All Devs</option>
+            {developers.map((m: { id: string; name: string }) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        {/* Connector filter */}
+        <div className="relative">
+          <select
+            value={connectorFilter ?? ""}
+            onChange={(e) => {
+              setConnectorFilter(e.target.value || undefined);
+              setPage(1);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
+          >
+            <option value="">All Connectors</option>
+            {connectors.map((m: { id: string; name: string }) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        {/* Count */}
+        <div className="ml-auto">
+          {data && (
+            <span className="text-sm text-gray-500">
+              {data.total} client{data.total !== 1 ? "s" : ""}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Client List */}
-      <div className="rounded-lg border bg-white/5" style={borderStyle}>
+      {/* ── Client Table ───────────────────────────────────────── */}
+      <div
+        className="overflow-x-auto rounded-lg border bg-white/5"
+        style={borderStyle}
+      >
         {isLoading ? (
-          <div
-            className="space-y-0 divide-y"
-            style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
-          >
+          <div className="space-y-3 p-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-4 py-3">
+              <div key={i} className="flex items-center gap-4">
                 <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
                 <div className="h-4 flex-1 animate-pulse rounded bg-white/5" />
                 <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
               </div>
             ))}
           </div>
-        ) : !filtered.length ? (
+        ) : !sortedClients.length ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
-              {search || statusFilter !== "all"
+              {search ||
+              statusFilter ||
+              amFilter ||
+              devFilter ||
+              connectorFilter
                 ? "No clients match your filters"
                 : "No clients yet"}
             </p>
           </div>
         ) : (
-          <div
-            className="divide-y"
-            style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
-          >
-            {filtered.map((client: ClientListItem) => (
-              <div
-                key={client.id}
-                className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-white/5"
+          <table className="w-full text-left text-sm text-gray-400">
+            <thead>
+              <tr
+                className="border-b text-xs font-medium tracking-wider text-gray-500 uppercase"
+                style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
               >
-                {/* Name + company */}
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/admin/clients/${client.slug}`}
-                    className="text-sm font-medium text-white transition-colors hover:text-[#D4AF37]"
-                  >
-                    {client.name}
-                  </Link>
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                    {client.company && (
-                      <span className="flex items-center gap-1">
-                        <Building2 className="h-3 w-3" />
-                        {client.company}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <Mail className="h-3 w-3" />
-                      {client.email}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Status badge */}
-                <span
-                  className="hidden flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline-flex"
-                  style={{
-                    backgroundColor:
-                      client.status === "active"
-                        ? "rgba(74, 222, 128, 0.1)"
-                        : "rgba(156, 163, 175, 0.1)",
-                    color: client.status === "active" ? "#4ade80" : "#9ca3af",
-                  }}
-                >
-                  {client.status === "active" ? "Active" : "Inactive"}
-                </span>
-
-                {/* Projects count */}
-                <span className="hidden flex-shrink-0 items-center gap-1 text-xs text-gray-500 md:inline-flex">
-                  <FolderKanban className="h-3 w-3" />
-                  {client.projects.length}
-                </span>
-
-                {/* Account Manager */}
-                <div
-                  className="hidden flex-shrink-0 items-center gap-1 text-xs lg:flex"
-                  style={{ minWidth: "120px" }}
-                >
-                  <UserCheck
-                    className="h-3 w-3 flex-shrink-0"
-                    style={{ color: "#D4AF37" }}
-                  />
-                  {canAssign ? (
-                    <select
-                      value={client.accountManagerId ?? ""}
-                      onChange={(e) =>
-                        updateClient.mutate({
-                          id: client.id,
-                          accountManagerId: e.target.value || null,
-                        })
+                {selectionMode && (
+                  <th className="w-10 px-2 py-3">
+                    <input
+                      type="checkbox"
+                      checked={
+                        sortedClients.length > 0 &&
+                        sortedClients.every((c) => selectedIds.has(c.id))
                       }
-                      className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
-                    >
-                      <option value="">—</option>
-                      {accountManagers.map(
-                        (m: { id: string; name: string }) => (
-                          <option key={m.id} value={m.id}>
-                            {m.name}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  ) : (
-                    <span className="truncate text-gray-500">
-                      {client.accountManager?.name ?? "—"}
-                    </span>
-                  )}
-                </div>
-
-                {/* Assigned Developer */}
-                <div
-                  className="hidden flex-shrink-0 items-center gap-1 text-xs xl:flex"
-                  style={{ minWidth: "120px" }}
-                >
-                  <Code2 className="h-3 w-3 flex-shrink-0 text-blue-400" />
-                  {canAssign ? (
-                    <select
-                      value={
-                        (
-                          client as ClientListItem & {
-                            assignedDeveloperId?: string | null;
-                          }
-                        ).assignedDeveloperId ?? ""
-                      }
-                      onChange={(e) =>
-                        updateClient.mutate({
-                          id: client.id,
-                          assignedDeveloperId: e.target.value || null,
-                        })
-                      }
-                      className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
-                    >
-                      <option value="">—</option>
-                      {developers.map((m: { id: string; name: string }) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span className="truncate text-gray-500">
-                      {(
-                        client as ClientListItem & {
-                          assignedDeveloper?: { name: string } | null;
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedIds(
+                            new Set(sortedClients.map((c) => c.id))
+                          );
+                        } else {
+                          setSelectedIds(new Set());
                         }
-                      ).assignedDeveloper?.name ?? "—"}
-                    </span>
-                  )}
-                </div>
-
-                {/* Portal link */}
-                <Link
-                  href={`/portal/${client.slug}`}
-                  className="hidden flex-shrink-0 items-center gap-1 text-xs transition-colors hover:text-white sm:inline-flex"
-                  style={{ color: "#D4AF37" }}
-                >
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-
-                {/* Actions */}
-                <ActionMenu
-                  client={client}
-                  onEdit={() => setEditingClient(client)}
-                  onArchive={() => setArchivingClient(client)}
-                  onDelete={() => setDeletingClient(client)}
+                      }}
+                      className="h-3.5 w-3.5 rounded border-gray-600 bg-transparent accent-[#D4AF37]"
+                    />
+                  </th>
+                )}
+                <SortHeader
+                  field="name"
+                  label="Name"
+                  sorts={sorts}
+                  onSort={handleSort}
                 />
-              </div>
-            ))}
-          </div>
+                <SortHeader
+                  field="status"
+                  label="Status"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="projects"
+                  label="Projects"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="am"
+                  label="AM"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="connector"
+                  label="Connector"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="dev"
+                  label="Dev"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <th className="px-4 py-3">Portal</th>
+                <th className="w-10 px-2 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {sortedClients.map((client) => (
+                <tr
+                  key={client.id}
+                  className="border-b transition-colors hover:bg-white/5"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+                >
+                  {selectionMode && (
+                    <td className="px-2 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(client.id)}
+                        onChange={(e) => {
+                          const next = new Set(selectedIds);
+                          if (e.target.checked) {
+                            next.add(client.id);
+                          } else {
+                            next.delete(client.id);
+                          }
+                          setSelectedIds(next);
+                        }}
+                        className="h-3.5 w-3.5 rounded border-gray-600 bg-transparent accent-[#D4AF37]"
+                      />
+                    </td>
+                  )}
+
+                  {/* Name + company + email */}
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/clients/${client.slug}`}
+                      className="text-sm font-medium text-white transition-colors hover:text-[#D4AF37]"
+                    >
+                      {client.name}
+                    </Link>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      {client.company && (
+                        <span className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {client.company}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {client.email}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-4 py-3">
+                    <span
+                      className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium"
+                      style={{
+                        backgroundColor:
+                          client.status === "active"
+                            ? "rgba(74, 222, 128, 0.1)"
+                            : "rgba(156, 163, 175, 0.1)",
+                        color:
+                          client.status === "active" ? "#4ade80" : "#9ca3af",
+                      }}
+                    >
+                      {client.status === "active" ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+
+                  {/* Projects */}
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                      <FolderKanban className="h-3 w-3" />
+                      {client.projects.length}
+                    </span>
+                  </td>
+
+                  {/* Account Manager */}
+                  <td className="px-4 py-3" style={{ minWidth: "120px" }}>
+                    <div className="flex items-center gap-1 text-xs">
+                      <UserCheck
+                        className="h-3 w-3 flex-shrink-0"
+                        style={{ color: "#D4AF37" }}
+                      />
+                      {canAssign ? (
+                        <select
+                          value={client.accountManagerId ?? ""}
+                          onChange={(e) =>
+                            updateClient.mutate({
+                              id: client.id,
+                              accountManagerId: e.target.value || null,
+                            })
+                          }
+                          className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
+                        >
+                          <option value="">—</option>
+                          {accountManagers.map(
+                            (m: { id: string; name: string }) => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      ) : (
+                        <span className="truncate text-gray-500">
+                          {client.accountManager?.name ?? "—"}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Connector */}
+                  <td className="px-4 py-3" style={{ minWidth: "120px" }}>
+                    <div className="flex items-center gap-1 text-xs">
+                      <Link2 className="h-3 w-3 flex-shrink-0 text-purple-400" />
+                      {canAssign ? (
+                        <select
+                          value={
+                            (
+                              client as ClientListItem & {
+                                connectorId?: string | null;
+                              }
+                            ).connectorId ?? ""
+                          }
+                          onChange={(e) =>
+                            updateClient.mutate({
+                              id: client.id,
+                              connectorId: e.target.value || null,
+                            })
+                          }
+                          className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
+                        >
+                          <option value="">—</option>
+                          {connectors.map((m: { id: string; name: string }) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="truncate text-gray-500">
+                          {(
+                            client as ClientListItem & {
+                              connector?: { name: string } | null;
+                            }
+                          ).connector?.name ?? "—"}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Developer */}
+                  <td className="px-4 py-3" style={{ minWidth: "120px" }}>
+                    <div className="flex items-center gap-1 text-xs">
+                      <Code2 className="h-3 w-3 flex-shrink-0 text-blue-400" />
+                      {canAssign ? (
+                        <select
+                          value={
+                            (
+                              client as ClientListItem & {
+                                assignedDeveloperId?: string | null;
+                              }
+                            ).assignedDeveloperId ?? ""
+                          }
+                          onChange={(e) =>
+                            updateClient.mutate({
+                              id: client.id,
+                              assignedDeveloperId: e.target.value || null,
+                            })
+                          }
+                          className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
+                        >
+                          <option value="">—</option>
+                          {developers.map((m: { id: string; name: string }) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="truncate text-gray-500">
+                          {(
+                            client as ClientListItem & {
+                              assignedDeveloper?: { name: string } | null;
+                            }
+                          ).assignedDeveloper?.name ?? "—"}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Portal link */}
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/portal/${client.slug}`}
+                      className="inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
+                      style={{ color: "#D4AF37" }}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-2 py-3">
+                    <ActionMenu
+                      client={client}
+                      onEdit={() => setEditingClient(client)}
+                      onArchive={() => setArchivingClient(client)}
+                      onDelete={() => setDeletingClient(client)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
-      {/* Pagination */}
-      {data && data.total > pageSize && (
+      {/* ── Pagination ─────────────────────────────────────────── */}
+      {data && data.total > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, data.total)}{" "}
-            of {data.total}
+            {data.total > 0 ? (
+              <>
+                Showing {(page - 1) * limit + 1}&ndash;
+                {Math.min(page * limit, data.total)} of {data.total}
+              </>
+            ) : (
+              "0 clients"
+            )}
           </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-              style={borderStyle}
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!data.hasMore}
-              className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-              style={borderStyle}
-            >
-              Next
-            </button>
-          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+                style={borderStyle}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((i) => {
+                  return i === 1 || i === totalPages || Math.abs(i - page) <= 1;
+                })
+                .map((i, idx, arr) => (
+                  <span key={i} className="flex items-center">
+                    {idx > 0 && arr[idx - 1] !== i - 1 && (
+                      <span className="px-1 text-xs text-gray-600">
+                        &hellip;
+                      </span>
+                    )}
+                    <button
+                      onClick={() => setPage(i)}
+                      className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                        i === page
+                          ? "font-medium text-[#D4AF37]"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  </span>
+                ))}
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!data.hasMore}
+                className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+                style={borderStyle}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Modals */}
+      {/* ── Modals ─────────────────────────────────────────────── */}
       {showCreate && <CreateClientModal onClose={() => setShowCreate(false)} />}
       {showAddFromContact && (
         <AddFromContactModal onClose={() => setShowAddFromContact(false)} />

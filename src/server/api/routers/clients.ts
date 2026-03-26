@@ -45,11 +45,11 @@ export const clientsRouter = createTRPCRouter({
       z.object({
         search: z.string().optional(),
         status: z.string().optional(),
-        sortBy: z
-          .enum(["newest", "oldest", "name", "active", "inactive"])
-          .default("newest"),
+        accountManagerId: z.string().uuid().optional(),
+        assignedDeveloperId: z.string().uuid().optional(),
+        connectorId: z.string().uuid().optional(),
         page: z.number().min(1).default(1),
-        pageSize: z.number().min(1).max(100).default(12),
+        pageSize: z.number().min(1).max(100).default(25),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -92,23 +92,25 @@ export const clientsRouter = createTRPCRouter({
         conditions.push(eq(clients.status, input.status));
       }
 
-      const where = conditions.length > 0 ? and(...conditions) : undefined;
+      // Team member filters
+      if (input.accountManagerId) {
+        conditions.push(eq(clients.accountManagerId, input.accountManagerId));
+      }
+      if (input.assignedDeveloperId) {
+        conditions.push(
+          eq(clients.assignedDeveloperId, input.assignedDeveloperId)
+        );
+      }
+      if (input.connectorId) {
+        conditions.push(eq(clients.connectorId, input.connectorId));
+      }
 
-      const orderBy =
-        input.sortBy === "name"
-          ? [clients.name]
-          : input.sortBy === "oldest"
-            ? [clients.createdAt]
-            : input.sortBy === "active"
-              ? [desc(clients.status), desc(clients.createdAt)]
-              : input.sortBy === "inactive"
-                ? [clients.status, desc(clients.createdAt)]
-                : [desc(clients.createdAt)];
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
 
       const [items, totalResult] = await Promise.all([
         db.query.clients.findMany({
           where,
-          orderBy,
+          orderBy: [desc(clients.createdAt)],
           limit: input.pageSize,
           offset: (input.page - 1) * input.pageSize,
           with: {
@@ -118,6 +120,9 @@ export const clientsRouter = createTRPCRouter({
               columns: { id: true, name: true, email: true },
             },
             assignedDeveloper: {
+              columns: { id: true, name: true, email: true },
+            },
+            connector: {
               columns: { id: true, name: true, email: true },
             },
           },
@@ -387,6 +392,7 @@ export const clientsRouter = createTRPCRouter({
         notes: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
         assignedDeveloperId: z.string().uuid().nullable().optional(),
+        connectorId: z.string().uuid().nullable().optional(),
         slug: z.string().min(1).optional(),
       })
     )
@@ -421,6 +427,7 @@ export const clientsRouter = createTRPCRouter({
           "email",
           "company",
           "accountManagerId",
+          "connectorId",
         ] as const;
         for (const f of syncFields) {
           if (f in data) crmUpdate[f] = data[f as keyof typeof data];
