@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useRef } from "react";
+import { use, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -42,6 +42,8 @@ import {
   STATUS_CONFIG,
 } from "~/components/crm";
 import { SOURCE_OPTIONS } from "~/lib/source-labels";
+import { NoteEditor } from "~/components/portal/note-editor";
+import { RichTextPreview } from "~/components/portal/rich-text-preview";
 
 // ── Activity icon map ──────────────────────────────────────────────
 const ACTIVITY_ICONS: Record<string, typeof PhoneCall> = {
@@ -141,6 +143,10 @@ export default function ContactDetailPage({
     { crmId: contact?.id ?? "", company: contact?.company ?? "" },
     { enabled: !!contact && !!contact.company }
   );
+  const { data: crmNotes = [] } = api.crm.getCrmNotes.useQuery(
+    { crmId: contact?.id ?? "" },
+    { enabled: !!contact }
+  );
 
   // ── Mutations ──────────────────────────────────────────────────
   const updateContact = api.crm.updateContact.useMutation({
@@ -173,10 +179,25 @@ export default function ContactDetailPage({
     },
   });
 
+  const createNote = api.crm.createCrmNote.useMutation({
+    onSuccess: () =>
+      void utils.crm.getCrmNotes.invalidate({ crmId: contact?.id ?? "" }),
+  });
+  const updateNote = api.crm.updateCrmNote.useMutation({
+    onSuccess: () =>
+      void utils.crm.getCrmNotes.invalidate({ crmId: contact?.id ?? "" }),
+  });
+  const deleteNote = api.crm.deleteCrmNote.useMutation({
+    onSuccess: () =>
+      void utils.crm.getCrmNotes.invalidate({ crmId: contact?.id ?? "" }),
+  });
+
   // ── Local state ────────────────────────────────────────────────
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [editNotes, setEditNotes] = useState("");
+  const [showNoteEditor, setShowNoteEditor] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
 
   const [showPromote, setShowPromote] = useState(false);
   const [promoteSlug, setPromoteSlug] = useState("");
@@ -656,472 +677,566 @@ export default function ContactDetailPage({
         </div>
       )}
 
-      {/* ── 4. Two-column layout ─────────────────────────────────── */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left column (2/3): Tabbed content */}
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="activity">
-            <TabsList className="mb-4 bg-white/5">
-              <TabsTrigger
-                value="activity"
-                className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
-              >
-                Activity ({activities.length})
-              </TabsTrigger>
-              <TabsTrigger
-                value="submissions"
-                className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
-              >
-                Submissions ({timeline.length})
-              </TabsTrigger>
-            </TabsList>
+      {/* ── 4. Three-tab layout ──────────────────────────────────── */}
+      <Tabs defaultValue="activity">
+        <TabsList className="mb-4 bg-white/5">
+          <TabsTrigger
+            value="activity"
+            className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
+          >
+            Activity ({activities.length + timeline.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="details"
+            className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
+          >
+            Details &amp; Tags
+          </TabsTrigger>
+          <TabsTrigger
+            value="notes"
+            className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
+          >
+            Notes ({crmNotes.length})
+          </TabsTrigger>
+        </TabsList>
 
-            {/* ── Activity tab ──────────────────────────────────── */}
-            <TabsContent value="activity">
-              {activities.length === 0 ? (
-                <div
-                  className="rounded-lg border bg-white/5 p-8 text-center"
-                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-                >
-                  <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
-                  <p className="text-sm text-gray-500">
-                    No activity yet. Log a call or add a note to get started.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {activities.map(
-                    (activity: {
-                      id: string;
-                      type: string;
-                      title: string;
-                      description: string | null;
-                      createdAt: Date;
-                      creator: { id: string; name: string } | null;
-                    }) => {
-                      const Icon = ACTIVITY_ICONS[activity.type] ?? FileText;
-                      return (
+        {/* ── Activity tab ──────────────────────────────────── */}
+        <TabsContent value="activity">
+          {activities.length === 0 ? (
+            <div
+              className="rounded-lg border bg-white/5 p-8 text-center"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+              <p className="text-sm text-gray-500">
+                No activity yet. Log a call or add a note to get started.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {activities.map(
+                (activity: {
+                  id: string;
+                  type: string;
+                  title: string;
+                  description: string | null;
+                  createdAt: Date;
+                  creator: { id: string; name: string } | null;
+                }) => {
+                  const Icon = ACTIVITY_ICONS[activity.type] ?? FileText;
+                  return (
+                    <div
+                      key={activity.id}
+                      className="rounded-lg border bg-white/5 p-4"
+                      style={{
+                        borderColor: "rgba(212, 175, 55, 0.15)",
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
                         <div
-                          key={activity.id}
-                          className="rounded-lg border bg-white/5 p-4"
+                          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
                           style={{
-                            borderColor: "rgba(212, 175, 55, 0.15)",
+                            background:
+                              "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
                           }}
                         >
-                          <div className="flex items-start gap-3">
-                            <div
-                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                          <Icon
+                            className="h-3.5 w-3.5"
+                            style={{ color: "#D4AF37" }}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-white">
+                            {activity.title}
+                          </p>
+                          {activity.description && (
+                            <p className="mt-0.5 text-sm text-gray-400">
+                              {activity.description}
+                            </p>
+                          )}
+                          <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                            {activity.creator && (
+                              <span>by {activity.creator.name}</span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(activity.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          )}
+
+          {/* ── Submissions section ─────────────────────────────── */}
+          {timeline.length > 0 && (
+            <>
+              <h3 className="mt-6 mb-3 text-sm font-medium tracking-wider text-gray-400 uppercase">
+                Form Submissions
+              </h3>
+              <div className="space-y-3">
+                {timeline.map((item) => {
+                  const src = SOURCE_COLORS[item.source]!;
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border bg-white/5 p-4"
+                      style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: src.bg,
+                              color: src.color,
+                            }}
+                          >
+                            {src.label}
+                          </span>
+                          {!item.read && (
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{ backgroundColor: "#D4AF37" }}
+                              title="Unread"
+                            />
+                          )}
+                        </div>
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          {new Date(item.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-300">{item.message}</p>
+                      {item.extra?.services && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {(item.extra.services as string[]).map((svc) => (
+                            <span
+                              key={svc}
+                              className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400"
+                            >
+                              {svc}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {item.extra?.role && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          Role: {item.extra.role as string}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </TabsContent>
+
+        {/* ── Details & Tags tab ─────────────────────────────────── */}
+        <TabsContent value="details">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Left column */}
+            <div className="space-y-4">
+              <SidebarCard title="Source">
+                <select
+                  value={contact.source}
+                  onChange={(e) =>
+                    updateContact.mutate({ id, source: e.target.value })
+                  }
+                  className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
+                  style={borderStyle}
+                >
+                  {SOURCE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </SidebarCard>
+
+              <SidebarCard title="Referred By">
+                <ReferralPicker
+                  contactId={contact.id}
+                  referredBy={contact.referredBy}
+                  referredByExternal={contact.referredByExternal}
+                  onChange={(referredBy, referredByExternal) =>
+                    updateContact.mutate({ id, referredBy, referredByExternal })
+                  }
+                />
+              </SidebarCard>
+
+              <SidebarCard title="Created By">
+                <TeamMemberPicker
+                  value={null}
+                  placeholder={contact.createdBy ?? "Select creator..."}
+                  onChange={(memberId) => {
+                    if (!memberId) {
+                      updateContact.mutate({ id, createdBy: null });
+                      return;
+                    }
+                    const teamQuery = utils.crm.getCompanyTeam.getData();
+                    const member = (
+                      teamQuery as { id: string; name: string }[] | undefined
+                    )?.find((m) => m.id === memberId);
+                    updateContact.mutate({
+                      id,
+                      createdBy: member?.name ?? memberId,
+                    });
+                  }}
+                />
+              </SidebarCard>
+
+              <SidebarCard title="Connector">
+                <TeamMemberPicker
+                  value={contact.connectorId}
+                  placeholder="Select connector..."
+                  onChange={(connectorId) =>
+                    updateContact.mutate({ id, connectorId })
+                  }
+                />
+              </SidebarCard>
+
+              <SidebarCard title="Account Manager">
+                {canAssign ? (
+                  <TeamMemberPicker
+                    value={contact.accountManagerId}
+                    placeholder="Select account manager..."
+                    onChange={(accountManagerId) =>
+                      updateContact.mutate({ id, accountManagerId })
+                    }
+                  />
+                ) : (
+                  <p className="text-sm text-white">
+                    {contact.accountManager?.name ?? (
+                      <span className="text-gray-600">Unassigned</span>
+                    )}
+                  </p>
+                )}
+              </SidebarCard>
+
+              <SidebarCard title="Communication Preferences">
+                <div className="space-y-2">
+                  {(["email", "sms", "phone"] as const).map((channel) => (
+                    <label
+                      key={channel}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-sm text-gray-300 capitalize">
+                        {channel === "sms"
+                          ? "SMS"
+                          : channel.charAt(0).toUpperCase() + channel.slice(1)}
+                      </span>
+                      <button
+                        role="switch"
+                        aria-checked={commPrefs[channel] ?? false}
+                        onClick={() => {
+                          const updated = {
+                            ...commPrefs,
+                            [channel]: !(commPrefs[channel] ?? false),
+                          };
+                          updateContact.mutate({
+                            id,
+                            communicationPreferences: updated,
+                          });
+                        }}
+                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                          commPrefs[channel] ? "bg-[#D4AF37]" : "bg-white/10"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                            commPrefs[channel]
+                              ? "translate-x-[18px]"
+                              : "translate-x-[3px]"
+                          }`}
+                        />
+                      </button>
+                    </label>
+                  ))}
+                </div>
+              </SidebarCard>
+            </div>
+
+            {/* Right column */}
+            <div className="space-y-4">
+              <SidebarCard title="Tags">
+                <TagPicker
+                  selected={contact.tags ?? []}
+                  onChange={(tags) => updateContact.mutate({ id, tags })}
+                />
+              </SidebarCard>
+
+              <SidebarCard title="Dates">
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">First contact</span>
+                    <span className="text-gray-300">
+                      {new Date(contact.firstContactAt).toLocaleDateString(
+                        "en-US",
+                        { month: "short", day: "numeric", year: "numeric" }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Last contact</span>
+                    <span className="text-gray-300">
+                      {new Date(contact.lastContactAt).toLocaleDateString(
+                        "en-US",
+                        { month: "short", day: "numeric", year: "numeric" }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Created</span>
+                    <span className="text-gray-300">
+                      {new Date(contact.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </SidebarCard>
+
+              {relatedContacts.length > 0 && (
+                <SidebarCard title="Related Contacts">
+                  <div className="space-y-1.5">
+                    {relatedContacts.map(
+                      (rc: {
+                        id: string;
+                        name: string;
+                        email: string;
+                        status: string;
+                      }) => {
+                        const rcStatus =
+                          STATUS_CONFIG[rc.status] ?? STATUS_CONFIG.lead!;
+                        return (
+                          <Link
+                            key={rc.id}
+                            href={`/admin/crm/contacts/${rc.id}`}
+                            className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-white/5"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Users className="h-3.5 w-3.5 text-gray-500" />
+                              <span className="text-gray-300">{rc.name}</span>
+                            </div>
+                            <span
+                              className="rounded-full px-1.5 py-0.5 text-[10px]"
                               style={{
-                                background:
-                                  "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                                backgroundColor: rcStatus.bg,
+                                color: rcStatus.color,
                               }}
                             >
-                              <Icon
-                                className="h-3.5 w-3.5"
-                                style={{ color: "#D4AF37" }}
-                              />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-white">
-                                {activity.title}
-                              </p>
-                              {activity.description && (
-                                <p className="mt-0.5 text-sm text-gray-400">
-                                  {activity.description}
-                                </p>
-                              )}
-                              <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                                {activity.creator && (
-                                  <span>by {activity.creator.name}</span>
+                              {rcStatus.label}
+                            </span>
+                          </Link>
+                        );
+                      }
+                    )}
+                  </div>
+                </SidebarCard>
+              )}
+
+              {contact.stripeLifetimeSpend && (
+                <SidebarCard title="Stripe Lifetime Spend">
+                  <p className="flex items-center gap-2 text-2xl font-bold text-white">
+                    <DollarSign
+                      className="h-5 w-5"
+                      style={{ color: "#D4AF37" }}
+                    />
+                    {(
+                      contact.stripeLifetimeSpend.totalCents / 100
+                    ).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {contact.stripeLifetimeSpend.chargeCount} successful charge
+                    {contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
+                  </p>
+                </SidebarCard>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* ── Notes tab ──────────────────────────────────────────── */}
+        <TabsContent value="notes">
+          <div className="space-y-4">
+            {!showNoteEditor && editingNoteId === null && (
+              <button
+                onClick={() => setShowNoteEditor(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                }}
+              >
+                <StickyNote className="h-4 w-4" />
+                Add Note
+              </button>
+            )}
+
+            {showNoteEditor && (
+              <NoteEditor
+                onSave={(title, content) => {
+                  createNote.mutate(
+                    { crmId: contact.id, title, content },
+                    { onSuccess: () => setShowNoteEditor(false) }
+                  );
+                }}
+                onCancel={() => setShowNoteEditor(false)}
+                saving={createNote.isPending}
+              />
+            )}
+
+            {crmNotes.length === 0 && !showNoteEditor ? (
+              <div
+                className="rounded-lg border bg-white/5 p-8 text-center"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                <StickyNote className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+                <p className="text-sm text-gray-500">
+                  No notes yet. Add one to get started.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {crmNotes.map(
+                  (note: {
+                    id: number;
+                    crmId: string;
+                    title: string;
+                    content: string;
+                    createdByName: string;
+                    isPinned: boolean;
+                    isArchived: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }) => {
+                    const isEditing = editingNoteId === note.id;
+                    return (
+                      <div key={note.id}>
+                        {isEditing ? (
+                          <NoteEditor
+                            initialTitle={note.title}
+                            initialContent={note.content}
+                            compact
+                            onSave={(title, content) => {
+                              updateNote.mutate(
+                                { id: note.id, title, content },
+                                { onSuccess: () => setEditingNoteId(null) }
+                              );
+                            }}
+                            onCancel={() => setEditingNoteId(null)}
+                            saving={updateNote.isPending}
+                          />
+                        ) : (
+                          <div
+                            className="group rounded-lg border bg-white/5 p-4"
+                            style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="truncate text-sm font-medium text-white">
+                                    {note.title}
+                                  </h4>
+                                  {note.isPinned && (
+                                    <span
+                                      className="text-[10px]"
+                                      style={{ color: "#D4AF37" }}
+                                    >
+                                      Pinned
+                                    </span>
+                                  )}
+                                </div>
+                                {note.content && note.content !== "<p></p>" && (
+                                  <div className="mt-1">
+                                    <RichTextPreview
+                                      html={note.content}
+                                      lineClamp={3}
+                                      className="text-gray-400"
+                                    />
+                                  </div>
                                 )}
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {new Date(
-                                    activity.createdAt
-                                  ).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })}
-                                </span>
+                                <p className="mt-2 text-xs text-gray-500">
+                                  {note.createdByName} &middot;{" "}
+                                  {new Date(note.updatedAt).toLocaleDateString(
+                                    "en-US",
+                                    {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    }
+                                  )}
+                                </p>
+                              </div>
+                              <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                <button
+                                  onClick={() =>
+                                    updateNote.mutate({
+                                      id: note.id,
+                                      isPinned: !note.isPinned,
+                                    })
+                                  }
+                                  className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-white"
+                                  title={note.isPinned ? "Unpin" : "Pin"}
+                                >
+                                  <ArrowUpDown className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => setEditingNoteId(note.id)}
+                                  className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-white"
+                                  title="Edit"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (confirm("Delete this note?")) {
+                                      deleteNote.mutate({ id: note.id });
+                                    }
+                                  }}
+                                  className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-red-400"
+                                  title="Delete"
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                </button>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* ── Submissions tab ───────────────────────────────── */}
-            <TabsContent value="submissions">
-              {timeline.length === 0 ? (
-                <div
-                  className="rounded-lg border bg-white/5 p-8 text-center"
-                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-                >
-                  <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
-                  <p className="text-sm text-gray-500">No submissions yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {timeline.map((item) => {
-                    const src = SOURCE_COLORS[item.source]!;
-                    return (
-                      <div
-                        key={item.id}
-                        className="rounded-lg border bg-white/5 p-4"
-                        style={{
-                          borderColor: "rgba(212, 175, 55, 0.15)",
-                        }}
-                      >
-                        <div className="mb-2 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                              style={{
-                                backgroundColor: src.bg,
-                                color: src.color,
-                              }}
-                            >
-                              {src.label}
-                            </span>
-                            {!item.read && (
-                              <span
-                                className="h-2 w-2 rounded-full"
-                                style={{ backgroundColor: "#D4AF37" }}
-                                title="Unread"
-                              />
-                            )}
-                          </div>
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {new Date(item.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-300">{item.message}</p>
-                        {item.extra?.services && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {(item.extra.services as string[]).map((svc) => (
-                              <span
-                                key={svc}
-                                className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400"
-                              >
-                                {svc}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {item.extra?.role && (
-                          <p className="mt-1 text-xs text-gray-500">
-                            Role: {item.extra.role as string}
-                          </p>
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* ── Right column (1/3): Sidebar cards ──────────────────── */}
-        <div className="space-y-4">
-          {/* Source */}
-          <SidebarCard title="Source">
-            <select
-              value={contact.source}
-              onChange={(e) =>
-                updateContact.mutate({ id, source: e.target.value })
-              }
-              className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
-              style={borderStyle}
-            >
-              {SOURCE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </SidebarCard>
-
-          {/* Referred By */}
-          <SidebarCard title="Referred By">
-            <ReferralPicker
-              contactId={contact.id}
-              referredBy={contact.referredBy}
-              referredByExternal={contact.referredByExternal}
-              onChange={(referredBy, referredByExternal) =>
-                updateContact.mutate({ id, referredBy, referredByExternal })
-              }
-            />
-          </SidebarCard>
-
-          {/* Created By */}
-          <SidebarCard title="Created By">
-            <TeamMemberPicker
-              value={null}
-              placeholder={contact.createdBy ?? "Select creator..."}
-              onChange={(memberId) => {
-                // Resolve team member ID to name string for createdBy field
-                if (!memberId) {
-                  updateContact.mutate({ id, createdBy: null });
-                  return;
-                }
-                // We get the name from the picker's internal data via a workaround:
-                // refetch the team list and find by id
-                const teamQuery = utils.crm.getCompanyTeam.getData();
-                const member = (
-                  teamQuery as { id: string; name: string }[] | undefined
-                )?.find((m) => m.id === memberId);
-                updateContact.mutate({
-                  id,
-                  createdBy: member?.name ?? memberId,
-                });
-              }}
-            />
-          </SidebarCard>
-
-          {/* Connector */}
-          <SidebarCard title="Connector">
-            <TeamMemberPicker
-              value={contact.connectorId}
-              placeholder="Select connector..."
-              onChange={(connectorId) =>
-                updateContact.mutate({ id, connectorId })
-              }
-            />
-          </SidebarCard>
-
-          {/* Account Manager */}
-          <SidebarCard title="Account Manager">
-            {canAssign ? (
-              <TeamMemberPicker
-                value={contact.accountManagerId}
-                placeholder="Select account manager..."
-                onChange={(accountManagerId) =>
-                  updateContact.mutate({ id, accountManagerId })
-                }
-              />
-            ) : (
-              <p className="text-sm text-white">
-                {contact.accountManager?.name ?? (
-                  <span className="text-gray-600">Unassigned</span>
+                  }
                 )}
-              </p>
+              </div>
             )}
-          </SidebarCard>
-
-          {/* Communication Preferences */}
-          <SidebarCard title="Communication Preferences">
-            <div className="space-y-2">
-              {(["email", "sms", "phone"] as const).map((channel) => (
-                <label
-                  key={channel}
-                  className="flex items-center justify-between"
-                >
-                  <span className="text-sm text-gray-300 capitalize">
-                    {channel === "sms"
-                      ? "SMS"
-                      : channel.charAt(0).toUpperCase() + channel.slice(1)}
-                  </span>
-                  <button
-                    role="switch"
-                    aria-checked={commPrefs[channel] ?? false}
-                    onClick={() => {
-                      const updated = {
-                        ...commPrefs,
-                        [channel]: !(commPrefs[channel] ?? false),
-                      };
-                      updateContact.mutate({
-                        id,
-                        communicationPreferences: updated,
-                      });
-                    }}
-                    className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-                      commPrefs[channel] ? "bg-[#D4AF37]" : "bg-white/10"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-                        commPrefs[channel]
-                          ? "translate-x-[18px]"
-                          : "translate-x-[3px]"
-                      }`}
-                    />
-                  </button>
-                </label>
-              ))}
-            </div>
-          </SidebarCard>
-
-          {/* Tags */}
-          <SidebarCard title="Tags">
-            <TagPicker
-              selected={contact.tags ?? []}
-              onChange={(tags) => updateContact.mutate({ id, tags })}
-            />
-          </SidebarCard>
-
-          {/* Notes */}
-          <SidebarCard title="Notes" id="notes-section">
-            <div ref={notesRef}>
-              {editingField === "notes" ? (
-                <div>
-                  <textarea
-                    value={editNotes}
-                    onChange={(e) => setEditNotes(e.target.value)}
-                    rows={4}
-                    className={inputClass + " resize-none"}
-                    style={borderStyle}
-                    autoFocus
-                  />
-                  <div className="mt-2 flex gap-2">
-                    <button
-                      onClick={saveNotes}
-                      className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-black"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                      }}
-                    >
-                      <Check className="h-3 w-3" />
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingField(null)}
-                      className="rounded px-2 py-1 text-xs text-gray-500 hover:text-white"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="group">
-                  <p className="text-sm whitespace-pre-wrap text-gray-400">
-                    {contact.notes ?? "No notes"}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setEditingField("notes");
-                      setEditNotes(contact.notes ?? "");
-                    }}
-                    className="mt-1 text-gray-600 transition-colors group-hover:visible hover:text-gray-300"
-                    title="Edit notes"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </SidebarCard>
-
-          {/* Dates */}
-          <SidebarCard title="Dates">
-            <div className="space-y-1.5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">First contact</span>
-                <span className="text-gray-300">
-                  {new Date(contact.firstContactAt).toLocaleDateString(
-                    "en-US",
-                    { month: "short", day: "numeric", year: "numeric" }
-                  )}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Last contact</span>
-                <span className="text-gray-300">
-                  {new Date(contact.lastContactAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Created</span>
-                <span className="text-gray-300">
-                  {new Date(contact.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-            </div>
-          </SidebarCard>
-
-          {/* Related Contacts */}
-          {relatedContacts.length > 0 && (
-            <SidebarCard title="Related Contacts">
-              <div className="space-y-1.5">
-                {relatedContacts.map(
-                  (rc: {
-                    id: string;
-                    name: string;
-                    email: string;
-                    status: string;
-                  }) => {
-                    const rcStatus =
-                      STATUS_CONFIG[rc.status] ?? STATUS_CONFIG.lead!;
-                    return (
-                      <Link
-                        key={rc.id}
-                        href={`/admin/crm/contacts/${rc.id}`}
-                        className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-white/5"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Users className="h-3.5 w-3.5 text-gray-500" />
-                          <span className="text-gray-300">{rc.name}</span>
-                        </div>
-                        <span
-                          className="rounded-full px-1.5 py-0.5 text-[10px]"
-                          style={{
-                            backgroundColor: rcStatus.bg,
-                            color: rcStatus.color,
-                          }}
-                        >
-                          {rcStatus.label}
-                        </span>
-                      </Link>
-                    );
-                  }
-                )}
-              </div>
-            </SidebarCard>
-          )}
-
-          {/* Stripe Lifetime Spend */}
-          {contact.stripeLifetimeSpend && (
-            <SidebarCard title="Stripe Lifetime Spend">
-              <p className="flex items-center gap-2 text-2xl font-bold text-white">
-                <DollarSign className="h-5 w-5" style={{ color: "#D4AF37" }} />
-                {(contact.stripeLifetimeSpend.totalCents / 100).toLocaleString(
-                  "en-US",
-                  {
-                    style: "currency",
-                    currency: "USD",
-                  }
-                )}
-              </p>
-              <p className="mt-1 text-xs text-gray-500">
-                {contact.stripeLifetimeSpend.chargeCount} successful charge
-                {contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
-              </p>
-            </SidebarCard>
-          )}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* ── 5. Portal Client Banner ──────────────────────────────── */}
       {contact.portalClient && (
