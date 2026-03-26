@@ -149,9 +149,9 @@ export default function AdminClientDetailPage({
     { enabled: !!client?.crmId && !!client?.company }
   );
 
-  const { data: clientNotes = [] } = api.portalNotes.getNotes.useQuery(
-    { slug },
-    { enabled: !!client }
+  const { data: crmNotes = [] } = api.crm.getCrmNotes.useQuery(
+    { crmId: client?.crmId ?? "" },
+    { enabled: !!client?.crmId }
   );
 
   const { data: myRoles } = api.portal.getMyRoles.useQuery(undefined, {
@@ -186,14 +186,18 @@ export default function AdminClientDetailPage({
     },
   });
 
-  const createNote = api.portalNotes.createNote.useMutation({
-    onSuccess: () => void utils.portalNotes.getNotes.invalidate({ slug }),
+  const crmId = client?.crmId ?? null;
+  const noteInvalidate = () => {
+    if (crmId) void utils.crm.getCrmNotes.invalidate({ crmId });
+  };
+  const createNote = api.crm.createCrmNote.useMutation({
+    onSuccess: noteInvalidate,
   });
-  const updateNote = api.portalNotes.updateNote.useMutation({
-    onSuccess: () => void utils.portalNotes.getNotes.invalidate({ slug }),
+  const updateNote = api.crm.updateCrmNote.useMutation({
+    onSuccess: noteInvalidate,
   });
-  const deleteNote = api.portalNotes.deleteNote.useMutation({
-    onSuccess: () => void utils.portalNotes.getNotes.invalidate({ slug }),
+  const deleteNote = api.crm.deleteCrmNote.useMutation({
+    onSuccess: noteInvalidate,
   });
 
   // ── Local state ──────────────────────────────────────────────────
@@ -206,7 +210,6 @@ export default function AdminClientDetailPage({
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
 
   const canAssign = myRoles?.isFullAccess ?? false;
-  const crmId = client?.crmId ?? null;
 
   // ── Helpers ──────────────────────────────────────────────────────
   function startEdit(field: string, currentValue: string) {
@@ -646,7 +649,7 @@ export default function AdminClientDetailPage({
             value="notes"
             className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
           >
-            Notes ({clientNotes.length})
+            Notes ({crmNotes.length})
           </TabsTrigger>
         </TabsList>
 
@@ -1196,7 +1199,7 @@ export default function AdminClientDetailPage({
               <NoteEditor
                 onSave={(title, content) => {
                   createNote.mutate(
-                    { slug, title, content },
+                    { crmId: crmId!, title, content },
                     { onSuccess: () => setShowNoteEditor(false) }
                   );
                 }}
@@ -1205,7 +1208,7 @@ export default function AdminClientDetailPage({
               />
             )}
 
-            {clientNotes.length === 0 && !showNoteEditor ? (
+            {crmNotes.length === 0 && !showNoteEditor ? (
               <div
                 className="rounded-lg border bg-white/5 p-8 text-center"
                 style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -1217,10 +1220,10 @@ export default function AdminClientDetailPage({
               </div>
             ) : (
               <div className="space-y-3">
-                {clientNotes.map(
+                {crmNotes.map(
                   (note: {
                     id: number;
-                    clientId: number;
+                    crmId: string;
                     title: string;
                     content: string;
                     createdByName: string;
@@ -1239,7 +1242,7 @@ export default function AdminClientDetailPage({
                             compact
                             onSave={(title, content) => {
                               updateNote.mutate(
-                                { slug, noteId: note.id, title, content },
+                                { id: note.id, title, content },
                                 { onSuccess: () => setEditingNoteId(null) }
                               );
                             }}
@@ -1293,8 +1296,7 @@ export default function AdminClientDetailPage({
                                 <button
                                   onClick={() =>
                                     updateNote.mutate({
-                                      slug,
-                                      noteId: note.id,
+                                      id: note.id,
                                       isPinned: !note.isPinned,
                                     })
                                   }
@@ -1314,8 +1316,7 @@ export default function AdminClientDetailPage({
                                   onClick={() => {
                                     if (confirm("Delete this note?")) {
                                       deleteNote.mutate({
-                                        slug,
-                                        noteId: note.id,
+                                        id: note.id,
                                       });
                                     }
                                   }}

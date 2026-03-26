@@ -599,6 +599,19 @@ export default function ContactDetailPage({
           <StickyNote className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
           Add Note
         </button>
+        {contact.portalClient && (
+          <Link
+            href={`/portal/${contact.portalClient.slug}`}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
+            style={borderStyle}
+          >
+            <ExternalLink
+              className="h-3.5 w-3.5"
+              style={{ color: "#D4AF37" }}
+            />
+            Open Portal
+          </Link>
+        )}
         {!contact.portalClient && (
           <button
             onClick={() => {
@@ -1253,34 +1266,6 @@ export default function ContactDetailPage({
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* ── 5. Portal Client Banner ──────────────────────────────── */}
-      {contact.portalClient && (
-        <Link
-          href={`/admin/clients/${contact.portalClient.slug}`}
-          className="flex items-center gap-3 rounded-lg border p-4 transition-all hover:bg-white/5"
-          style={{
-            borderColor: "rgba(74, 222, 128, 0.3)",
-            backgroundColor: "rgba(74, 222, 128, 0.05)",
-          }}
-        >
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg"
-            style={{ backgroundColor: "rgba(74, 222, 128, 0.15)" }}
-          >
-            <ExternalLink className="h-4 w-4" style={{ color: "#4ade80" }} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white">
-              Portal Client: {contact.portalClient.name}
-            </p>
-            <p className="text-xs text-gray-500">
-              Slug: {contact.portalClient.slug}
-            </p>
-          </div>
-          <span className="text-xs text-gray-500">View client →</span>
-        </Link>
-      )}
 
       {/* ── Promote to Client Modal ──────────────────────────────── */}
       {/* Demotion dialog */}
