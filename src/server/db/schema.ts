@@ -518,6 +518,25 @@ export const clientNotes = pgTable("client_notes", {
     .defaultNow(),
 });
 
+export const crmNotes = pgTable("crm_notes", {
+  id: serial("id").primaryKey(),
+  crmId: uuid("crm_id")
+    .notNull()
+    .references(() => masterCrm.id, { onDelete: "cascade" }),
+  createdByAuthId: uuid("created_by_auth_id").notNull(),
+  createdByName: text("created_by_name").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(""),
+  isPinned: boolean("is_pinned").notNull().default(false),
+  isArchived: boolean("is_archived").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // ============================================================================
 // CONTACT SUBMISSIONS (Legacy - miraclemind.dev contact form)
 // ============================================================================
@@ -867,6 +886,13 @@ export const clientNotesRelations = relations(clientNotes, ({ one }) => ({
   }),
 }));
 
+export const crmNotesRelations = relations(crmNotes, ({ one }) => ({
+  contact: one(masterCrm, {
+    fields: [crmNotes.crmId],
+    references: [masterCrm.id],
+  }),
+}));
+
 export const crmActivitiesRelations = relations(crmActivities, ({ one }) => ({
   contact: one(masterCrm, {
     fields: [crmActivities.crmId],
@@ -881,6 +907,7 @@ export const crmActivitiesRelations = relations(crmActivities, ({ one }) => ({
 
 export const masterCrmRelations = relations(masterCrm, ({ many, one }) => ({
   activities: many(crmActivities),
+  notes: many(crmNotes),
   personalContactSubmissions: many(personalContactSubmissions),
   contactSubmissions: many(contactSubmissions),
   banyanEarlyAccessSignups: many(banyanEarlyAccess),

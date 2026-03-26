@@ -16,6 +16,7 @@ import {
   portalUsers,
   formRegistry,
   crmActivities,
+  crmNotes,
 } from "~/server/db/schema";
 import {
   and,
@@ -1351,4 +1352,66 @@ export const crmRouter = createTRPCRouter({
 
     return { linked, created, total: allClients.length };
   }),
+
+  // ── CRM Notes CRUD ──────────────────────────────────────────
+  getCrmNotes: adminProcedure
+    .input(z.object({ crmId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      return db
+        .select()
+        .from(crmNotes)
+        .where(
+          and(eq(crmNotes.crmId, input.crmId), eq(crmNotes.isArchived, false))
+        )
+        .orderBy(desc(crmNotes.isPinned), desc(crmNotes.updatedAt));
+    }),
+
+  createCrmNote: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        title: z.string().min(1),
+        content: z.string().default(""),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [note] = await db
+        .insert(crmNotes)
+        .values({
+          crmId: input.crmId,
+          title: input.title,
+          content: input.content,
+          createdByAuthId: ctx.user.id,
+          createdByName: ctx.profile.name,
+        })
+        .returning();
+      return note;
+    }),
+
+  updateCrmNote: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string().min(1).optional(),
+        content: z.string().optional(),
+        isPinned: z.boolean().optional(),
+        isArchived: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const [updated] = await db
+        .update(crmNotes)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(crmNotes.id, id))
+        .returning();
+      return updated;
+    }),
+
+  deleteCrmNote: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      await db.delete(crmNotes).where(eq(crmNotes.id, input.id));
+      return { success: true };
+    }),
 });

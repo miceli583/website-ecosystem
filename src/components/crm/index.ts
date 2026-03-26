@@ -6,6 +6,7 @@ export { SortHeader } from "./sort-header";
 export type { SortLevel } from "./sort-header";
 export { ContactKanban } from "./contact-kanban";
 export { CsvImportModal } from "./csv-import-modal";
+export { StatusDropdown } from "./status-dropdown";
 export {
   inputClass,
   selectClass,
