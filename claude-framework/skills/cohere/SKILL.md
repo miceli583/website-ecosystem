@@ -163,7 +163,40 @@ grep -rn "// @ts-ignore\|// @ts-expect-error" src/ --include="*.ts" --include="*
 **Expected:** Minimal `any` usage, no ignored errors without justification
 **Report:** Type safety violations
 
-### 11. Brand Coherence
+### 11. Shared Config Duplication
+
+Check for hardcoded constants that should use shared modules.
+
+```bash
+# Check for hardcoded source labels (should use src/lib/source-labels.ts)
+grep -rn "matthewmiceli.com\|miraclemind.dev/contact\|Banyan Waitlist" src/ --include="*.tsx" --include="*.ts" | grep -v "source-labels.ts" | grep -v "node_modules"
+
+# Check for hardcoded role arrays (should use src/lib/permissions.ts)
+grep -rn '"founder".*"admin".*"account_manager"' src/ --include="*.tsx" --include="*.ts" | grep -v "permissions.ts" | grep -v "admin-nav.ts"
+
+# Check for duplicated option arrays
+grep -rn "SOURCE_OPTIONS\|SOURCE_LABELS\|ROLE_OPTIONS\|COMPANY_ROLES" src/ --include="*.tsx" --include="*.ts"
+```
+
+**Expected:** Shared constants imported from canonical source, not redefined
+**Report:** Files with hardcoded values that should use shared modules
+
+### 12. UI Pattern Consistency
+
+```bash
+# Check select/chevron pattern consistency
+grep -rn "right-2\.5\|h-3\.5 w-3\.5.*translate" src/ --include="*.tsx"  # Old pattern
+grep -rn "right-3 h-4 w-4.*translate" src/ --include="*.tsx"  # Correct pattern
+
+# Check select padding consistency
+grep -rn "pr-8.*pl-3" src/ --include="*.tsx"  # Old pattern (should be pr-9)
+grep -rn "pr-9.*pl-3" src/ --include="*.tsx"  # Correct pattern
+```
+
+**Expected:** All selects use standardized chevron (`right-3 h-4 w-4`) and padding (`pr-9`)
+**Report:** Count of old vs new pattern usage
+
+### 13. Brand Coherence
 
 If the project's CLAUDE.md contains a `## Brand Reference` section, run a lightweight brand check:
 
@@ -195,8 +228,10 @@ This is a subset of what `/brand audit` does — just enough to surface brand dr
 | Auth patterns | PASS | 0 |
 | Response patterns | PASS | 0 |
 | Type safety | WARN | 2 `as any` casts |
+| Shared config duplication | PASS | 0 |
+| UI pattern consistency | PASS | 0 |
 
-### Overall: 7/10 checks passing
+### Overall: 9/12 checks passing
 
 ---
 

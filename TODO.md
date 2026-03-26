@@ -7,10 +7,14 @@ _None currently_
 ## Bugs (broken functionality)
 
 - [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow under concurrent queries — retry + staleTime added but root cause is connection pool pressure
+- [ ] **clients.status column unused**: `clients.status` DB column still exists but is no longer read — can be dropped in a future migration
 
 ## Tech Debt (code quality issues)
 
 - [ ] **Type assertions in portal profile**: `assignedDeveloper` requires `as typeof client & {...}` casts — clean up when Drizzle relation types stabilize
+- [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog are still inline in contacts list + contact detail pages — should be extracted to `src/components/crm/`
+- [ ] **Bidirectional status sync cleanup**: `clients.update` and `clients.archive` still have status sync logic that references the now-unused `clients.status` — can be simplified
+- [ ] **Remove unused client status references**: Edit modal on clients page still has status select — should be removed
 
 ## Enhancements (prioritized)
 
@@ -26,10 +30,9 @@ _None currently_
 
 - [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
 - [ ] **Proposals modal UI refresh**: Friendlier, easier to read
-- [x] **Project/task management UI**: Admin hub + portal — list/kanban, filters, sort, AM/dev/owner, standalone tasks
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
-- [ ] **Activity log**: Audit trail — who did what and when, visible in admin
+- [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs)
 - [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
 - [ ] **Profile documents tab**: Contracts, agreements, file upload
 - [ ] **Profile bank balance tab**: Mercury direct deposit integration, 1099 payouts
@@ -49,8 +52,6 @@ _None currently_
 
 - [ ] **Full-stack analytics**: Vercel Analytics + PostHog across ecosystem
 - [ ] **Sentry error tracking**: Ecosystem-wide, dedicated admin tab
-- [ ] **CRM contact import**: Bulk VCF upload with duplicate detection
-- [ ] **CRM enhancements**: Notes management, outreach scheduling
 - [ ] **Brand tab in client portal**: Per-client guidelines, colors, fonts, logos
 - [ ] **Keyboard shortcuts**: Cmd+K search, Esc close, Cmd+N new note
 - [ ] **Environment sandbox** (Phase 14, blocked): Needs free Supabase slot — second project for dev/sandbox with seed script, migration workflow, team onboarding

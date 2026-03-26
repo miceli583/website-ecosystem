@@ -115,6 +115,11 @@ export async function middleware(request: NextRequest) {
       return supabaseResponse;
     }
 
+    // Allow set-password page (user arrives via magic link, skip admin email check)
+    if (pathname === "/admin/set-password") {
+      return supabaseResponse;
+    }
+
     // Check authentication for all other admin routes
     if (!user) {
       const loginUrl = hostname.includes("localhost")

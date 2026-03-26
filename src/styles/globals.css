@@ -194,4 +194,47 @@
   .blog-prose a:hover {
     color: #f6e6c1;
   }
+
+  /* Shared TipTap rich text styles — used by both editor and read-only preview */
+  .tiptap-content {
+    color: white;
+  }
+  .tiptap-content ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+  }
+  .tiptap-content ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+  }
+  .tiptap-content h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+  }
+  .tiptap-content blockquote {
+    border-left: 3px solid rgba(212, 175, 55, 0.4);
+    padding-left: 1em;
+    margin-left: 0;
+    color: #9ca3af;
+    font-style: italic;
+  }
+  .tiptap-content code {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 0.25em;
+    padding: 0.15em 0.35em;
+    font-size: 0.9em;
+    color: #d4af37;
+  }
+  .tiptap-content s {
+    text-decoration: line-through;
+    color: #6b7280;
+  }
+  .tiptap-content p {
+    margin-bottom: 0.5em;
+  }
+  .tiptap-content p:last-child {
+    margin-bottom: 0;
+  }
 }

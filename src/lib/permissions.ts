@@ -8,6 +8,7 @@ export const COMPANY_ROLES = [
   "admin",
   "developer",
   "account_manager",
+  "connector",
 ] as const;
 
 export type CompanyRole = (typeof COMPANY_ROLES)[number];
@@ -37,17 +38,32 @@ export const NAV_VISIBILITY: Record<string, string[]> = {
   "/admin/blog": [...FULL_ACCESS_ROLES],
   "/admin/ecosystem": [...FULL_ACCESS_ROLES],
 
-  // Founder + Admin + Account Manager
-  "/admin/crm": [...FULL_ACCESS_ROLES, "account_manager"],
-  "/admin/crm/contacts": [...FULL_ACCESS_ROLES, "account_manager"],
-  "/admin/crm/leads": [...FULL_ACCESS_ROLES, "account_manager"],
-  "/admin/clients": [...FULL_ACCESS_ROLES, "account_manager", "developer"],
+  // Founder + Admin + Account Manager + Connector
+  "/admin/crm": [...FULL_ACCESS_ROLES, "account_manager", "connector"],
+  "/admin/crm/contacts": [...FULL_ACCESS_ROLES, "account_manager", "connector"],
+  "/admin/crm/leads": [...FULL_ACCESS_ROLES, "account_manager", "connector"],
+  "/admin/clients": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
 
   // Projects — all roles
-  "/admin/projects": [...FULL_ACCESS_ROLES, "account_manager", "developer"],
+  "/admin/projects": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
 
-  // Organization — read-only for AM/Dev (enforced at procedure level)
-  "/admin/organization": [...FULL_ACCESS_ROLES, "account_manager", "developer"],
+  // Team — read-only for non-admins (enforced at procedure level)
+  "/admin/organization": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
 
   // Assets
   "/admin/brand": [...FULL_ACCESS_ROLES, "designer"],

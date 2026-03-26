@@ -257,3 +257,11 @@ export const developerProcedure = t.procedure
   .use(timingMiddleware)
   .use(adminMiddleware)
   .use(requireRoles("founder", "admin", "developer"));
+
+/**
+ * Connector procedure (founder, admin, connector)
+ */
+export const connectorProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(adminMiddleware)
+  .use(requireRoles("founder", "admin", "connector"));

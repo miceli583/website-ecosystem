@@ -67,12 +67,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const SOURCE_LABELS: Record<string, string> = {
-  personal_site: "matthewmiceli.com",
-  miracle_mind: "miraclemind.dev",
-  banyan_waitlist: "Banyan Waitlist",
-  referral: "Referral",
-};
+import { getSourceLabel } from "~/lib/source-labels";
 
 export default function CrmPage() {
   const { data: pipeline, isLoading: pipelineLoading } =
@@ -176,6 +171,28 @@ export default function CrmPage() {
       {/* Quick Links */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Link
+          href="/admin/crm/leads"
+          className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
+              >
+                <Inbox className="h-5 w-5" style={{ color: "#D4AF37" }} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Form Submissions</h3>
+                <p className="text-sm text-gray-400">Leads and signups</p>
+              </div>
+            </div>
+            <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
+          </div>
+        </Link>
+
+        <Link
           href="/admin/crm/contacts"
           className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -191,30 +208,6 @@ export default function CrmPage() {
               <div>
                 <h3 className="font-semibold text-white">All Contacts</h3>
                 <p className="text-sm text-gray-400">Master CRM database</p>
-              </div>
-            </div>
-            <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
-          </div>
-        </Link>
-
-        <Link
-          href="/admin/crm/leads"
-          className="group rounded-lg border bg-white/5 p-5 transition-all hover:bg-white/10"
-          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg"
-                style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
-              >
-                <Inbox className="h-5 w-5" style={{ color: "#D4AF37" }} />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Leads & Signups</h3>
-                <p className="text-sm text-gray-400">
-                  Contact forms & Banyan waitlist
-                </p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
@@ -281,7 +274,7 @@ export default function CrmPage() {
                       <div className="flex items-center gap-3">
                         <Globe className="h-4 w-4 text-gray-500" />
                         <span className="text-sm text-gray-300">
-                          {SOURCE_LABELS[source.source] ?? source.source}
+                          {getSourceLabel(source.source)}
                         </span>
                       </div>
                       <div className="flex items-center gap-3">

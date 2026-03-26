@@ -91,6 +91,33 @@ Middleware detects hostname and serves appropriate content:
 - **Include**: `src/app/portal/`, `src/components/portal/`, `src/app/admin/login/`
 - **Skip**: `node_modules/`, `.next/`, `src/lib/staging-templates.ts`
 
+## Shared Configs (Single Source of Truth)
+
+Before hardcoding labels, options, or config — check these shared modules first. Never duplicate across files.
+
+| File                       | Purpose                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| `src/lib/permissions.ts`   | Company roles (`COMPANY_ROLES`), nav visibility (`NAV_VISIBILITY`), access helpers  |
+| `src/lib/source-labels.ts` | CRM source options and labels (`SOURCE_OPTIONS`, `SOURCE_LABELS`, `getSourceLabel`) |
+| `src/server/db/schema.ts`  | All table definitions, relations, and type exports                                  |
+| `form_registry` table      | Dynamic form metadata (names, URLs) — used by leads page                            |
+
+### UI Pattern Standards
+
+| Pattern                       | Standard                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| Select chevron                | `pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500` |
+| Select padding (with chevron) | `appearance-none ... pr-9 pl-3`                                                       |
+| Team member picker            | Use `TeamMemberPicker` component (in `crm/contacts/page.tsx`) — searchable, reusable  |
+| Role selector                 | Use `RoleSelect` component (in `organization/page.tsx`) — multi-select checkboxes     |
+
+### Adding New Shared Data
+
+1. Check if a shared config already exists in `src/lib/`
+2. If data appears in 2+ files, extract to `src/lib/<topic>.ts`
+3. If data changes at runtime, use a DB table (like `form_registry`)
+4. Update this section when adding new shared configs
+
 ## Current Status
 
 See `STATUS.md` for feature status and `TODO.md` for tracked work.

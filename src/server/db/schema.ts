@@ -321,6 +321,9 @@ export const clients = pgTable("clients", {
     () => portalUsers.id,
     { onDelete: "set null" }
   ),
+  connectorId: uuid("connector_id").references(() => portalUsers.id, {
+    onDelete: "set null",
+  }),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   slug: text("slug").notNull().unique(),
@@ -515,9 +518,66 @@ export const clientNotes = pgTable("client_notes", {
     .defaultNow(),
 });
 
+export const crmNotes = pgTable("crm_notes", {
+  id: serial("id").primaryKey(),
+  crmId: uuid("crm_id")
+    .notNull()
+    .references(() => masterCrm.id, { onDelete: "cascade" }),
+  createdByAuthId: uuid("created_by_auth_id").notNull(),
+  createdByName: text("created_by_name").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(""),
+  isPinned: boolean("is_pinned").notNull().default(false),
+  isArchived: boolean("is_archived").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // ============================================================================
 // CONTACT SUBMISSIONS (Legacy - miraclemind.dev contact form)
 // ============================================================================
+
+/**
+ * Form Registry - Metadata for all contact/signup forms
+ * Used to dynamically populate form names and URLs in the leads page
+ */
+export const formRegistry = pgTable("form_registry", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  url: text("url"),
+  submissionTable: text("submission_table").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * CRM Activities - Activity log for contacts (calls, emails, meetings, notes)
+ */
+export const crmActivities = pgTable("crm_activities", {
+  id: serial("id").primaryKey(),
+  crmId: uuid("crm_id")
+    .notNull()
+    .references(() => masterCrm.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // call | email | meeting | note | status_change | assignment
+  title: text("title").notNull(),
+  description: text("description"),
+  createdBy: uuid("created_by").references(() => portalUsers.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
 
 /**
  * Contact Submissions - Public contact form entries (miraclemind.dev)
@@ -567,6 +627,13 @@ export const masterCrm = pgTable("master_crm", {
   referredBy: uuid("referred_by"),
   referredByExternal: text("referred_by_external"),
   accountManagerId: uuid("account_manager_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
+  connectorId: uuid("connector_id").references(() => portalUsers.id, {
+    onDelete: "set null",
+  }),
+  assignedDeveloperId: uuid("assigned_developer_id").references(
     () => portalUsers.id,
     { onDelete: "set null" }
   ),
@@ -679,7 +746,9 @@ export const portalUsersRelations = relations(portalUsers, ({ one, many }) => ({
   }),
   managedClients: many(clients, { relationName: "clientAccountManager" }),
   developedClients: many(clients, { relationName: "clientAssignedDeveloper" }),
+  connectedClients: many(clients, { relationName: "clientConnector" }),
   managedCrmContacts: many(masterCrm, { relationName: "crmAccountManager" }),
+  connectedCrmContacts: many(masterCrm, { relationName: "crmConnector" }),
   notifications: many(notifications),
   // Project/task relations
   managedProjects: many(clientProjects, {
@@ -719,6 +788,11 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
     fields: [clients.assignedDeveloperId],
     references: [portalUsers.id],
     relationName: "clientAssignedDeveloper",
+  }),
+  connector: one(portalUsers, {
+    fields: [clients.connectorId],
+    references: [portalUsers.id],
+    relationName: "clientConnector",
   }),
 }));
 
@@ -816,7 +890,28 @@ export const clientNotesRelations = relations(clientNotes, ({ one }) => ({
   }),
 }));
 
+export const crmNotesRelations = relations(crmNotes, ({ one }) => ({
+  contact: one(masterCrm, {
+    fields: [crmNotes.crmId],
+    references: [masterCrm.id],
+  }),
+}));
+
+export const crmActivitiesRelations = relations(crmActivities, ({ one }) => ({
+  contact: one(masterCrm, {
+    fields: [crmActivities.crmId],
+    references: [masterCrm.id],
+  }),
+  creator: one(portalUsers, {
+    fields: [crmActivities.createdBy],
+    references: [portalUsers.id],
+    relationName: "activityCreator",
+  }),
+}));
+
 export const masterCrmRelations = relations(masterCrm, ({ many, one }) => ({
+  activities: many(crmActivities),
+  notes: many(crmNotes),
   personalContactSubmissions: many(personalContactSubmissions),
   contactSubmissions: many(contactSubmissions),
   banyanEarlyAccessSignups: many(banyanEarlyAccess),
@@ -828,6 +923,16 @@ export const masterCrmRelations = relations(masterCrm, ({ many, one }) => ({
     fields: [masterCrm.accountManagerId],
     references: [portalUsers.id],
     relationName: "crmAccountManager",
+  }),
+  connector: one(portalUsers, {
+    fields: [masterCrm.connectorId],
+    references: [portalUsers.id],
+    relationName: "crmConnector",
+  }),
+  assignedDeveloper: one(portalUsers, {
+    fields: [masterCrm.assignedDeveloperId],
+    references: [portalUsers.id],
+    relationName: "crmAssignedDeveloper",
   }),
 }));
 

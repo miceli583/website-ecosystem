@@ -44,12 +44,15 @@ export default function PortalPage() {
       enabled: profile?.role === "admin",
     });
 
-  // Redirect logic for clients
+  // Redirect logic
   useEffect(() => {
     if (!profileLoading && profile) {
       if (profile.role === "client" && profile.clientSlug) {
         // Client users redirect to their own portal
         router.push(`/portal/${profile.clientSlug}?domain=live`);
+      } else if (profile.role === "admin") {
+        // Team members redirect to admin clients page
+        router.push("/admin/clients");
       }
     }
   }, [profile, profileLoading, router]);
@@ -215,21 +218,21 @@ export default function PortalPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+              className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           </div>
 
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-white focus:outline-none"
+              className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
             >
               <option value="name">Name</option>
@@ -238,7 +241,7 @@ export default function PortalPage() {
               <option value="active">Active First</option>
               <option value="inactive">Inactive First</option>
             </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           </div>
 
           <span className="text-sm text-gray-500">

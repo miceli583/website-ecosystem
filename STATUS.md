@@ -1,39 +1,42 @@
 # Project Status
 
-**Version:** 0.9.0
-**Last Updated:** 2026-03-24
+**Version:** 0.11.0
+**Last Updated:** 2026-03-26
 **Last Updated By:** Matthew Miceli
-**Commits:** 200+
+**Commits:** 235+
 
 ## Feature Status
 
-| Feature                   | Status  | Notes                                                                                                 |
-| ------------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
-| Multi-domain routing      | Working | matthewmiceli.com, miraclemind.dev, miraclemind.live                                                  |
-| Authentication (Supabase) | Working | Email/password, magic links, tRPC protectedProcedure                                                  |
-| Admin dashboard v2        | Working | Collapsible sidebar, breadcrumbs, expanded navigation                                                 |
-| Admin ecosystem map       | Working | 151 routes, redirects, API routes, all domains/statuses                                               |
-| Admin tooling pages       | Working | 47 tools across 14 categories, 22 tables across 6 domains                                             |
-| Admin finance dashboard   | Working | Overview, revenue, expenses, yearly P&L, tax & deductions                                             |
-| Admin analytics dashboard | Working | Internal metrics, revenue summary, contact growth, domain activity                                    |
-| Admin CRM system          | Working | Pipeline, contacts list/detail with inline editing, leads, AM assignment, CRM→client sync             |
-| Admin organization        | Working | Team member CRUD, single-select role (4 roles), founder-only editing                                  |
-| Admin clients             | Working | List view with pagination/search/sort, inline AM/dev assignment, action menus                         |
-| Admin profile             | **New** | Editable name/phone, role display, founder role switcher, reset password, documents/bank placeholders |
-| Admin notifications       | **New** | Bell in header, polling, /admin/notifications page, triggered by status changes and updates           |
-| Role-based access (RBAC)  | **New** | 4 roles (Founder/Admin/Dev/AM), role-scoped nav, AM contact scoping, requireRoles middleware          |
-| Finance integrations      | Working | Stripe Live + Mercury API (date-filtered), smart auto-categorization                                  |
-| Finance expense tracking  | Working | Manual expenses, IRS categories seeded, tax deductibility tracking                                    |
-| Client portal v3          | **New** | Sidebar layout (matches admin hub), collapsible nav, mobile sheet drawer                              |
-| Portal profile            | Working | Editable metadata, "Your Team" card (AM + Dev), reset password, security section                      |
-| Portal demos              | Working | Hub pages, subroutes, slide sub-demos, Wildflower landing, CargoWatch multi-page                      |
-| Public demo sharing       | Working | `/s/[token]` with subroute support, OG metadata, custom slugs                                         |
-| Portal skeletons          | Working | Loading skeletons for all portal pages                                                                |
-| Portal proposals          | Working | Bundle discount, admin controls (WIP/private/archive), Stripe checkout                                |
-| Portal notes              | Working | Rich text formatting now renders in previews (TipTap HTML)                                            |
-| Project/task management   | **New** | Admin hub + portal, list/kanban views, filters, sort, AM/dev/client scoping, standalone tasks         |
-| Stripe integration        | Working | Billing, subscriptions, webhook events, proposal linking                                              |
-| Mercury integration       | Working | API client with date filtering, bearer token auth                                                     |
+| Feature                   | Status      | Notes                                                                                                           |
+| ------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------- |
+| Multi-domain routing      | Working     | matthewmiceli.com, miraclemind.dev, miraclemind.live                                                            |
+| Authentication (Supabase) | Working     | Email/password, magic links, tRPC protectedProcedure                                                            |
+| Admin dashboard v2        | Working     | Collapsible sidebar, breadcrumbs, expanded navigation                                                           |
+| Admin ecosystem map       | Working     | 151 routes, redirects, API routes, all domains/statuses                                                         |
+| Admin tooling pages       | Working     | 47 tools across 14 categories, 22 tables across 6 domains                                                       |
+| Admin finance dashboard   | Working     | Overview, revenue, expenses, yearly P&L, tax & deductions                                                       |
+| Admin analytics dashboard | Working     | Internal metrics, revenue summary, contact growth, domain activity                                              |
+| Admin CRM system          | **Updated** | Full pipeline, kanban drag-and-drop, CSV import/export, unscoped for all team, portal links gated by assignment |
+| Admin Team page           | Working     | Multi-role support, role/status filters, sorting, Create Portal button                                          |
+| Admin clients (portals)   | **Updated** | Portal management page, table with SortHeader, filters, assignment-scoped, Delete Portal action                 |
+| Admin login               | Working     | Matches portal login UX — shader bg, Team Login, forgot password, claim account, set-password flow              |
+| Admin profile             | Working     | Editable name/phone, role display, founder role switcher, reset password                                        |
+| Admin notifications       | Working     | Bell in header, polling, /admin/notifications page, triggered by status changes and updates                     |
+| Role-based access (RBAC)  | **Updated** | 5 roles, CRM unscoped, portal links gated by assignment, clients page scoped by assignment                      |
+| Finance integrations      | Working     | Stripe Live + Mercury API (date-filtered), smart auto-categorization                                            |
+| Finance expense tracking  | Working     | Manual expenses, IRS categories seeded, tax deductibility tracking                                              |
+| Client portal v3          | Working     | Sidebar layout (matches admin hub), collapsible nav, mobile sheet drawer                                        |
+| Portal profile            | Working     | Editable metadata, "Your Team" card (AM + Dev), reset password, security section                                |
+| Portal demos              | Working     | Hub pages, subroutes, slide sub-demos, Wildflower landing, CargoWatch multi-page                                |
+| Public demo sharing       | Working     | `/s/[token]` with subroute support, OG metadata, custom slugs                                                   |
+| Portal notes              | Working     | Rich text (TipTap), CRM notes shared between contact + client pages, portal notes independent                   |
+| Portal projects           | Working     | Read-only project list visible to clients, task management for team only                                        |
+| Project/task management   | Working     | Admin hub + portal, list/kanban views, filters, sort, AM/dev/client scoping, standalone tasks                   |
+| CRM contact detail        | **Updated** | 3-tab layout (Activity, Details & Tags, Notes), StatusDropdown, smart promote/demote, developer assignment      |
+| CRM client detail         | **Updated** | 3-tab layout mirroring contacts, CRM notes (shared), Delete Portal action, team pickers                         |
+| Portal creation           | **New**     | Create portal for any pipeline stage (not just clients), preserveStatus option, carries team assignments        |
+| CRM kanban pipeline       | **Updated** | Drag-and-drop with visual drop targets, smart status changes, demotion dialog                                   |
+| CRM CSV import/export     | Working     | Export filtered/selected contacts, 4-step import wizard with column mapping                                     |
 
 ## Known Limitations
 
@@ -44,12 +47,12 @@
 
 ## Recent Changes
 
-| Date   | Commit  | Description                                                                              |
-| ------ | ------- | ---------------------------------------------------------------------------------------- |
-| Mar 24 | f176d97 | Phase 8: Project/task management — schema, tRPC router, admin pages, portal integration  |
-| Mar 24 | 5053e50 | Phase 7: portal sidebar layout, client list redesign, Your Team card, notes formatting   |
-| Mar 24 | 78da76e | Phase 6: RBAC (4 roles), notifications, admin profile, CRM inline editing, org overhaul  |
-| Mar 21 | 03e1a0e | Expand roadmap: ops infrastructure, notifications, SOP tab, audit trail, global search   |
-| Mar 21 | b07ce49 | Reorganize roadmap and reprioritize TODOs around client onboarding and platform buildout |
+| Date   | Commit  | Description                                                                                     |
+| ------ | ------- | ----------------------------------------------------------------------------------------------- |
+| Mar 26 | a29d69f | Unscope CRM contacts, gate portal links by assignment, remove client status, Delete Portal      |
+| Mar 26 | b337dc5 | Portal creation for any pipeline stage, developer assignment on contacts, CRM notes unification |
+| Mar 26 | c62b3b7 | Client list & detail page overhaul — table, filters, tabs, notes, connector column              |
+| Mar 26 | 877d8f8 | CRM UX: contacts toolbar, drag-and-drop kanban, status sync, TipTap rich text fixes             |
+| Mar 25 | 5969f0a | CRM enhancements: kanban view, CSV import/export, filters, status sync                          |
 
 _Older changes: `git log --oneline`_

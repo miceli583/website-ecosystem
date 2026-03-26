@@ -13,7 +13,7 @@ import {
   clientAgreements,
   clientResources,
 } from "~/server/db/schema";
-import { eq, desc, isNull, and, asc, or } from "drizzle-orm";
+import { eq, desc, isNull, and, asc, or, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
 import { nanoid } from "nanoid";
@@ -95,7 +95,7 @@ export const portalRouter = createTRPCRouter({
         });
       }
 
-      // Authorization check
+      // Authorization check — clients can only access their own
       if (myProfile.role === "client" && myProfile.clientSlug !== input.slug) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -106,6 +106,43 @@ export const portalRouter = createTRPCRouter({
       // If client is viewing their own profile, return their profile
       if (myProfile.role === "client" && myProfile.clientSlug === input.slug) {
         return myProfile;
+      }
+
+      // For non-full-access admins, check assignment
+      if (myProfile.role === "admin") {
+        const roles = (myProfile.companyRoles ?? []) as string[];
+        const isFullAccessUser =
+          roles.includes("founder") || roles.includes("admin");
+        const isOwnPortal = myProfile.clientSlug === input.slug;
+
+        if (!isFullAccessUser && !isOwnPortal) {
+          const clientRecord = await db.query.clients.findFirst({
+            where: eq(clients.slug, input.slug),
+            columns: {
+              accountManagerId: true,
+              assignedDeveloperId: true,
+              connectorId: true,
+            },
+          });
+
+          if (clientRecord) {
+            const isAssigned =
+              (roles.includes("account_manager") &&
+                clientRecord.accountManagerId === myProfile.id) ||
+              (roles.includes("developer") &&
+                clientRecord.assignedDeveloperId === myProfile.id) ||
+              (roles.includes("connector") &&
+                clientRecord.connectorId === myProfile.id);
+
+            if (!isAssigned) {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message:
+                  "You can only access portals for clients assigned to you",
+              });
+            }
+          }
+        }
       }
 
       // Admin viewing a client's profile - get the client's portal user
@@ -138,12 +175,52 @@ export const portalRouter = createTRPCRouter({
         });
       }
 
-      // Authorization check: admins can access any, clients only their own
+      // Authorization check: clients can only access their own portal
       if (profile.role === "client" && profile.clientSlug !== input.slug) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only access your own portal",
         });
+      }
+
+      // For admin users: enforce assignment-based scoping for non-full-access roles
+      if (profile.role === "admin") {
+        const roles = (profile.companyRoles ?? []) as string[];
+        const isFullAccessUser =
+          roles.includes("founder") || roles.includes("admin");
+
+        // Team members can always access their own client portal
+        const isOwnPortal = profile.clientSlug === input.slug;
+
+        if (!isFullAccessUser && !isOwnPortal) {
+          // Check if the user is assigned to this client
+          const clientRecord = await db.query.clients.findFirst({
+            where: eq(clients.slug, input.slug),
+            columns: {
+              accountManagerId: true,
+              assignedDeveloperId: true,
+              connectorId: true,
+            },
+          });
+
+          if (clientRecord) {
+            const isAssigned =
+              (roles.includes("account_manager") &&
+                clientRecord.accountManagerId === profile.id) ||
+              (roles.includes("developer") &&
+                clientRecord.assignedDeveloperId === profile.id) ||
+              (roles.includes("connector") &&
+                clientRecord.connectorId === profile.id);
+
+            if (!isAssigned) {
+              throw new TRPCError({
+                code: "FORBIDDEN",
+                message:
+                  "You can only access portals for clients assigned to you",
+              });
+            }
+          }
+        }
       }
 
       // Fetch client with full data
@@ -205,7 +282,29 @@ export const portalRouter = createTRPCRouter({
       });
     }
 
+    // Role-based scoping — non-full-access users see only assigned clients
+    const roles = (profile.companyRoles ?? []) as string[];
+    const isFullAccessUser =
+      roles.includes("founder") || roles.includes("admin");
+
+    let scopeCondition = undefined;
+    if (!isFullAccessUser) {
+      const scopeConditions = [];
+      if (roles.includes("account_manager")) {
+        scopeConditions.push(eq(clients.accountManagerId, profile.id));
+      }
+      if (roles.includes("developer")) {
+        scopeConditions.push(eq(clients.assignedDeveloperId, profile.id));
+      }
+      if (roles.includes("connector")) {
+        scopeConditions.push(eq(clients.connectorId, profile.id));
+      }
+      scopeCondition =
+        scopeConditions.length > 0 ? or(...scopeConditions) : sql`false`;
+    }
+
     return db.query.clients.findMany({
+      where: scopeCondition,
       orderBy: [desc(clients.createdAt)],
       with: {
         projects: true,
@@ -1906,7 +2005,11 @@ export const portalRouter = createTRPCRouter({
       }
       const client = await db.query.clients.findFirst({
         where: eq(clients.slug, input.slug),
-        columns: { id: true },
+        columns: {
+          id: true,
+          accountManagerId: true,
+          assignedDeveloperId: true,
+        },
       });
       if (!client) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
@@ -1917,6 +2020,8 @@ export const portalRouter = createTRPCRouter({
           clientId: client.id,
           name: input.name,
           description: input.description ?? null,
+          accountManagerId: client.accountManagerId,
+          assignedDeveloperId: client.assignedDeveloperId,
         })
         .returning();
       return project;

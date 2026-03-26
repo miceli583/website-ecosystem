@@ -14,6 +14,9 @@ import {
   personalContactSubmissions,
   clients,
   portalUsers,
+  formRegistry,
+  crmActivities,
+  crmNotes,
 } from "~/server/db/schema";
 import {
   and,
@@ -49,13 +52,20 @@ export const crmRouter = createTRPCRouter({
     const roles = getProfileRoles(
       ctx as { profile: { companyRoles: string[] | null } }
     );
-    const scoped = !isFullAccess(roles) && roles.includes("account_manager");
-    const scopeCondition = scoped
-      ? eq(
-          masterCrm.accountManagerId,
-          (ctx as { profile: { id: string } }).profile.id
-        )
-      : undefined;
+    let scopeCondition = undefined;
+    if (!isFullAccess(roles)) {
+      const profileId = (ctx as { profile: { id: string } }).profile.id;
+      const scopeConditions = [];
+      if (roles.includes("account_manager")) {
+        scopeConditions.push(eq(masterCrm.accountManagerId, profileId));
+      }
+      if (roles.includes("connector")) {
+        scopeConditions.push(eq(masterCrm.connectorId, profileId));
+      }
+      if (scopeConditions.length > 0 && !roles.includes("developer")) {
+        scopeCondition = or(...scopeConditions);
+      }
+    }
 
     const statuses = await db
       .select({
@@ -93,6 +103,8 @@ export const crmRouter = createTRPCRouter({
         search: z.string().optional(),
         status: z.string().optional(),
         source: z.string().optional(),
+        createdBy: z.string().optional(),
+        tag: z.string().optional(),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
       })
@@ -100,18 +112,8 @@ export const crmRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
-      // Account managers only see their assigned contacts
-      const roles = getProfileRoles(
-        ctx as { profile: { companyRoles: string[] | null } }
-      );
-      if (!isFullAccess(roles) && roles.includes("account_manager")) {
-        conditions.push(
-          eq(
-            masterCrm.accountManagerId,
-            (ctx as { profile: { id: string } }).profile.id
-          )
-        );
-      }
+      // CRM contacts are unscoped — all team members see the full pipeline.
+      // Portal link visibility is gated client-side by assignment.
 
       if (input.search) {
         conditions.push(
@@ -126,6 +128,12 @@ export const crmRouter = createTRPCRouter({
       }
       if (input.source) {
         conditions.push(eq(masterCrm.source, input.source));
+      }
+      if (input.createdBy) {
+        conditions.push(eq(masterCrm.createdBy, input.createdBy));
+      }
+      if (input.tag) {
+        conditions.push(sql`${input.tag} = ANY(${masterCrm.tags})`);
       }
 
       const where =
@@ -155,7 +163,12 @@ export const crmRouter = createTRPCRouter({
           contacts: [] as Array<
             (typeof contactRows)[number] & {
               submissionSources: string[];
-              portalClient: { id: number; slug: string; name: string } | null;
+              portalClient: {
+                id: number;
+                slug: string;
+                name: string;
+                status: string;
+              } | null;
             }
           >,
           total: totalResult[0]?.count ?? 0,
@@ -192,6 +205,7 @@ export const crmRouter = createTRPCRouter({
               slug: clients.slug,
               name: clients.name,
               company: clients.company,
+              status: clients.status,
             })
             .from(clients)
             .where(inArray(clients.crmId, contactIds)),
@@ -214,7 +228,13 @@ export const crmRouter = createTRPCRouter({
       );
       const clientMap = new Map<
         string | null,
-        { id: number; slug: string; name: string; company: string | null }
+        {
+          id: number;
+          slug: string;
+          name: string;
+          company: string | null;
+          status: string;
+        }
       >(
         linkedClients.map(
           (c: {
@@ -223,9 +243,16 @@ export const crmRouter = createTRPCRouter({
             slug: string;
             name: string;
             company: string | null;
+            status: string;
           }) => [
             c.crmId,
-            { id: c.id, slug: c.slug, name: c.name, company: c.company },
+            {
+              id: c.id,
+              slug: c.slug,
+              name: c.name,
+              company: c.company,
+              status: c.status,
+            },
           ]
         )
       );
@@ -320,6 +347,7 @@ export const crmRouter = createTRPCRouter({
         linkedClient,
         referrer,
         accountManager,
+        assignedDeveloper,
       ] = await Promise.all([
         db
           .select()
@@ -354,6 +382,17 @@ export const crmRouter = createTRPCRouter({
               })
               .from(portalUsers)
               .where(eq(portalUsers.id, contact[0].accountManagerId))
+              .limit(1)
+          : Promise.resolve([]),
+        contact[0].assignedDeveloperId
+          ? db
+              .select({
+                id: portalUsers.id,
+                name: portalUsers.name,
+                email: portalUsers.email,
+              })
+              .from(portalUsers)
+              .where(eq(portalUsers.id, contact[0].assignedDeveloperId))
               .limit(1)
           : Promise.resolve([]),
       ]);
@@ -408,6 +447,7 @@ export const crmRouter = createTRPCRouter({
         portalClient,
         referrer: referrer[0] ?? null,
         accountManager: accountManager[0] ?? null,
+        assignedDeveloper: assignedDeveloper[0] ?? null,
         stripeLifetimeSpend,
       };
     }),
@@ -436,6 +476,61 @@ export const crmRouter = createTRPCRouter({
       all.add(row.company);
     return [...all].sort();
   }),
+
+  /**
+   * Bulk create CRM contacts (for CSV import)
+   */
+  bulkCreateContacts: fullAccessProcedure
+    .input(
+      z.object({
+        contacts: z.array(
+          z.object({
+            name: z.string().min(1),
+            email: z.string().email(),
+            phone: z.string().nullable().optional(),
+            company: z.string().nullable().optional(),
+          })
+        ),
+        status: z.string().default("lead"),
+        source: z.string().default("internal"),
+        tags: z.array(z.string()).optional(),
+        accountManagerId: z.string().uuid().nullable().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      let created = 0;
+      let skipped = 0;
+
+      for (const contact of input.contacts) {
+        // Skip duplicates by email
+        const existing = await db
+          .select({ id: masterCrm.id })
+          .from(masterCrm)
+          .where(eq(masterCrm.email, contact.email))
+          .limit(1);
+
+        if (existing[0]) {
+          skipped++;
+          continue;
+        }
+
+        await db.insert(masterCrm).values({
+          name: contact.name,
+          email: contact.email,
+          phone: contact.phone ?? null,
+          company: contact.company ?? null,
+          status: input.status,
+          source: input.source,
+          tags: input.tags ?? [],
+          accountManagerId: input.accountManagerId ?? null,
+          createdBy: (ctx as unknown as { profile: { name: string } }).profile
+            .name,
+        });
+        created++;
+      }
+
+      return { created, skipped };
+    }),
 
   /**
    * Create a new master CRM contact (auto-sets createdBy from session)
@@ -488,8 +583,17 @@ export const crmRouter = createTRPCRouter({
         referredBy: z.string().uuid().nullable().optional(),
         referredByExternal: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
+        connectorId: z.string().uuid().nullable().optional(),
+        assignedDeveloperId: z.string().uuid().nullable().optional(),
         createdBy: z.string().nullable().optional(),
         tags: z.array(z.string()).optional(),
+        communicationPreferences: z
+          .object({
+            email: z.boolean().optional(),
+            sms: z.boolean().optional(),
+            phone: z.boolean().optional(),
+          })
+          .optional(),
         notes: z.string().nullable().optional(),
       })
     )
@@ -519,46 +623,211 @@ export const crmRouter = createTRPCRouter({
         "email",
         "company",
         "accountManagerId",
+        "connectorId",
+        "assignedDeveloperId",
       ] as const;
       const hasSyncField = syncFields.some((f) => f in data);
-      if (hasSyncField) {
-        const linkedClient = await db
-          .select({ id: clients.id })
-          .from(clients)
-          .where(eq(clients.crmId, id))
-          .limit(1);
 
-        if (linkedClient[0]) {
-          const clientUpdate: Record<string, unknown> = {
-            updatedAt: new Date(),
-          };
-          for (const f of syncFields) {
-            if (f in data) clientUpdate[f] = data[f as keyof typeof data];
-          }
-          await db
-            .update(clients)
-            .set(clientUpdate)
-            .where(eq(clients.id, linkedClient[0].id));
+      // Look up linked client + portal user
+      const linkedClient = await db
+        .select({ id: clients.id, status: clients.status, slug: clients.slug })
+        .from(clients)
+        .where(eq(clients.crmId, id))
+        .limit(1);
+
+      let hasPortal = false;
+      if (linkedClient[0]) {
+        const portalUser = await db
+          .select({ id: portalUsers.id })
+          .from(portalUsers)
+          .where(eq(portalUsers.clientSlug, linkedClient[0].slug))
+          .limit(1);
+        hasPortal = portalUser.length > 0;
+      }
+
+      if ((hasSyncField || data.status) && linkedClient[0]) {
+        const clientUpdate: Record<string, unknown> = {
+          updatedAt: new Date(),
+        };
+        for (const f of syncFields) {
+          if (f in data) clientUpdate[f] = data[f as keyof typeof data];
+        }
+
+        // Status sync: CRM inactive/churned → client inactive, CRM client → client active
+        if (data.status === "inactive" || data.status === "churned") {
+          clientUpdate.status = "inactive";
+        } else if (data.status === "client") {
+          clientUpdate.status = "active";
+        }
+
+        await db
+          .update(clients)
+          .set(clientUpdate)
+          .where(eq(clients.id, linkedClient[0].id));
+      }
+
+      // Auto-log activity on status change
+      if (data.status && updated) {
+        void db.insert(crmActivities).values({
+          crmId: id,
+          type: "status_change",
+          title: `Status changed to ${data.status}`,
+          createdBy: ctx.profile.id,
+        });
+
+        // Notify account manager
+        if (updated.accountManagerId) {
+          void createNotification({
+            recipientId: updated.accountManagerId,
+            type: "status_change",
+            title: `${updated.name} status → ${data.status}`,
+            message: `Contact status updated to ${data.status}`,
+            linkUrl: `/admin/crm/contacts/${id}`,
+          });
         }
       }
 
-      // Notify account manager on status change
-      if (data.status && updated?.accountManagerId) {
-        void createNotification({
-          recipientId: updated.accountManagerId,
-          type: "status_change",
-          title: `${updated.name} status → ${data.status}`,
-          message: `Contact status updated to ${data.status}`,
-          linkUrl: `/admin/crm/contacts/${id}`,
+      // Auto-log activity on assignment changes
+      if (data.accountManagerId !== undefined && updated) {
+        void db.insert(crmActivities).values({
+          crmId: id,
+          type: "assignment",
+          title: data.accountManagerId
+            ? "Account manager assigned"
+            : "Account manager removed",
+          createdBy: ctx.profile.id,
+        });
+      }
+      if (
+        (data as Record<string, unknown>).connectorId !== undefined &&
+        updated
+      ) {
+        void db.insert(crmActivities).values({
+          crmId: id,
+          type: "assignment",
+          title: (data as Record<string, unknown>).connectorId
+            ? "Connector assigned"
+            : "Connector removed",
+          createdBy: ctx.profile.id,
         });
       }
 
-      return updated;
+      return {
+        ...updated,
+        hasLinkedClient: !!linkedClient[0],
+        hasPortal,
+        linkedClientSlug: linkedClient[0]?.slug ?? null,
+      };
     }),
 
   /**
    * Get leads: Banyan early access signups + contact form submissions
    */
+  getFormRegistry: adminProcedure.query(async () => {
+    return db
+      .select()
+      .from(formRegistry)
+      .where(eq(formRegistry.isActive, true))
+      .orderBy(formRegistry.id);
+  }),
+
+  // ── Contact by CRM ID (for client detail page) ────────────────
+
+  getContactByCrmId: adminProcedure
+    .input(z.object({ crmId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      const contact = await db.query.masterCrm.findFirst({
+        where: eq(masterCrm.id, input.crmId),
+        with: {
+          accountManager: {
+            columns: { id: true, name: true, email: true, phone: true },
+          },
+          connector: {
+            columns: { id: true, name: true, email: true },
+          },
+        },
+      });
+      return contact ?? null;
+    }),
+
+  // ── Related Contacts (same company) ────────────────────────────
+
+  getRelatedContacts: adminProcedure
+    .input(z.object({ crmId: z.string().uuid(), company: z.string() }))
+    .query(async ({ input }) => {
+      if (!input.company) return [];
+      return db
+        .select({
+          id: masterCrm.id,
+          name: masterCrm.name,
+          email: masterCrm.email,
+          status: masterCrm.status,
+        })
+        .from(masterCrm)
+        .where(
+          and(
+            eq(masterCrm.company, input.company),
+            sql`${masterCrm.id} != ${input.crmId}`
+          )
+        )
+        .orderBy(masterCrm.name)
+        .limit(10);
+    }),
+
+  // ── Activity Feed ──────────────────────────────────────────────
+
+  getActivities: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        limit: z.number().min(1).max(100).default(50),
+      })
+    )
+    .query(async ({ input }) => {
+      return db.query.crmActivities.findMany({
+        where: eq(crmActivities.crmId, input.crmId),
+        orderBy: [desc(crmActivities.createdAt)],
+        limit: input.limit,
+        with: {
+          creator: {
+            columns: { id: true, name: true },
+          },
+        },
+      });
+    }),
+
+  createActivity: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        type: z.enum([
+          "call",
+          "email",
+          "meeting",
+          "note",
+          "status_change",
+          "assignment",
+        ]),
+        title: z.string().min(1),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [activity] = await db
+        .insert(crmActivities)
+        .values({
+          crmId: input.crmId,
+          type: input.type,
+          title: input.title,
+          description: input.description ?? null,
+          createdBy: ctx.profile.id,
+        })
+        .returning();
+      return activity;
+    }),
+
+  // ── Leads ─────────────────────────────────────────────────────
+
   getLeads: adminProcedure.query(async () => {
     const [banyanLeads, mmLeads, personalLeads] = await Promise.all([
       db
@@ -639,6 +908,9 @@ export const crmRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().optional(),
+        role: z.string().optional(),
+        status: z.enum(["active", "inactive"]).optional(),
+        sortBy: z.enum(["name", "newest", "oldest"]).default("name"),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
       })
@@ -655,14 +927,31 @@ export const crmRouter = createTRPCRouter({
         );
       }
 
+      if (input.role) {
+        conditions.push(sql`${input.role} = ANY(${portalUsers.companyRoles})`);
+      }
+
+      if (input.status === "active") {
+        conditions.push(eq(portalUsers.isActive, true));
+      } else if (input.status === "inactive") {
+        conditions.push(eq(portalUsers.isActive, false));
+      }
+
       const where = and(...conditions);
+
+      const orderBy =
+        input.sortBy === "newest"
+          ? [desc(portalUsers.createdAt)]
+          : input.sortBy === "oldest"
+            ? [portalUsers.createdAt]
+            : [portalUsers.name];
 
       const [memberRows, totalResult] = await Promise.all([
         db
           .select()
           .from(portalUsers)
           .where(where)
-          .orderBy(portalUsers.name)
+          .orderBy(...orderBy)
           .limit(input.limit)
           .offset(input.offset),
         db.select({ count: count() }).from(portalUsers).where(where),
@@ -685,6 +974,7 @@ export const crmRouter = createTRPCRouter({
         email: z.string().email(),
         phone: z.string().nullable().optional(),
         companyRoles: z.array(z.string()).optional(),
+        clientSlug: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -697,6 +987,7 @@ export const crmRouter = createTRPCRouter({
           role: "admin",
           isCompanyMember: true,
           companyRoles: input.companyRoles ?? [],
+          clientSlug: input.clientSlug ?? null,
         })
         .returning();
       return created;
@@ -713,6 +1004,7 @@ export const crmRouter = createTRPCRouter({
         email: z.string().email().optional(),
         phone: z.string().nullable().optional(),
         companyRoles: z.array(z.string()).optional(),
+        clientSlug: z.string().nullable().optional(),
         isActive: z.boolean().optional(),
       })
     )
@@ -723,6 +1015,91 @@ export const crmRouter = createTRPCRouter({
         .set({ ...data, updatedAt: new Date() })
         .where(eq(portalUsers.id, id))
         .returning();
+      return updated;
+    }),
+
+  /**
+   * Create a client portal for an existing team member.
+   * Creates a clients record + links the portal_users record via clientSlug.
+   */
+  createTeamPortal: fullAccessProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid(),
+        slug: z.string().min(1),
+        company: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Get the team member
+      const member = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.id, input.memberId),
+      });
+
+      if (!member || !member.isCompanyMember) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Team member not found",
+        });
+      }
+
+      if (member.clientSlug) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Team member already has a client portal",
+        });
+      }
+
+      // Check slug isn't taken
+      const existing = await db.query.clients.findFirst({
+        where: eq(clients.slug, input.slug),
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This slug is already in use",
+        });
+      }
+
+      // Look up or create CRM record
+      let crmId: string | null = null;
+      const existingCrm = await db
+        .select({ id: masterCrm.id })
+        .from(masterCrm)
+        .where(eq(masterCrm.email, member.email))
+        .limit(1);
+
+      if (existingCrm[0]) {
+        crmId = existingCrm[0].id;
+      } else {
+        const [newCrm] = await db
+          .insert(masterCrm)
+          .values({
+            email: member.email,
+            name: member.name,
+            source: "portal",
+            status: "client",
+          })
+          .returning({ id: masterCrm.id });
+        crmId = newCrm!.id;
+      }
+
+      // Create client record
+      await db.insert(clients).values({
+        crmId,
+        name: member.name,
+        email: member.email,
+        slug: input.slug,
+        company: input.company ?? null,
+      });
+
+      // Link team member to client portal
+      const [updated] = await db
+        .update(portalUsers)
+        .set({ clientSlug: input.slug, updatedAt: new Date() })
+        .where(eq(portalUsers.id, input.memberId))
+        .returning();
+
       return updated;
     }),
 
@@ -821,6 +1198,7 @@ export const crmRouter = createTRPCRouter({
         slug: z.string().min(1),
         company: z.string().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
+        preserveStatus: z.boolean().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -856,22 +1234,29 @@ export const crmRouter = createTRPCRouter({
           company: input.company ?? contact[0].company ?? undefined,
           accountManagerId:
             input.accountManagerId ?? contact[0].accountManagerId ?? undefined,
+          assignedDeveloperId: contact[0].assignedDeveloperId ?? undefined,
+          connectorId: contact[0].connectorId ?? undefined,
         })
         .returning();
 
-      // Set CRM status to client
-      await db
-        .update(masterCrm)
-        .set({ status: "client", updatedAt: new Date() })
-        .where(eq(masterCrm.id, input.crmId));
+      // Set CRM status to client (unless preserveStatus is set)
+      if (!input.preserveStatus) {
+        await db
+          .update(masterCrm)
+          .set({ status: "client", updatedAt: new Date() })
+          .where(eq(masterCrm.id, input.crmId));
+      }
 
       // Notify assigned account manager
       const amId = input.accountManagerId ?? contact[0].accountManagerId;
       if (amId) {
+        const action = input.preserveStatus
+          ? "Portal created"
+          : "Promoted to client";
         void createNotification({
           recipientId: amId,
           type: "status_change",
-          title: `${contact[0].name} promoted to client`,
+          title: `${contact[0].name} — ${action}`,
           message: `Client portal created at /portal/${input.slug}`,
           linkUrl: `/admin/clients/${input.slug}`,
         });
@@ -973,4 +1358,66 @@ export const crmRouter = createTRPCRouter({
 
     return { linked, created, total: allClients.length };
   }),
+
+  // ── CRM Notes CRUD ──────────────────────────────────────────
+  getCrmNotes: adminProcedure
+    .input(z.object({ crmId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      return db
+        .select()
+        .from(crmNotes)
+        .where(
+          and(eq(crmNotes.crmId, input.crmId), eq(crmNotes.isArchived, false))
+        )
+        .orderBy(desc(crmNotes.isPinned), desc(crmNotes.updatedAt));
+    }),
+
+  createCrmNote: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        title: z.string().min(1),
+        content: z.string().default(""),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [note] = await db
+        .insert(crmNotes)
+        .values({
+          crmId: input.crmId,
+          title: input.title,
+          content: input.content,
+          createdByAuthId: ctx.user.id,
+          createdByName: ctx.profile.name,
+        })
+        .returning();
+      return note;
+    }),
+
+  updateCrmNote: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string().min(1).optional(),
+        content: z.string().optional(),
+        isPinned: z.boolean().optional(),
+        isArchived: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const [updated] = await db
+        .update(crmNotes)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(crmNotes.id, id))
+        .returning();
+      return updated;
+    }),
+
+  deleteCrmNote: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      await db.delete(crmNotes).where(eq(crmNotes.id, input.id));
+      return { success: true };
+    }),
 });

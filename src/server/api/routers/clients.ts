@@ -14,7 +14,7 @@ import {
   masterCrm,
   portalUsers,
 } from "~/server/db/schema";
-import { eq, desc, sql, and, ilike, or, count } from "drizzle-orm";
+import { eq, desc, sql, and, ilike, or, count, isNull } from "drizzle-orm";
 import { stripeLive } from "~/lib/stripe-live";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
@@ -45,20 +45,35 @@ export const clientsRouter = createTRPCRouter({
       z.object({
         search: z.string().optional(),
         status: z.string().optional(),
-        sortBy: z
-          .enum(["newest", "oldest", "name", "active", "inactive"])
-          .default("newest"),
+        accountManagerId: z.string().uuid().optional(),
+        assignedDeveloperId: z.string().uuid().optional(),
+        connectorId: z.string().uuid().optional(),
         page: z.number().min(1).default(1),
-        pageSize: z.number().min(1).max(100).default(12),
+        pageSize: z.number().min(1).max(100).default(25),
       })
     )
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
-      // Role-based scoping
+      // Role-based scoping — non-full-access users see only assigned clients
       const roles = (ctx.profile.companyRoles ?? []) as string[];
-      if (!isFullAccess(roles) && roles.includes("account_manager")) {
-        conditions.push(eq(clients.accountManagerId, ctx.profile.id));
+      if (!isFullAccess(roles)) {
+        const scopeConditions = [];
+        if (roles.includes("account_manager")) {
+          scopeConditions.push(eq(clients.accountManagerId, ctx.profile.id));
+        }
+        if (roles.includes("developer")) {
+          scopeConditions.push(eq(clients.assignedDeveloperId, ctx.profile.id));
+        }
+        if (roles.includes("connector")) {
+          scopeConditions.push(eq(clients.connectorId, ctx.profile.id));
+        }
+        if (scopeConditions.length > 0) {
+          conditions.push(or(...scopeConditions)!);
+        } else {
+          // User has no client-facing roles — show nothing
+          conditions.push(sql`false`);
+        }
       }
 
       // Search
@@ -77,23 +92,25 @@ export const clientsRouter = createTRPCRouter({
         conditions.push(eq(clients.status, input.status));
       }
 
-      const where = conditions.length > 0 ? and(...conditions) : undefined;
+      // Team member filters
+      if (input.accountManagerId) {
+        conditions.push(eq(clients.accountManagerId, input.accountManagerId));
+      }
+      if (input.assignedDeveloperId) {
+        conditions.push(
+          eq(clients.assignedDeveloperId, input.assignedDeveloperId)
+        );
+      }
+      if (input.connectorId) {
+        conditions.push(eq(clients.connectorId, input.connectorId));
+      }
 
-      const orderBy =
-        input.sortBy === "name"
-          ? [clients.name]
-          : input.sortBy === "oldest"
-            ? [clients.createdAt]
-            : input.sortBy === "active"
-              ? [desc(clients.status), desc(clients.createdAt)]
-              : input.sortBy === "inactive"
-                ? [clients.status, desc(clients.createdAt)]
-                : [desc(clients.createdAt)];
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
 
       const [items, totalResult] = await Promise.all([
         db.query.clients.findMany({
           where,
-          orderBy,
+          orderBy: [desc(clients.createdAt)],
           limit: input.pageSize,
           offset: (input.page - 1) * input.pageSize,
           with: {
@@ -103,6 +120,9 @@ export const clientsRouter = createTRPCRouter({
               columns: { id: true, name: true, email: true },
             },
             assignedDeveloper: {
+              columns: { id: true, name: true, email: true },
+            },
+            connector: {
               columns: { id: true, name: true, email: true },
             },
           },
@@ -241,6 +261,48 @@ export const clientsRouter = createTRPCRouter({
       return { ...client, stripeLifetimeSpend };
     }),
 
+  // Get all team members assigned across a client's projects
+  // Returns distinct AMs and Devs from project-level assignments
+  getProjectTeam: adminProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const projects = await db.query.clientProjects.findMany({
+        where: eq(clientProjects.clientId, input.clientId),
+        with: {
+          accountManager: {
+            columns: { id: true, name: true, email: true },
+          },
+          assignedDeveloper: {
+            columns: { id: true, name: true, email: true },
+          },
+        },
+      });
+
+      // Collect unique team members from project assignments
+      const ams = new Map<
+        string,
+        { id: string; name: string; email: string }
+      >();
+      const devs = new Map<
+        string,
+        { id: string; name: string; email: string }
+      >();
+
+      for (const project of projects) {
+        if (project.accountManager) {
+          ams.set(project.accountManager.id, project.accountManager);
+        }
+        if (project.assignedDeveloper) {
+          devs.set(project.assignedDeveloper.id, project.assignedDeveloper);
+        }
+      }
+
+      return {
+        accountManagers: [...ams.values()],
+        developers: [...devs.values()],
+      };
+    }),
+
   // Get client by slug (used for client portal)
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
@@ -330,6 +392,7 @@ export const clientsRouter = createTRPCRouter({
         notes: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
         assignedDeveloperId: z.string().uuid().nullable().optional(),
+        connectorId: z.string().uuid().nullable().optional(),
         slug: z.string().min(1).optional(),
       })
     )
@@ -353,6 +416,65 @@ export const clientsRouter = createTRPCRouter({
         .set({ ...data, updatedAt: new Date() })
         .where(eq(clients.id, id))
         .returning();
+
+      // Bidirectional sync: client metadata + status → linked CRM contact
+      if (updated?.crmId) {
+        const crmUpdate: Record<string, unknown> = { updatedAt: new Date() };
+
+        // Sync shared metadata fields
+        const syncFields = [
+          "name",
+          "email",
+          "company",
+          "accountManagerId",
+          "connectorId",
+        ] as const;
+        for (const f of syncFields) {
+          if (f in data) crmUpdate[f] = data[f as keyof typeof data];
+        }
+
+        // Sync status
+        if (data.status) {
+          crmUpdate.status = data.status === "active" ? "client" : "inactive";
+        }
+
+        if (Object.keys(crmUpdate).length > 1) {
+          await db
+            .update(masterCrm)
+            .set(crmUpdate)
+            .where(eq(masterCrm.id, updated.crmId));
+        }
+      }
+
+      // Cascade AM/Dev to unassigned projects (don't override existing)
+      if (data.accountManagerId) {
+        await db
+          .update(clientProjects)
+          .set({
+            accountManagerId: data.accountManagerId,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(clientProjects.clientId, id),
+              isNull(clientProjects.accountManagerId)
+            )
+          );
+      }
+      if (data.assignedDeveloperId) {
+        await db
+          .update(clientProjects)
+          .set({
+            assignedDeveloperId: data.assignedDeveloperId,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(clientProjects.clientId, id),
+              isNull(clientProjects.assignedDeveloperId)
+            )
+          );
+      }
 
       // Cascade slug change to all linked records
       if (data.slug && oldSlug && data.slug !== oldSlug) {
@@ -383,7 +505,7 @@ export const clientsRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  // Archive client (set status to inactive)
+  // Archive client (set status to inactive, sync to CRM)
   archive: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
@@ -392,6 +514,15 @@ export const clientsRouter = createTRPCRouter({
         .set({ status: "inactive", updatedAt: new Date() })
         .where(eq(clients.id, input.id))
         .returning();
+
+      // Sync status to linked CRM contact
+      if (updated?.crmId) {
+        await db
+          .update(masterCrm)
+          .set({ status: "inactive", updatedAt: new Date() })
+          .where(eq(masterCrm.id, updated.crmId));
+      }
+
       return updated;
     }),
 
