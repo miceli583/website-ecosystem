@@ -179,7 +179,12 @@ export const crmRouter = createTRPCRouter({
           contacts: [] as Array<
             (typeof contactRows)[number] & {
               submissionSources: string[];
-              portalClient: { id: number; slug: string; name: string } | null;
+              portalClient: {
+                id: number;
+                slug: string;
+                name: string;
+                status: string;
+              } | null;
             }
           >,
           total: totalResult[0]?.count ?? 0,
@@ -216,6 +221,7 @@ export const crmRouter = createTRPCRouter({
               slug: clients.slug,
               name: clients.name,
               company: clients.company,
+              status: clients.status,
             })
             .from(clients)
             .where(inArray(clients.crmId, contactIds)),
@@ -238,7 +244,13 @@ export const crmRouter = createTRPCRouter({
       );
       const clientMap = new Map<
         string | null,
-        { id: number; slug: string; name: string; company: string | null }
+        {
+          id: number;
+          slug: string;
+          name: string;
+          company: string | null;
+          status: string;
+        }
       >(
         linkedClients.map(
           (c: {
@@ -247,9 +259,16 @@ export const crmRouter = createTRPCRouter({
             slug: string;
             name: string;
             company: string | null;
+            status: string;
           }) => [
             c.crmId,
-            { id: c.id, slug: c.slug, name: c.name, company: c.company },
+            {
+              id: c.id,
+              slug: c.slug,
+              name: c.name,
+              company: c.company,
+              status: c.status,
+            },
           ]
         )
       );
@@ -609,33 +628,43 @@ export const crmRouter = createTRPCRouter({
         "connectorId",
       ] as const;
       const hasSyncField = syncFields.some((f) => f in data);
-      if (hasSyncField || data.status) {
-        const linkedClient = await db
-          .select({ id: clients.id, status: clients.status })
-          .from(clients)
-          .where(eq(clients.crmId, id))
+
+      // Look up linked client + portal user
+      const linkedClient = await db
+        .select({ id: clients.id, status: clients.status, slug: clients.slug })
+        .from(clients)
+        .where(eq(clients.crmId, id))
+        .limit(1);
+
+      let hasPortal = false;
+      if (linkedClient[0]) {
+        const portalUser = await db
+          .select({ id: portalUsers.id })
+          .from(portalUsers)
+          .where(eq(portalUsers.clientSlug, linkedClient[0].slug))
           .limit(1);
+        hasPortal = portalUser.length > 0;
+      }
 
-        if (linkedClient[0]) {
-          const clientUpdate: Record<string, unknown> = {
-            updatedAt: new Date(),
-          };
-          for (const f of syncFields) {
-            if (f in data) clientUpdate[f] = data[f as keyof typeof data];
-          }
-
-          // Status sync: CRM inactive/churned → client inactive, CRM client → client active
-          if (data.status === "inactive" || data.status === "churned") {
-            clientUpdate.status = "inactive";
-          } else if (data.status === "client") {
-            clientUpdate.status = "active";
-          }
-
-          await db
-            .update(clients)
-            .set(clientUpdate)
-            .where(eq(clients.id, linkedClient[0].id));
+      if ((hasSyncField || data.status) && linkedClient[0]) {
+        const clientUpdate: Record<string, unknown> = {
+          updatedAt: new Date(),
+        };
+        for (const f of syncFields) {
+          if (f in data) clientUpdate[f] = data[f as keyof typeof data];
         }
+
+        // Status sync: CRM inactive/churned → client inactive, CRM client → client active
+        if (data.status === "inactive" || data.status === "churned") {
+          clientUpdate.status = "inactive";
+        } else if (data.status === "client") {
+          clientUpdate.status = "active";
+        }
+
+        await db
+          .update(clients)
+          .set(clientUpdate)
+          .where(eq(clients.id, linkedClient[0].id));
       }
 
       // Auto-log activity on status change
@@ -684,7 +713,12 @@ export const crmRouter = createTRPCRouter({
         });
       }
 
-      return updated;
+      return {
+        ...updated,
+        hasLinkedClient: !!linkedClient[0],
+        hasPortal,
+        linkedClientSlug: linkedClient[0]?.slug ?? null,
+      };
     }),
 
   /**

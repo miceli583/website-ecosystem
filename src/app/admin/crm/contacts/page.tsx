@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -21,6 +21,7 @@ import {
   Shield,
   Download,
   Upload,
+  CheckSquare,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 import {
@@ -80,6 +81,7 @@ type ContactRow = {
     slug: string;
     name: string;
     company: string | null;
+    status: string;
   } | null;
 };
 
@@ -1143,7 +1145,11 @@ export default function CrmContactsPage() {
   const [editingContact, setEditingContact] = useState<ContactRow | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showImport, setShowImport] = useState(false);
-  const limit = 25;
+  const [promoteContact, setPromoteContact] = useState<ContactRow | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [pageSize, setPageSize] = useState(25);
+  const limit = pageSize;
 
   const utils = api.useUtils();
   const { data: tagOptions = [] } = api.crm.getTagOptions.useQuery();
@@ -1163,12 +1169,75 @@ export default function CrmContactsPage() {
     onSuccess: () => {
       void utils.crm.getContacts.invalidate();
       void utils.crm.getPipelineStats.invalidate();
+      void utils.clients.list.invalidate();
     },
   });
 
+  // State for kanban-triggered demotion dialog
+  const [kanbanDemotion, setKanbanDemotion] = useState<{
+    contact: ContactRow;
+    newStatus: string;
+    client: { id: number; slug: string; status: string; name: string };
+  } | null>(null);
+
+  // Smart status change handler that routes to promote/demote/direct-update
+  const handleSmartStatusChange = (contactId: string, newStatus: string) => {
+    const contact = (data?.contacts as ContactRow[] | undefined)?.find(
+      (c) => c.id === contactId
+    );
+    if (!contact) return;
+
+    const oldStatus = contact.status;
+
+    // Promoting to client?
+    if (oldStatus !== "client" && newStatus === "client") {
+      if (contact.portalClient) {
+        // Client record exists (e.g. reactivating an archived client) — just update status
+        kanbanStatusChange.mutate({
+          id: contactId,
+          status: "client",
+        });
+      } else {
+        // No client record — trigger promote modal
+        setPromoteContact(contact);
+      }
+      return;
+    }
+
+    // Demoting from client to inactive/churned/lead/prospect?
+    if (
+      oldStatus === "client" &&
+      newStatus !== "client" &&
+      contact.portalClient
+    ) {
+      setKanbanDemotion({
+        contact,
+        newStatus,
+        client: contact.portalClient,
+      });
+      return;
+    }
+
+    // Normal status change
+    kanbanStatusChange.mutate({
+      id: contactId,
+      status: newStatus as
+        | "lead"
+        | "prospect"
+        | "client"
+        | "inactive"
+        | "churned",
+    });
+  };
+
   const handleExport = () => {
     if (!data?.contacts?.length) return;
-    const rows = (data.contacts as ContactRow[]).map((c) => [
+    const exportContacts =
+      selectionMode && selectedIds.size > 0
+        ? (data.contacts as ContactRow[]).filter((c) => selectedIds.has(c.id))
+        : (data.contacts as ContactRow[]);
+    if (!exportContacts.length) return;
+    const rows = exportContacts.map((c) => [
       c.name,
       c.email,
       c.phone ?? "",
@@ -1258,24 +1327,119 @@ export default function CrmContactsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="mb-2">
-          <Link
-            href="/admin/crm"
-            className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to CRM
-          </Link>
+      {/* Header row: title + actions */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <div className="mb-2">
+            <Link
+              href="/admin/crm"
+              className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to CRM
+            </Link>
+          </div>
+          <h1 className="text-2xl font-bold text-white">All Contacts</h1>
+          <p className="text-sm text-gray-400">
+            Master CRM database — all contacts across every source
+          </p>
         </div>
-        <h1 className="text-2xl font-bold text-white">All Contacts</h1>
-        <p className="text-sm text-gray-400">
-          Master CRM database — all contacts across every source
-        </p>
+
+        <div className="flex items-center gap-2">
+          {view === "list" && (
+            <div className="relative">
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(0);
+                }}
+                className="appearance-none rounded-lg border bg-white/5 py-2 pr-8 pl-3 text-sm text-gray-400 focus:outline-none"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                <option value={10}>10 / page</option>
+                <option value={25}>25 / page</option>
+                <option value={50}>50 / page</option>
+                <option value={100}>100 / page</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
+            </div>
+          )}
+          {view === "list" && (
+            <button
+              onClick={() => {
+                setSelectionMode((v) => !v);
+                if (selectionMode) setSelectedIds(new Set());
+              }}
+              className={`rounded-lg border p-2 text-sm transition-colors ${
+                selectionMode
+                  ? "border-[#D4AF37]/40 bg-[#D4AF37]/10 text-[#D4AF37]"
+                  : "text-gray-500 hover:bg-white/5 hover:text-white"
+              }`}
+              style={
+                selectionMode
+                  ? undefined
+                  : { borderColor: "rgba(212, 175, 55, 0.2)" }
+              }
+              title={selectionMode ? "Exit selection mode" : "Select contacts"}
+            >
+              <CheckSquare className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={handleExport}
+            disabled={!data?.contacts?.length}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <Download className="h-4 w-4" />
+            {selectionMode && selectedIds.size > 0
+              ? `Export (${selectedIds.size})`
+              : "Export"}
+          </button>
+          <button
+            onClick={() => setShowImport(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <Upload className="h-4 w-4" />
+            Import
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            New Contact
+          </button>
+        </div>
       </div>
 
-      {/* Filters */}
+      {/* Selection bar */}
+      {selectionMode && selectedIds.size > 0 && (
+        <div
+          className="flex items-center gap-3 rounded-lg border px-4 py-2"
+          style={{
+            borderColor: "rgba(212, 175, 55, 0.3)",
+            background: "rgba(212, 175, 55, 0.05)",
+          }}
+        >
+          <span className="text-sm font-medium text-white">
+            {selectedIds.size} selected
+          </span>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-sm text-gray-400 hover:text-white"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
         <div
           className="relative flex-1"
@@ -1375,42 +1539,13 @@ export default function CrmContactsPage() {
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
-        {data && (
-          <span className="text-sm text-gray-500">
-            {data.total} contact{data.total !== 1 ? "s" : ""}
-          </span>
-        )}
-
-        <ViewToggle view={view} onViewChange={setView} />
-
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            onClick={handleExport}
-            disabled={!data?.contacts?.length}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </button>
-          <button
-            onClick={() => setShowImport(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-          >
-            <Upload className="h-4 w-4" />
-            Import
-          </button>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-            style={{
-              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            New Contact
-          </button>
+        <div className="ml-auto flex items-center gap-3">
+          {data && (
+            <span className="text-sm text-gray-500">
+              {data.total} contact{data.total !== 1 ? "s" : ""}
+            </span>
+          )}
+          <ViewToggle view={view} onViewChange={setView} />
         </div>
       </div>
 
@@ -1434,17 +1569,7 @@ export default function CrmContactsPage() {
         ) : (
           <ContactKanban
             contacts={data.contacts as ContactRow[]}
-            onStatusChange={(id, status) =>
-              kanbanStatusChange.mutate({
-                id,
-                status: status as
-                  | "lead"
-                  | "prospect"
-                  | "client"
-                  | "inactive"
-                  | "churned",
-              })
-            }
+            onStatusChange={handleSmartStatusChange}
             isPending={kanbanStatusChange.isPending}
           />
         )
@@ -1475,6 +1600,31 @@ export default function CrmContactsPage() {
                   className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
+                  {selectionMode && (
+                    <th className="w-10 px-2 py-3">
+                      <input
+                        type="checkbox"
+                        checked={
+                          sortedContacts.length > 0 &&
+                          sortedContacts.every((c: ContactRow) =>
+                            selectedIds.has(c.id)
+                          )
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedIds(
+                              new Set(
+                                sortedContacts.map((c: ContactRow) => c.id)
+                              )
+                            );
+                          } else {
+                            setSelectedIds(new Set());
+                          }
+                        }}
+                        className="h-3.5 w-3.5 rounded border-gray-600 bg-transparent accent-[#D4AF37]"
+                      />
+                    </th>
+                  )}
                   <SortHeader
                     field="name"
                     label="Name"
@@ -1511,9 +1661,27 @@ export default function CrmContactsPage() {
                   return (
                     <tr
                       key={contact.id}
-                      className="border-b transition-colors hover:bg-white/5"
+                      className={`border-b transition-colors hover:bg-white/5 ${selectionMode && selectedIds.has(contact.id) ? "bg-white/5" : ""}`}
                       style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
                     >
+                      {selectionMode && (
+                        <td className="px-2 py-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(contact.id)}
+                            onChange={(e) => {
+                              const next = new Set(selectedIds);
+                              if (e.target.checked) {
+                                next.add(contact.id);
+                              } else {
+                                next.delete(contact.id);
+                              }
+                              setSelectedIds(next);
+                            }}
+                            className="h-3.5 w-3.5 rounded border-gray-600 bg-transparent accent-[#D4AF37]"
+                          />
+                        </td>
+                      )}
                       <td className="px-4 py-3">
                         <Link
                           href={`/admin/crm/contacts/${contact.id}`}
@@ -1640,30 +1808,65 @@ export default function CrmContactsPage() {
       )}
 
       {/* Pagination */}
-      {view === "list" && data && data.total > limit && (
+      {view === "list" && data && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Showing {page * limit + 1}–
-            {Math.min((page + 1) * limit, data.total)} of {data.total}
+            {data.total > 0 ? (
+              <>
+                Showing {page * limit + 1}–
+                {Math.min((page + 1) * limit, data.total)} of {data.total}
+              </>
+            ) : (
+              "0 contacts"
+            )}
           </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!data.hasMore}
-              className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            >
-              Next
-            </button>
-          </div>
+          {data.total > limit && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                Previous
+              </button>
+              {Array.from(
+                { length: Math.ceil(data.total / limit) },
+                (_, i) => i
+              )
+                .filter((i) => {
+                  const totalPages = Math.ceil(data.total / limit);
+                  return (
+                    i === 0 || i === totalPages - 1 || Math.abs(i - page) <= 1
+                  );
+                })
+                .map((i, idx, arr) => (
+                  <span key={i} className="flex items-center">
+                    {idx > 0 && arr[idx - 1] !== i - 1 && (
+                      <span className="px-1 text-xs text-gray-600">...</span>
+                    )}
+                    <button
+                      onClick={() => setPage(i)}
+                      className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                        i === page
+                          ? "font-medium text-[#D4AF37]"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  </span>
+                ))}
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!data.hasMore}
+                className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1685,6 +1888,22 @@ export default function CrmContactsPage() {
             void utils.crm.getPipelineStats.invalidate();
             void utils.crm.getTagOptions.invalidate();
           }}
+        />
+      )}
+      {promoteContact && (
+        <PromoteToClientModal
+          contact={promoteContact}
+          onClose={() => setPromoteContact(null)}
+          onSuccess={() => setPromoteContact(null)}
+        />
+      )}
+      {kanbanDemotion && (
+        <DemotionDialog
+          contact={kanbanDemotion.contact}
+          newStatus={kanbanDemotion.newStatus}
+          clientInfo={kanbanDemotion.client}
+          onClose={() => setKanbanDemotion(null)}
+          onSuccess={() => setKanbanDemotion(null)}
         />
       )}
     </div>

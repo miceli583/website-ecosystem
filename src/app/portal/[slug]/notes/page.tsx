@@ -32,6 +32,7 @@ import {
   ArchiveRestore,
   ChevronsUp,
 } from "lucide-react";
+import { RichTextPreview } from "~/components/portal/rich-text-preview";
 
 type Note = RouterOutputs["portalNotes"]["getNotes"][number];
 
@@ -410,7 +411,7 @@ export default function PortalNotesPage({
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         const matchTitle = n.title.toLowerCase().includes(q);
-        const matchContent = n.content.toLowerCase().includes(q);
+        const matchContent = stripHtml(n.content).toLowerCase().includes(q);
         const matchAuthor = n.createdByName.toLowerCase().includes(q);
         const matchProject = n.project?.name.toLowerCase().includes(q);
         if (!matchTitle && !matchContent && !matchAuthor && !matchProject)
@@ -614,9 +615,10 @@ export default function PortalNotesPage({
                 )}
               </div>
               {!isExpanded && note.content && note.content !== "<p></p>" && (
-                <div
-                  className="line-clamp-2 text-sm text-gray-500 [&_*]:!m-0 [&_*]:!p-0 [&_*]:!text-sm [&_*]:!font-normal [&_*]:!text-gray-500"
-                  dangerouslySetInnerHTML={{ __html: note.content }}
+                <RichTextPreview
+                  html={note.content}
+                  lineClamp={2}
+                  className="text-gray-400"
                 />
               )}
             </div>
@@ -658,14 +660,7 @@ export default function PortalNotesPage({
             </button>
 
             <div className="px-4 pb-4">
-              {note.content && note.content !== "<p></p>" ? (
-                <div
-                  className="prose prose-invert max-w-none text-sm"
-                  dangerouslySetInnerHTML={{ __html: note.content }}
-                />
-              ) : (
-                <p className="text-sm text-gray-500 italic">No content.</p>
-              )}
+              <RichTextPreview html={note.content} />
 
               {/* Inline actions — pin + edit for quick access */}
               <div

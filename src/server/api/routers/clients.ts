@@ -411,13 +411,32 @@ export const clientsRouter = createTRPCRouter({
         .where(eq(clients.id, id))
         .returning();
 
-      // Status sync: client status → linked CRM contact status
-      if (data.status && updated?.crmId) {
-        const crmStatus = data.status === "active" ? "client" : "inactive";
-        await db
-          .update(masterCrm)
-          .set({ status: crmStatus, updatedAt: new Date() })
-          .where(eq(masterCrm.id, updated.crmId));
+      // Bidirectional sync: client metadata + status → linked CRM contact
+      if (updated?.crmId) {
+        const crmUpdate: Record<string, unknown> = { updatedAt: new Date() };
+
+        // Sync shared metadata fields
+        const syncFields = [
+          "name",
+          "email",
+          "company",
+          "accountManagerId",
+        ] as const;
+        for (const f of syncFields) {
+          if (f in data) crmUpdate[f] = data[f as keyof typeof data];
+        }
+
+        // Sync status
+        if (data.status) {
+          crmUpdate.status = data.status === "active" ? "client" : "inactive";
+        }
+
+        if (Object.keys(crmUpdate).length > 1) {
+          await db
+            .update(masterCrm)
+            .set(crmUpdate)
+            .where(eq(masterCrm.id, updated.crmId));
+        }
       }
 
       // Cascade slug change to all linked records
@@ -449,7 +468,7 @@ export const clientsRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  // Archive client (set status to inactive)
+  // Archive client (set status to inactive, sync to CRM)
   archive: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
@@ -458,6 +477,15 @@ export const clientsRouter = createTRPCRouter({
         .set({ status: "inactive", updatedAt: new Date() })
         .where(eq(clients.id, input.id))
         .returning();
+
+      // Sync status to linked CRM contact
+      if (updated?.crmId) {
+        await db
+          .update(masterCrm)
+          .set({ status: "inactive", updatedAt: new Date() })
+          .where(eq(masterCrm.id, updated.crmId));
+      }
+
       return updated;
     }),
 

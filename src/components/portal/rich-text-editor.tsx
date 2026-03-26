@@ -1,6 +1,11 @@
 "use client";
 
-import { forwardRef, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+  useRef as useReactRef,
+} from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -71,20 +76,38 @@ export const RichTextEditor = forwardRef<
     typeof navigator !== "undefined" && /Mac/.test(navigator.userAgent);
   const modKey = isMac ? "\u2318" : "Ctrl+";
 
+  // Track whether we're programmatically setting content to avoid loops
+  const settingContent = useReactRef(false);
+
   const editor = useEditor({
     immediatelyRender: false,
+    shouldRerenderOnTransaction: false,
     extensions: [StarterKit, Placeholder.configure({ placeholder })],
     content: initialContent,
     editorProps: {
       attributes: {
-        class: `prose prose-invert max-w-none px-4 py-3 focus:outline-none`,
+        class: `tiptap-content prose prose-invert max-w-none px-4 py-3 focus:outline-none`,
         style: `min-height: ${minHeight}`,
       },
     },
     onUpdate: ({ editor: e }) => {
-      onChange?.(e.getHTML());
+      if (!settingContent.current) {
+        onChange?.(e.getHTML());
+      }
     },
   });
+
+  // Sync content when initialContent changes after mount (e.g. switching between notes)
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) {
+      const currentHTML = editor.getHTML();
+      if (initialContent !== currentHTML) {
+        settingContent.current = true;
+        editor.commands.setContent(initialContent || "");
+        settingContent.current = false;
+      }
+    }
+  }, [editor, initialContent]);
 
   useImperativeHandle(ref, () => ({
     getHTML: () => editor?.getHTML() ?? "",
@@ -177,49 +200,14 @@ export const RichTextEditor = forwardRef<
         </ToolbarButton>
       </div>
 
-      {/* Editor */}
+      {/* Editor — styles via .tiptap-content class in globals.css */}
       <style jsx global>{`
-        .ProseMirror {
-          color: white;
-        }
         .ProseMirror p.is-editor-empty:first-child::before {
           color: #6b7280;
           content: attr(data-placeholder);
           float: left;
           height: 0;
           pointer-events: none;
-        }
-        .ProseMirror ul {
-          list-style-type: disc;
-          padding-left: 1.5em;
-        }
-        .ProseMirror ol {
-          list-style-type: decimal;
-          padding-left: 1.5em;
-        }
-        .ProseMirror h2 {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin-top: 1em;
-          margin-bottom: 0.5em;
-        }
-        .ProseMirror blockquote {
-          border-left: 3px solid rgba(212, 175, 55, 0.4);
-          padding-left: 1em;
-          margin-left: 0;
-          color: #9ca3af;
-          font-style: italic;
-        }
-        .ProseMirror code {
-          background: rgba(255, 255, 255, 0.08);
-          border-radius: 0.25em;
-          padding: 0.15em 0.35em;
-          font-size: 0.9em;
-          color: #d4af37;
-        }
-        .ProseMirror s {
-          text-decoration: line-through;
-          color: #6b7280;
         }
       `}</style>
       <EditorContent editor={editor} />
