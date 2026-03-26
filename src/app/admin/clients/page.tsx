@@ -1450,9 +1450,9 @@ export default function AdminClientsPage() {
       "Company",
       "Status",
       "Projects",
+      "Connector",
       "Account Manager",
       "Developer",
-      "Connector",
       "Portal Slug",
     ];
     const rows = exportItems.map((c: ClientListItem) => [
@@ -1461,11 +1461,11 @@ export default function AdminClientsPage() {
       c.company ?? "",
       c.status,
       String(c.projects?.length ?? 0),
+      (c as ClientListItem & { connector?: { name: string } | null }).connector
+        ?.name ?? "",
       c.accountManager?.name ?? "",
       (c as ClientListItem & { assignedDeveloper?: { name: string } | null })
         .assignedDeveloper?.name ?? "",
-      (c as ClientListItem & { connector?: { name: string } | null }).connector
-        ?.name ?? "",
       c.slug,
     ]);
 
@@ -1792,14 +1792,14 @@ export default function AdminClientsPage() {
                   onSort={handleSort}
                 />
                 <SortHeader
-                  field="am"
-                  label="AM"
+                  field="connector"
+                  label="Connector"
                   sorts={sorts}
                   onSort={handleSort}
                 />
                 <SortHeader
-                  field="connector"
-                  label="Connector"
+                  field="am"
+                  label="AM"
                   sorts={sorts}
                   onSort={handleSort}
                 />
@@ -1886,41 +1886,6 @@ export default function AdminClientsPage() {
                     </span>
                   </td>
 
-                  {/* Account Manager */}
-                  <td className="px-4 py-3" style={{ minWidth: "120px" }}>
-                    <div className="flex items-center gap-1 text-xs">
-                      <UserCheck
-                        className="h-3 w-3 flex-shrink-0"
-                        style={{ color: "#D4AF37" }}
-                      />
-                      {canAssign ? (
-                        <select
-                          value={client.accountManagerId ?? ""}
-                          onChange={(e) =>
-                            updateClient.mutate({
-                              id: client.id,
-                              accountManagerId: e.target.value || null,
-                            })
-                          }
-                          className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
-                        >
-                          <option value="">—</option>
-                          {accountManagers.map(
-                            (m: { id: string; name: string }) => (
-                              <option key={m.id} value={m.id}>
-                                {m.name}
-                              </option>
-                            )
-                          )}
-                        </select>
-                      ) : (
-                        <span className="truncate text-gray-500">
-                          {client.accountManager?.name ?? "—"}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-
                   {/* Connector */}
                   <td className="px-4 py-3" style={{ minWidth: "120px" }}>
                     <div className="flex items-center gap-1 text-xs">
@@ -1956,6 +1921,41 @@ export default function AdminClientsPage() {
                               connector?: { name: string } | null;
                             }
                           ).connector?.name ?? "—"}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Account Manager */}
+                  <td className="px-4 py-3" style={{ minWidth: "120px" }}>
+                    <div className="flex items-center gap-1 text-xs">
+                      <UserCheck
+                        className="h-3 w-3 flex-shrink-0"
+                        style={{ color: "#D4AF37" }}
+                      />
+                      {canAssign ? (
+                        <select
+                          value={client.accountManagerId ?? ""}
+                          onChange={(e) =>
+                            updateClient.mutate({
+                              id: client.id,
+                              accountManagerId: e.target.value || null,
+                            })
+                          }
+                          className="w-full appearance-none truncate border-0 bg-transparent py-0 text-xs text-gray-400 focus:text-white focus:outline-none"
+                        >
+                          <option value="">—</option>
+                          {accountManagers.map(
+                            (m: { id: string; name: string }) => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      ) : (
+                        <span className="truncate text-gray-500">
+                          {client.accountManager?.name ?? "—"}
                         </span>
                       )}
                     </div>

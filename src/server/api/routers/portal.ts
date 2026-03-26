@@ -2005,7 +2005,11 @@ export const portalRouter = createTRPCRouter({
       }
       const client = await db.query.clients.findFirst({
         where: eq(clients.slug, input.slug),
-        columns: { id: true },
+        columns: {
+          id: true,
+          accountManagerId: true,
+          assignedDeveloperId: true,
+        },
       });
       if (!client) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
@@ -2016,6 +2020,8 @@ export const portalRouter = createTRPCRouter({
           clientId: client.id,
           name: input.name,
           description: input.description ?? null,
+          accountManagerId: client.accountManagerId,
+          assignedDeveloperId: client.assignedDeveloperId,
         })
         .returning();
       return project;

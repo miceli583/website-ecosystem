@@ -14,7 +14,7 @@ import {
   masterCrm,
   portalUsers,
 } from "~/server/db/schema";
-import { eq, desc, sql, and, ilike, or, count } from "drizzle-orm";
+import { eq, desc, sql, and, ilike, or, count, isNull } from "drizzle-orm";
 import { stripeLive } from "~/lib/stripe-live";
 import { sendEmail } from "~/lib/email";
 import { ClientUpdateEmail } from "~/lib/email-templates/client-update";
@@ -444,6 +444,36 @@ export const clientsRouter = createTRPCRouter({
             .set(crmUpdate)
             .where(eq(masterCrm.id, updated.crmId));
         }
+      }
+
+      // Cascade AM/Dev to unassigned projects (don't override existing)
+      if (data.accountManagerId) {
+        await db
+          .update(clientProjects)
+          .set({
+            accountManagerId: data.accountManagerId,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(clientProjects.clientId, id),
+              isNull(clientProjects.accountManagerId)
+            )
+          );
+      }
+      if (data.assignedDeveloperId) {
+        await db
+          .update(clientProjects)
+          .set({
+            assignedDeveloperId: data.assignedDeveloperId,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(clientProjects.clientId, id),
+              isNull(clientProjects.assignedDeveloperId)
+            )
+          );
       }
 
       // Cascade slug change to all linked records
