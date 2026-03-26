@@ -19,7 +19,6 @@ import {
   X,
   MoreVertical,
   Pencil,
-  Archive,
   Trash2,
   Tag,
   AlertTriangle,
@@ -1041,89 +1040,6 @@ function EditClientModal({
   );
 }
 
-/* ── Archive Confirm Modal ─────────────────────────────────────── */
-
-function ArchiveConfirmModal({
-  client,
-  onClose,
-}: {
-  client: ClientListItem;
-  onClose: () => void;
-}) {
-  const utils = api.useUtils();
-  const archiveClient = api.clients.archive.useMutation({
-    onSuccess: () => {
-      void utils.clients.list.invalidate();
-      onClose();
-    },
-  });
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Confirm archive"
-        className="relative mx-4 w-full max-w-md rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
-        style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
-      >
-        <div className="mb-4 flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: "rgba(212, 175, 55, 0.1)" }}
-          >
-            <Archive className="h-5 w-5" style={{ color: "#D4AF37" }} />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Archive Client</h2>
-            <p className="text-sm text-gray-400">{client.name}</p>
-          </div>
-        </div>
-
-        <p className="mb-5 text-sm text-gray-400">
-          This will set the client portal to{" "}
-          <strong className="text-white">inactive</strong>. All data (projects,
-          updates, agreements) will be preserved, but the portal will no longer
-          be accessible to the client.
-        </p>
-
-        <div className="flex items-center justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-            style={borderStyle}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => archiveClient.mutate({ id: client.id })}
-            disabled={archiveClient.isPending}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
-            style={{
-              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-            }}
-          >
-            {archiveClient.isPending ? "Archiving..." : "Archive Client"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ── Delete Confirm Modal ──────────────────────────────────────── */
 
 function DeleteConfirmModal({
@@ -1171,14 +1087,14 @@ function DeleteConfirmModal({
             <AlertTriangle className="h-5 w-5 text-red-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Delete Client</h2>
+            <h2 className="text-lg font-semibold text-white">Delete Portal</h2>
             <p className="text-sm text-gray-400">{client.name}</p>
           </div>
         </div>
 
         <p className="mb-2 text-sm text-gray-400">
           This will <strong className="text-red-400">permanently delete</strong>{" "}
-          this client and all associated data:
+          the client portal and all associated data:
         </p>
         <ul className="mb-4 space-y-1 text-sm text-gray-500">
           <li className="flex items-center gap-2">
@@ -1191,11 +1107,11 @@ function DeleteConfirmModal({
           </li>
           <li className="flex items-center gap-2">
             <span className="h-1 w-1 rounded-full bg-red-400" />
-            Client notes
+            Portal notes
           </li>
         </ul>
         <p className="mb-5 text-sm text-gray-500">
-          The CRM contact record will{" "}
+          The CRM contact, CRM notes, and activity history will{" "}
           <strong className="text-gray-300">not</strong> be deleted.
         </p>
 
@@ -1212,7 +1128,7 @@ function DeleteConfirmModal({
             disabled={deleteClient.isPending}
             className="rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
           >
-            {deleteClient.isPending ? "Deleting..." : "Delete Client"}
+            {deleteClient.isPending ? "Deleting..." : "Delete Portal"}
           </button>
         </div>
       </div>
@@ -1223,14 +1139,10 @@ function DeleteConfirmModal({
 /* ── Action Menu ───────────────────────────────────────────────── */
 
 function ActionMenu({
-  client,
   onEdit,
-  onArchive,
   onDelete,
 }: {
-  client: ClientListItem;
   onEdit: () => void;
-  onArchive: () => void;
   onDelete: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -1269,18 +1181,6 @@ function ActionMenu({
             <Pencil className="h-3 w-3" />
             Edit
           </button>
-          {client.status === "active" && (
-            <button
-              onClick={() => {
-                setOpen(false);
-                onArchive();
-              }}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-300 hover:bg-white/10 hover:text-white"
-            >
-              <Archive className="h-3 w-3" />
-              Archive
-            </button>
-          )}
           <button
             onClick={() => {
               setOpen(false);
@@ -1289,7 +1189,7 @@ function ActionMenu({
             className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-red-400 hover:bg-red-500/10"
           >
             <Trash2 className="h-3 w-3" />
-            Delete
+            Delete Portal
           </button>
         </div>
       )}
@@ -1301,7 +1201,6 @@ function ActionMenu({
 
 export default function AdminClientsPage() {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [amFilter, setAmFilter] = useState<string | undefined>();
   const [devFilter, setDevFilter] = useState<string | undefined>();
   const [connectorFilter, setConnectorFilter] = useState<string | undefined>();
@@ -1317,9 +1216,6 @@ export default function AdminClientsPage() {
   const [editingClient, setEditingClient] = useState<ClientListItem | null>(
     null
   );
-  const [archivingClient, setArchivingClient] = useState<ClientListItem | null>(
-    null
-  );
   const [deletingClient, setDeletingClient] = useState<ClientListItem | null>(
     null
   );
@@ -1327,7 +1223,6 @@ export default function AdminClientsPage() {
   const utils = api.useUtils();
   const { data, isLoading } = api.clients.list.useQuery({
     search: search || undefined,
-    status: statusFilter,
     accountManagerId: amFilter,
     assignedDeveloperId: devFilter,
     connectorId: connectorFilter,
@@ -1393,9 +1288,6 @@ export default function AdminClientsPage() {
           case "company":
             cmp = (a.company ?? "").localeCompare(b.company ?? "");
             break;
-          case "status":
-            cmp = (a.status ?? "").localeCompare(b.status ?? "");
-            break;
           case "projects":
             cmp = (a.projects?.length ?? 0) - (b.projects?.length ?? 0);
             break;
@@ -1448,7 +1340,6 @@ export default function AdminClientsPage() {
       "Name",
       "Email",
       "Company",
-      "Status",
       "Projects",
       "Connector",
       "Account Manager",
@@ -1459,7 +1350,6 @@ export default function AdminClientsPage() {
       c.name,
       c.email,
       c.company ?? "",
-      c.status,
       String(c.projects?.length ?? 0),
       (c as ClientListItem & { connector?: { name: string } | null }).connector
         ?.name ?? "",
@@ -1503,7 +1393,7 @@ export default function AdminClientsPage() {
             </Link>
           </div>
           <h1 className="text-2xl font-bold text-white">Clients</h1>
-          <p className="text-sm text-gray-400">Active client management</p>
+          <p className="text-sm text-gray-400">Client portal management</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -1626,24 +1516,6 @@ export default function AdminClientsPage() {
           />
         </div>
 
-        {/* Status filter */}
-        <div className="relative">
-          <select
-            value={statusFilter ?? ""}
-            onChange={(e) => {
-              setStatusFilter(e.target.value || undefined);
-              setPage(1);
-            }}
-            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
-            style={borderStyle}
-          >
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
-        </div>
-
         {/* AM filter */}
         <div className="relative">
           <select
@@ -1736,11 +1608,7 @@ export default function AdminClientsPage() {
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
-              {search ||
-              statusFilter ||
-              amFilter ||
-              devFilter ||
-              connectorFilter
+              {search || amFilter || devFilter || connectorFilter
                 ? "No clients match your filters"
                 : "No clients yet"}
             </p>
@@ -1776,12 +1644,6 @@ export default function AdminClientsPage() {
                 <SortHeader
                   field="name"
                   label="Name"
-                  sorts={sorts}
-                  onSort={handleSort}
-                />
-                <SortHeader
-                  field="status"
-                  label="Status"
                   sorts={sorts}
                   onSort={handleSort}
                 />
@@ -1859,23 +1721,6 @@ export default function AdminClientsPage() {
                         {client.email}
                       </span>
                     </div>
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-4 py-3">
-                    <span
-                      className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium"
-                      style={{
-                        backgroundColor:
-                          client.status === "active"
-                            ? "rgba(74, 222, 128, 0.1)"
-                            : "rgba(156, 163, 175, 0.1)",
-                        color:
-                          client.status === "active" ? "#4ade80" : "#9ca3af",
-                      }}
-                    >
-                      {client.status === "active" ? "Active" : "Inactive"}
-                    </span>
                   </td>
 
                   {/* Projects */}
@@ -2015,9 +1860,7 @@ export default function AdminClientsPage() {
                   {/* Actions */}
                   <td className="px-2 py-3">
                     <ActionMenu
-                      client={client}
                       onEdit={() => setEditingClient(client)}
-                      onArchive={() => setArchivingClient(client)}
                       onDelete={() => setDeletingClient(client)}
                     />
                   </td>
@@ -2096,12 +1939,6 @@ export default function AdminClientsPage() {
         <EditClientModal
           client={editingClient}
           onClose={() => setEditingClient(null)}
-        />
-      )}
-      {archivingClient && (
-        <ArchiveConfirmModal
-          client={archivingClient}
-          onClose={() => setArchivingClient(null)}
         />
       )}
       {deletingClient && (

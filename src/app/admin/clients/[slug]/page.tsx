@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -21,6 +22,8 @@ import {
   Calendar,
   UserCheck,
   Briefcase,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
@@ -28,7 +31,6 @@ import {
   TeamMemberPicker,
   TagPicker,
   ReferralPicker,
-  StatusDropdown,
   inputClass,
   borderStyle,
   STATUS_CONFIG,
@@ -39,22 +41,6 @@ import { RichTextPreview } from "~/components/portal/rich-text-preview";
 
 // ── Types ─────────────────────────────────────────────────────────
 type ClientDetail = NonNullable<RouterOutputs["clients"]["getBySlugAdmin"]>;
-
-// ── Client status options for StatusDropdown ──────────────────────
-const CLIENT_STATUS_OPTIONS = [
-  {
-    value: "active",
-    label: "Active",
-    bg: "rgba(74, 222, 128, 0.1)",
-    color: "#4ade80",
-  },
-  {
-    value: "inactive",
-    label: "Inactive",
-    bg: "rgba(156, 163, 175, 0.1)",
-    color: "#9ca3af",
-  },
-];
 
 // ── Activity icon map ─────────────────────────────────────────────
 const ACTIVITY_ICONS: Record<string, typeof PhoneCall> = {
@@ -127,6 +113,7 @@ export default function AdminClientDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const router = useRouter();
   const utils = api.useUtils();
 
   // ── Queries ──────────────────────────────────────────────────────
@@ -200,6 +187,14 @@ export default function AdminClientDetailPage({
     onSuccess: noteInvalidate,
   });
 
+  const deleteClient = api.clients.delete.useMutation({
+    onSuccess: () => {
+      void utils.clients.list.invalidate();
+      void utils.crm.getContacts.invalidate();
+      router.push(crmId ? `/admin/crm/contacts/${crmId}` : "/admin/clients");
+    },
+  });
+
   // ── Local state ──────────────────────────────────────────────────
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -208,6 +203,7 @@ export default function AdminClientDetailPage({
   const [logCallDesc, setLogCallDesc] = useState("");
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+  const [showDeletePortal, setShowDeletePortal] = useState(false);
 
   const canAssign = myRoles?.isFullAccess ?? false;
 
@@ -517,18 +513,6 @@ export default function AdminClientDetailPage({
             )}
           </div>
         </div>
-
-        {/* Status dropdown */}
-        <StatusDropdown
-          value={client.status}
-          options={CLIENT_STATUS_OPTIONS}
-          onChange={(newStatus) => {
-            updateClient.mutate({
-              id: client.id,
-              status: newStatus as "active" | "inactive",
-            });
-          }}
-        />
       </div>
 
       {/* ── 3. Quick Actions Bar ────────────────────────────────── */}
@@ -561,6 +545,14 @@ export default function AdminClientDetailPage({
             CRM Contact
           </Link>
         )}
+        <button
+          onClick={() => setShowDeletePortal(true)}
+          className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-red-400 transition-colors hover:bg-red-500/10"
+          style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          Delete Portal
+        </button>
       </div>
 
       {/* Log Call inline form */}
@@ -1338,6 +1330,91 @@ export default function AdminClientDetailPage({
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* ── Delete Portal Confirmation ──────────────────────────── */}
+      {showDeletePortal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowDeletePortal(false);
+          }}
+        >
+          <div
+            className="relative mx-4 w-full max-w-md rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
+            style={{ borderColor: "rgba(248, 113, 113, 0.3)" }}
+          >
+            <div className="mb-4 flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full"
+                style={{ backgroundColor: "rgba(248, 113, 113, 0.1)" }}
+              >
+                <AlertTriangle className="h-5 w-5 text-red-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-white">
+                  Delete Portal
+                </h2>
+                <p className="text-sm text-gray-400">{client.name}</p>
+              </div>
+            </div>
+
+            <p className="mb-2 text-sm text-gray-400">
+              This will{" "}
+              <strong className="text-red-400">permanently delete</strong> the
+              client portal and all associated data:
+            </p>
+            <ul className="mb-4 space-y-1 text-sm text-gray-500">
+              <li className="flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-red-400" />
+                All projects and updates
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-red-400" />
+                Agreements and resources
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-red-400" />
+                Portal notes
+              </li>
+            </ul>
+            <p className="mb-5 text-sm text-gray-500">
+              The CRM contact, CRM notes, and activity history will{" "}
+              <strong className="text-gray-300">not</strong> be deleted.
+              {crmId && (
+                <>
+                  {" "}
+                  Consider{" "}
+                  <Link
+                    href={`/admin/crm/contacts/${crmId}`}
+                    className="underline transition-colors hover:text-white"
+                    style={{ color: "#D4AF37" }}
+                  >
+                    updating the CRM status
+                  </Link>{" "}
+                  to inactive or churned.
+                </>
+              )}
+            </p>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowDeletePortal(false)}
+                className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+                style={borderStyle}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteClient.mutate({ id: client.id })}
+                disabled={deleteClient.isPending}
+                className="rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+              >
+                {deleteClient.isPending ? "Deleting..." : "Delete Portal"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
