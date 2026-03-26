@@ -91,10 +91,12 @@ function PromoteToClientModal({
   contact,
   onClose,
   onSuccess,
+  preserveStatus,
 }: {
   contact: ContactRow;
   onClose: () => void;
   onSuccess: () => void;
+  preserveStatus?: boolean;
 }) {
   const utils = api.useUtils();
   const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
@@ -128,6 +130,7 @@ function PromoteToClientModal({
         slug: form.slug,
         company: form.company || undefined,
         accountManagerId: form.accountManagerId,
+        preserveStatus: preserveStatus || undefined,
       },
       {
         onError: (err) => setError(err.message),
@@ -158,7 +161,7 @@ function PromoteToClientModal({
               <Shield className="h-4 w-4" style={{ color: "#D4AF37" }} />
             </div>
             <h2 className="text-lg font-semibold text-white">
-              Create Client Portal
+              {preserveStatus ? "Create Portal" : "Create Client Portal"}
             </h2>
           </div>
           <button
@@ -171,9 +174,21 @@ function PromoteToClientModal({
         </div>
 
         <p className="mb-4 text-sm text-gray-400">
-          Promoting{" "}
-          <span className="font-medium text-white">{contact.name}</span> to
-          client. This will create a portal at{" "}
+          {preserveStatus ? (
+            <>
+              Creating a portal for{" "}
+              <span className="font-medium text-white">{contact.name}</span>.
+              Their CRM status will remain{" "}
+              <span className="font-medium text-white">{contact.status}</span>.
+              Portal at{" "}
+            </>
+          ) : (
+            <>
+              Promoting{" "}
+              <span className="font-medium text-white">{contact.name}</span> to
+              client. This will create a portal at{" "}
+            </>
+          )}
           <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
             /portal/{form.slug}
           </span>
@@ -257,7 +272,11 @@ function PromoteToClientModal({
               background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
             }}
           >
-            {promote.isPending ? "Creating..." : "Create Client Portal"}
+            {promote.isPending
+              ? "Creating..."
+              : preserveStatus
+                ? "Create Portal"
+                : "Create Client Portal"}
           </button>
         </div>
       </div>
@@ -1146,6 +1165,8 @@ export default function CrmContactsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [promoteContact, setPromoteContact] = useState<ContactRow | null>(null);
+  const [createPortalContact, setCreatePortalContact] =
+    useState<ContactRow | null>(null);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pageSize, setPageSize] = useState(25);
@@ -1789,14 +1810,26 @@ export default function CrmContactsPage() {
                         </span>
                       </td>
                       <td className="px-2 py-3">
-                        <button
-                          onClick={() => setEditingContact(contact)}
-                          className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
-                          title="Edit contact"
-                          aria-label="Edit contact"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          {!contact.portalClient && (
+                            <button
+                              onClick={() => setCreatePortalContact(contact)}
+                              className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-[#D4AF37]"
+                              title="Create portal"
+                              aria-label="Create portal"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setEditingContact(contact)}
+                            className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+                            title="Edit contact"
+                            aria-label="Edit contact"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1895,6 +1928,14 @@ export default function CrmContactsPage() {
           contact={promoteContact}
           onClose={() => setPromoteContact(null)}
           onSuccess={() => setPromoteContact(null)}
+        />
+      )}
+      {createPortalContact && (
+        <PromoteToClientModal
+          contact={createPortalContact}
+          preserveStatus
+          onClose={() => setCreatePortalContact(null)}
+          onSuccess={() => setCreatePortalContact(null)}
         />
       )}
       {kanbanDemotion && (

@@ -1200,6 +1200,7 @@ export const crmRouter = createTRPCRouter({
         slug: z.string().min(1),
         company: z.string().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
+        preserveStatus: z.boolean().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -1238,19 +1239,24 @@ export const crmRouter = createTRPCRouter({
         })
         .returning();
 
-      // Set CRM status to client
-      await db
-        .update(masterCrm)
-        .set({ status: "client", updatedAt: new Date() })
-        .where(eq(masterCrm.id, input.crmId));
+      // Set CRM status to client (unless preserveStatus is set)
+      if (!input.preserveStatus) {
+        await db
+          .update(masterCrm)
+          .set({ status: "client", updatedAt: new Date() })
+          .where(eq(masterCrm.id, input.crmId));
+      }
 
       // Notify assigned account manager
       const amId = input.accountManagerId ?? contact[0].accountManagerId;
       if (amId) {
+        const action = input.preserveStatus
+          ? "Portal created"
+          : "Promoted to client";
         void createNotification({
           recipientId: amId,
           type: "status_change",
-          title: `${contact[0].name} promoted to client`,
+          title: `${contact[0].name} — ${action}`,
           message: `Client portal created at /portal/${input.slug}`,
           linkUrl: `/admin/clients/${input.slug}`,
         });

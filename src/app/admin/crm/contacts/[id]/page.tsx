@@ -200,6 +200,7 @@ export default function ContactDetailPage({
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
 
   const [showPromote, setShowPromote] = useState(false);
+  const [portalOnly, setPortalOnly] = useState(false);
   const [promoteSlug, setPromoteSlug] = useState("");
   const [promoteError, setPromoteError] = useState("");
   const [demotionInfo, setDemotionInfo] = useState<{
@@ -527,6 +528,7 @@ export default function ContactDetailPage({
                 });
               } else {
                 // No client record — trigger promote modal
+                setPortalOnly(false);
                 setPromoteSlug(
                   contact.name
                     .toLowerCase()
@@ -597,9 +599,10 @@ export default function ContactDetailPage({
           <StickyNote className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
           Add Note
         </button>
-        {contact.status !== "client" && !contact.portalClient && (
+        {!contact.portalClient && (
           <button
             onClick={() => {
+              setPortalOnly(contact.status !== "client");
               setPromoteSlug(
                 contact.name
                   .toLowerCase()
@@ -612,8 +615,11 @@ export default function ContactDetailPage({
             className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
             style={borderStyle}
           >
-            <Shield className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
-            Promote to Client
+            <ExternalLink
+              className="h-3.5 w-3.5"
+              style={{ color: "#D4AF37" }}
+            />
+            Create Portal
           </button>
         )}
       </div>
@@ -1399,7 +1405,7 @@ export default function ContactDetailPage({
                   <Shield className="h-4 w-4" style={{ color: "#D4AF37" }} />
                 </div>
                 <h2 className="text-lg font-semibold text-white">
-                  Create Client Portal
+                  {portalOnly ? "Create Portal" : "Create Client Portal"}
                 </h2>
               </div>
               <button
@@ -1412,9 +1418,23 @@ export default function ContactDetailPage({
             </div>
 
             <p className="mb-4 text-sm text-gray-400">
-              Promoting{" "}
-              <span className="font-medium text-white">{contact.name}</span> to
-              client. This will create a portal at{" "}
+              {portalOnly ? (
+                <>
+                  Creating a portal for{" "}
+                  <span className="font-medium text-white">{contact.name}</span>
+                  . Their CRM status will remain{" "}
+                  <span className="font-medium text-white">
+                    {contact.status}
+                  </span>
+                  . Portal at{" "}
+                </>
+              ) : (
+                <>
+                  Promoting{" "}
+                  <span className="font-medium text-white">{contact.name}</span>{" "}
+                  to client. This will create a portal at{" "}
+                </>
+              )}
               <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
                 /portal/{promoteSlug}
               </span>
@@ -1480,6 +1500,7 @@ export default function ContactDetailPage({
                       slug: promoteSlug,
                       company: contact.company ?? undefined,
                       accountManagerId: contact.accountManagerId,
+                      preserveStatus: portalOnly || undefined,
                     },
                     { onError: (err) => setPromoteError(err.message) }
                   );
@@ -1491,7 +1512,11 @@ export default function ContactDetailPage({
                     "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
                 }}
               >
-                {promote.isPending ? "Creating..." : "Create Client Portal"}
+                {promote.isPending
+                  ? "Creating..."
+                  : portalOnly
+                    ? "Create Portal"
+                    : "Create Client Portal"}
               </button>
             </div>
           </div>
