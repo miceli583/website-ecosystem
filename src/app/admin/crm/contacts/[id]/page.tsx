@@ -35,6 +35,7 @@ import {
   TagPicker,
   ReferralPicker,
   CompanyPicker,
+  StatusDropdown,
   inputClass,
   labelClass,
   borderStyle,
@@ -162,6 +163,15 @@ export default function ContactDetailPage({
       setShowPromote(false);
     },
   });
+  const demote = api.crm.demoteClient.useMutation({
+    onSuccess: () => {
+      void utils.crm.getContact.invalidate({ id });
+      void utils.crm.getContacts.invalidate();
+      void utils.crm.getPipelineStats.invalidate();
+      void utils.clients.list.invalidate();
+      setDemotionInfo(null);
+    },
+  });
 
   // ── Local state ────────────────────────────────────────────────
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -171,6 +181,10 @@ export default function ContactDetailPage({
   const [showPromote, setShowPromote] = useState(false);
   const [promoteSlug, setPromoteSlug] = useState("");
   const [promoteError, setPromoteError] = useState("");
+  const [demotionInfo, setDemotionInfo] = useState<{
+    newStatus: string;
+    client: { id: number; slug: string; name: string; status: string };
+  } | null>(null);
 
   const [showLogCall, setShowLogCall] = useState(false);
   const [logCallTitle, setLogCallTitle] = useState("");
@@ -473,21 +487,25 @@ export default function ContactDetailPage({
         </div>
 
         {/* Status dropdown pill */}
-        <div className="relative">
-          <select
-            value={contact.status}
-            onChange={(e) => {
-              const newStatus = e.target.value as
-                | "lead"
-                | "prospect"
-                | "client"
-                | "inactive"
-                | "churned";
-              if (
-                newStatus === "client" &&
-                contact.status !== "client" &&
-                !contact.portalClient
-              ) {
+        <StatusDropdown
+          value={contact.status}
+          options={Object.entries(STATUS_CONFIG).map(([key, cfg]) => ({
+            value: key,
+            ...cfg,
+          }))}
+          onChange={(newStatus) => {
+            const oldStatus = contact.status;
+
+            // Promoting to client?
+            if (oldStatus !== "client" && newStatus === "client") {
+              if (contact.portalClient) {
+                // Reactivating — client record exists, just update status
+                updateContact.mutate({
+                  id: contact.id,
+                  status: "client" as const,
+                });
+              } else {
+                // No client record — trigger promote modal
                 setPromoteSlug(
                   contact.name
                     .toLowerCase()
@@ -496,27 +514,36 @@ export default function ContactDetailPage({
                 );
                 setPromoteError("");
                 setShowPromote(true);
-                return;
               }
-              updateContact.mutate({ id: contact.id, status: newStatus });
-            }}
-            className="appearance-none rounded-full border-0 px-3 py-1 text-sm font-medium focus:outline-none"
-            style={{
-              backgroundColor: statusConfig.bg,
-              color: statusConfig.color,
-            }}
-          >
-            {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-              <option key={key} value={key}>
-                {cfg.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            className="pointer-events-none absolute top-1/2 right-1 h-3 w-3 -translate-y-1/2"
-            style={{ color: statusConfig.color }}
-          />
-        </div>
+              return;
+            }
+
+            // Demoting from client with portal?
+            if (
+              oldStatus === "client" &&
+              newStatus !== "client" &&
+              contact.portalClient
+            ) {
+              setDemotionInfo({
+                newStatus,
+                client: contact.portalClient,
+              });
+              return;
+            }
+
+            // Normal status change
+            updateContact.mutate({
+              id: contact.id,
+              status: newStatus as
+                | "lead"
+                | "prospect"
+                | "client"
+                | "inactive"
+                | "churned",
+            });
+          }}
+          disabled={updateContact.isPending}
+        />
       </div>
 
       {/* ── 3. Quick Actions Bar ─────────────────────────────────── */}
@@ -1125,6 +1152,115 @@ export default function ContactDetailPage({
       )}
 
       {/* ── Promote to Client Modal ──────────────────────────────── */}
+      {/* Demotion dialog */}
+      {demotionInfo && contact && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDemotionInfo(null);
+          }}
+        >
+          <div
+            className="relative mx-4 w-full max-w-md rounded-xl border bg-[#0a0a0a] p-6 shadow-2xl"
+            style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
+          >
+            <div className="mb-4 flex items-center gap-2">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-lg"
+                style={{ backgroundColor: "rgba(248, 113, 113, 0.1)" }}
+              >
+                <Shield className="h-4 w-4 text-red-400" />
+              </div>
+              <h2 className="text-lg font-semibold text-white">
+                Client Has Active Portal
+              </h2>
+            </div>
+
+            <p className="mb-2 text-sm text-gray-400">
+              <span className="font-medium text-white">
+                {demotionInfo.client.name}
+              </span>{" "}
+              has a portal at{" "}
+              <span className="font-mono text-xs" style={{ color: "#D4AF37" }}>
+                /portal/{demotionInfo.client.slug}
+              </span>
+              . Changing status to{" "}
+              <span className="font-medium text-white">
+                {STATUS_CONFIG[demotionInfo.newStatus]?.label ??
+                  demotionInfo.newStatus}
+              </span>{" "}
+              requires handling the portal.
+            </p>
+
+            <div className="mt-5 space-y-3">
+              <button
+                onClick={() =>
+                  demote.mutate({
+                    crmId: contact.id,
+                    newStatus: demotionInfo.newStatus as
+                      | "lead"
+                      | "prospect"
+                      | "inactive"
+                      | "churned",
+                    portalAction: "archive",
+                  })
+                }
+                disabled={demote.isPending}
+                className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-white/5 disabled:opacity-50"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                <Shield className="h-5 w-5 shrink-0 text-gray-400" />
+                <div>
+                  <p className="text-sm font-medium text-white">
+                    Archive Portal
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Portal preserved but inaccessible
+                  </p>
+                </div>
+              </button>
+
+              <button
+                onClick={() =>
+                  demote.mutate({
+                    crmId: contact.id,
+                    newStatus: demotionInfo.newStatus as
+                      | "lead"
+                      | "prospect"
+                      | "inactive"
+                      | "churned",
+                    portalAction: "remove",
+                  })
+                }
+                disabled={demote.isPending}
+                className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-white/5 disabled:opacity-50"
+                style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}
+              >
+                <X className="h-5 w-5 shrink-0 text-red-400" />
+                <div>
+                  <p className="text-sm font-medium text-white">
+                    Remove from Portal
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Client record deleted permanently
+                  </p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setDemotionInfo(null)}
+                disabled={demote.isPending}
+                className="w-full rounded-lg border px-4 py-2.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
+                style={borderStyle}
+              >
+                Cancel — Keep as Client
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Promote modal */}
       {showPromote && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
