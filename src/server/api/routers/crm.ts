@@ -364,6 +364,7 @@ export const crmRouter = createTRPCRouter({
         linkedClient,
         referrer,
         accountManager,
+        assignedDeveloper,
       ] = await Promise.all([
         db
           .select()
@@ -398,6 +399,17 @@ export const crmRouter = createTRPCRouter({
               })
               .from(portalUsers)
               .where(eq(portalUsers.id, contact[0].accountManagerId))
+              .limit(1)
+          : Promise.resolve([]),
+        contact[0].assignedDeveloperId
+          ? db
+              .select({
+                id: portalUsers.id,
+                name: portalUsers.name,
+                email: portalUsers.email,
+              })
+              .from(portalUsers)
+              .where(eq(portalUsers.id, contact[0].assignedDeveloperId))
               .limit(1)
           : Promise.resolve([]),
       ]);
@@ -452,6 +464,7 @@ export const crmRouter = createTRPCRouter({
         portalClient,
         referrer: referrer[0] ?? null,
         accountManager: accountManager[0] ?? null,
+        assignedDeveloper: assignedDeveloper[0] ?? null,
         stripeLifetimeSpend,
       };
     }),
@@ -588,6 +601,7 @@ export const crmRouter = createTRPCRouter({
         referredByExternal: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
         connectorId: z.string().uuid().nullable().optional(),
+        assignedDeveloperId: z.string().uuid().nullable().optional(),
         createdBy: z.string().nullable().optional(),
         tags: z.array(z.string()).optional(),
         communicationPreferences: z
@@ -627,6 +641,7 @@ export const crmRouter = createTRPCRouter({
         "company",
         "accountManagerId",
         "connectorId",
+        "assignedDeveloperId",
       ] as const;
       const hasSyncField = syncFields.some((f) => f in data);
 
@@ -1236,6 +1251,8 @@ export const crmRouter = createTRPCRouter({
           company: input.company ?? contact[0].company ?? undefined,
           accountManagerId:
             input.accountManagerId ?? contact[0].accountManagerId ?? undefined,
+          assignedDeveloperId: contact[0].assignedDeveloperId ?? undefined,
+          connectorId: contact[0].connectorId ?? undefined,
         })
         .returning();
 

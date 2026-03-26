@@ -633,6 +633,10 @@ export const masterCrm = pgTable("master_crm", {
   connectorId: uuid("connector_id").references(() => portalUsers.id, {
     onDelete: "set null",
   }),
+  assignedDeveloperId: uuid("assigned_developer_id").references(
+    () => portalUsers.id,
+    { onDelete: "set null" }
+  ),
   createdBy: text("created_by"),
   tags: text("tags").array(),
   notes: text("notes"),
@@ -924,6 +928,11 @@ export const masterCrmRelations = relations(masterCrm, ({ many, one }) => ({
     fields: [masterCrm.connectorId],
     references: [portalUsers.id],
     relationName: "crmConnector",
+  }),
+  assignedDeveloper: one(portalUsers, {
+    fields: [masterCrm.assignedDeveloperId],
+    references: [portalUsers.id],
+    relationName: "crmAssignedDeveloper",
   }),
 }));
 

@@ -939,6 +939,16 @@ export default function ContactDetailPage({
                 )}
               </SidebarCard>
 
+              <SidebarCard title="Assigned Developer">
+                <TeamMemberPicker
+                  value={contact.assignedDeveloperId}
+                  placeholder="Select developer..."
+                  onChange={(assignedDeveloperId) =>
+                    updateContact.mutate({ id, assignedDeveloperId })
+                  }
+                />
+              </SidebarCard>
+
               <SidebarCard title="Communication Preferences">
                 <div className="space-y-2">
                   {(["email", "sms", "phone"] as const).map((channel) => (
