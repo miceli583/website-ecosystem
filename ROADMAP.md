@@ -74,7 +74,8 @@ _Client onboarding will happen individually as calls are scheduled._
 - [ ] Project management / task management UI in admin portal
 - [ ] Bug & ticketing system: clients submit via portal, team manages in admin (Open → In Progress → Resolved → Closed)
 - [ ] SOP tab: checklist-driven client onboarding workflow (create portal → magic link → assign AM → first project), reusable process templates
-- [ ] Activity log / audit trail: who did what and when, append-only, visible in admin
+- [x] Activity log / audit trail: crm_activities table with auto-logging on status/assignment changes
+- [ ] Contracts section: client portal + admin CRM view (files, agreements, legal docs)
 - [ ] Global search (Cmd+K): search across contacts, clients, projects, tickets
 - [ ] Profile view tab: role, contracts, legal, financial data, 1099/profit sharing payouts
 - [ ] Legal agreements for portal onboarding (bundled with profile/contracts)

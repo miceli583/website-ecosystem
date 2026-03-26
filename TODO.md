@@ -29,7 +29,8 @@ _None currently_
 - [x] **Project/task management UI**: Admin hub + portal — list/kanban, filters, sort, AM/dev/owner, standalone tasks
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
-- [ ] **Activity log**: Audit trail — who did what and when, visible in admin
+- [x] **Activity log**: CRM activities table with auto-logging, activity feed on contact/client detail pages
+- [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs)
 - [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
 - [ ] **Profile documents tab**: Contracts, agreements, file upload
 - [ ] **Profile bank balance tab**: Mercury direct deposit integration, 1099 payouts

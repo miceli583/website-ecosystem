@@ -542,6 +542,25 @@ export const formRegistry = pgTable("form_registry", {
 });
 
 /**
+ * CRM Activities - Activity log for contacts (calls, emails, meetings, notes)
+ */
+export const crmActivities = pgTable("crm_activities", {
+  id: serial("id").primaryKey(),
+  crmId: uuid("crm_id")
+    .notNull()
+    .references(() => masterCrm.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // call | email | meeting | note | status_change | assignment
+  title: text("title").notNull(),
+  description: text("description"),
+  createdBy: uuid("created_by").references(() => portalUsers.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
  * Contact Submissions - Public contact form entries (miraclemind.dev)
  * Links to master_crm for unified contact management
  */
@@ -848,7 +867,20 @@ export const clientNotesRelations = relations(clientNotes, ({ one }) => ({
   }),
 }));
 
+export const crmActivitiesRelations = relations(crmActivities, ({ one }) => ({
+  contact: one(masterCrm, {
+    fields: [crmActivities.crmId],
+    references: [masterCrm.id],
+  }),
+  creator: one(portalUsers, {
+    fields: [crmActivities.createdBy],
+    references: [portalUsers.id],
+    relationName: "activityCreator",
+  }),
+}));
+
 export const masterCrmRelations = relations(masterCrm, ({ many, one }) => ({
+  activities: many(crmActivities),
   personalContactSubmissions: many(personalContactSubmissions),
   contactSubmissions: many(contactSubmissions),
   banyanEarlyAccessSignups: many(banyanEarlyAccess),

@@ -15,6 +15,7 @@ import {
   clients,
   portalUsers,
   formRegistry,
+  crmActivities,
 } from "~/server/db/schema";
 import {
   and,
@@ -503,8 +504,16 @@ export const crmRouter = createTRPCRouter({
         referredBy: z.string().uuid().nullable().optional(),
         referredByExternal: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
+        connectorId: z.string().uuid().nullable().optional(),
         createdBy: z.string().nullable().optional(),
         tags: z.array(z.string()).optional(),
+        communicationPreferences: z
+          .object({
+            email: z.boolean().optional(),
+            sms: z.boolean().optional(),
+            phone: z.boolean().optional(),
+          })
+          .optional(),
         notes: z.string().nullable().optional(),
       })
     )
@@ -534,6 +543,7 @@ export const crmRouter = createTRPCRouter({
         "email",
         "company",
         "accountManagerId",
+        "connectorId",
       ] as const;
       const hasSyncField = syncFields.some((f) => f in data);
       if (hasSyncField) {
@@ -557,14 +567,49 @@ export const crmRouter = createTRPCRouter({
         }
       }
 
-      // Notify account manager on status change
-      if (data.status && updated?.accountManagerId) {
-        void createNotification({
-          recipientId: updated.accountManagerId,
+      // Auto-log activity on status change
+      if (data.status && updated) {
+        void db.insert(crmActivities).values({
+          crmId: id,
           type: "status_change",
-          title: `${updated.name} status → ${data.status}`,
-          message: `Contact status updated to ${data.status}`,
-          linkUrl: `/admin/crm/contacts/${id}`,
+          title: `Status changed to ${data.status}`,
+          createdBy: ctx.profile.id,
+        });
+
+        // Notify account manager
+        if (updated.accountManagerId) {
+          void createNotification({
+            recipientId: updated.accountManagerId,
+            type: "status_change",
+            title: `${updated.name} status → ${data.status}`,
+            message: `Contact status updated to ${data.status}`,
+            linkUrl: `/admin/crm/contacts/${id}`,
+          });
+        }
+      }
+
+      // Auto-log activity on assignment changes
+      if (data.accountManagerId !== undefined && updated) {
+        void db.insert(crmActivities).values({
+          crmId: id,
+          type: "assignment",
+          title: data.accountManagerId
+            ? "Account manager assigned"
+            : "Account manager removed",
+          createdBy: ctx.profile.id,
+        });
+      }
+      if (
+        (data as Record<string, unknown>).connectorId !== undefined &&
+        updated
+      ) {
+        void db.insert(crmActivities).values({
+          crmId: id,
+          type: "assignment",
+          title: (data as Record<string, unknown>).connectorId
+            ? "Connector assigned"
+            : "Connector removed",
+          createdBy: ctx.profile.id,
         });
       }
 
@@ -581,6 +626,103 @@ export const crmRouter = createTRPCRouter({
       .where(eq(formRegistry.isActive, true))
       .orderBy(formRegistry.id);
   }),
+
+  // ── Contact by CRM ID (for client detail page) ────────────────
+
+  getContactByCrmId: adminProcedure
+    .input(z.object({ crmId: z.string().uuid() }))
+    .query(async ({ input }) => {
+      const contact = await db.query.masterCrm.findFirst({
+        where: eq(masterCrm.id, input.crmId),
+        with: {
+          accountManager: {
+            columns: { id: true, name: true, email: true, phone: true },
+          },
+          connector: {
+            columns: { id: true, name: true, email: true },
+          },
+        },
+      });
+      return contact ?? null;
+    }),
+
+  // ── Related Contacts (same company) ────────────────────────────
+
+  getRelatedContacts: adminProcedure
+    .input(z.object({ crmId: z.string().uuid(), company: z.string() }))
+    .query(async ({ input }) => {
+      if (!input.company) return [];
+      return db
+        .select({
+          id: masterCrm.id,
+          name: masterCrm.name,
+          email: masterCrm.email,
+          status: masterCrm.status,
+        })
+        .from(masterCrm)
+        .where(
+          and(
+            eq(masterCrm.company, input.company),
+            sql`${masterCrm.id} != ${input.crmId}`
+          )
+        )
+        .orderBy(masterCrm.name)
+        .limit(10);
+    }),
+
+  // ── Activity Feed ──────────────────────────────────────────────
+
+  getActivities: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        limit: z.number().min(1).max(100).default(50),
+      })
+    )
+    .query(async ({ input }) => {
+      return db.query.crmActivities.findMany({
+        where: eq(crmActivities.crmId, input.crmId),
+        orderBy: [desc(crmActivities.createdAt)],
+        limit: input.limit,
+        with: {
+          creator: {
+            columns: { id: true, name: true },
+          },
+        },
+      });
+    }),
+
+  createActivity: adminProcedure
+    .input(
+      z.object({
+        crmId: z.string().uuid(),
+        type: z.enum([
+          "call",
+          "email",
+          "meeting",
+          "note",
+          "status_change",
+          "assignment",
+        ]),
+        title: z.string().min(1),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [activity] = await db
+        .insert(crmActivities)
+        .values({
+          crmId: input.crmId,
+          type: input.type,
+          title: input.title,
+          description: input.description ?? null,
+          createdBy: ctx.profile.id,
+        })
+        .returning();
+      return activity;
+    }),
+
+  // ── Leads ─────────────────────────────────────────────────────
 
   getLeads: adminProcedure.query(async () => {
     const [banyanLeads, mmLeads, personalLeads] = await Promise.all([
