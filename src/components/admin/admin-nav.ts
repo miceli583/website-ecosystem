@@ -56,7 +56,7 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
     requiredRoles: ["founder", "admin", "account_manager", "connector"],
     items: [
       { title: "Overview", href: "/admin/crm" },
-      { title: "Leads", href: "/admin/crm/leads" },
+      { title: "Form Submissions", href: "/admin/crm/leads" },
       { title: "Contacts", href: "/admin/crm/contacts" },
       {
         title: "Clients",

@@ -102,6 +102,8 @@ export const crmRouter = createTRPCRouter({
         search: z.string().optional(),
         status: z.string().optional(),
         source: z.string().optional(),
+        createdBy: z.string().optional(),
+        tag: z.string().optional(),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
       })
@@ -142,6 +144,12 @@ export const crmRouter = createTRPCRouter({
       }
       if (input.source) {
         conditions.push(eq(masterCrm.source, input.source));
+      }
+      if (input.createdBy) {
+        conditions.push(eq(masterCrm.createdBy, input.createdBy));
+      }
+      if (input.tag) {
+        conditions.push(sql`${input.tag} = ANY(${masterCrm.tags})`);
       }
 
       const where =
@@ -454,6 +462,61 @@ export const crmRouter = createTRPCRouter({
   }),
 
   /**
+   * Bulk create CRM contacts (for CSV import)
+   */
+  bulkCreateContacts: fullAccessProcedure
+    .input(
+      z.object({
+        contacts: z.array(
+          z.object({
+            name: z.string().min(1),
+            email: z.string().email(),
+            phone: z.string().nullable().optional(),
+            company: z.string().nullable().optional(),
+          })
+        ),
+        status: z.string().default("lead"),
+        source: z.string().default("internal"),
+        tags: z.array(z.string()).optional(),
+        accountManagerId: z.string().uuid().nullable().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      let created = 0;
+      let skipped = 0;
+
+      for (const contact of input.contacts) {
+        // Skip duplicates by email
+        const existing = await db
+          .select({ id: masterCrm.id })
+          .from(masterCrm)
+          .where(eq(masterCrm.email, contact.email))
+          .limit(1);
+
+        if (existing[0]) {
+          skipped++;
+          continue;
+        }
+
+        await db.insert(masterCrm).values({
+          name: contact.name,
+          email: contact.email,
+          phone: contact.phone ?? null,
+          company: contact.company ?? null,
+          status: input.status,
+          source: input.source,
+          tags: input.tags ?? [],
+          accountManagerId: input.accountManagerId ?? null,
+          createdBy: (ctx as unknown as { profile: { name: string } }).profile
+            .name,
+        });
+        created++;
+      }
+
+      return { created, skipped };
+    }),
+
+  /**
    * Create a new master CRM contact (auto-sets createdBy from session)
    */
   createContact: adminProcedure
@@ -546,9 +609,9 @@ export const crmRouter = createTRPCRouter({
         "connectorId",
       ] as const;
       const hasSyncField = syncFields.some((f) => f in data);
-      if (hasSyncField) {
+      if (hasSyncField || data.status) {
         const linkedClient = await db
-          .select({ id: clients.id })
+          .select({ id: clients.id, status: clients.status })
           .from(clients)
           .where(eq(clients.crmId, id))
           .limit(1);
@@ -560,6 +623,14 @@ export const crmRouter = createTRPCRouter({
           for (const f of syncFields) {
             if (f in data) clientUpdate[f] = data[f as keyof typeof data];
           }
+
+          // Status sync: CRM inactive/churned → client inactive, CRM client → client active
+          if (data.status === "inactive" || data.status === "churned") {
+            clientUpdate.status = "inactive";
+          } else if (data.status === "client") {
+            clientUpdate.status = "active";
+          }
+
           await db
             .update(clients)
             .set(clientUpdate)

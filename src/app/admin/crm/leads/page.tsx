@@ -410,9 +410,9 @@ export default function CrmLeadsPage() {
             Back to CRM
           </Link>
         </div>
-        <h1 className="text-2xl font-bold text-white">Leads & Signups</h1>
+        <h1 className="text-2xl font-bold text-white">Form Submissions</h1>
         <p className="text-sm text-gray-400">
-          Inbound leads and contact form submissions across all sources
+          Inbound leads and signups across all sources
         </p>
       </div>
 

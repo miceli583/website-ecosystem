@@ -19,6 +19,8 @@ import {
   Plus,
   AlertTriangle,
   Shield,
+  Download,
+  Upload,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 import {
@@ -28,12 +30,15 @@ import {
   CompanyPicker,
   SortHeader,
   type SortLevel,
+  ContactKanban,
+  CsvImportModal,
   inputClass,
   selectClass,
   labelClass,
   borderStyle,
   STATUS_CONFIG,
 } from "~/components/crm";
+import { ViewToggle } from "~/components/projects/view-toggle";
 import { SOURCE_OPTIONS } from "~/lib/source-labels";
 
 /* ── Skeleton ──────────────────────────────────────────────────── */
@@ -1128,21 +1133,74 @@ export default function CrmContactsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [sourceFilter, setSourceFilter] = useState<string | undefined>();
+  const [createdByFilter, setCreatedByFilter] = useState<string | undefined>();
+  const [tagFilter, setTagFilter] = useState<string | undefined>();
+  const [view, setView] = useState<"list" | "kanban">("list");
   const [sorts, setSorts] = useState<SortLevel[]>([
     { field: "name", order: "asc" },
   ]);
   const [page, setPage] = useState(0);
   const [editingContact, setEditingContact] = useState<ContactRow | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const limit = 25;
+
+  const utils = api.useUtils();
+  const { data: tagOptions = [] } = api.crm.getTagOptions.useQuery();
+  const { data: team = [] } = api.crm.getCompanyTeam.useQuery();
 
   const { data, isLoading } = api.crm.getContacts.useQuery({
     search: search || undefined,
     status: statusFilter,
     source: sourceFilter,
-    limit,
-    offset: page * limit,
+    createdBy: createdByFilter,
+    tag: tagFilter,
+    limit: view === "kanban" ? 100 : limit,
+    offset: view === "kanban" ? 0 : page * limit,
   });
+
+  const kanbanStatusChange = api.crm.updateContact.useMutation({
+    onSuccess: () => {
+      void utils.crm.getContacts.invalidate();
+      void utils.crm.getPipelineStats.invalidate();
+    },
+  });
+
+  const handleExport = () => {
+    if (!data?.contacts?.length) return;
+    const rows = (data.contacts as ContactRow[]).map((c) => [
+      c.name,
+      c.email,
+      c.phone ?? "",
+      c.company ?? "",
+      c.status,
+      c.source,
+      (c.tags ?? []).join("; "),
+      c.createdBy ?? "",
+      new Date(c.lastContactAt).toISOString().split("T")[0],
+    ]);
+    const header = [
+      "Name",
+      "Email",
+      "Phone",
+      "Company",
+      "Status",
+      "Source",
+      "Tags",
+      "Created By",
+      "Last Contact",
+    ];
+    const csv = [header, ...rows]
+      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `crm-contacts-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleSort = (field: string) => {
     setSorts((prev) => {
@@ -1277,212 +1335,312 @@ export default function CrmContactsPage() {
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
+        <div className="relative">
+          <select
+            value={createdByFilter ?? ""}
+            onChange={(e) => {
+              setCreatedByFilter(e.target.value || undefined);
+              setPage(0);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="">All Created By</option>
+            {team.map((m: { id: string; name: string }) => (
+              <option key={m.id} value={m.name}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={tagFilter ?? ""}
+            onChange={(e) => {
+              setTagFilter(e.target.value || undefined);
+              setPage(0);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <option value="">All Tags</option>
+            {tagOptions.map((tag: string) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
         {data && (
           <span className="text-sm text-gray-500">
             {data.total} contact{data.total !== 1 ? "s" : ""}
           </span>
         )}
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-          style={{
-            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          New Contact
-        </button>
+        <ViewToggle view={view} onViewChange={setView} />
+
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={handleExport}
+            disabled={!data?.contacts?.length}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+          <button
+            onClick={() => setShowImport(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+          >
+            <Upload className="h-4 w-4" />
+            Import
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            New Contact
+          </button>
+        </div>
       </div>
 
-      {/* Contacts Table */}
-      <div
-        className="rounded-lg border bg-white/5"
-        style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-      >
-        {isLoading ? (
+      {/* Contacts View */}
+      {view === "kanban" ? (
+        isLoading ? (
           <TableSkeleton />
         ) : !data?.contacts?.length ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Users className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
-              {search || statusFilter || sourceFilter
+              {search ||
+              statusFilter ||
+              sourceFilter ||
+              createdByFilter ||
+              tagFilter
                 ? "No contacts match your filters"
                 : "No contacts yet"}
             </p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr
-                className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
-                style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
-              >
-                <SortHeader
-                  field="name"
-                  label="Name"
-                  sorts={sorts}
-                  onSort={handleSort}
-                />
-                <SortHeader
-                  field="email"
-                  label="Contact"
-                  sorts={sorts}
-                  onSort={handleSort}
-                />
-                <th className="px-4 py-3">Sources</th>
-                <SortHeader
-                  field="status"
-                  label="Status"
-                  sorts={sorts}
-                  onSort={handleSort}
-                />
-                <th className="px-4 py-3">Tags</th>
-                <SortHeader
-                  field="lastContact"
-                  label="Last Contact"
-                  sorts={sorts}
-                  onSort={handleSort}
-                />
-                <th className="w-10 px-2 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {sortedContacts.map((contact: ContactRow) => {
-                const config =
-                  STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.lead!;
-                return (
-                  <tr
-                    key={contact.id}
-                    className="border-b transition-colors hover:bg-white/5"
-                    style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
-                  >
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`/admin/crm/contacts/${contact.id}`}
-                        className="font-medium text-white transition-colors hover:text-[#D4AF37]"
-                      >
-                        {contact.name}
-                      </Link>
-                      {contact.company && (
-                        <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
-                          <Building2 className="h-3 w-3" />
-                          {contact.company}
-                        </p>
-                      )}
-                      {contact.portalClient && (
+          <ContactKanban
+            contacts={data.contacts as ContactRow[]}
+            onStatusChange={(id, status) =>
+              kanbanStatusChange.mutate({
+                id,
+                status: status as
+                  | "lead"
+                  | "prospect"
+                  | "client"
+                  | "inactive"
+                  | "churned",
+              })
+            }
+            isPending={kanbanStatusChange.isPending}
+          />
+        )
+      ) : (
+        <div
+          className="rounded-lg border bg-white/5"
+          style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+        >
+          {isLoading ? (
+            <TableSkeleton />
+          ) : !data?.contacts?.length ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Users className="mb-3 h-12 w-12 text-gray-600" />
+              <p className="text-gray-500">
+                {search ||
+                statusFilter ||
+                sourceFilter ||
+                createdByFilter ||
+                tagFilter
+                  ? "No contacts match your filters"
+                  : "No contacts yet"}
+              </p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr
+                  className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+                >
+                  <SortHeader
+                    field="name"
+                    label="Name"
+                    sorts={sorts}
+                    onSort={handleSort}
+                  />
+                  <SortHeader
+                    field="email"
+                    label="Contact"
+                    sorts={sorts}
+                    onSort={handleSort}
+                  />
+                  <th className="px-4 py-3">Sources</th>
+                  <SortHeader
+                    field="status"
+                    label="Status"
+                    sorts={sorts}
+                    onSort={handleSort}
+                  />
+                  <th className="px-4 py-3">Tags</th>
+                  <SortHeader
+                    field="lastContact"
+                    label="Last Contact"
+                    sorts={sorts}
+                    onSort={handleSort}
+                  />
+                  <th className="w-10 px-2 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {sortedContacts.map((contact: ContactRow) => {
+                  const config =
+                    STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.lead!;
+                  return (
+                    <tr
+                      key={contact.id}
+                      className="border-b transition-colors hover:bg-white/5"
+                      style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+                    >
+                      <td className="px-4 py-3">
                         <Link
-                          href={`/admin/clients/${contact.portalClient.slug}`}
-                          className="mt-0.5 flex items-center gap-1 text-xs transition-colors hover:text-white"
-                          style={{ color: "#4ade80" }}
+                          href={`/admin/crm/contacts/${contact.id}`}
+                          className="font-medium text-white transition-colors hover:text-[#D4AF37]"
                         >
-                          <ExternalLink className="h-3 w-3" />
-                          Portal Client
+                          {contact.name}
                         </Link>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="space-y-0.5">
-                        <p className="flex items-center gap-1 text-gray-400">
-                          <Mail className="h-3 w-3" />
-                          {contact.email}
-                        </p>
-                        {contact.phone && (
-                          <a
-                            href={`tel:${contact.phone.replace(/[^+\d]/g, "")}`}
-                            className="flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-[#D4AF37]"
-                          >
-                            <Phone className="h-3 w-3" />
-                            {contact.phone}
-                          </a>
+                        {contact.company && (
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
+                            <Building2 className="h-3 w-3" />
+                            {contact.company}
+                          </p>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {contact.submissionSources.length > 0 ? (
-                          contact.submissionSources.map((src: string) => (
-                            <span
-                              key={src}
-                              className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                              style={{
-                                backgroundColor: "rgba(212, 175, 55, 0.1)",
-                                color: "#D4AF37",
-                              }}
+                        {contact.portalClient && (
+                          <Link
+                            href={`/admin/clients/${contact.portalClient.slug}`}
+                            className="mt-0.5 flex items-center gap-1 text-xs transition-colors hover:text-white"
+                            style={{ color: "#4ade80" }}
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            Portal Client
+                          </Link>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="space-y-0.5">
+                          <p className="flex items-center gap-1 text-gray-400">
+                            <Mail className="h-3 w-3" />
+                            {contact.email}
+                          </p>
+                          {contact.phone && (
+                            <a
+                              href={`tel:${contact.phone.replace(/[^+\d]/g, "")}`}
+                              className="flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-[#D4AF37]"
                             >
-                              {src}
-                            </span>
-                          ))
+                              <Phone className="h-3 w-3" />
+                              {contact.phone}
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {contact.submissionSources.length > 0 ? (
+                            contact.submissionSources.map((src: string) => (
+                              <span
+                                key={src}
+                                className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                                style={{
+                                  backgroundColor: "rgba(212, 175, 55, 0.1)",
+                                  color: "#D4AF37",
+                                }}
+                              >
+                                {src}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-600">—</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: config.bg,
+                            color: config.color,
+                          }}
+                        >
+                          {config.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {contact.tags?.length ? (
+                          <div className="flex flex-wrap gap-1">
+                            {contact.tags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs"
+                                style={{
+                                  backgroundColor: "rgba(212, 175, 55, 0.1)",
+                                  color: "#D4AF37",
+                                }}
+                              >
+                                <Tag className="h-2.5 w-2.5" />
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         ) : (
                           <span className="text-xs text-gray-600">—</span>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                        style={{
-                          backgroundColor: config.bg,
-                          color: config.color,
-                        }}
-                      >
-                        {config.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {contact.tags?.length ? (
-                        <div className="flex flex-wrap gap-1">
-                          {contact.tags.map((tag: string) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs"
-                              style={{
-                                backgroundColor: "rgba(212, 175, 55, 0.1)",
-                                color: "#D4AF37",
-                              }}
-                            >
-                              <Tag className="h-2.5 w-2.5" />
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-600">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-400">
-                      <span className="inline-flex items-center gap-1 text-xs">
-                        <Clock className="h-3 w-3" />
-                        {new Date(contact.lastContactAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}
-                      </span>
-                    </td>
-                    <td className="px-2 py-3">
-                      <button
-                        onClick={() => setEditingContact(contact)}
-                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
-                        title="Edit contact"
-                        aria-label="Edit contact"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-400">
+                        <span className="inline-flex items-center gap-1 text-xs">
+                          <Clock className="h-3 w-3" />
+                          {new Date(contact.lastContactAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
+                        </span>
+                      </td>
+                      <td className="px-2 py-3">
+                        <button
+                          onClick={() => setEditingContact(contact)}
+                          className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
+                          title="Edit contact"
+                          aria-label="Edit contact"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
       {/* Pagination */}
-      {data && data.total > limit && (
+      {view === "list" && data && data.total > limit && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
             Showing {page * limit + 1}–
@@ -1518,6 +1676,16 @@ export default function CrmContactsPage() {
       )}
       {showCreate && (
         <CreateContactModal onClose={() => setShowCreate(false)} />
+      )}
+      {showImport && (
+        <CsvImportModal
+          onClose={() => setShowImport(false)}
+          onSuccess={() => {
+            void utils.crm.getContacts.invalidate();
+            void utils.crm.getPipelineStats.invalidate();
+            void utils.crm.getTagOptions.invalidate();
+          }}
+        />
       )}
     </div>
   );

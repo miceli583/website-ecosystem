@@ -184,8 +184,8 @@ export default function CrmPage() {
                 <Inbox className="h-5 w-5" style={{ color: "#D4AF37" }} />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Leads & Signups</h3>
-                <p className="text-sm text-gray-400">Form submissions</p>
+                <h3 className="font-semibold text-white">Form Submissions</h3>
+                <p className="text-sm text-gray-400">Leads and signups</p>
               </div>
             </div>
             <ArrowUpRight className="h-5 w-5 text-gray-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />

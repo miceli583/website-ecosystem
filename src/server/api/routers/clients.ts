@@ -411,6 +411,15 @@ export const clientsRouter = createTRPCRouter({
         .where(eq(clients.id, id))
         .returning();
 
+      // Status sync: client status → linked CRM contact status
+      if (data.status && updated?.crmId) {
+        const crmStatus = data.status === "active" ? "client" : "inactive";
+        await db
+          .update(masterCrm)
+          .set({ status: crmStatus, updatedAt: new Date() })
+          .where(eq(masterCrm.id, updated.crmId));
+      }
+
       // Cascade slug change to all linked records
       if (data.slug && oldSlug && data.slug !== oldSlug) {
         // 1. portalUsers.clientSlug
