@@ -17,7 +17,7 @@ import {
   FolderKanban,
 } from "lucide-react";
 import { createClient } from "~/lib/supabase/client";
-import { getPortalLoginUrl } from "~/lib/domains";
+import { getPortalLoginUrl, getAdminUrl } from "~/lib/domains";
 
 type ClientListItem = RouterOutputs["portal"]["listClients"][number];
 
@@ -48,8 +48,10 @@ export default function PortalPage() {
         // Client users redirect to their own portal
         router.push(`/portal/${profile.clientSlug}?domain=live`);
       } else if (profile.role === "admin") {
-        // Team members redirect to admin clients page
-        router.push("/admin/clients");
+        // Team members redirect to admin hub (cross-domain aware)
+        const url = getAdminUrl("/admin/clients");
+        if (url.startsWith("http")) window.location.href = url;
+        else router.push(url);
       }
     }
   }, [profile, profileLoading, router]);
@@ -158,12 +160,12 @@ export default function PortalPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
+            <a
+              href={getAdminUrl()}
               className="text-sm text-gray-400 transition-colors hover:text-white"
             >
               Admin Hub
-            </Link>
+            </a>
             <Link
               href="/portal/profile?domain=live"
               className="text-sm text-gray-400 transition-colors hover:text-white"
