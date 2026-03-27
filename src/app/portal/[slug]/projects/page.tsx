@@ -315,12 +315,14 @@ export default function PortalProjectsPage({
               </TabsTrigger>
             )}
           </TabsList>
-          <ViewToggle
-            view={activeTab === "projects" ? projectView : taskView}
-            onViewChange={(v) =>
-              activeTab === "projects" ? setProjectView(v) : setTaskView(v)
-            }
-          />
+          {isAdmin && (
+            <ViewToggle
+              view={activeTab === "projects" ? projectView : taskView}
+              onViewChange={(v) =>
+                activeTab === "projects" ? setProjectView(v) : setTaskView(v)
+              }
+            />
+          )}
         </div>
 
         {/* Projects Tab */}

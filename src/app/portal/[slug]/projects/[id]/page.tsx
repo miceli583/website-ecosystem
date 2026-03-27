@@ -307,7 +307,7 @@ export default function PortalProjectDetailPage({
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">Tasks</h2>
         <div className="flex items-center gap-3">
-          <ViewToggle view={view} onViewChange={setView} />
+          {isAdmin && <ViewToggle view={view} onViewChange={setView} />}
           {isAdmin && (
             <button
               onClick={() => {
