@@ -811,7 +811,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
   const handleCreate = () => {
     createContact.mutate({
       name: form.name,
-      email: form.email,
+      email: form.email || undefined,
       phone: form.phone || null,
       company: form.company || null,
       status: form.status as
@@ -1135,7 +1135,7 @@ function CreateContactModal({ onClose }: { onClose: () => void }) {
           </button>
           <button
             onClick={handleCreate}
-            disabled={createContact.isPending || !form.name || !form.email}
+            disabled={createContact.isPending || !form.name}
             className="rounded-lg px-4 py-2 text-sm font-medium text-black transition-opacity disabled:opacity-50"
             style={{
               background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",

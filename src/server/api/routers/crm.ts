@@ -535,7 +535,7 @@ export const crmRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1),
-        email: z.string().email(),
+        email: z.string().email().optional(),
         phone: z.string().nullable().optional(),
         company: z.string().nullable().optional(),
         status: z

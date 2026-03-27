@@ -31,6 +31,8 @@ _None currently_
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
 - [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs)
+- [ ] **Email change flow**: Admin + client self-service email update (syncs auth, portal_users, clients, master_crm)
+- [x] **Optional email on contacts**: Allow CRM contact creation without email (phone-only, referral names); require email only at promotion to client/portal
 - [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
 - [ ] **Profile documents tab**: Contracts, agreements, file upload
 - [ ] **Profile bank balance tab**: Mercury direct deposit integration, 1099 payouts

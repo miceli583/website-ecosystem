@@ -613,7 +613,7 @@ export const contactSubmissions = pgTable("contact_submissions", {
  */
 export const masterCrm = pgTable("master_crm", {
   id: uuid("id").primaryKey().defaultRandom(),
-  email: text("email").notNull().unique(),
+  email: text("email").unique(),
   name: text("name").notNull(),
   phone: text("phone"),
   communicationPreferences: jsonb("communication_preferences")
