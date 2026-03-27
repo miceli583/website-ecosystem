@@ -64,7 +64,7 @@ export default function MeetOurTeamPage() {
         </p>
       </Prose>
 
-      <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3">
+      <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
         {team.map((member) => (
           <div key={member.name} className="text-center">
             <div

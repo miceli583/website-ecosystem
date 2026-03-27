@@ -141,6 +141,18 @@ export function DemoRenderer({
     );
   }
 
+  // Microapp with URL — render in full-screen iframe
+  if (demo.type === "microapp" && demo.url) {
+    return (
+      <iframe
+        src={demo.url}
+        className="h-screen w-full border-0"
+        title={demo.title}
+        allow="fullscreen"
+      />
+    );
+  }
+
   // Fallback — demo exists but has no renderable content
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
