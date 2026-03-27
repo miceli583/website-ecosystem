@@ -276,7 +276,7 @@ export default function FrazierDentistryLayout({
             {/* Mobile toggle */}
             <button
               type="button"
-              className="rounded-md p-2 lg:hidden"
+              className="rounded-md p-3 lg:hidden"
               style={{ color: COLORS.brown }}
               aria-label="Toggle menu"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -300,7 +300,7 @@ export default function FrazierDentistryLayout({
                   <div className="flex items-center">
                     <Link
                       href={item.href}
-                      className="flex-1 px-3 py-2 text-sm font-medium"
+                      className="flex-1 px-3 py-3 text-sm font-medium"
                       style={{ color: COLORS.brown }}
                       onClick={() => !item.children && setMobileOpen(false)}
                     >
@@ -308,7 +308,7 @@ export default function FrazierDentistryLayout({
                     </Link>
                     {item.children && (
                       <button
-                        className="px-3 py-2"
+                        className="px-3 py-3"
                         onClick={() =>
                           setMobileExpanded(
                             mobileExpanded === item.name ? null : item.name
@@ -334,7 +334,7 @@ export default function FrazierDentistryLayout({
                         <Link
                           key={child.href}
                           href={child.href}
-                          className="block px-3 py-1.5 text-sm"
+                          className="block px-3 py-2.5 text-sm"
                           style={{ color: COLORS.medBrown }}
                           onClick={() => setMobileOpen(false)}
                         >
@@ -366,7 +366,7 @@ export default function FrazierDentistryLayout({
         style={{ backgroundColor: COLORS.brown }}
         className="px-4 py-12 text-white/80 sm:px-6"
       >
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
           <div>
             <h3 className="mb-3 text-sm font-bold text-white">
               Frazier Dentistry

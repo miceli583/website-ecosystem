@@ -43,7 +43,7 @@ export default function FeedbackPage() {
               {[1, 2, 3, 4, 5].map((n) => (
                 <Star
                   key={n}
-                  className="h-7 w-7 cursor-pointer"
+                  className="h-8 w-8 cursor-pointer"
                   style={{
                     color:
                       n <= 4 ? FRAZIER_COLORS.copper : FRAZIER_COLORS.beige,

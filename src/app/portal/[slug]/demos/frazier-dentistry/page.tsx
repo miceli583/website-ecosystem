@@ -98,7 +98,7 @@ export default function FrazierHomePage({
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
         <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-6 sm:px-8">
           <h1
-            className="mb-3 text-4xl leading-tight font-bold text-white sm:text-5xl lg:text-6xl"
+            className="mb-3 text-3xl leading-tight font-bold text-white sm:text-5xl lg:text-6xl"
             style={{ fontFamily: "'Lobster Two', cursive" }}
           >
             Your Smile,
@@ -269,7 +269,7 @@ export default function FrazierHomePage({
       <section className="px-4 py-16 sm:px-6">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 sm:flex-row">
           <div
-            className="relative h-64 w-64 shrink-0 overflow-hidden rounded-full border-4"
+            className="relative h-48 w-48 shrink-0 overflow-hidden rounded-full border-4 sm:h-64 sm:w-64"
             style={{ borderColor: COLORS.beige }}
           >
             <Image
