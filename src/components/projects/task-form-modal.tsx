@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import type { TaskWithMeta, TeamMember, ClientOption } from "./types";
 
 const inputClass =
   "w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#D4AF37]/50";
+const selectClass =
+  "w-full appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none focus:border-[#D4AF37]/50";
 const labelClass =
   "mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500";
 const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
+
+const chevronIcon = (
+  <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+);
 
 interface ProjectOption {
   id: number;
@@ -167,30 +173,36 @@ export function TaskFormModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className={inputClass}
-                style={borderStyle}
-              >
-                <option value="todo">Todo</option>
-                <option value="in-progress">In Progress</option>
-                <option value="done">Done</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className={selectClass}
+                  style={borderStyle}
+                >
+                  <option value="todo">Todo</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+                {chevronIcon}
+              </div>
             </div>
             <div>
               <label className={labelClass}>Priority</label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className={inputClass}
-                style={borderStyle}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className={selectClass}
+                  style={borderStyle}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+                {chevronIcon}
+              </div>
             </div>
           </div>
 
@@ -198,21 +210,24 @@ export function TaskFormModal({
           {!defaultProjectId && projects.length > 0 && (
             <div>
               <label className={labelClass}>Project (optional)</label>
-              <select
-                value={projectId}
-                onChange={(e) =>
-                  setProjectId(e.target.value ? Number(e.target.value) : "")
-                }
-                className={inputClass}
-                style={borderStyle}
-              >
-                <option value="">No project</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={projectId}
+                  onChange={(e) =>
+                    setProjectId(e.target.value ? Number(e.target.value) : "")
+                  }
+                  className={selectClass}
+                  style={borderStyle}
+                >
+                  <option value="">No project</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                {chevronIcon}
+              </div>
             </div>
           )}
 
@@ -220,21 +235,24 @@ export function TaskFormModal({
           {mode === "admin" && !defaultClientId && (
             <div>
               <label className={labelClass}>Client (optional)</label>
-              <select
-                value={clientId}
-                onChange={(e) =>
-                  setClientId(e.target.value ? Number(e.target.value) : "")
-                }
-                className={inputClass}
-                style={borderStyle}
-              >
-                <option value="">No client</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={clientId}
+                  onChange={(e) =>
+                    setClientId(e.target.value ? Number(e.target.value) : "")
+                  }
+                  className={selectClass}
+                  style={borderStyle}
+                >
+                  <option value="">No client</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                {chevronIcon}
+              </div>
             </div>
           )}
 
@@ -251,53 +269,62 @@ export function TaskFormModal({
 
           <div>
             <label className={labelClass}>Owner</label>
-            <select
-              value={ownerId}
-              onChange={(e) => setOwnerId(e.target.value)}
-              className={inputClass}
-              style={borderStyle}
-            >
-              <option value="">Unassigned</option>
-              {team.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={ownerId}
+                onChange={(e) => setOwnerId(e.target.value)}
+                className={selectClass}
+                style={borderStyle}
+              >
+                <option value="">Unassigned</option>
+                {team.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+              {chevronIcon}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Account Manager</label>
-              <select
-                value={amId}
-                onChange={(e) => setAmId(e.target.value)}
-                className={inputClass}
-                style={borderStyle}
-              >
-                <option value="">Auto / None</option>
-                {accountManagers.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={amId}
+                  onChange={(e) => setAmId(e.target.value)}
+                  className={selectClass}
+                  style={borderStyle}
+                >
+                  <option value="">Auto / None</option>
+                  {accountManagers.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                {chevronIcon}
+              </div>
             </div>
             <div>
               <label className={labelClass}>Developer</label>
-              <select
-                value={devId}
-                onChange={(e) => setDevId(e.target.value)}
-                className={inputClass}
-                style={borderStyle}
-              >
-                <option value="">Auto / None</option>
-                {developers.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={devId}
+                  onChange={(e) => setDevId(e.target.value)}
+                  className={selectClass}
+                  style={borderStyle}
+                >
+                  <option value="">Auto / None</option>
+                  {developers.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                {chevronIcon}
+              </div>
             </div>
           </div>
         </div>

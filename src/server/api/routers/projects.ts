@@ -12,6 +12,10 @@ import {
   projectTasks,
   clients,
   portalUsers,
+  clientUpdates,
+  clientNotes,
+  clientResources,
+  clientAgreements,
 } from "~/server/db/schema";
 import { eq, desc, asc, and, ilike, or, count, sql, isNull } from "drizzle-orm";
 import { isFullAccess } from "~/lib/permissions";
@@ -31,6 +35,7 @@ export const projectsRouter = createTRPCRouter({
         accountManagerId: z.string().optional(),
         developerId: z.string().optional(),
         status: projectStatusEnum.optional(),
+        includeArchived: z.boolean().default(false),
         search: z.string().optional(),
         sortBy: z
           .enum(["name", "createdAt", "updatedAt", "status"])
@@ -42,6 +47,11 @@ export const projectsRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const conditions = [];
+
+      // Archive filter — hide archived by default
+      if (!input.includeArchived) {
+        conditions.push(eq(clientProjects.isArchived, false));
+      }
 
       // Role-based scoping — union of all assigned roles
       const roles = (ctx.profile.companyRoles ?? []) as string[];
@@ -55,6 +65,14 @@ export const projectsRouter = createTRPCRouter({
         if (roles.includes("developer")) {
           scopeConditions.push(
             eq(clientProjects.assignedDeveloperId, ctx.profile.id)
+          );
+        }
+        // Connector: see projects for clients where they're the connector
+        if (roles.includes("connector")) {
+          scopeConditions.push(
+            sql`${clientProjects.clientId} IN (
+              SELECT id FROM clients WHERE connector_id = ${ctx.profile.id}
+            )`
           );
         }
         if (scopeConditions.length > 0) {
@@ -258,11 +276,56 @@ export const projectsRouter = createTRPCRouter({
       return project;
     }),
 
+  getDeleteImpact: fullAccessProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const [tasks, updates, notes, resources, agreements] = await Promise.all([
+        db
+          .select({ count: count() })
+          .from(projectTasks)
+          .where(eq(projectTasks.projectId, input.id)),
+        db
+          .select({ count: count() })
+          .from(clientUpdates)
+          .where(eq(clientUpdates.projectId, input.id)),
+        db
+          .select({ count: count() })
+          .from(clientNotes)
+          .where(eq(clientNotes.projectId, input.id)),
+        db
+          .select({ count: count() })
+          .from(clientResources)
+          .where(eq(clientResources.projectId, input.id)),
+        db
+          .select({ count: count() })
+          .from(clientAgreements)
+          .where(eq(clientAgreements.projectId, input.id)),
+      ]);
+      return {
+        tasks: tasks[0]?.count ?? 0,
+        updates: updates[0]?.count ?? 0,
+        notes: notes[0]?.count ?? 0,
+        resources: resources[0]?.count ?? 0,
+        agreements: agreements[0]?.count ?? 0,
+      };
+    }),
+
   delete: fullAccessProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       await db.delete(clientProjects).where(eq(clientProjects.id, input.id));
       return { success: true };
+    }),
+
+  toggleArchive: accountManagerProcedure
+    .input(z.object({ id: z.number(), isArchived: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const [project] = await db
+        .update(clientProjects)
+        .set({ isArchived: input.isArchived, updatedAt: new Date() })
+        .where(eq(clientProjects.id, input.id))
+        .returning();
+      return project;
     }),
 
   // ─── TASK PROCEDURES ───────────────────────────────────────────────
@@ -290,13 +353,38 @@ export const projectsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const conditions = [];
 
+      // Exclude tasks from archived projects
+      conditions.push(
+        sql`(${projectTasks.projectId} IS NULL OR ${projectTasks.projectId} NOT IN (
+          SELECT id FROM client_projects WHERE is_archived = true
+        ))`
+      );
+
       // Role-based scoping
       const roles = (ctx.profile.companyRoles ?? []) as string[];
       if (!isFullAccess(roles)) {
+        const scopeConditions = [];
         if (roles.includes("account_manager")) {
-          conditions.push(eq(projectTasks.accountManagerId, ctx.profile.id));
-        } else if (roles.includes("developer")) {
-          conditions.push(eq(projectTasks.assignedDeveloperId, ctx.profile.id));
+          scopeConditions.push(
+            eq(projectTasks.accountManagerId, ctx.profile.id)
+          );
+        }
+        if (roles.includes("developer")) {
+          scopeConditions.push(
+            eq(projectTasks.assignedDeveloperId, ctx.profile.id)
+          );
+        }
+        if (roles.includes("connector")) {
+          scopeConditions.push(
+            sql`${projectTasks.clientId} IN (
+              SELECT id FROM clients WHERE connector_id = ${ctx.profile.id}
+            )`
+          );
+        }
+        if (scopeConditions.length > 0) {
+          conditions.push(or(...scopeConditions)!);
+        } else {
+          conditions.push(sql`false`);
         }
       }
 

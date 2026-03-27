@@ -595,17 +595,18 @@ export default function PortalNotesPage({
             : "rgba(212, 175, 55, 0.15)",
         }}
       >
-        {/* Header row — matches ListItem layout */}
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <button
-            onClick={() => setExpandedNoteId(isExpanded ? null : note.id)}
-            className="flex min-w-0 flex-1 items-center gap-3 text-left"
-          >
-            <div className="flex-shrink-0" style={{ color: "#D4AF37" }}>
-              <StickyNote className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
+        {/* Header row + preview */}
+        <div
+          onClick={() => setExpandedNoteId(isExpanded ? null : note.id)}
+          className="cursor-pointer px-4 py-3"
+        >
+          {/* Title row — right elements aligned with title */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex-shrink-0" style={{ color: "#D4AF37" }}>
+                <StickyNote className="h-5 w-5" />
+              </div>
+              <div className="flex min-w-0 items-center gap-2">
                 <p className="truncate font-medium text-white">{note.title}</p>
                 {note.isPinned && (
                   <Pin
@@ -614,34 +615,40 @@ export default function PortalNotesPage({
                   />
                 )}
               </div>
-              {!isExpanded && note.content && note.content !== "<p></p>" && (
-                <RichTextPreview
-                  html={note.content}
-                  lineClamp={2}
-                  className="text-gray-400"
-                />
-              )}
             </div>
-          </button>
-          <div className="flex flex-shrink-0 items-center gap-4 text-sm text-gray-500">
-            <span className="hidden sm:inline">
-              {note.project?.name ?? "Unassigned"}
-            </span>
-            <span className="flex items-center gap-1 text-xs">
-              <span
-                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${authorColor(note.createdByName)}`}
-              >
-                {getInitials(note.createdByName)}
+            <div
+              className="flex flex-shrink-0 items-center gap-4 text-sm text-gray-500"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="hidden sm:inline">
+                {note.project?.name ?? "Unassigned"}
               </span>
-            </span>
-            <span className="text-xs">
-              {relativeTime(note.updatedAt)}
-              {edited && (
-                <span className="ml-1 text-gray-600 italic">(edited)</span>
-              )}
-            </span>
-            {isAdmin && <AdminActionMenu actions={getNoteActions(note)} />}
+              <span className="flex items-center gap-1 text-xs">
+                <span
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${authorColor(note.createdByName)}`}
+                >
+                  {getInitials(note.createdByName)}
+                </span>
+              </span>
+              <span className="text-xs">
+                {relativeTime(note.updatedAt)}
+                {edited && (
+                  <span className="ml-1 text-gray-600 italic">(edited)</span>
+                )}
+              </span>
+              {isAdmin && <AdminActionMenu actions={getNoteActions(note)} />}
+            </div>
           </div>
+          {/* Preview below title row */}
+          {!isExpanded && note.content && note.content !== "<p></p>" && (
+            <div className="mt-1 pl-8">
+              <RichTextPreview
+                html={note.content}
+                lineClamp={2}
+                className="text-gray-400"
+              />
+            </div>
+          )}
         </div>
 
         {/* Expanded content */}

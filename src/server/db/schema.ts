@@ -349,6 +349,7 @@ export const clientProjects = pgTable("client_projects", {
   name: text("name").notNull(),
   description: text("description"),
   status: text("status").notNull().default("active"), // active | completed | on-hold | paused
+  isArchived: boolean("is_archived").notNull().default(false),
   accountManagerId: uuid("account_manager_id").references(
     () => portalUsers.id,
     { onDelete: "set null" }
@@ -478,7 +479,9 @@ export const clientAgreements = pgTable("client_agreements", {
   clientId: integer("client_id")
     .notNull()
     .references(() => clients.id, { onDelete: "cascade" }),
-  projectId: integer("project_id").references(() => clientProjects.id),
+  projectId: integer("project_id").references(() => clientProjects.id, {
+    onDelete: "set null",
+  }),
   title: text("title").notNull(),
   content: text("content").notNull(),
   status: text("status").notNull().default("draft"), // draft | sent | signed | declined

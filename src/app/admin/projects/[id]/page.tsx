@@ -2,7 +2,8 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Pencil } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Plus, Pencil, ExternalLink } from "lucide-react";
 import { api } from "~/trpc/react";
 import {
   TaskList,
@@ -18,6 +19,7 @@ import type {
   TaskWithMeta,
   ProjectWithMeta,
 } from "~/components/projects";
+import type { SortLevel } from "~/components/crm/sort-header";
 
 const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
 
@@ -34,8 +36,9 @@ export default function AdminProjectDetailPage({
   // View state
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filters, setFilters] = useState<FilterState>({});
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sorts, setSorts] = useState<SortLevel[]>([
+    { field: "createdAt", order: "desc" },
+  ]);
 
   // Modal state
   const [showTaskForm, setShowTaskForm] = useState(false);
@@ -162,12 +165,15 @@ export default function AdminProjectDetailPage({
   const doneCount = allTasks.filter((t) => t.status === "done").length;
 
   const handleSort = (field: string) => {
-    if (field === sortBy) {
-      setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(field);
-      setSortOrder("asc");
-    }
+    setSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
   };
 
   // Build project meta for edit modal
@@ -176,6 +182,7 @@ export default function AdminProjectDetailPage({
     name: project.name,
     description: project.description,
     status: project.status,
+    isArchived: project.isArchived ?? false,
     clientId: project.clientId,
     accountManagerId: project.accountManagerId,
     assignedDeveloperId: project.assignedDeveloperId,
@@ -203,19 +210,7 @@ export default function AdminProjectDetailPage({
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1
-                className="text-xl font-bold"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  fontFamily: "'Quattrocento Sans', serif",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                {project.name}
-              </h1>
+              <h1 className="text-xl font-bold text-white">{project.name}</h1>
               <ProjectStatusBadge status={project.status} />
             </div>
             {project.description && (
@@ -246,13 +241,23 @@ export default function AdminProjectDetailPage({
               )}
             </div>
           </div>
-          <button
-            onClick={() => setShowProjectEdit(true)}
-            className="rounded-lg border p-2 text-gray-500 transition-colors hover:text-[#D4AF37]"
-            style={borderStyle}
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/portal/${project.client.slug}?domain=live`}
+              className="rounded-lg border p-2 text-gray-500 transition-colors hover:text-[#D4AF37]"
+              style={borderStyle}
+              title={`Open ${project.client.name} portal`}
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+            <button
+              onClick={() => setShowProjectEdit(true)}
+              className="rounded-lg border p-2 text-gray-500 transition-colors hover:text-[#D4AF37]"
+              style={borderStyle}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Stats row */}
@@ -312,8 +317,7 @@ export default function AdminProjectDetailPage({
           tasks={filteredTasks}
           mode="admin"
           showProject={false}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
+          sorts={sorts}
           onSort={handleSort}
           onEdit={(t) => {
             setEditingTask(t);

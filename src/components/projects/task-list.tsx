@@ -1,38 +1,20 @@
 "use client";
 
-import { ChevronUp, ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import type { TaskWithMeta } from "./types";
 import { TaskStatusBadge, PriorityBadge } from "./status-badges";
+import { SortHeader, type SortLevel } from "~/components/crm/sort-header";
 
 interface TaskListProps {
   tasks: TaskWithMeta[];
   mode: "admin" | "portal";
   showProject?: boolean;
   showClient?: boolean;
-  sortBy: string;
-  sortOrder: string;
+  sorts: SortLevel[];
   onSort: (field: string) => void;
   onEdit?: (task: TaskWithMeta) => void;
   onDelete?: (id: number) => void;
   onMoveStatus?: (id: number, status: string) => void;
-}
-
-function SortIcon({
-  field,
-  sortBy,
-  sortOrder,
-}: {
-  field: string;
-  sortBy: string;
-  sortOrder: string;
-}) {
-  if (field !== sortBy)
-    return <ChevronDown className="h-3 w-3 text-gray-600" />;
-  return sortOrder === "asc" ? (
-    <ChevronUp className="h-3 w-3 text-[#D4AF37]" />
-  ) : (
-    <ChevronDown className="h-3 w-3 text-[#D4AF37]" />
-  );
 }
 
 function DueDateCell({ dueDate }: { dueDate: string | null }) {
@@ -53,13 +35,15 @@ const STATUS_CYCLE: Record<string, string> = {
   done: "todo",
 };
 
+const thStatic =
+  "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500";
+
 export function TaskList({
   tasks,
   mode,
   showProject = true,
   showClient = false,
-  sortBy,
-  sortOrder,
+  sorts,
   onSort,
   onEdit,
   onDelete,
@@ -73,58 +57,65 @@ export function TaskList({
     );
   }
 
-  const thClass =
-    "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer select-none hover:text-gray-300 transition-colors";
-  const thStatic =
-    "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500";
-
   return (
     <div
       className="overflow-x-auto rounded-lg border"
       style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
     >
-      <table className="w-full">
-        <thead className="bg-white/5">
-          <tr>
-            <th className={thClass} onClick={() => onSort("title")}>
-              <span className="flex items-center gap-1">
-                Title{" "}
-                <SortIcon field="title" sortBy={sortBy} sortOrder={sortOrder} />
-              </span>
-            </th>
-            {showProject && <th className={thStatic}>Project</th>}
-            {showClient && <th className={thStatic}>Client</th>}
-            <th className={thClass} onClick={() => onSort("status")}>
-              <span className="flex items-center gap-1">
-                Status{" "}
-                <SortIcon
-                  field="status"
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              </span>
-            </th>
-            <th className={thClass} onClick={() => onSort("priority")}>
-              <span className="flex items-center gap-1">
-                Priority{" "}
-                <SortIcon
-                  field="priority"
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              </span>
-            </th>
-            <th className={thStatic}>Owner</th>
-            <th className={thClass} onClick={() => onSort("dueDate")}>
-              <span className="flex items-center gap-1">
-                Due Date{" "}
-                <SortIcon
-                  field="dueDate"
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              </span>
-            </th>
+      <table className="w-full text-sm">
+        <thead>
+          <tr
+            className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
+            style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+          >
+            <SortHeader
+              field="title"
+              label="Title"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            {showProject && (
+              <SortHeader
+                field="project"
+                label="Project"
+                sorts={sorts}
+                onSort={onSort}
+              />
+            )}
+            {showClient && (
+              <SortHeader
+                field="client"
+                label="Client"
+                sorts={sorts}
+                onSort={onSort}
+              />
+            )}
+            <SortHeader
+              field="status"
+              label="Status"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            <SortHeader
+              field="priority"
+              label="Priority"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            {mode === "admin" && (
+              <SortHeader
+                field="owner"
+                label="Owner"
+                sorts={sorts}
+                onSort={onSort}
+              />
+            )}
+            <SortHeader
+              field="dueDate"
+              label="Due Date"
+              sorts={sorts}
+              onSort={onSort}
+            />
             {(onEdit || onDelete) && <th className={thStatic}>Actions</th>}
           </tr>
         </thead>
@@ -175,9 +166,11 @@ export function TaskList({
               <td className="px-4 py-3">
                 <PriorityBadge priority={task.priority} />
               </td>
-              <td className="px-4 py-3 text-sm text-gray-400">
-                {task.owner?.name ?? "—"}
-              </td>
+              {mode === "admin" && (
+                <td className="px-4 py-3 text-sm text-gray-400">
+                  {task.owner?.name ?? "—"}
+                </td>
+              )}
               <td className="px-4 py-3 text-sm">
                 <DueDateCell dueDate={task.dueDate} />
               </td>

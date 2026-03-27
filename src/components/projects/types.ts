@@ -3,12 +3,13 @@ export type ProjectWithMeta = {
   name: string;
   description: string | null;
   status: string;
+  isArchived: boolean;
   clientId: number;
   accountManagerId: string | null;
   assignedDeveloperId: string | null;
   createdAt: Date;
   updatedAt: Date;
-  client: { id: number; name: string; slug: string };
+  client: { id: number; name: string; slug: string } | null;
   accountManager: { id: string; name: string } | null;
   assignedDeveloper: { id: string; name: string } | null;
   _count: { tasks: number; doneTasks: number };
