@@ -6,7 +6,7 @@ _None currently_
 
 ## Bugs & Tech Debt
 
-- [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog still inline — extract to `src/components/crm/` (cosmetic, not blocking)
+- [x] ~~**Extract shared dialogs**: PromoteToClientModal + DemotionDialog extracted to `src/components/crm/`~~
 - [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow — retry + staleTime mitigates but root cause is connection pool pressure
 
 ## Client Work (prioritized)
@@ -20,7 +20,8 @@ _None currently_
 ### Shechem Sauls
 
 - [ ] Resolve DNS error for chw360.com
-- [ ] Build demo for Karla Frazier, duplicate under Karla's account when done
+- [x] ~~Build demo for Karla Frazier~~ — Frazier Dentistry demo built (28 pages), project created under Shechem
+- [ ] Duplicate Frazier Dentistry demo under Karla Frazier's account when ready
 - [ ] Refine project management for various projects
 - [ ] Create Gamma alternative for slide builder
 - [ ] Build LMS prototype demo

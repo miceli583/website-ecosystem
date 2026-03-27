@@ -3,7 +3,7 @@
 **Version:** 0.9.0
 **Last Updated:** 2026-03-27
 **Last Updated By:** Matthew Miceli
-**Commits:** 245+
+**Commits:** 250+
 
 ## Feature Status
 
@@ -31,6 +31,9 @@
 | Portal projects           | Working     | Client list view (no kanban), admin gets DnD kanban + task management                                   |
 | CRM contact detail        | Working     | 3-tab layout, expandable notes, StatusDropdown, smart promote/demote, developer assignment              |
 | CRM client detail         | Working     | 3-tab layout, expandable CRM notes, Delete Portal action, team pickers                                  |
+| Frazier Dentistry demo    | **New**     | 28-page website demo under Shechem's portal, public share support via registry                          |
+| Public share OG branding  | **New**     | Universal Miracle Mind OG images (4 variants), branded link previews for all share links                |
+| CRM shared components     | **Updated** | PromoteToClientModal, DemotionDialog, ContactRow type extracted to `src/components/crm/`                |
 
 ## Known Limitations
 
@@ -41,12 +44,12 @@
 
 ## Recent Changes
 
-| Date   | Commit  | Description                                                                           | Author         |
-| ------ | ------- | ------------------------------------------------------------------------------------- | -------------- |
-| Mar 27 | 0044f70 | Optional email on CRM contact creation                                                | Matthew Miceli |
-| Mar 27 | 9c894da | Projects overhaul: DnD kanbans, archiving, portal detail page, UI consistency         | Matthew Miceli |
-| Mar 26 | e86af2b | Rename Clients → Portals, tag filter, portal/actions merge, cross-domain redirect fix | Matthew Miceli |
-| Mar 26 | 93f724f | CRM pipeline status filter, tech debt cleanup, client status removal                  | Matthew Miceli |
-| Mar 26 | a29d69f | Unscope CRM contacts, gate portal links by assignment, Delete Portal                  | Matthew Miceli |
+| Date   | Commit  | Description                                                                     | Author         |
+| ------ | ------- | ------------------------------------------------------------------------------- | -------------- |
+| Mar 27 | bdf04f8 | Branded OG images for share link previews (4 variants, universal fallback)      | Matthew Miceli |
+| Mar 27 | ee4d658 | Frazier demo → single component for public share support (TapCHW pattern)       | Matthew Miceli |
+| Mar 27 | 25d5a9c | Frazier Dentistry demo — 28-page website + brand assets                         | Matthew Miceli |
+| Mar 27 | 9f36b7e | Extract CRM dialogs (PromoteToClientModal, DemotionDialog) to shared components | Matthew Miceli |
+| Mar 27 | 0044f70 | Optional email on CRM contact creation                                          | Matthew Miceli |
 
 _Older changes: `git log --oneline`_
