@@ -4,47 +4,88 @@
 
 _None currently_
 
-## Bugs & Tech Debt (fix before roadmap)
+## Bugs & Tech Debt
 
-- [x] **Dependabot: picomatch v4.0.3 → v4.0.4**: Updated
-- [x] **Remove unused client status references**: Removed from edit modal, mutations, queries
-- [x] **Bidirectional status sync cleanup**: Removed status sync + archive mutation
-- [x] **Drop `clients.status` column**: Dropped from DB + schema
-- [x] **Type assertions in portal profile**: Replaced 8 verbose casts with clean local variable
 - [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog still inline — extract to `src/components/crm/` (cosmetic, not blocking)
 - [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow — retry + staleTime mitigates but root cause is connection pool pressure
 
-## Enhancements (prioritized)
+## Client Work (prioritized)
 
-### High Priority — Client Onboarding & Deliverables
+### Marissa Lambert
 
-- [ ] **Set up Marissa Lambert** in client portal → prep Soul Map UI
-- [ ] **Add Zoey Wind** to client portal → start building website
-- [ ] **Add Shane David Street** to client portal → start building website
-- [ ] **Glo Moss next phase**: website work + connect re: Tony Cho
-- [ ] **Shechem deliverables**: TapCHW website, Gamma slide builder, LMS prototype demo
+- [ ] Discuss Gene Keys ToS — can't use Gene Keys language in front-facing app
+- [ ] Scope project for Soul Map App Phase 1, build proposal, set up project management
+- [ ] Upload NDA to contracts tab (blocked by: Contracts section)
 
-### High Priority — Platform (Phase 8+)
+### Shechem Sauls
 
-- [ ] **Proposal Builder UI**: Non-dev Account Managers can create/edit proposals
+- [ ] Resolve DNS error for chw360.com
+- [ ] Build demo for Karla Frazier, duplicate under Karla's account when done
+- [ ] Refine project management for various projects
+- [ ] Create Gamma alternative for slide builder
+- [ ] Build LMS prototype demo
+- [ ] Log single invoice for TapCHW website build (blocked by: One-time invoice logging)
+- [ ] Tell Shechem: host TapCHW in personal Vercel + Supabase
+
+### Karla Alvarado
+
+- [ ] Duplicate TapCHW demo from Shechem's portal, create copy under Karla
+- [ ] Set up project management for TapCHW website + CRM build
+- [ ] Log invoice payment under billing (blocked by: One-time invoice logging)
+
+### Zoey Wind
+
+- [ ] Set up meeting to discuss personal website + cogs
+- [ ] Create demo personal website
+
+### Shane David Street
+
+- [ ] Set up meeting to discuss personal website + cogs
+- [ ] Create demo personal website
+
+### Glo Moss
+
+- [ ] Refine project management
+- [ ] Create contact and demo for Symbiosis
+
+### Austin Terry
+
+- [ ] Set up proposal for dad's landing page
+- [ ] Set up hosting for dad's landing page
+- [ ] Pay Austin once invoice goes through
+
+## Platform Features (prioritized)
+
+### High Priority — Unblocks Client Work
+
+- [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs) — unblocks Marissa NDA upload
+- [ ] **Invoice payment logging**: AMs can log already-paid invoices by searching Mercury/Stripe by customer name, ID, or invoice ID (retroactive record-keeping) — unblocks Shechem + Karla invoicing
+- [ ] **Proposal Builder UI**: Non-dev AMs can create/edit proposals — unblocks Austin proposal
 - [ ] **Proposals modal UI refresh**: Friendlier, easier to read
+
+### High Priority — Financial Systems
+
+- [ ] **Payment method separation**: Stripe one-time → default checking, subscriptions → recurring checking. Set up second Mercury account for recurring payments.
+- [ ] **Mercury invoice creation via API**: Investigate if AMs can create Mercury invoices through the app
+- [ ] **Proposal Builder: Stripe vs Mercury option**: When creating new proposals, choose payment method (Stripe invoice or Mercury invoice) — currently Stripe-only. Depends on Mercury API investigation.
+- [ ] **Stripe sub-accounts for hosted clients**: Learn how to set up Stripe billing in apps hosted for clients (payment middleman model)
+- [ ] **Team direct deposit**: Team members set up direct deposit in their profile
+- [ ] **Profit-sharing payouts**: Mercury API to pay team based on percentage of client payments per project
+- [ ] **Smart monthly COGS calculator**: Claude sub + Vercel sub + Supabase ($25 + $10/additional DB) + Resend usage (scales with emails sent across hosted sites)
+- [ ] **Purchase accounts**: Apple Developer, Vercel Pro, Supabase Pro
+
+### High Priority — Platform
+
 - [ ] **Bug & ticketing system**: Client-facing issue submission, admin-side management
 - [ ] **SOP tab**: Checklist-driven onboarding workflows and reusable process templates
-- [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs)
 - [ ] **Email change flow**: Admin + client self-service email update (syncs auth, portal_users, clients, master_crm)
-- [x] **Optional email on contacts**: Allow CRM contact creation without email (phone-only, referral names); require email only at promotion to client/portal
 - [ ] **Global search (Cmd+K)**: Search across contacts, clients, projects, tickets
-- [ ] **Profile documents tab**: Contracts, agreements, file upload
-- [ ] **Profile bank balance tab**: Mercury direct deposit integration, 1099 payouts
 
 ### Medium Priority
 
 - [ ] **Role-specific KPI dashboards**: Overview tab per role with relevant metrics
 - [ ] **KPI builder**: Founder defines custom KPIs per role, assigns targets
 - [ ] **Team scorecard**: Project health, team metrics, quarterly rocks, DoD templates
-- [ ] **AM billing access**: Search Mercury invoices/one-time bills, create custom invoices
-- [ ] **One-time invoice payments**: Mercury linking for one-time payment flow
-- [ ] **Mercury as payment platform**: Investigate Mercury Plus recurring invoices as Stripe replacement
 - [ ] **Funnel & ad campaign**: Build marketing funnel for website/CRM building services
 - [ ] **Privacy policies / ToS**: Legal agreements for portal onboarding
 
@@ -54,4 +95,4 @@ _None currently_
 - [ ] **Sentry error tracking**: Ecosystem-wide, dedicated admin tab
 - [ ] **Brand tab in client portal**: Per-client guidelines, colors, fonts, logos
 - [ ] **Keyboard shortcuts**: Cmd+K search, Esc close, Cmd+N new note
-- [ ] **Environment sandbox** (Phase 14, blocked): Needs free Supabase slot — second project for dev/sandbox with seed script, migration workflow, team onboarding
+- [ ] **Environment sandbox**: Needs free Supabase slot — second project for dev/sandbox
