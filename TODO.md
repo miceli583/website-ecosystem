@@ -4,17 +4,15 @@
 
 _None currently_
 
-## Bugs (broken functionality)
+## Bugs & Tech Debt (fix before roadmap)
 
-- [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow under concurrent queries — retry + staleTime added but root cause is connection pool pressure
-- [ ] **clients.status column unused**: `clients.status` DB column still exists but is no longer read — can be dropped in a future migration
-
-## Tech Debt (code quality issues)
-
+- [x] **Dependabot: picomatch v4.0.3 → v4.0.4**: Method injection in POSIX character classes — updated
+- [ ] **Remove unused client status references**: Edit modal on clients page still has status select field — remove it
+- [ ] **Bidirectional status sync cleanup**: `clients.update` and `clients.archive` still have status sync logic referencing unused `clients.status` — simplify
+- [ ] **Drop `clients.status` column**: DB column still exists but is no longer read — drop via migration
+- [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog are inline in contacts list + contact detail — extract to `src/components/crm/`
 - [ ] **Type assertions in portal profile**: `assignedDeveloper` requires `as typeof client & {...}` casts — clean up when Drizzle relation types stabilize
-- [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog are still inline in contacts list + contact detail pages — should be extracted to `src/components/crm/`
-- [ ] **Bidirectional status sync cleanup**: `clients.update` and `clients.archive` still have status sync logic that references the now-unused `clients.status` — can be simplified
-- [ ] **Remove unused client status references**: Edit modal on clients page still has status select — should be removed
+- [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow under concurrent queries — retry + staleTime added but root cause is connection pool pressure
 
 ## Enhancements (prioritized)
 
