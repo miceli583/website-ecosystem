@@ -328,7 +328,6 @@ export const clients = pgTable("clients", {
   email: text("email").notNull().unique(),
   slug: text("slug").notNull().unique(),
   stripeCustomerId: text("stripe_customer_id"),
-  status: text("status").notNull().default("active"), // active | inactive
   company: text("company"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true })

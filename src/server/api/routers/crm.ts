@@ -205,7 +205,6 @@ export const crmRouter = createTRPCRouter({
               slug: clients.slug,
               name: clients.name,
               company: clients.company,
-              status: clients.status,
             })
             .from(clients)
             .where(inArray(clients.crmId, contactIds)),
@@ -233,7 +232,6 @@ export const crmRouter = createTRPCRouter({
           slug: string;
           name: string;
           company: string | null;
-          status: string;
         }
       >(
         linkedClients.map(
@@ -243,7 +241,6 @@ export const crmRouter = createTRPCRouter({
             slug: string;
             name: string;
             company: string | null;
-            status: string;
           }) => [
             c.crmId,
             {
@@ -251,7 +248,6 @@ export const crmRouter = createTRPCRouter({
               slug: c.slug,
               name: c.name,
               company: c.company,
-              status: c.status,
             },
           ]
         )
@@ -630,7 +626,7 @@ export const crmRouter = createTRPCRouter({
 
       // Look up linked client + portal user
       const linkedClient = await db
-        .select({ id: clients.id, status: clients.status, slug: clients.slug })
+        .select({ id: clients.id, slug: clients.slug })
         .from(clients)
         .where(eq(clients.crmId, id))
         .limit(1);
@@ -1175,7 +1171,6 @@ export const crmRouter = createTRPCRouter({
         .select({
           id: clients.id,
           slug: clients.slug,
-          status: clients.status,
           name: clients.name,
         })
         .from(clients)

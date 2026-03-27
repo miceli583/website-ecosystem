@@ -24,10 +24,7 @@ type ClientListItem = RouterOutputs["portal"]["listClients"][number];
 export default function PortalPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sortBy, setSortBy] = useState<
-    "name" | "newest" | "oldest" | "active" | "inactive"
-  >("name");
+  const [sortBy, setSortBy] = useState<"name" | "newest" | "oldest">("name");
 
   const utils = api.useUtils();
 
@@ -115,8 +112,6 @@ export default function PortalPage() {
   // Filter + sort clients
   const filteredClients = clients
     ?.filter((client: ClientListItem) => {
-      if (statusFilter !== "all" && client.status !== statusFilter)
-        return false;
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
       return (
@@ -136,8 +131,6 @@ export default function PortalPage() {
         return (
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
-      if (sortBy === "active") return a.status === "active" ? -1 : 1;
-      if (sortBy === "inactive") return a.status === "inactive" ? -1 : 1;
       return 0;
     });
 
@@ -216,20 +209,6 @@ export default function PortalPage() {
 
           <div className="relative">
             <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
-          </div>
-
-          <div className="relative">
-            <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
@@ -238,8 +217,6 @@ export default function PortalPage() {
               <option value="name">Name</option>
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
-              <option value="active">Active First</option>
-              <option value="inactive">Inactive First</option>
             </select>
             <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
           </div>
@@ -272,7 +249,7 @@ export default function PortalPage() {
             <div className="flex flex-col items-center justify-center py-16">
               <Users className="mb-3 h-12 w-12 text-gray-600" />
               <p className="text-gray-500">
-                {searchQuery || statusFilter !== "all"
+                {searchQuery
                   ? "No clients match your filters"
                   : "No clients yet"}
               </p>
@@ -298,20 +275,6 @@ export default function PortalPage() {
                       <span>{client.email}</span>
                     </div>
                   </div>
-
-                  {/* Status badge */}
-                  <span
-                    className="hidden flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline-flex"
-                    style={{
-                      backgroundColor:
-                        client.status === "active"
-                          ? "rgba(74, 222, 128, 0.1)"
-                          : "rgba(156, 163, 175, 0.1)",
-                      color: client.status === "active" ? "#4ade80" : "#9ca3af",
-                    }}
-                  >
-                    {client.status === "active" ? "Active" : "Inactive"}
-                  </span>
 
                   {/* Projects count */}
                   <span className="hidden flex-shrink-0 items-center gap-1 text-xs text-gray-500 md:inline-flex">

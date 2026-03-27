@@ -463,19 +463,16 @@ export default function PortalProfilePage({
           </CardContent>
         </Card>
 
-        {/* Your Team — only show for active clients with assigned team */}
-        {client.status === "active" &&
-          (client.accountManager ||
-            (
-              client as typeof client & {
-                assignedDeveloper?: {
-                  id: string;
-                  name: string;
-                  email: string;
-                  phone: string | null;
-                };
-              }
-            ).assignedDeveloper) && (
+        {/* Your Team — only show for clients with assigned team */}
+        {(() => {
+          const dev = (client as Record<string, unknown>).assignedDeveloper as {
+            id: string;
+            name: string;
+            email: string;
+            phone: string | null;
+          } | null;
+          if (!client.accountManager && !dev) return null;
+          return (
             <Card
               className="bg-white/5"
               style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
@@ -536,16 +533,7 @@ export default function PortalProfilePage({
                   )}
 
                   {/* Assigned Developer */}
-                  {(
-                    client as typeof client & {
-                      assignedDeveloper?: {
-                        id: string;
-                        name: string;
-                        email: string;
-                        phone: string | null;
-                      };
-                    }
-                  ).assignedDeveloper && (
+                  {dev && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Code2 className="h-4 w-4 text-blue-400" />
@@ -554,51 +542,25 @@ export default function PortalProfilePage({
                         </span>
                       </div>
                       <p className="text-sm font-medium text-white">
-                        {
-                          (
-                            client as typeof client & {
-                              assignedDeveloper: {
-                                name: string;
-                                email: string;
-                                phone: string | null;
-                              };
-                            }
-                          ).assignedDeveloper.name
-                        }
+                        {dev.name}
                       </p>
                       <p className="flex items-center gap-1.5 text-xs text-gray-400">
                         <Mail className="h-3 w-3" />
                         <a
-                          href={`mailto:${(client as typeof client & { assignedDeveloper: { email: string } }).assignedDeveloper.email}`}
+                          href={`mailto:${dev.email}`}
                           className="transition-colors hover:text-[#D4AF37]"
                         >
-                          {
-                            (
-                              client as typeof client & {
-                                assignedDeveloper: { email: string };
-                              }
-                            ).assignedDeveloper.email
-                          }
+                          {dev.email}
                         </a>
                       </p>
-                      {(
-                        client as typeof client & {
-                          assignedDeveloper: { phone: string | null };
-                        }
-                      ).assignedDeveloper.phone && (
+                      {dev.phone && (
                         <p className="flex items-center gap-1.5 text-xs text-gray-400">
                           <Phone className="h-3 w-3" />
                           <a
-                            href={`tel:${(client as typeof client & { assignedDeveloper: { phone: string } }).assignedDeveloper.phone}`}
+                            href={`tel:${dev.phone}`}
                             className="transition-colors hover:text-[#D4AF37]"
                           >
-                            {
-                              (
-                                client as typeof client & {
-                                  assignedDeveloper: { phone: string };
-                                }
-                              ).assignedDeveloper.phone
-                            }
+                            {dev.phone}
                           </a>
                         </p>
                       )}
@@ -607,7 +569,8 @@ export default function PortalProfilePage({
                 </div>
               </CardContent>
             </Card>
-          )}
+          );
+        })()}
 
         {/* Security - only show for own profile */}
         {canEdit && (

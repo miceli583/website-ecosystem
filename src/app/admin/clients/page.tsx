@@ -809,7 +809,6 @@ function EditClientModal({
   );
   const [tags, setTags] = useState<string[]>(client.crmContact?.tags ?? []);
   const [slug, setSlug] = useState(client.slug);
-  const [status, setStatus] = useState(client.status);
   const [notes, setNotes] = useState(client.notes ?? "");
 
   const isSaving = updateClient.isPending || updateContact.isPending;
@@ -839,7 +838,6 @@ function EditClientModal({
         updateClient.mutateAsync({
           id: client.id,
           slug,
-          status: status as "active" | "inactive",
           notes: notes || null,
         }),
       ]);
@@ -851,7 +849,6 @@ function EditClientModal({
         company: company || null,
         accountManagerId,
         slug,
-        status: status as "active" | "inactive",
         notes: notes || null,
       });
     }
@@ -971,36 +968,19 @@ function EditClientModal({
             Portal Settings
           </h3>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>URL Slug</label>
-              <input
-                className={inputClass}
-                style={borderStyle}
-                placeholder="acme-corp"
-                value={slug}
-                onChange={(e) =>
-                  setSlug(
-                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
-                  )
-                }
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Status</label>
-              <div className="relative">
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
-                  style={borderStyle}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
-              </div>
-            </div>
+          <div>
+            <label className={labelClass}>URL Slug</label>
+            <input
+              className={inputClass}
+              style={borderStyle}
+              placeholder="acme-corp"
+              value={slug}
+              onChange={(e) =>
+                setSlug(
+                  e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
+                )
+              }
+            />
           </div>
 
           <div>
