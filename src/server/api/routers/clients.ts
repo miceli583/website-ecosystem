@@ -44,6 +44,7 @@ export const clientsRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().optional(),
+        pipelineStatus: z.string().optional(),
         accountManagerId: z.string().uuid().optional(),
         assignedDeveloperId: z.string().uuid().optional(),
         connectorId: z.string().uuid().optional(),
@@ -83,6 +84,15 @@ export const clientsRouter = createTRPCRouter({
             ilike(clients.email, `%${input.search}%`),
             ilike(clients.company, `%${input.search}%`)
           )
+        );
+      }
+
+      // Pipeline status filter (from linked CRM contact)
+      if (input.pipelineStatus) {
+        conditions.push(
+          sql`${clients.crmId} IN (
+            SELECT id FROM master_crm WHERE status = ${input.pipelineStatus}
+          )`
         );
       }
 

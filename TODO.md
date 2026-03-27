@@ -6,13 +6,13 @@ _None currently_
 
 ## Bugs & Tech Debt (fix before roadmap)
 
-- [x] **Dependabot: picomatch v4.0.3 → v4.0.4**: Method injection in POSIX character classes — updated
-- [ ] **Remove unused client status references**: Edit modal on clients page still has status select field — remove it
-- [ ] **Bidirectional status sync cleanup**: `clients.update` and `clients.archive` still have status sync logic referencing unused `clients.status` — simplify
-- [ ] **Drop `clients.status` column**: DB column still exists but is no longer read — drop via migration
-- [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog are inline in contacts list + contact detail — extract to `src/components/crm/`
-- [ ] **Type assertions in portal profile**: `assignedDeveloper` requires `as typeof client & {...}` casts — clean up when Drizzle relation types stabilize
-- [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow under concurrent queries — retry + staleTime added but root cause is connection pool pressure
+- [x] **Dependabot: picomatch v4.0.3 → v4.0.4**: Updated
+- [x] **Remove unused client status references**: Removed from edit modal, mutations, queries
+- [x] **Bidirectional status sync cleanup**: Removed status sync + archive mutation
+- [x] **Drop `clients.status` column**: Dropped from DB + schema
+- [x] **Type assertions in portal profile**: Replaced 8 verbose casts with clean local variable
+- [ ] **Extract shared dialogs**: PromoteToClientModal + DemotionDialog still inline — extract to `src/components/crm/` (cosmetic, not blocking)
+- [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow — retry + staleTime mitigates but root cause is connection pool pressure
 
 ## Enhancements (prioritized)
 

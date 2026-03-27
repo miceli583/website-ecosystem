@@ -36,6 +36,7 @@ import {
   type SortLevel,
   inputClass,
   borderStyle,
+  STATUS_CONFIG,
 } from "~/components/crm";
 
 /* ── Shared styles ─────────────────────────────────────────────── */
@@ -1181,6 +1182,7 @@ function ActionMenu({
 
 export default function AdminClientsPage() {
   const [search, setSearch] = useState("");
+  const [pipelineFilter, setPipelineFilter] = useState<string | undefined>();
   const [amFilter, setAmFilter] = useState<string | undefined>();
   const [devFilter, setDevFilter] = useState<string | undefined>();
   const [connectorFilter, setConnectorFilter] = useState<string | undefined>();
@@ -1203,6 +1205,7 @@ export default function AdminClientsPage() {
   const utils = api.useUtils();
   const { data, isLoading } = api.clients.list.useQuery({
     search: search || undefined,
+    pipelineStatus: pipelineFilter,
     accountManagerId: amFilter,
     assignedDeveloperId: devFilter,
     connectorId: connectorFilter,
@@ -1267,6 +1270,13 @@ export default function AdminClientsPage() {
             break;
           case "company":
             cmp = (a.company ?? "").localeCompare(b.company ?? "");
+            break;
+          case "status":
+            cmp = (
+              (a.crmContact as { status?: string } | null)?.status ?? ""
+            ).localeCompare(
+              (b.crmContact as { status?: string } | null)?.status ?? ""
+            );
             break;
           case "projects":
             cmp = (a.projects?.length ?? 0) - (b.projects?.length ?? 0);
@@ -1496,6 +1506,27 @@ export default function AdminClientsPage() {
           />
         </div>
 
+        {/* Pipeline status filter */}
+        <div className="relative">
+          <select
+            value={pipelineFilter ?? ""}
+            onChange={(e) => {
+              setPipelineFilter(e.target.value || undefined);
+              setPage(1);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
+          >
+            <option value="">All Statuses</option>
+            <option value="lead">Lead</option>
+            <option value="prospect">Prospect</option>
+            <option value="client">Client</option>
+            <option value="inactive">Inactive</option>
+            <option value="churned">Churned</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
         {/* AM filter */}
         <div className="relative">
           <select
@@ -1588,7 +1619,11 @@ export default function AdminClientsPage() {
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
-              {search || amFilter || devFilter || connectorFilter
+              {search ||
+              pipelineFilter ||
+              amFilter ||
+              devFilter ||
+              connectorFilter
                 ? "No clients match your filters"
                 : "No clients yet"}
             </p>
@@ -1624,6 +1659,12 @@ export default function AdminClientsPage() {
                 <SortHeader
                   field="name"
                   label="Name"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="status"
+                  label="Status"
                   sorts={sorts}
                   onSort={handleSort}
                 />
@@ -1701,6 +1742,30 @@ export default function AdminClientsPage() {
                         {client.email}
                       </span>
                     </div>
+                  </td>
+
+                  {/* CRM Status */}
+                  <td className="px-4 py-3">
+                    {(() => {
+                      const s =
+                        STATUS_CONFIG[
+                          (client.crmContact as { status?: string } | null)
+                            ?.status ?? ""
+                        ];
+                      return s ? (
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium"
+                          style={{
+                            backgroundColor: s.bg,
+                            color: s.color,
+                          }}
+                        >
+                          {s.label}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-600">—</span>
+                      );
+                    })()}
                   </td>
 
                   {/* Projects */}
