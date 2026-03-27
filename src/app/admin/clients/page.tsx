@@ -1183,6 +1183,7 @@ function ActionMenu({
 export default function AdminClientsPage() {
   const [search, setSearch] = useState("");
   const [pipelineFilter, setPipelineFilter] = useState<string | undefined>();
+  const [tagFilter, setTagFilter] = useState<string | undefined>();
   const [amFilter, setAmFilter] = useState<string | undefined>();
   const [devFilter, setDevFilter] = useState<string | undefined>();
   const [connectorFilter, setConnectorFilter] = useState<string | undefined>();
@@ -1206,6 +1207,7 @@ export default function AdminClientsPage() {
   const { data, isLoading } = api.clients.list.useQuery({
     search: search || undefined,
     pipelineStatus: pipelineFilter,
+    tag: tagFilter,
     accountManagerId: amFilter,
     assignedDeveloperId: devFilter,
     connectorId: connectorFilter,
@@ -1216,6 +1218,7 @@ export default function AdminClientsPage() {
     staleTime: 5 * 60 * 1000,
   });
   const { data: teamMembers } = api.crm.getCompanyTeam.useQuery();
+  const { data: tagOptions = [] } = api.crm.getTagOptions.useQuery();
   const updateClient = api.clients.update.useMutation({
     onSuccess: () => void utils.clients.list.invalidate(),
   });
@@ -1382,8 +1385,10 @@ export default function AdminClientsPage() {
               Back to CRM
             </Link>
           </div>
-          <h1 className="text-2xl font-bold text-white">Clients</h1>
-          <p className="text-sm text-gray-400">Client portal management</p>
+          <h1 className="text-2xl font-bold text-white">Portals</h1>
+          <p className="text-sm text-gray-400">
+            Manage portals across all pipeline stages
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -1590,11 +1595,32 @@ export default function AdminClientsPage() {
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
+        {/* Tag filter */}
+        <div className="relative">
+          <select
+            value={tagFilter ?? ""}
+            onChange={(e) => {
+              setTagFilter(e.target.value || undefined);
+              setPage(1);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
+          >
+            <option value="">All Tags</option>
+            {tagOptions.map((tag: string) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
         {/* Count */}
         <div className="ml-auto">
           {data && (
             <span className="text-sm text-gray-500">
-              {data.total} client{data.total !== 1 ? "s" : ""}
+              {data.total} user{data.total !== 1 ? "s" : ""}
             </span>
           )}
         </div>
@@ -1621,11 +1647,12 @@ export default function AdminClientsPage() {
             <p className="text-gray-500">
               {search ||
               pipelineFilter ||
+              tagFilter ||
               amFilter ||
               devFilter ||
               connectorFilter
-                ? "No clients match your filters"
-                : "No clients yet"}
+                ? "No portals match your filters"
+                : "No portals yet"}
             </p>
           </div>
         ) : (
@@ -1695,8 +1722,7 @@ export default function AdminClientsPage() {
                 <th className="px-4 py-3 text-xs font-medium tracking-wider text-gray-500">
                   Tags
                 </th>
-                <th className="px-4 py-3">Portal</th>
-                <th className="w-10 px-2 py-3" />
+                <th className="w-20 px-2 py-3">Portal</th>
               </tr>
             </thead>
             <tbody>
@@ -1915,23 +1941,21 @@ export default function AdminClientsPage() {
                     </div>
                   </td>
 
-                  {/* Portal link */}
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/portal/${client.slug}`}
-                      className="inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
-                      style={{ color: "#D4AF37" }}
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
-                  </td>
-
-                  {/* Actions */}
+                  {/* Portal + Actions */}
                   <td className="px-2 py-3">
-                    <ActionMenu
-                      onEdit={() => setEditingClient(client)}
-                      onDelete={() => setDeletingClient(client)}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/portal/${client.slug}`}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-[#D4AF37]"
+                        title="Open portal"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Link>
+                      <ActionMenu
+                        onEdit={() => setEditingClient(client)}
+                        onDelete={() => setDeletingClient(client)}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
