@@ -4,17 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { Clock, Building2, Tag, ChevronDown, GripVertical } from "lucide-react";
 import { STATUS_CONFIG, borderStyle } from "./styles";
-
-type ContactRow = {
-  id: string;
-  email: string;
-  name: string;
-  phone: string | null;
-  company: string | null;
-  status: string;
-  tags: string[] | null;
-  lastContactAt: Date;
-};
+import type { ContactRow } from "./types";
 
 interface ContactKanbanProps {
   contacts: ContactRow[];
