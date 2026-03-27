@@ -1692,6 +1692,9 @@ export default function AdminClientsPage() {
                   sorts={sorts}
                   onSort={handleSort}
                 />
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-gray-500">
+                  Tags
+                </th>
                 <th className="px-4 py-3">Portal</th>
                 <th className="w-10 px-2 py-3" />
               </tr>
@@ -1888,6 +1891,27 @@ export default function AdminClientsPage() {
                           ).assignedDeveloper?.name ?? "—"}
                         </span>
                       )}
+                    </div>
+                  </td>
+
+                  {/* Tags */}
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {(
+                        (client.crmContact as { tags?: string[] | null } | null)
+                          ?.tags ?? []
+                      ).map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex rounded-full px-1.5 py-0.5 text-[10px]"
+                          style={{
+                            backgroundColor: "rgba(212, 175, 55, 0.15)",
+                            color: "#D4AF37",
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </td>
 

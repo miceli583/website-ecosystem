@@ -38,10 +38,25 @@ export const NAV_VISIBILITY: Record<string, string[]> = {
   "/admin/blog": [...FULL_ACCESS_ROLES],
   "/admin/ecosystem": [...FULL_ACCESS_ROLES],
 
-  // Founder + Admin + Account Manager + Connector
-  "/admin/crm": [...FULL_ACCESS_ROLES, "account_manager", "connector"],
-  "/admin/crm/contacts": [...FULL_ACCESS_ROLES, "account_manager", "connector"],
-  "/admin/crm/leads": [...FULL_ACCESS_ROLES, "account_manager", "connector"],
+  // Founder + Admin + AM + Dev + Connector
+  "/admin/crm": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
+  "/admin/crm/contacts": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
+  "/admin/crm/leads": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
   "/admin/clients": [
     ...FULL_ACCESS_ROLES,
     "account_manager",
@@ -65,11 +80,31 @@ export const NAV_VISIBILITY: Record<string, string[]> = {
     "connector",
   ],
 
-  // Assets
-  "/admin/brand": [...FULL_ACCESS_ROLES, "designer"],
-  "/admin/web-design": [...FULL_ACCESS_ROLES, "developer", "designer"],
-  "/admin/shaders": [...FULL_ACCESS_ROLES, "developer"],
-  "/admin/playground": [...FULL_ACCESS_ROLES, "developer"],
+  // Assets — visible to all roles
+  "/admin/brand": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
+  "/admin/web-design": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
+  "/admin/shaders": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
+  "/admin/playground": [
+    ...FULL_ACCESS_ROLES,
+    "account_manager",
+    "developer",
+    "connector",
+  ],
 
   // Tooling
   "/admin/tooling": [...FULL_ACCESS_ROLES, "developer"],
