@@ -70,4 +70,8 @@ export const DEMO_REGISTRY: Record<
     import("./new-earth-media").then((m) => ({
       default: m.NewEarthMediaLanding,
     })),
+  "frazier-assets": () =>
+    import("./frazier-assets").then((m) => ({
+      default: m.FrazierAssets,
+    })),
 };
