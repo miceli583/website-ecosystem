@@ -17,13 +17,35 @@ export async function generateMetadata({
 
   try {
     const demo = await api.portal.getPublicDemo({ token });
+    const metadata = demo.metadata as Record<string, unknown> | null;
+    const ogImage =
+      (metadata?.ogImage as string) ??
+      "https://www.miraclemind.dev/og/og-default.png";
+    const description =
+      demo.description ?? `Shared by ${demo.clientName} via Miracle Mind`;
+
     return {
       title: `${demo.title} — ${demo.clientName}`,
-      description: demo.description ?? `Demo shared by ${demo.clientName}`,
+      description,
       openGraph: {
         title: demo.title,
-        description: demo.description ?? `Demo shared by ${demo.clientName}`,
+        description,
         type: "website",
+        siteName: "Miracle Mind",
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: demo.title,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: demo.title,
+        description,
+        images: [ogImage],
       },
     };
   } catch {
