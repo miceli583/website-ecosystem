@@ -74,4 +74,8 @@ export const DEMO_REGISTRY: Record<
     import("./frazier-assets").then((m) => ({
       default: m.FrazierAssets,
     })),
+  "frazier-dentistry": () =>
+    import("./frazier-dentistry").then((m) => ({
+      default: m.FrazierDentistryDemo,
+    })),
 };
