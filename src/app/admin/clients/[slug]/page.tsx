@@ -24,6 +24,7 @@ import {
   Briefcase,
   Trash2,
   AlertTriangle,
+  Pin,
 } from "lucide-react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
@@ -203,6 +204,7 @@ export default function AdminClientDetailPage({
   const [logCallDesc, setLogCallDesc] = useState("");
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+  const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
   const [showDeletePortal, setShowDeletePortal] = useState(false);
 
   const canAssign = myRoles?.isFullAccess ?? false;
@@ -1225,6 +1227,7 @@ export default function AdminClientDetailPage({
                     updatedAt: Date;
                   }) => {
                     const isEditing = editingNoteId === note.id;
+                    const isExpanded = expandedNoteId === note.id;
                     return (
                       <div key={note.id}>
                         {isEditing ? (
@@ -1243,82 +1246,112 @@ export default function AdminClientDetailPage({
                           />
                         ) : (
                           <div
-                            className="group rounded-lg border bg-white/5 p-4"
+                            className="rounded-lg border bg-white/5 transition-colors hover:bg-white/[0.07]"
                             style={{
-                              borderColor: "rgba(212, 175, 55, 0.15)",
+                              borderColor: isExpanded
+                                ? "rgba(212, 175, 55, 0.3)"
+                                : "rgba(212, 175, 55, 0.15)",
                             }}
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
+                            {/* Clickable header */}
+                            <div
+                              onClick={() =>
+                                setExpandedNoteId(isExpanded ? null : note.id)
+                              }
+                              className="cursor-pointer px-4 py-3"
+                            >
+                              {/* Title row */}
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex min-w-0 items-center gap-3">
+                                  <StickyNote
+                                    className="h-4 w-4 flex-shrink-0"
+                                    style={{ color: "#D4AF37" }}
+                                  />
                                   <h4 className="truncate text-sm font-medium text-white">
                                     {note.title}
                                   </h4>
                                   {note.isPinned && (
-                                    <span
-                                      className="text-[10px]"
+                                    <Pin
+                                      className="h-3.5 w-3.5 flex-shrink-0"
                                       style={{ color: "#D4AF37" }}
-                                    >
-                                      Pinned
-                                    </span>
+                                    />
                                   )}
                                 </div>
-                                {note.content && note.content !== "<p></p>" && (
-                                  <div className="mt-1">
+                                <div
+                                  className="flex flex-shrink-0 items-center gap-3"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <span className="text-xs text-gray-500">
+                                    {note.createdByName} &middot;{" "}
+                                    {new Date(
+                                      note.updatedAt
+                                    ).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                    })}
+                                  </span>
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() =>
+                                        updateNote.mutate({
+                                          id: note.id,
+                                          isPinned: !note.isPinned,
+                                        })
+                                      }
+                                      className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-white"
+                                      title={note.isPinned ? "Unpin" : "Pin"}
+                                    >
+                                      <Pin className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingNoteId(note.id)}
+                                      className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-white"
+                                      title="Edit"
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (confirm("Delete this note?")) {
+                                          deleteNote.mutate({
+                                            id: note.id,
+                                          });
+                                        }
+                                      }}
+                                      className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-red-400"
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Collapsed preview */}
+                              {!isExpanded &&
+                                note.content &&
+                                note.content !== "<p></p>" && (
+                                  <div className="mt-1 pl-7">
                                     <RichTextPreview
                                       html={note.content}
-                                      lineClamp={3}
+                                      lineClamp={2}
                                       className="text-gray-400"
                                     />
                                   </div>
                                 )}
-                                <p className="mt-2 text-xs text-gray-500">
-                                  {note.createdByName} &middot;{" "}
-                                  {new Date(note.updatedAt).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
-                                </p>
-                              </div>
-                              <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                <button
-                                  onClick={() =>
-                                    updateNote.mutate({
-                                      id: note.id,
-                                      isPinned: !note.isPinned,
-                                    })
-                                  }
-                                  className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-white"
-                                  title={note.isPinned ? "Unpin" : "Pin"}
-                                >
-                                  <ArrowUpDown className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => setEditingNoteId(note.id)}
-                                  className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-white"
-                                  title="Edit"
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    if (confirm("Delete this note?")) {
-                                      deleteNote.mutate({
-                                        id: note.id,
-                                      });
-                                    }
-                                  }}
-                                  className="rounded p-1 text-gray-500 hover:bg-white/10 hover:text-red-400"
-                                  title="Delete"
-                                >
-                                  <X className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
                             </div>
+                            {/* Expanded full content */}
+                            {isExpanded &&
+                              note.content &&
+                              note.content !== "<p></p>" && (
+                                <div
+                                  className="border-t px-4 pt-3 pb-4"
+                                  style={{
+                                    borderColor: "rgba(212, 175, 55, 0.15)",
+                                  }}
+                                >
+                                  <RichTextPreview html={note.content} />
+                                </div>
+                              )}
                           </div>
                         )}
                       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, Plus } from "lucide-react";
 import { api } from "~/trpc/react";
 import {
@@ -18,6 +19,7 @@ import type {
   ProjectWithMeta,
   TaskWithMeta,
 } from "~/components/projects";
+import type { SortLevel } from "~/components/crm/sort-header";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 
 const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
@@ -28,6 +30,7 @@ export default function PortalProjectsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const router = useRouter();
   const utils = api.useUtils();
 
   // Auth & client data
@@ -50,12 +53,12 @@ export default function PortalProjectsPage({
   const [taskView, setTaskView] = useState<"list" | "kanban">("list");
   const [projectFilters, setProjectFilters] = useState<FilterState>({});
   const [taskFilters, setTaskFilters] = useState<FilterState>({});
-  const [projectSortBy, setProjectSortBy] = useState("createdAt");
-  const [projectSortOrder, setProjectSortOrder] = useState<"asc" | "desc">(
-    "desc"
-  );
-  const [taskSortBy, setTaskSortBy] = useState("createdAt");
-  const [taskSortOrder, setTaskSortOrder] = useState<"asc" | "desc">("desc");
+  const [projectSorts, setProjectSorts] = useState<SortLevel[]>([
+    { field: "createdAt", order: "desc" },
+  ]);
+  const [taskSorts, setTaskSorts] = useState<SortLevel[]>([
+    { field: "createdAt", order: "desc" },
+  ]);
 
   // Modal state
   const [showProjectForm, setShowProjectForm] = useState(false);
@@ -188,21 +191,27 @@ export default function PortalProjectsPage({
 
   // Sort handlers
   const handleProjectSort = (field: string) => {
-    if (field === projectSortBy) {
-      setProjectSortOrder((o) => (o === "asc" ? "desc" : "asc"));
-    } else {
-      setProjectSortBy(field);
-      setProjectSortOrder("asc");
-    }
+    setProjectSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
   };
 
   const handleTaskSort = (field: string) => {
-    if (field === taskSortBy) {
-      setTaskSortOrder((o) => (o === "asc" ? "desc" : "asc"));
-    } else {
-      setTaskSortBy(field);
-      setTaskSortOrder("asc");
-    }
+    setTaskSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
   };
 
   // Loading states
@@ -240,19 +249,8 @@ export default function PortalProjectsPage({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1
-            className="text-2xl font-bold"
-            style={{
-              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontFamily: "'Quattrocento Sans', serif",
-              letterSpacing: "0.08em",
-            }}
-          >
-            Projects
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-white">Projects</h1>
+          <p className="text-sm text-gray-400">
             {isAdmin
               ? `Manage projects and tasks for ${client.name}`
               : `View projects and tasks`}
@@ -340,13 +338,11 @@ export default function PortalProjectsPage({
               <ProjectList
                 projects={(projects ?? []) as ProjectWithMeta[]}
                 mode="portal"
-                sortBy={projectSortBy}
-                sortOrder={projectSortOrder}
+                sorts={projectSorts}
                 onSort={handleProjectSort}
-                onViewDetail={() => {
-                  // In portal, clicking a project switches to tasks tab filtered by that project
-                  // Could navigate to detail page in the future
-                }}
+                onViewDetail={(id) =>
+                  router.push(`/portal/${slug}/projects/${id}?domain=live`)
+                }
                 onEdit={
                   isAdmin
                     ? (p) => {
@@ -379,7 +375,9 @@ export default function PortalProjectsPage({
                       | "paused",
                   })
                 }
-                onViewDetail={() => {}}
+                onViewDetail={(id) =>
+                  router.push(`/portal/${slug}/projects/${id}?domain=live`)
+                }
               />
             )}
           </div>
@@ -402,8 +400,7 @@ export default function PortalProjectsPage({
                 tasks={(tasks ?? []) as TaskWithMeta[]}
                 mode="portal"
                 showProject
-                sortBy={taskSortBy}
-                sortOrder={taskSortOrder}
+                sorts={taskSorts}
                 onSort={handleTaskSort}
                 onEdit={
                   isAdmin

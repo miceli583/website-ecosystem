@@ -172,6 +172,16 @@ export function getPortalLoginUrl(): string {
 }
 
 /**
+ * Get the admin hub URL (handles cross-domain redirect from portal → admin)
+ */
+export function getAdminUrl(path = "/admin"): string {
+  if (typeof window === "undefined") return `${path}?domain=dev`;
+  if (window.location.hostname.includes("localhost"))
+    return `${path}?domain=dev`;
+  return `https://miraclemind.dev${path}`;
+}
+
+/**
  * Development URL helpers for testing different domains
  */
 export const DEV_URLS = {

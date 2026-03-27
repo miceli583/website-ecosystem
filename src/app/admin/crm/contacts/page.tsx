@@ -83,7 +83,6 @@ type ContactRow = {
     slug: string;
     name: string;
     company: string | null;
-    status: string;
   } | null;
 };
 
@@ -297,7 +296,7 @@ function DemotionDialog({
 }: {
   contact: ContactRow;
   newStatus: string;
-  clientInfo: { id: number; slug: string; status: string; name: string };
+  clientInfo: { id: number; slug: string; name: string };
   onClose: () => void;
   onSuccess: () => void;
 }) {
@@ -459,7 +458,7 @@ function EditContactModal({
   const [showPromote, setShowPromote] = useState(false);
   const [demotionInfo, setDemotionInfo] = useState<{
     newStatus: string;
-    client: { id: number; slug: string; status: string; name: string };
+    client: { id: number; slug: string; name: string };
   } | null>(null);
 
   useEffect(() => {
@@ -1203,7 +1202,7 @@ export default function CrmContactsPage() {
   const [kanbanDemotion, setKanbanDemotion] = useState<{
     contact: ContactRow;
     newStatus: string;
-    client: { id: number; slug: string; status: string; name: string };
+    client: { id: number; slug: string; name: string };
   } | null>(null);
 
   /** Check if current user can access a contact's portal */

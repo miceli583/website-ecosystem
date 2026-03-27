@@ -36,6 +36,7 @@ import {
   type SortLevel,
   inputClass,
   borderStyle,
+  STATUS_CONFIG,
 } from "~/components/crm";
 
 /* ── Shared styles ─────────────────────────────────────────────── */
@@ -809,7 +810,6 @@ function EditClientModal({
   );
   const [tags, setTags] = useState<string[]>(client.crmContact?.tags ?? []);
   const [slug, setSlug] = useState(client.slug);
-  const [status, setStatus] = useState(client.status);
   const [notes, setNotes] = useState(client.notes ?? "");
 
   const isSaving = updateClient.isPending || updateContact.isPending;
@@ -839,7 +839,6 @@ function EditClientModal({
         updateClient.mutateAsync({
           id: client.id,
           slug,
-          status: status as "active" | "inactive",
           notes: notes || null,
         }),
       ]);
@@ -851,7 +850,6 @@ function EditClientModal({
         company: company || null,
         accountManagerId,
         slug,
-        status: status as "active" | "inactive",
         notes: notes || null,
       });
     }
@@ -971,36 +969,19 @@ function EditClientModal({
             Portal Settings
           </h3>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>URL Slug</label>
-              <input
-                className={inputClass}
-                style={borderStyle}
-                placeholder="acme-corp"
-                value={slug}
-                onChange={(e) =>
-                  setSlug(
-                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
-                  )
-                }
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Status</label>
-              <div className="relative">
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-8 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
-                  style={borderStyle}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
-              </div>
-            </div>
+          <div>
+            <label className={labelClass}>URL Slug</label>
+            <input
+              className={inputClass}
+              style={borderStyle}
+              placeholder="acme-corp"
+              value={slug}
+              onChange={(e) =>
+                setSlug(
+                  e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
+                )
+              }
+            />
           </div>
 
           <div>
@@ -1201,6 +1182,8 @@ function ActionMenu({
 
 export default function AdminClientsPage() {
   const [search, setSearch] = useState("");
+  const [pipelineFilter, setPipelineFilter] = useState<string | undefined>();
+  const [tagFilter, setTagFilter] = useState<string | undefined>();
   const [amFilter, setAmFilter] = useState<string | undefined>();
   const [devFilter, setDevFilter] = useState<string | undefined>();
   const [connectorFilter, setConnectorFilter] = useState<string | undefined>();
@@ -1223,6 +1206,8 @@ export default function AdminClientsPage() {
   const utils = api.useUtils();
   const { data, isLoading } = api.clients.list.useQuery({
     search: search || undefined,
+    pipelineStatus: pipelineFilter,
+    tag: tagFilter,
     accountManagerId: amFilter,
     assignedDeveloperId: devFilter,
     connectorId: connectorFilter,
@@ -1233,6 +1218,7 @@ export default function AdminClientsPage() {
     staleTime: 5 * 60 * 1000,
   });
   const { data: teamMembers } = api.crm.getCompanyTeam.useQuery();
+  const { data: tagOptions = [] } = api.crm.getTagOptions.useQuery();
   const updateClient = api.clients.update.useMutation({
     onSuccess: () => void utils.clients.list.invalidate(),
   });
@@ -1287,6 +1273,13 @@ export default function AdminClientsPage() {
             break;
           case "company":
             cmp = (a.company ?? "").localeCompare(b.company ?? "");
+            break;
+          case "status":
+            cmp = (
+              (a.crmContact as { status?: string } | null)?.status ?? ""
+            ).localeCompare(
+              (b.crmContact as { status?: string } | null)?.status ?? ""
+            );
             break;
           case "projects":
             cmp = (a.projects?.length ?? 0) - (b.projects?.length ?? 0);
@@ -1392,8 +1385,10 @@ export default function AdminClientsPage() {
               Back to CRM
             </Link>
           </div>
-          <h1 className="text-2xl font-bold text-white">Clients</h1>
-          <p className="text-sm text-gray-400">Client portal management</p>
+          <h1 className="text-2xl font-bold text-white">Portals</h1>
+          <p className="text-sm text-gray-400">
+            Manage portals across all pipeline stages
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -1516,6 +1511,27 @@ export default function AdminClientsPage() {
           />
         </div>
 
+        {/* Pipeline status filter */}
+        <div className="relative">
+          <select
+            value={pipelineFilter ?? ""}
+            onChange={(e) => {
+              setPipelineFilter(e.target.value || undefined);
+              setPage(1);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
+          >
+            <option value="">All Statuses</option>
+            <option value="lead">Lead</option>
+            <option value="prospect">Prospect</option>
+            <option value="client">Client</option>
+            <option value="inactive">Inactive</option>
+            <option value="churned">Churned</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
         {/* AM filter */}
         <div className="relative">
           <select
@@ -1579,11 +1595,32 @@ export default function AdminClientsPage() {
           <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
         </div>
 
+        {/* Tag filter */}
+        <div className="relative">
+          <select
+            value={tagFilter ?? ""}
+            onChange={(e) => {
+              setTagFilter(e.target.value || undefined);
+              setPage(1);
+            }}
+            className="appearance-none rounded-lg border bg-white/5 py-2 pr-9 pl-3 text-sm text-white focus:outline-none"
+            style={borderStyle}
+          >
+            <option value="">All Tags</option>
+            {tagOptions.map((tag: string) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        </div>
+
         {/* Count */}
         <div className="ml-auto">
           {data && (
             <span className="text-sm text-gray-500">
-              {data.total} client{data.total !== 1 ? "s" : ""}
+              {data.total} user{data.total !== 1 ? "s" : ""}
             </span>
           )}
         </div>
@@ -1608,9 +1645,14 @@ export default function AdminClientsPage() {
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="mb-3 h-12 w-12 text-gray-600" />
             <p className="text-gray-500">
-              {search || amFilter || devFilter || connectorFilter
-                ? "No clients match your filters"
-                : "No clients yet"}
+              {search ||
+              pipelineFilter ||
+              tagFilter ||
+              amFilter ||
+              devFilter ||
+              connectorFilter
+                ? "No portals match your filters"
+                : "No portals yet"}
             </p>
           </div>
         ) : (
@@ -1648,6 +1690,12 @@ export default function AdminClientsPage() {
                   onSort={handleSort}
                 />
                 <SortHeader
+                  field="status"
+                  label="Status"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
                   field="projects"
                   label="Projects"
                   sorts={sorts}
@@ -1671,8 +1719,10 @@ export default function AdminClientsPage() {
                   sorts={sorts}
                   onSort={handleSort}
                 />
-                <th className="px-4 py-3">Portal</th>
-                <th className="w-10 px-2 py-3" />
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-gray-500">
+                  Tags
+                </th>
+                <th className="w-20 px-2 py-3">Portal</th>
               </tr>
             </thead>
             <tbody>
@@ -1721,6 +1771,30 @@ export default function AdminClientsPage() {
                         {client.email}
                       </span>
                     </div>
+                  </td>
+
+                  {/* CRM Status */}
+                  <td className="px-4 py-3">
+                    {(() => {
+                      const s =
+                        STATUS_CONFIG[
+                          (client.crmContact as { status?: string } | null)
+                            ?.status ?? ""
+                        ];
+                      return s ? (
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium"
+                          style={{
+                            backgroundColor: s.bg,
+                            color: s.color,
+                          }}
+                        >
+                          {s.label}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-600">—</span>
+                      );
+                    })()}
                   </td>
 
                   {/* Projects */}
@@ -1846,23 +1920,42 @@ export default function AdminClientsPage() {
                     </div>
                   </td>
 
-                  {/* Portal link */}
+                  {/* Tags */}
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/portal/${client.slug}`}
-                      className="inline-flex items-center gap-1 text-xs transition-colors hover:text-white"
-                      style={{ color: "#D4AF37" }}
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
+                    <div className="flex flex-wrap gap-1">
+                      {(
+                        (client.crmContact as { tags?: string[] | null } | null)
+                          ?.tags ?? []
+                      ).map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex rounded-full px-1.5 py-0.5 text-[10px]"
+                          style={{
+                            backgroundColor: "rgba(212, 175, 55, 0.15)",
+                            color: "#D4AF37",
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </td>
 
-                  {/* Actions */}
+                  {/* Portal + Actions */}
                   <td className="px-2 py-3">
-                    <ActionMenu
-                      onEdit={() => setEditingClient(client)}
-                      onDelete={() => setDeletingClient(client)}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/portal/${client.slug}`}
+                        className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-white/10 hover:text-[#D4AF37]"
+                        title="Open portal"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Link>
+                      <ActionMenu
+                        onEdit={() => setEditingClient(client)}
+                        onDelete={() => setDeletingClient(client)}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

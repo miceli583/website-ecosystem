@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import {
+  Plus,
+  AlertTriangle,
+  Trash2,
+  Archive,
+  ArchiveRestore,
+  ExternalLink,
+} from "lucide-react";
 import { api } from "~/trpc/react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import {
@@ -20,6 +28,7 @@ import type {
   ProjectWithMeta,
   TaskWithMeta,
 } from "~/components/projects";
+import type { SortLevel } from "~/components/crm/sort-header";
 
 const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
 
@@ -35,14 +44,15 @@ export default function AdminProjectsPage() {
   // Filter state
   const [projectFilters, setProjectFilters] = useState<FilterState>({});
   const [taskFilters, setTaskFilters] = useState<FilterState>({});
+  const [showArchived, setShowArchived] = useState(false);
 
-  // Sort state
-  const [projectSortBy, setProjectSortBy] = useState("createdAt");
-  const [projectSortOrder, setProjectSortOrder] = useState<"asc" | "desc">(
-    "desc"
-  );
-  const [taskSortBy, setTaskSortBy] = useState("createdAt");
-  const [taskSortOrder, setTaskSortOrder] = useState<"asc" | "desc">("desc");
+  // Sort state (SortLevel[] for multi-column, first level drives server sort)
+  const [projectSorts, setProjectSorts] = useState<SortLevel[]>([
+    { field: "createdAt", order: "desc" },
+  ]);
+  const [taskSorts, setTaskSorts] = useState<SortLevel[]>([
+    { field: "createdAt", order: "desc" },
+  ]);
 
   // Pagination
   const [projectPage, setProjectPage] = useState(1);
@@ -56,6 +66,32 @@ export default function AdminProjectsPage() {
   >();
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskWithMeta | undefined>();
+  const [deletingProjectId, setDeletingProjectId] = useState<number | null>(
+    null
+  );
+  const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+
+  // Server-valid sort fields — other columns sort client-side only via SortHeader UI
+  const PROJECT_SORT_FIELDS = [
+    "name",
+    "createdAt",
+    "updatedAt",
+    "status",
+  ] as const;
+  const TASK_SORT_FIELDS = [
+    "title",
+    "priority",
+    "dueDate",
+    "createdAt",
+    "status",
+  ] as const;
+
+  const projectServerSort = projectSorts.find((s) =>
+    (PROJECT_SORT_FIELDS as readonly string[]).includes(s.field)
+  );
+  const taskServerSort = taskSorts.find((s) =>
+    (TASK_SORT_FIELDS as readonly string[]).includes(s.field)
+  );
 
   // Data queries
   const { data: projectsData, isLoading: projectsLoading } =
@@ -70,8 +106,13 @@ export default function AdminProjectsPage() {
         | "paused"
         | undefined,
       search: projectFilters.search,
-      sortBy: projectSortBy as "name" | "createdAt" | "updatedAt" | "status",
-      sortOrder: projectSortOrder,
+      includeArchived: showArchived,
+      sortBy: (projectServerSort?.field ?? "createdAt") as
+        | "name"
+        | "createdAt"
+        | "updatedAt"
+        | "status",
+      sortOrder: projectServerSort?.order ?? "desc",
       page: projectPage,
       pageSize,
     });
@@ -90,13 +131,13 @@ export default function AdminProjectsPage() {
         | "urgent"
         | undefined,
       search: taskFilters.search,
-      sortBy: taskSortBy as
+      sortBy: (taskServerSort?.field ?? "createdAt") as
         | "title"
         | "priority"
         | "dueDate"
         | "createdAt"
         | "status",
-      sortOrder: taskSortOrder,
+      sortOrder: taskServerSort?.order ?? "desc",
       page: taskPage,
       pageSize,
     });
@@ -159,6 +200,10 @@ export default function AdminProjectsPage() {
     onSuccess: () => void utils.projects.list.invalidate(),
   });
 
+  const toggleArchive = api.projects.toggleArchive.useMutation({
+    onSuccess: () => void utils.projects.list.invalidate(),
+  });
+
   const createTask = api.projects.createTask.useMutation({
     onSuccess: () => {
       void utils.projects.listTasks.invalidate();
@@ -192,22 +237,28 @@ export default function AdminProjectsPage() {
 
   // Handlers
   const handleProjectSort = (field: string) => {
-    if (field === projectSortBy) {
-      setProjectSortOrder((o) => (o === "asc" ? "desc" : "asc"));
-    } else {
-      setProjectSortBy(field);
-      setProjectSortOrder("asc");
-    }
+    setProjectSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
     setProjectPage(1);
   };
 
   const handleTaskSort = (field: string) => {
-    if (field === taskSortBy) {
-      setTaskSortOrder((o) => (o === "asc" ? "desc" : "asc"));
-    } else {
-      setTaskSortBy(field);
-      setTaskSortOrder("asc");
-    }
+    setTaskSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
     setTaskPage(1);
   };
 
@@ -216,19 +267,8 @@ export default function AdminProjectsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1
-            className="text-2xl font-bold"
-            style={{
-              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              fontFamily: "'Quattrocento Sans', serif",
-              letterSpacing: "0.08em",
-            }}
-          >
-            Projects
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-white">Projects</h1>
+          <p className="text-sm text-gray-400">
             Manage projects and tasks across all clients
           </p>
         </div>
@@ -298,16 +338,31 @@ export default function AdminProjectsPage() {
         {/* Projects Tab */}
         <TabsContent value="projects">
           <div className="space-y-4">
-            <FilterBar
-              filters={projectFilters}
-              onFiltersChange={(f) => {
-                setProjectFilters(f);
-                setProjectPage(1);
-              }}
-              clients={clientOptions}
-              team={teamMembers}
-              mode="admin"
-            />
+            <div className="flex items-center gap-3">
+              <FilterBar
+                filters={projectFilters}
+                onFiltersChange={(f) => {
+                  setProjectFilters(f);
+                  setProjectPage(1);
+                }}
+                clients={clientOptions}
+                team={teamMembers}
+                mode="admin"
+              />
+              <button
+                onClick={() => setShowArchived(!showArchived)}
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  showArchived
+                    ? "border-[rgba(212,175,55,0.3)] text-[#D4AF37]"
+                    : "text-gray-500 hover:text-gray-300"
+                }`}
+                style={showArchived ? undefined : borderStyle}
+                title={showArchived ? "Hide archived" : "Show archived"}
+              >
+                <Archive className="h-3.5 w-3.5" />
+                Archived
+              </button>
+            </div>
 
             {projectsLoading ? (
               <LoadingSkeleton />
@@ -315,19 +370,18 @@ export default function AdminProjectsPage() {
               <ProjectList
                 projects={(projectsData?.items ?? []) as ProjectWithMeta[]}
                 mode="admin"
-                sortBy={projectSortBy}
-                sortOrder={projectSortOrder}
+                sorts={projectSorts}
                 onSort={handleProjectSort}
                 onViewDetail={(id) => router.push(`/admin/projects/${id}`)}
                 onEdit={(p) => {
                   setEditingProject(p);
                   setShowProjectForm(true);
                 }}
-                onDelete={(id) => {
-                  if (confirm("Delete this project and all its tasks?")) {
-                    deleteProject.mutate({ id });
-                  }
-                }}
+                onDelete={(id) => setDeletingProjectId(id)}
+                onToggleArchive={(id, isArchived) =>
+                  toggleArchive.mutate({ id, isArchived })
+                }
+                showPortalLink
               />
             ) : (
               <ProjectKanban
@@ -348,32 +402,14 @@ export default function AdminProjectsPage() {
             )}
 
             {/* Pagination */}
-            {projectsData && projectsData.total > pageSize && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  Showing {(projectPage - 1) * pageSize + 1}–
-                  {Math.min(projectPage * pageSize, projectsData.total)} of{" "}
-                  {projectsData.total}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setProjectPage((p) => Math.max(1, p - 1))}
-                    disabled={projectPage === 1}
-                    className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-                    style={borderStyle}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setProjectPage((p) => p + 1)}
-                    disabled={!projectsData.hasMore}
-                    className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-                    style={borderStyle}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
+            {projectsData && projectsData.total > 0 && (
+              <Pagination
+                page={projectPage}
+                total={projectsData.total}
+                pageSize={pageSize}
+                hasMore={projectsData.hasMore}
+                onPageChange={setProjectPage}
+              />
             )}
           </div>
         </TabsContent>
@@ -402,18 +438,13 @@ export default function AdminProjectsPage() {
                 mode="admin"
                 showProject
                 showClient
-                sortBy={taskSortBy}
-                sortOrder={taskSortOrder}
+                sorts={taskSorts}
                 onSort={handleTaskSort}
                 onEdit={(t) => {
                   setEditingTask(t);
                   setShowTaskForm(true);
                 }}
-                onDelete={(id) => {
-                  if (confirm("Delete this task?")) {
-                    deleteTask.mutate({ id });
-                  }
-                }}
+                onDelete={(id) => setDeletingTaskId(id)}
                 onMoveStatus={(id, status) =>
                   moveTaskStatus.mutate({
                     id,
@@ -439,32 +470,14 @@ export default function AdminProjectsPage() {
             )}
 
             {/* Pagination */}
-            {tasksData && tasksData.total > pageSize && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  Showing {(taskPage - 1) * pageSize + 1}–
-                  {Math.min(taskPage * pageSize, tasksData.total)} of{" "}
-                  {tasksData.total}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setTaskPage((p) => Math.max(1, p - 1))}
-                    disabled={taskPage === 1}
-                    className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-                    style={borderStyle}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setTaskPage((p) => p + 1)}
-                    disabled={!tasksData.hasMore}
-                    className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
-                    style={borderStyle}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
+            {tasksData && tasksData.total > 0 && (
+              <Pagination
+                page={taskPage}
+                total={tasksData.total}
+                pageSize={pageSize}
+                hasMore={tasksData.hasMore}
+                onPageChange={setTaskPage}
+              />
             )}
           </div>
         </TabsContent>
@@ -511,6 +524,37 @@ export default function AdminProjectsPage() {
         }}
         isPending={createTask.isPending || updateTask.isPending}
       />
+
+      {/* Delete Project Confirmation */}
+      {deletingProjectId !== null && (
+        <DeleteProjectDialog
+          projectId={deletingProjectId}
+          onConfirm={() => {
+            deleteProject.mutate(
+              { id: deletingProjectId },
+              { onSettled: () => setDeletingProjectId(null) }
+            );
+          }}
+          onCancel={() => setDeletingProjectId(null)}
+          isPending={deleteProject.isPending}
+        />
+      )}
+
+      {/* Delete Task Confirmation */}
+      {deletingTaskId !== null && (
+        <DeleteConfirmDialog
+          title="Delete Task"
+          message="Are you sure you want to delete this task? This action cannot be undone."
+          onConfirm={() => {
+            deleteTask.mutate(
+              { id: deletingTaskId },
+              { onSettled: () => setDeletingTaskId(null) }
+            );
+          }}
+          onCancel={() => setDeletingTaskId(null)}
+          isPending={deleteTask.isPending}
+        />
+      )}
     </div>
   );
 }
@@ -521,6 +565,242 @@ function LoadingSkeleton() {
       {[...Array(5)].map((_, i) => (
         <div key={i} className="h-16 animate-pulse rounded-lg bg-white/5" />
       ))}
+    </div>
+  );
+}
+
+function Pagination({
+  page,
+  total,
+  pageSize,
+  hasMore,
+  onPageChange,
+}: {
+  page: number;
+  total: number;
+  pageSize: number;
+  hasMore: boolean;
+  onPageChange: (page: number) => void;
+}) {
+  const totalPages = Math.ceil(total / pageSize);
+  return (
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-gray-500">
+        Showing {(page - 1) * pageSize + 1}&ndash;
+        {Math.min(page * pageSize, total)} of {total}
+      </p>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onPageChange(Math.max(1, page - 1))}
+            disabled={page === 1}
+            className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+            style={borderStyle}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(
+              (i) => i === 1 || i === totalPages || Math.abs(i - page) <= 1
+            )
+            .map((i, idx, arr) => (
+              <span key={i} className="flex items-center">
+                {idx > 0 && arr[idx - 1] !== i - 1 && (
+                  <span className="px-1 text-xs text-gray-600">&hellip;</span>
+                )}
+                <button
+                  onClick={() => onPageChange(i)}
+                  className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                    i === page
+                      ? "font-medium text-[#D4AF37]"
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  {i}
+                </button>
+              </span>
+            ))}
+          <button
+            onClick={() => onPageChange(page + 1)}
+            disabled={!hasMore}
+            className="rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30"
+            style={borderStyle}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeleteProjectDialog({
+  projectId,
+  onConfirm,
+  onCancel,
+  isPending,
+}: {
+  projectId: number;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isPending: boolean;
+}) {
+  const { data: impact, isLoading } = api.projects.getDeleteImpact.useQuery({
+    id: projectId,
+  });
+
+  const willDelete: string[] = [];
+  const willUnlink: string[] = [];
+
+  if (impact) {
+    if (impact.tasks > 0)
+      willDelete.push(`${impact.tasks} task${impact.tasks !== 1 ? "s" : ""}`);
+    if (impact.updates > 0)
+      willDelete.push(
+        `${impact.updates} update${impact.updates !== 1 ? "s" : ""}`
+      );
+    if (impact.notes > 0)
+      willUnlink.push(`${impact.notes} note${impact.notes !== 1 ? "s" : ""}`);
+    if (impact.resources > 0)
+      willUnlink.push(
+        `${impact.resources} resource${impact.resources !== 1 ? "s" : ""}`
+      );
+    if (impact.agreements > 0)
+      willUnlink.push(
+        `${impact.agreements} agreement${impact.agreements !== 1 ? "s" : ""}`
+      );
+  }
+
+  const hasImpact = willDelete.length > 0 || willUnlink.length > 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md rounded-xl border bg-[#0a0a0a] p-6"
+        style={borderStyle}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+            <AlertTriangle className="h-5 w-5 text-red-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-white">Delete Project</h2>
+            <p className="text-sm text-gray-400">
+              This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2 py-4">
+            <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
+            <div className="h-4 w-36 animate-pulse rounded bg-white/10" />
+          </div>
+        ) : hasImpact ? (
+          <div className="mb-4 space-y-3">
+            {willDelete.length > 0 && (
+              <div
+                className="rounded-lg border bg-red-500/5 px-4 py-3"
+                style={{ borderColor: "rgba(239, 68, 68, 0.2)" }}
+              >
+                <p className="mb-1 text-xs font-medium tracking-wider text-red-400 uppercase">
+                  Will be permanently deleted
+                </p>
+                <p className="text-sm text-gray-300">{willDelete.join(", ")}</p>
+              </div>
+            )}
+            {willUnlink.length > 0 && (
+              <div
+                className="rounded-lg border bg-white/5 px-4 py-3"
+                style={borderStyle}
+              >
+                <p className="mb-1 text-xs font-medium tracking-wider text-gray-400 uppercase">
+                  Will be unlinked (kept)
+                </p>
+                <p className="text-sm text-gray-300">{willUnlink.join(", ")}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="mb-4 text-sm text-gray-400">
+            This project has no linked data.
+          </p>
+        )}
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:text-white"
+            style={borderStyle}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isPending || isLoading}
+            className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {isPending ? "Deleting..." : "Delete Project"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteConfirmDialog({
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  isPending,
+}: {
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isPending: boolean;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-sm rounded-xl border bg-[#0a0a0a] p-6"
+        style={borderStyle}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+            <AlertTriangle className="h-5 w-5 text-red-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-white">{title}</h2>
+        </div>
+        <p className="mb-4 text-sm text-gray-400">{message}</p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="rounded-lg border px-4 py-2 text-sm text-gray-400 transition-colors hover:text-white"
+            style={borderStyle}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isPending}
+            className="flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {isPending ? "Deleting..." : "Delete"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

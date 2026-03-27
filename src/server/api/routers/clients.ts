@@ -44,7 +44,8 @@ export const clientsRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().optional(),
-        status: z.string().optional(),
+        pipelineStatus: z.string().optional(),
+        tag: z.string().optional(),
         accountManagerId: z.string().uuid().optional(),
         assignedDeveloperId: z.string().uuid().optional(),
         connectorId: z.string().uuid().optional(),
@@ -87,9 +88,22 @@ export const clientsRouter = createTRPCRouter({
         );
       }
 
-      // Status filter
-      if (input.status) {
-        conditions.push(eq(clients.status, input.status));
+      // Pipeline status filter (from linked CRM contact)
+      if (input.pipelineStatus) {
+        conditions.push(
+          sql`${clients.crmId} IN (
+            SELECT id FROM master_crm WHERE status = ${input.pipelineStatus}
+          )`
+        );
+      }
+
+      // Tag filter (from linked CRM contact)
+      if (input.tag) {
+        conditions.push(
+          sql`${clients.crmId} IN (
+            SELECT id FROM master_crm WHERE ${input.tag} = ANY(tags)
+          )`
+        );
       }
 
       // Team member filters
@@ -387,7 +401,6 @@ export const clientsRouter = createTRPCRouter({
         id: z.number(),
         name: z.string().min(1).optional(),
         email: z.string().email().optional(),
-        status: z.enum(["active", "inactive"]).optional(),
         company: z.string().nullable().optional(),
         notes: z.string().nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
@@ -431,11 +444,6 @@ export const clientsRouter = createTRPCRouter({
         ] as const;
         for (const f of syncFields) {
           if (f in data) crmUpdate[f] = data[f as keyof typeof data];
-        }
-
-        // Sync status
-        if (data.status) {
-          crmUpdate.status = data.status === "active" ? "client" : "inactive";
         }
 
         if (Object.keys(crmUpdate).length > 1) {
@@ -503,27 +511,6 @@ export const clientsRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       await db.delete(clients).where(eq(clients.id, input.id));
       return { success: true };
-    }),
-
-  // Archive client (set status to inactive, sync to CRM)
-  archive: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
-      const [updated] = await db
-        .update(clients)
-        .set({ status: "inactive", updatedAt: new Date() })
-        .where(eq(clients.id, input.id))
-        .returning();
-
-      // Sync status to linked CRM contact
-      if (updated?.crmId) {
-        await db
-          .update(masterCrm)
-          .set({ status: "inactive", updatedAt: new Date() })
-          .where(eq(masterCrm.id, updated.crmId));
-      }
-
-      return updated;
     }),
 
   // Push update to a project (also sends email notification)

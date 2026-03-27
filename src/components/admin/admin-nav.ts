@@ -59,7 +59,7 @@ export const ADMIN_SIDEBAR_NAV: NavItem[] = [
       { title: "Form Submissions", href: "/admin/crm/leads" },
       { title: "Contacts", href: "/admin/crm/contacts" },
       {
-        title: "Clients",
+        title: "Portals",
         href: "/admin/clients",
         requiredRoles: [
           "founder",

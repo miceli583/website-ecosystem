@@ -1,47 +1,42 @@
 "use client";
 
-import { ChevronUp, ChevronDown, Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
+import {
+  Pencil,
+  Trash2,
+  Archive,
+  ArchiveRestore,
+  ExternalLink,
+} from "lucide-react";
 import type { ProjectWithMeta } from "./types";
 import { ProjectStatusBadge } from "./status-badges";
+import { SortHeader, type SortLevel } from "~/components/crm/sort-header";
 
 interface ProjectListProps {
   projects: ProjectWithMeta[];
   mode: "admin" | "portal";
-  sortBy: string;
-  sortOrder: string;
+  sorts: SortLevel[];
   onSort: (field: string) => void;
   onViewDetail: (id: number) => void;
   onEdit?: (project: ProjectWithMeta) => void;
   onDelete?: (id: number) => void;
+  onToggleArchive?: (id: number, isArchived: boolean) => void;
+  showPortalLink?: boolean;
 }
 
-function SortIcon({
-  field,
-  sortBy,
-  sortOrder,
-}: {
-  field: string;
-  sortBy: string;
-  sortOrder: string;
-}) {
-  if (field !== sortBy)
-    return <ChevronDown className="h-3 w-3 text-gray-600" />;
-  return sortOrder === "asc" ? (
-    <ChevronUp className="h-3 w-3 text-[#D4AF37]" />
-  ) : (
-    <ChevronDown className="h-3 w-3 text-[#D4AF37]" />
-  );
-}
+const thStatic =
+  "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500";
 
 export function ProjectList({
   projects,
   mode,
-  sortBy,
-  sortOrder,
+  sorts,
   onSort,
   onViewDetail,
   onEdit,
   onDelete,
+  onToggleArchive,
+  showPortalLink,
 }: ProjectListProps) {
   if (projects.length === 0) {
     return (
@@ -51,48 +46,67 @@ export function ProjectList({
     );
   }
 
-  const thClass =
-    "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 cursor-pointer select-none hover:text-gray-300 transition-colors";
-
   return (
     <div
       className="overflow-x-auto rounded-lg border"
       style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
     >
-      <table className="w-full">
-        <thead className="bg-white/5">
-          <tr>
-            <th className={thClass} onClick={() => onSort("name")}>
-              <span className="flex items-center gap-1">
-                Name{" "}
-                <SortIcon field="name" sortBy={sortBy} sortOrder={sortOrder} />
-              </span>
-            </th>
-            {mode === "admin" && <th className={thClass}>Client</th>}
-            <th className={thClass} onClick={() => onSort("status")}>
-              <span className="flex items-center gap-1">
-                Status{" "}
-                <SortIcon
-                  field="status"
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              </span>
-            </th>
-            <th className={thClass}>AM</th>
-            <th className={thClass}>Dev</th>
-            <th className={thClass}>Tasks</th>
-            <th className={thClass} onClick={() => onSort("createdAt")}>
-              <span className="flex items-center gap-1">
-                Created{" "}
-                <SortIcon
-                  field="createdAt"
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              </span>
-            </th>
-            {mode === "admin" && <th className={thClass}>Actions</th>}
+      <table className="w-full text-sm">
+        <thead>
+          <tr
+            className="border-b text-left text-xs tracking-wider text-gray-500 uppercase"
+            style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+          >
+            <SortHeader
+              field="name"
+              label="Name"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            {mode === "admin" && (
+              <SortHeader
+                field="client"
+                label="Client"
+                sorts={sorts}
+                onSort={onSort}
+              />
+            )}
+            <SortHeader
+              field="status"
+              label="Status"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            {mode === "admin" && (
+              <SortHeader
+                field="accountManager"
+                label="AM"
+                sorts={sorts}
+                onSort={onSort}
+              />
+            )}
+            {mode === "admin" && (
+              <SortHeader
+                field="developer"
+                label="Dev"
+                sorts={sorts}
+                onSort={onSort}
+              />
+            )}
+            <SortHeader
+              field="tasks"
+              label="Tasks"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            <SortHeader
+              field="createdAt"
+              label="Created"
+              sorts={sorts}
+              onSort={onSort}
+            />
+            {showPortalLink && <th className={thStatic}>Portal</th>}
+            {mode === "admin" && <th className={thStatic}>Actions</th>}
           </tr>
         </thead>
         <tbody
@@ -119,18 +133,22 @@ export function ProjectList({
               </td>
               {mode === "admin" && (
                 <td className="px-4 py-3 text-sm text-gray-400">
-                  {project.client.name}
+                  {project.client?.name ?? "—"}
                 </td>
               )}
               <td className="px-4 py-3">
                 <ProjectStatusBadge status={project.status} />
               </td>
-              <td className="px-4 py-3 text-sm text-gray-400">
-                {project.accountManager?.name ?? "—"}
-              </td>
-              <td className="px-4 py-3 text-sm text-gray-400">
-                {project.assignedDeveloper?.name ?? "—"}
-              </td>
+              {mode === "admin" && (
+                <td className="px-4 py-3 text-sm text-gray-400">
+                  {project.accountManager?.name ?? "—"}
+                </td>
+              )}
+              {mode === "admin" && (
+                <td className="px-4 py-3 text-sm text-gray-400">
+                  {project.assignedDeveloper?.name ?? "—"}
+                </td>
+              )}
               <td className="px-4 py-3">
                 <span className="text-sm text-gray-400">
                   {project._count.doneTasks}/{project._count.tasks}
@@ -149,26 +167,57 @@ export function ProjectList({
               <td className="px-4 py-3 text-sm text-gray-500">
                 {new Date(project.createdAt).toLocaleDateString()}
               </td>
+              {showPortalLink && project.client && (
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <Link
+                    href={`/portal/${project.client.slug}?domain=live`}
+                    className="text-gray-500 transition-colors hover:text-[#D4AF37]"
+                    title={`Open ${project.client.name} portal`}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
+                </td>
+              )}
+              {showPortalLink && !project.client && (
+                <td className="px-4 py-3" />
+              )}
               {mode === "admin" && (
                 <td className="px-4 py-3">
                   <div
-                    className="flex gap-2"
+                    className="flex gap-1"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {onEdit && (
                       <button
                         onClick={() => onEdit(project)}
                         className="rounded p-1 text-gray-500 transition-colors hover:text-[#D4AF37]"
+                        title="Edit"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    {onToggleArchive && (
+                      <button
+                        onClick={() =>
+                          onToggleArchive(project.id, !project.isArchived)
+                        }
+                        className="rounded p-1 text-gray-500 transition-colors hover:text-[#D4AF37]"
+                        title={project.isArchived ? "Unarchive" : "Archive"}
+                      >
+                        {project.isArchived ? (
+                          <ArchiveRestore className="h-3.5 w-3.5" />
+                        ) : (
+                          <Archive className="h-3.5 w-3.5" />
+                        )}
                       </button>
                     )}
                     {onDelete && (
                       <button
                         onClick={() => onDelete(project.id)}
                         className="rounded p-1 text-gray-500 transition-colors hover:text-red-400"
+                        title="Delete"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </div>
