@@ -27,9 +27,9 @@ interface SearchFilterBarProps {
   onSearchChange: (query: string) => void;
   searchPlaceholder?: string;
 
-  // Sort
-  sortOrder: SortOrder;
-  onSortChange: (order: SortOrder) => void;
+  // Sort (optional — omit to hide sort dropdown when columns handle sorting)
+  sortOrder?: SortOrder;
+  onSortChange?: (order: SortOrder) => void;
   sortOptions?: Array<{ value: SortOrder; label: string }>;
 
   // Filter (optional)
@@ -119,20 +119,22 @@ export function SearchFilterBar({
         </div>
 
         {/* Sort dropdown */}
-        <div className="relative">
-          <select
-            value={sortOrder}
-            onChange={(e) => onSortChange(e.target.value as SortOrder)}
-            className="h-full appearance-none rounded-md border border-gray-700 bg-white/5 px-4 py-2 pr-10 text-sm text-gray-300 transition-colors hover:bg-white/10 focus:border-[#D4AF37] focus:outline-none"
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <ArrowUpDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
-        </div>
+        {sortOrder !== undefined && onSortChange && (
+          <div className="relative">
+            <select
+              value={sortOrder}
+              onChange={(e) => onSortChange(e.target.value as SortOrder)}
+              className="h-full appearance-none rounded-md border border-gray-700 bg-white/5 px-4 py-2 pr-10 text-sm text-gray-300 transition-colors hover:bg-white/10 focus:border-[#D4AF37] focus:outline-none"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ArrowUpDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          </div>
+        )}
 
         {/* Filter toggle */}
         {hasFilters && onFilterChange && (
