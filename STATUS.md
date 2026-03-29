@@ -1,7 +1,7 @@
 # Project Status
 
 **Version:** 0.9.0
-**Last Updated:** 2026-03-28
+**Last Updated:** 2026-03-29
 **Last Updated By:** Matthew Miceli
 **Commits:** 250+
 
@@ -36,6 +36,7 @@
 | Frazier Dentistry demo         | Working     | 28-page website demo under Shechem's portal, public share support via registry                          |
 | Public share OG branding       | Working     | Universal Miracle Mind OG images (4 variants), branded link previews for all share links                |
 | CRM shared components          | **Updated** | PromoteToClientModal, DemotionDialog, ContactRow type extracted to `src/components/crm/`                |
+| Showcase page                  | **New**     | Portfolio showcase at `/showcase` — hero, tech stack, demos, creative sections, Mapbox integration      |
 
 ## Known Limitations
 
@@ -46,12 +47,12 @@
 
 ## Recent Changes
 
-| Date   | Commit  | Description                                                                     | Author         |
-| ------ | ------- | ------------------------------------------------------------------------------- | -------------- |
-| Mar 28 | 88d3d45 | Portal pages → table layout with SortHeader sorting + note detail page          | Matthew Miceli |
-| Mar 27 | bdf04f8 | Branded OG images for share link previews (4 variants, universal fallback)      | Matthew Miceli |
-| Mar 27 | ee4d658 | Frazier demo → single component for public share support (TapCHW pattern)       | Matthew Miceli |
-| Mar 27 | 25d5a9c | Frazier Dentistry demo — 28-page website + brand assets                         | Matthew Miceli |
-| Mar 27 | 9f36b7e | Extract CRM dialogs (PromoteToClientModal, DemotionDialog) to shared components | Matthew Miceli |
+| Date   | Commit  | Description                                                                | Author         |
+| ------ | ------- | -------------------------------------------------------------------------- | -------------- |
+| Mar 29 | —       | Showcase page with hero, tech stack, demos, creative sections + Mapbox env | Matthew Miceli |
+| Mar 28 | 88d3d45 | Portal pages → table layout with SortHeader sorting + note detail page     | Matthew Miceli |
+| Mar 27 | bdf04f8 | Branded OG images for share link previews (4 variants, universal fallback) | Matthew Miceli |
+| Mar 27 | ee4d658 | Frazier demo → single component for public share support (TapCHW pattern)  | Matthew Miceli |
+| Mar 27 | 25d5a9c | Frazier Dentistry demo — 28-page website + brand assets                    | Matthew Miceli |
 
 _Older changes: `git log --oneline`_
