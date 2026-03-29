@@ -155,7 +155,7 @@ export function DemosSection() {
           }`}
           style={{ transitionDelay: "100ms" }}
         >
-          These are real, working components from the systems I&apos;ve built.
+          Real, working components from systems I&apos;ve built -- not mockups.
           Click through the tabs to explore.
         </p>
 

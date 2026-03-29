@@ -1,128 +1,158 @@
 "use client";
 
+import Image from "next/image";
+import { MapPin, Mail } from "lucide-react";
 import { ShadertoyRenderer } from "~/components/shaders/shadertoy-renderer";
-import { ChevronDown } from "lucide-react";
 
-const ORBIT_STAR_SHADER = `
-float saturate(float x) { return clamp(x, 0.0, 1.0); }
+const NEURAL_NET_SHADER = `
+// The Universe Within - by Martijn Steinrucken aka BigWings 2018
+// Email:countfrolic@gmail.com Twitter:@The_ArtOfCode
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
-float sdRing(vec2 p, float r, float thickness) {
-    return abs(length(p) - r) - thickness;
+#define S(a, b, t) smoothstep(a, b, t)
+#define NUM_LAYERS 2.
+
+float N21(vec2 p) {
+	vec3 a = fract(vec3(p.xyx) * vec3(213.897, 653.453, 253.098));
+    a += dot(a, a.yzx + 79.76);
+    return fract((a.x + a.y) * a.z);
 }
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
-    vec2 uvOrig = uv;
-    float time = iTime;
+vec2 GetPos(vec2 id, vec2 offs, float t) {
+    float n = N21(id+offs);
+    float n1 = fract(n*10.);
+    float n2 = fract(n*100.);
+    float a = t+n;
+    return offs + vec2(sin(a*n1), cos(a*n2))*.4;
+}
 
-    float tiltX = sin(time * 0.3) * 0.06;
-    float tiltY = cos(time * 0.25) * 0.04;
-    float perspective = 1.0 + uvOrig.y * tiltX + uvOrig.x * tiltY;
-    uv *= perspective;
+float GetT(vec2 ro, vec2 rd, vec2 p) {
+	return dot(p-ro, rd);
+}
 
-    float breathe = sin(time * 0.6) * 0.15 + 0.85;
-    float pulse = sin(time * 1.2) * 0.1 + 0.9;
+float LineDist(vec3 a, vec3 b, vec3 p) {
+	return length(cross(b-a, p-a))/length(p-a);
+}
 
-    vec3 goldLight = vec3(0.965, 0.902, 0.757);
-    vec3 goldMid = vec3(0.847, 0.678, 0.329);
-    vec3 goldDark = vec3(0.549, 0.361, 0.149);
+float df_line( in vec2 a, in vec2 b, in vec2 p)
+{
+    vec2 pa = p - a, ba = b - a;
+	float h = clamp(dot(pa,ba) / dot(ba,ba), 0., 1.);
+	return length(pa - ba * h);
+}
 
-    float r = length(uv);
-    vec3 col = vec3(0.0);
+float line(vec2 a, vec2 b, vec2 uv) {
+    float r1 = .04;
+    float r2 = .01;
 
-    float outerRing = sdRing(uv, 0.36, 0.012);
-    float outerGlow = saturate(0.005 / (abs(outerRing) + 0.003)) * breathe;
-    col += mix(goldMid, goldLight, saturate(1.0 - abs(outerRing) * 20.0)) * outerGlow;
+    float d = df_line(a, b, uv);
+    float d2 = length(a-b);
+    float fade = S(1.5, .5, d2);
 
-    float innerRing = sdRing(uv, 0.29, 0.006);
-    float innerGlow = saturate(0.003 / (abs(innerRing) + 0.002)) * 0.45 * breathe;
-    col += goldLight * innerGlow;
+    fade += S(.05, .02, abs(d2-.75));
+    return S(r1, r2, d)*fade;
+}
 
-    float squareSize = 0.26;
-    float sqAngle = -time * 0.1;
-    float sc = cos(sqAngle), ss = sin(sqAngle);
-    mat2 sqRot = mat2(sc, -ss, ss, sc);
-    vec2 uvSq = sqRot * uv;
+float NetLayer(vec2 st, float n, float t) {
+    vec2 id = floor(st)+n;
 
-    float sq45 = 0.7071;
-    vec2 uvDiamond = vec2(uvSq.x * sq45 + uvSq.y * sq45, -uvSq.x * sq45 + uvSq.y * sq45);
+    st = fract(st)-.5;
 
-    float pureSq = max(abs(uvDiamond.x), abs(uvDiamond.y)) - squareSize;
-    float circ = length(uvDiamond) - squareSize * 1.15;
-    float squareDist = mix(pureSq, circ, 0.12);
+    vec2 p[9];
+    p[0] = GetPos(id, vec2(-1.,-1.), t);
+    p[1] = GetPos(id, vec2(0.,-1.), t);
+    p[2] = GetPos(id, vec2(1.,-1.), t);
+    p[3] = GetPos(id, vec2(-1.,0.), t);
+    p[4] = GetPos(id, vec2(0.,0.), t);
+    p[5] = GetPos(id, vec2(1.,0.), t);
+    p[6] = GetPos(id, vec2(-1.,1.), t);
+    p[7] = GetPos(id, vec2(0.,1.), t);
+    p[8] = GetPos(id, vec2(1.,1.), t);
 
-    float lineWidth = 0.010;
-    float coreLine = 1.0 - smoothstep(0.0, lineWidth, abs(squareDist));
-    float squareGlow = saturate(0.012 / (abs(squareDist) + 0.008)) * breathe;
+    float m = 0.;
+    float sparkle = 0.;
 
-    col += goldLight * coreLine * 0.8;
-    col += goldMid * squareGlow * 0.35;
+    for(int i=0; i<9; i++) {
+        vec2 pi;
+        if(i==0) pi = p[0];
+        else if(i==1) pi = p[1];
+        else if(i==2) pi = p[2];
+        else if(i==3) pi = p[3];
+        else if(i==4) pi = p[4];
+        else if(i==5) pi = p[5];
+        else if(i==6) pi = p[6];
+        else if(i==7) pi = p[7];
+        else pi = p[8];
 
-    float arcIntensity = 0.0;
-    for (int i = 0; i < 4; i++) {
-        float startAngle = float(i) * 1.5708;
-        float a = startAngle + time * 0.2;
-        float c = cos(a), s = sin(a);
-        vec2 rp = mat2(c, -s, s, c) * uv;
-        float pAngle = atan(rp.y, rp.x);
-        float pr = length(rp);
-        float t = (pAngle + 3.14159) / 6.28318;
-        t = mod(t + 0.25, 1.0);
-        if (t < 0.28) {
-            float progress = t / 0.25;
-            progress = saturate(progress);
-            float outerR = 0.36;
-            float innerR = 0.29;
-            float ctrl = 0.38;
-            float t2 = progress;
-            float targetR = (1.0-t2)*(1.0-t2)*outerR + 2.0*(1.0-t2)*t2*ctrl + t2*t2*innerR;
-            float d = abs(pr - targetR);
-            float endFade = smoothstep(0.0, 0.05, progress) * smoothstep(0.0, 0.05, 1.0 - progress);
-            float arc = saturate(0.005 / (d + 0.002)) * endFade;
-            arcIntensity += arc;
-        }
+        m += line(p[4], pi, st);
+
+        float d = length(st-pi);
+
+        float s = (.005/(d*d));
+        s *= S(1., .7, d);
+        float pulse = sin((fract(pi.x)+fract(pi.y)+t)*5.)*.4+.6;
+        pulse = pow(pulse, 20.);
+
+        s *= pulse;
+        sparkle += s;
     }
 
-    float energy = sin(time * 2.0) * 0.3 + 0.7;
-    col += mix(goldMid, goldLight, 0.5) * arcIntensity * breathe * energy * 0.5;
+    m += line(p[1], p[3], st);
+	m += line(p[1], p[5], st);
+    m += line(p[7], p[5], st);
+    m += line(p[7], p[3], st);
 
-    float centerDot = saturate(0.010 / (r + 0.008)) * pulse;
-    float centerHalo = saturate(0.002 / (r + 0.015)) * 0.4 * breathe;
-    col += goldLight * centerDot;
-    col += goldMid * centerHalo;
+    float sPhase = (sin(t+n)+sin(t*.1))*.25+.5;
+    sPhase += pow(sin(t*.1)*.5+.5, 50.)*.5;
+    m += sparkle*sPhase*0.3;
 
-    for (int i = 0; i < 3; i++) {
-        float particleAngle = -time * (0.15 + float(i) * 0.03) + float(i) * 2.094;
-        float particleR = 0.32 + sin(time * 0.5 + float(i)) * 0.02;
-        vec2 particlePos = vec2(cos(particleAngle), sin(particleAngle)) * particleR;
-        float particleDist = length(uv - particlePos);
-        float particle = saturate(0.002 / (particleDist + 0.001)) * 0.5;
-        col += goldLight * particle * pulse;
+    return m;
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    vec2 uv = (fragCoord-iResolution.xy*.5)/iResolution.y;
+	vec2 M = vec2(0.0);
+
+    float t = iTime*.005;
+
+    float s = sin(t);
+    float c = cos(t);
+    mat2 rot = mat2(c, -s, s, c);
+    vec2 st = uv*rot;
+	M *= rot*2.;
+
+    float m = 0.;
+    for(float i=0.; i<1.; i+=1./NUM_LAYERS) {
+        float z = fract(t+i);
+        float size = mix(15., 1., z);
+        float fade = S(0., .6, z)*S(1., .8, z);
+
+        m += fade * NetLayer(st*size-M*z, i, iTime);
     }
 
-    float ambientGlow = saturate(0.05 / (r + 0.15)) * 0.08;
-    col += goldDark * ambientGlow * breathe;
+    float glow = -uv.y*0.2;
 
-    float shimmer = sin(time * 0.7) * 0.08 + 0.92;
-    col *= shimmer;
-    col *= smoothstep(0.8, 0.2, r);
-    col = 1.0 - exp(-col * 1.5);
+    vec3 baseCol = vec3(0.831, 0.686, 0.216);
 
-    fragColor = vec4(col, 1.0);
+    vec3 col = baseCol*m;
+    col += baseCol*glow;
+
+    col *= 1.-dot(uv,uv);
+    t = mod(iTime, 230.);
+    col *= S(0., 20., t)*S(224., 200., t);
+
+    fragColor = vec4(col,1);
 }
 `;
 
 export function HeroSection() {
-  const scrollDown = () => {
-    window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
-  };
-
   return (
     <section className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-black">
       {/* Shader background */}
-      <div className="absolute inset-0 opacity-40">
+      <div className="absolute inset-0 opacity-15">
         <ShadertoyRenderer
-          fragmentShader={ORBIT_STAR_SHADER}
+          fragmentShader={NEURAL_NET_SHADER}
           className="h-full w-full"
           resolutionScale={0.5}
           targetFps={30}
@@ -130,33 +160,68 @@ export function HeroSection() {
       </div>
 
       {/* Content overlay */}
-      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-        <h1
-          className="mb-4 font-[family-name:var(--font-quattrocento-sans)] text-5xl font-bold tracking-[0.08em] sm:text-6xl md:text-7xl"
-          style={{
-            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          Hi, I&apos;m Matthew.
-        </h1>
-        <p className="mb-3 font-[family-name:var(--font-muli)] text-xl font-light text-white/80 sm:text-2xl">
-          Founder &amp; Lead Developer at MiracleMind
-        </p>
-        <p className="mx-auto max-w-xl text-base text-white/50 sm:text-lg">
-          I build the custom backend systems that power regenerative ventures.
-        </p>
-      </div>
+      <div className="relative z-10 mx-auto flex max-w-4xl items-center gap-6 px-6 sm:gap-10 md:gap-14">
+        {/* Text */}
+        <div className="flex-1 space-y-4">
+          <h1 className="font-[family-name:var(--font-quattrocento-sans)] text-3xl font-bold tracking-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl lg:text-6xl">
+            Hi, I&apos;m Matthew Miceli
+          </h1>
+          <p className="text-sm text-gray-100 drop-shadow-md sm:text-base md:text-lg">
+            Founder &amp; Lead Developer at{" "}
+            <span
+              style={{
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              <span style={{ fontWeight: 300 }}>MIRACLE</span>{" "}
+              <span style={{ fontWeight: 700 }}>MIND</span>
+            </span>
+          </p>
+          <p className="max-w-lg text-sm leading-relaxed text-white/50 drop-shadow-md sm:text-base md:text-lg">
+            Integrating disciplines to design systems that honor what makes us
+            human.
+          </p>
+          <div className="flex flex-col gap-2 text-xs text-gray-200 sm:flex-row sm:gap-4 sm:text-sm">
+            <div className="flex items-center gap-1">
+              <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span>Austin, TX</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+              <a
+                href="mailto:matthewmiceli@miraclemind.live"
+                className="hover:underline"
+                style={{ color: "#D4AF37" }}
+              >
+                matthewmiceli@miraclemind.live
+              </a>
+            </div>
+          </div>
+        </div>
 
-      {/* Scroll indicator */}
-      <button
-        onClick={scrollDown}
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 animate-bounce text-white/30 transition-colors hover:text-white/60"
-        aria-label="Scroll down"
-      >
-        <ChevronDown className="h-8 w-8" />
-      </button>
+        {/* Profile photo */}
+        <div className="shrink-0">
+          <div
+            className="h-28 w-28 overflow-hidden rounded-full border-2 shadow-2xl sm:h-36 sm:w-36 md:h-44 md:w-44"
+            style={{
+              borderColor: "#D4AF37",
+              boxShadow: "0 25px 50px -12px rgba(212, 175, 55, 0.25)",
+            }}
+          >
+            <Image
+              src="/images/profile.jpg"
+              alt="Matthew Miceli"
+              width={176}
+              height={176}
+              className="h-full w-full object-cover"
+              priority
+            />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

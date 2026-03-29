@@ -1,8 +1,10 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronUp, ChevronDown } from "lucide-react";
 import { HeroSection } from "./hero-section";
+import { AboutSection } from "./about-section";
 import { BackgroundSection } from "./background-section";
 import { TransitionSection } from "./transition-section";
 import { MiracleMindSection } from "./miraclemind-section";
@@ -27,6 +29,86 @@ function SectionDivider() {
 }
 
 export function ShowcasePage() {
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const sectionCount = useRef(0);
+
+  // Track which section is most visible
+  useEffect(() => {
+    const els = sectionRefs.current.filter(Boolean) as HTMLDivElement[];
+    sectionCount.current = els.length;
+
+    const handleScroll = () => {
+      const viewportMid = window.innerHeight / 2;
+      let closest = 0;
+      let minDist = Infinity;
+
+      els.forEach((el, i) => {
+        const rect = el.getBoundingClientRect();
+        // Distance from element's top to viewport middle
+        const dist = Math.abs(rect.top - viewportMid / 2);
+        if (rect.top <= viewportMid && rect.bottom > 0 && dist < minDist) {
+          minDist = dist;
+          closest = i;
+        }
+      });
+
+      // If we're at the bottom of the page, select the last section
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.scrollHeight - 50
+      ) {
+        closest = els.length - 1;
+      }
+
+      setCurrentIndex(closest);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // initial
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollTo = useCallback((index: number) => {
+    const el = sectionRefs.current[index];
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  }, []);
+
+  const goUp = useCallback(() => {
+    if (currentIndex > 0) scrollTo(currentIndex - 1);
+  }, [currentIndex, scrollTo]);
+
+  const goDown = useCallback(() => {
+    const total = sectionRefs.current.filter(Boolean).length;
+    if (currentIndex < total - 1) scrollTo(currentIndex + 1);
+  }, [currentIndex, scrollTo]);
+
+  // Keyboard support
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        goUp();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        goDown();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [goUp, goDown]);
+
+  const setRef = (index: number) => (el: HTMLDivElement | null) => {
+    sectionRefs.current[index] = el;
+  };
+
+  const isFirst = currentIndex === 0;
+  const isLast =
+    currentIndex === sectionRefs.current.filter(Boolean).length - 1;
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Back button */}
@@ -38,19 +120,60 @@ export function ShowcasePage() {
         Home
       </Link>
 
-      <HeroSection />
+      {/* Fixed scroll arrows */}
+      {!isFirst && (
+        <button
+          onClick={goUp}
+          className="fixed top-6 left-1/2 z-40 -translate-x-1/2 animate-bounce text-white/30 transition-colors hover:text-white/60"
+          aria-label="Previous section"
+        >
+          <ChevronUp className="h-8 w-8" />
+        </button>
+      )}
+      {!isLast && (
+        <button
+          onClick={goDown}
+          className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 animate-bounce text-white/30 transition-colors hover:text-white/60"
+          aria-label="Next section"
+        >
+          <ChevronDown className="h-8 w-8" />
+        </button>
+      )}
+
+      {/* Sections — normal flow, no wrappers */}
+      <div ref={setRef(0)}>
+        <HeroSection />
+      </div>
       <SectionDivider />
-      <BackgroundSection />
-      <TransitionSection />
+      <div ref={setRef(1)}>
+        <AboutSection />
+      </div>
       <SectionDivider />
-      <MiracleMindSection />
+      <div ref={setRef(2)}>
+        <BackgroundSection />
+      </div>
+      <div ref={setRef(3)}>
+        <TransitionSection />
+      </div>
       <SectionDivider />
-      <TechStackSection />
+      <div ref={setRef(4)}>
+        <MiracleMindSection />
+      </div>
       <SectionDivider />
-      <DemosSection />
+      <div ref={setRef(5)}>
+        <TechStackSection />
+      </div>
       <SectionDivider />
-      <CreativeSection />
-      <CTASection />
+      <div ref={setRef(6)}>
+        <DemosSection />
+      </div>
+      <SectionDivider />
+      <div ref={setRef(7)}>
+        <CreativeSection />
+      </div>
+      <div ref={setRef(8)}>
+        <CTASection />
+      </div>
 
       {/* Footer */}
       <footer className="py-8 text-center text-xs text-white/20">

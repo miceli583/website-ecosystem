@@ -76,9 +76,8 @@ export function CTASection() {
             Let&apos;s Talk
           </h3>
           <p className="mb-8 text-base text-white/50">
-            If you&apos;re building something that matters -- regenerative
-            systems, land technology, community infrastructure -- I&apos;d love
-            to hear about it.
+            If you&apos;re building something that matters and want technology
+            you actually own -- I&apos;d love to hear about it.
           </p>
         </div>
 

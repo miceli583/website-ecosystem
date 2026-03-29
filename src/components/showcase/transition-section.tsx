@@ -99,10 +99,9 @@ export function TransitionSection() {
           }`}
           style={{ transitionDelay: "1000ms" }}
         >
-          Not to build another agency -- but to build the kind of technology
-          that mission-driven organizations actually need. Custom systems, real
-          infrastructure, built from the ground up for teams doing work that
-          matters.
+          Not to build another agency -- but to build technology that gives
+          people real ownership over their systems. Custom infrastructure that
+          teams can actually understand, operate, and grow on their own terms.
         </p>
       </div>
     </section>

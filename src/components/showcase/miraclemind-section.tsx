@@ -8,7 +8,6 @@ import {
   Map,
   LayoutDashboard,
   Plug,
-  Leaf,
   Building2,
   Rocket,
   ShieldCheck,
@@ -16,22 +15,22 @@ import {
 
 const WHO_WE_SERVE = [
   {
-    icon: <Leaf className="h-6 w-6" />,
-    title: "Regenerative Land & Agriculture",
+    icon: <ShieldCheck className="h-6 w-6" />,
+    title: "Sovereign Operators",
     description:
-      "Soil monitoring, watershed management, carbon verification, and farm planning tools.",
+      "Founders and teams who want to own their stack -- not rent it. We build systems you control, understand, and can grow without us.",
   },
   {
     icon: <Building2 className="h-6 w-6" />,
-    title: "Community Organizations",
+    title: "Community-First Organizations",
     description:
-      "Land trusts, cooperatives, and community groups that need real portals -- not off-the-shelf templates.",
+      "Land trusts, cooperatives, and community groups that need real infrastructure -- not off-the-shelf templates they can't modify.",
   },
   {
     icon: <Rocket className="h-6 w-6" />,
-    title: "Mission-Driven Startups",
+    title: "Mission-Driven Builders",
     description:
-      "Early-stage teams that need a technical co-builder, not just a contractor.",
+      "Early-stage teams that need a technical co-builder who cares about their autonomy as much as their product.",
   },
 ];
 
@@ -90,10 +89,9 @@ export function MiracleMindSection() {
           }`}
         >
           <p className="text-lg leading-relaxed text-white/60 sm:text-xl">
-            At MiracleMind, we build custom technology for organizations doing
-            meaningful work -- regenerative land systems, community-first
-            businesses, mission-driven teams that need their backend to actually
-            work.
+            At MiracleMind, we build technology that empowers human sovereignty
+            -- custom systems for teams who refuse to be locked into platforms
+            they can&apos;t own, understand, or outgrow.
           </p>
         </div>
 
@@ -194,8 +192,8 @@ export function MiracleMindSection() {
           >
             <ShieldCheck className="h-4 w-4 shrink-0 text-[#D4AF37]/70" />
             <p className="text-xs text-white/40">
-              All demos below use fabricated data. I take client and company
-              data privacy seriously.
+              All demos below use fabricated data. Data sovereignty starts with
+              privacy -- I take yours seriously.
             </p>
           </div>
         </div>
