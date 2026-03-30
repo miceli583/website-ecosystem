@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  GraduationCap,
-  Briefcase,
-  Satellite,
-  Code2,
-  HandshakeIcon,
-} from "lucide-react";
+import { GraduationCap, Satellite, Code2, HandshakeIcon } from "lucide-react";
 
 interface TimelineEntry {
   type: "education" | "work";
@@ -163,11 +157,9 @@ const TIMELINE: TimelineEntry[] = [
 function TimelineCard({
   entry,
   index,
-  isFirst,
 }: {
   entry: TimelineEntry;
   index: number;
-  isFirst?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -314,7 +306,7 @@ export function BackgroundSection() {
 
           <div className="space-y-8 md:space-y-12">
             {TIMELINE.map((entry, i) => (
-              <TimelineCard key={i} entry={entry} index={i} isFirst={i === 0} />
+              <TimelineCard key={i} entry={entry} index={i} />
             ))}
           </div>
         </div>
