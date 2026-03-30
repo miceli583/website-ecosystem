@@ -1,7 +1,7 @@
 # Project Status
 
 **Version:** 0.9.0
-**Last Updated:** 2026-03-29 (session 2)
+**Last Updated:** 2026-03-30
 **Last Updated By:** Matthew Miceli
 **Commits:** 250+
 
@@ -36,7 +36,7 @@
 | Frazier Dentistry demo         | Working     | 28-page website demo under Shechem's portal, public share support via registry                          |
 | Public share OG branding       | Working     | Universal Miracle Mind OG images (4 variants), branded link previews for all share links                |
 | CRM shared components          | **Updated** | PromoteToClientModal, DemotionDialog, ContactRow type extracted to `src/components/crm/`                |
-| Showcase page                  | **Updated** | Portfolio showcase at `/showcase` — sovereignty messaging, about section, photo, section nav arrows     |
+| Showcase page                  | **Updated** | Refactored to live demos only (demos + creative); full CV content moved to docs/cv-matthew-miceli.md    |
 
 ## Known Limitations
 
@@ -49,10 +49,10 @@
 
 | Date   | Commit  | Description                                                                        | Author         |
 | ------ | ------- | ---------------------------------------------------------------------------------- | -------------- |
-| Mar 29 | —       | Showcase refinements: sovereignty messaging, about section, nav arrows, hero photo | Matthew Miceli |
-| Mar 29 | 2a7ee11 | Showcase page with hero, tech stack, demos, creative sections + Mapbox env         | Matthew Miceli |
+| Mar 30 | 3a7c5d9 | Showcase → live demos only, CV markdown created, /resume redirects to /showcase    | Matthew Miceli |
+| Mar 29 | 68cc000 | Showcase demo pages, creative replicas, mobile responsive fixes                    | Matthew Miceli |
+| Mar 29 | e6ce8cc | Showcase refinements: sovereignty messaging, about section, nav arrows, hero photo | Matthew Miceli |
 | Mar 28 | 88d3d45 | Portal pages → table layout with SortHeader sorting + note detail page             | Matthew Miceli |
 | Mar 27 | bdf04f8 | Branded OG images for share link previews (4 variants, universal fallback)         | Matthew Miceli |
-| Mar 27 | ee4d658 | Frazier demo → single component for public share support (TapCHW pattern)          | Matthew Miceli |
 
 _Older changes: `git log --oneline`_
