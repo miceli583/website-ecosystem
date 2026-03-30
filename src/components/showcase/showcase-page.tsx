@@ -29,52 +29,57 @@ function SectionDivider() {
 }
 
 export function ShowcasePage() {
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollStops = useRef<HTMLElement[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const sectionCount = useRef(0);
+  const [ready, setReady] = useState(false);
 
-  // Track which section is most visible
+  // After mount, collect all scroll stops in DOM order
   useEffect(() => {
-    const els = sectionRefs.current.filter(Boolean) as HTMLDivElement[];
-    sectionCount.current = els.length;
+    scrollStops.current = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-scroll-stop]")
+    );
+    setReady(true);
+  }, []);
+
+  // Track which stop is closest to viewport center
+  useEffect(() => {
+    if (!ready) return;
 
     const handleScroll = () => {
-      const viewportMid = window.innerHeight / 2;
+      const stops = scrollStops.current;
+      if (stops.length === 0) return;
+
+      const viewCenter = window.innerHeight / 2;
       let closest = 0;
       let minDist = Infinity;
 
-      els.forEach((el, i) => {
+      stops.forEach((el, i) => {
         const rect = el.getBoundingClientRect();
-        // Distance from element's top to viewport middle
-        const dist = Math.abs(rect.top - viewportMid / 2);
-        if (rect.top <= viewportMid && rect.bottom > 0 && dist < minDist) {
+        const elCenter = rect.top + rect.height / 2;
+        const dist = Math.abs(elCenter - viewCenter);
+        if (dist < minDist) {
           minDist = dist;
           closest = i;
         }
       });
 
-      // If we're at the bottom of the page, select the last section
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.scrollHeight - 50
-      ) {
-        closest = els.length - 1;
-      }
-
       setCurrentIndex(closest);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // initial
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [ready]);
 
   const scrollTo = useCallback((index: number) => {
-    const el = sectionRefs.current[index];
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
+    const el = scrollStops.current[index];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const elCenter = rect.top + rect.height / 2 + window.scrollY;
+    // First timeline card (id starts with "timeline-card-0") sits a bit higher
+    const offset = el.id === "timeline-card-0" ? 80 : 0;
+    const target = elCenter - window.innerHeight / 2 - offset;
+    window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
   }, []);
 
   const goUp = useCallback(() => {
@@ -82,8 +87,8 @@ export function ShowcasePage() {
   }, [currentIndex, scrollTo]);
 
   const goDown = useCallback(() => {
-    const total = sectionRefs.current.filter(Boolean).length;
-    if (currentIndex < total - 1) scrollTo(currentIndex + 1);
+    if (currentIndex < scrollStops.current.length - 1)
+      scrollTo(currentIndex + 1);
   }, [currentIndex, scrollTo]);
 
   // Keyboard support
@@ -101,20 +106,17 @@ export function ShowcasePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goUp, goDown]);
 
-  const setRef = (index: number) => (el: HTMLDivElement | null) => {
-    sectionRefs.current[index] = el;
-  };
-
   const isFirst = currentIndex === 0;
   const isLast =
-    currentIndex === sectionRefs.current.filter(Boolean).length - 1;
+    scrollStops.current.length > 0 &&
+    currentIndex === scrollStops.current.length - 1;
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Back button */}
       <Link
         href="/"
-        className="fixed top-5 left-5 z-50 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-4 py-2 text-sm text-white/50 backdrop-blur-md transition-colors hover:border-[rgba(212,175,55,0.3)] hover:text-white/80"
+        className="fixed top-5 left-5 z-50 flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-black/60 px-4 py-2 text-sm text-white/50 backdrop-blur-md transition-colors hover:border-[rgba(212,175,55,0.3)] hover:text-white/80"
       >
         <ArrowLeft className="h-4 w-4" />
         Home
@@ -124,7 +126,7 @@ export function ShowcasePage() {
       {!isFirst && (
         <button
           onClick={goUp}
-          className="fixed top-6 left-1/2 z-40 -translate-x-1/2 animate-bounce text-white/30 transition-colors hover:text-white/60"
+          className="fixed top-6 left-1/2 z-40 flex min-h-[44px] min-w-[44px] -translate-x-1/2 animate-bounce items-center justify-center text-white/30 transition-colors hover:text-white/60"
           aria-label="Previous section"
         >
           <ChevronUp className="h-8 w-8" />
@@ -133,45 +135,44 @@ export function ShowcasePage() {
       {!isLast && (
         <button
           onClick={goDown}
-          className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 animate-bounce text-white/30 transition-colors hover:text-white/60"
+          className="fixed bottom-6 left-1/2 z-40 flex min-h-[44px] min-w-[44px] -translate-x-1/2 animate-bounce items-center justify-center text-white/30 transition-colors hover:text-white/60"
           aria-label="Next section"
         >
           <ChevronDown className="h-8 w-8" />
         </button>
       )}
 
-      {/* Sections — normal flow, no wrappers */}
-      <div ref={setRef(0)}>
+      {/* Sections */}
+      <div data-scroll-stop>
         <HeroSection />
       </div>
       <SectionDivider />
-      <div ref={setRef(1)}>
+      <div data-scroll-stop>
         <AboutSection />
       </div>
       <SectionDivider />
-      <div ref={setRef(2)}>
-        <BackgroundSection />
-      </div>
-      <div ref={setRef(3)}>
+      {/* BackgroundSection has data-scroll-stop on each timeline card internally */}
+      <BackgroundSection />
+      <div data-scroll-stop>
         <TransitionSection />
       </div>
       <SectionDivider />
-      <div ref={setRef(4)}>
+      <div data-scroll-stop>
         <MiracleMindSection />
       </div>
       <SectionDivider />
-      <div ref={setRef(5)}>
+      <div data-scroll-stop>
         <TechStackSection />
       </div>
       <SectionDivider />
-      <div ref={setRef(6)}>
+      <div id="demos" data-scroll-stop>
         <DemosSection />
       </div>
       <SectionDivider />
-      <div ref={setRef(7)}>
+      <div id="creative" data-scroll-stop>
         <CreativeSection />
       </div>
-      <div ref={setRef(8)}>
+      <div data-scroll-stop>
         <CTASection />
       </div>
 

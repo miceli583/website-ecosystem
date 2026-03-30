@@ -73,8 +73,20 @@ export function TechStackSection() {
           }`}
           style={{ transitionDelay: "100ms" }}
         >
-          Everything below is actively used in production across the MiracleMind
-          ecosystem -- this isn&apos;t a wish list.
+          Everything below is actively used in production across the
+          <br />
+          <span
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            <span style={{ fontWeight: 300 }}>MIRACLE</span>{" "}
+            <span style={{ fontWeight: 700 }}>MIND</span>
+          </span>{" "}
+          ecosystem.
         </p>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

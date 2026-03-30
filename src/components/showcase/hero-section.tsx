@@ -160,10 +160,10 @@ export function HeroSection() {
       </div>
 
       {/* Content overlay */}
-      <div className="relative z-10 mx-auto flex max-w-4xl items-center gap-6 px-6 sm:gap-10 md:gap-14">
+      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-6 px-6 sm:flex-row sm:gap-10 md:gap-14">
         {/* Text */}
-        <div className="flex-1 space-y-4">
-          <h1 className="font-[family-name:var(--font-quattrocento-sans)] text-3xl font-bold tracking-tight text-white drop-shadow-lg sm:text-4xl md:text-5xl lg:text-6xl">
+        <div className="flex-1 space-y-4 text-center sm:text-left">
+          <h1 className="font-[family-name:var(--font-quattrocento-sans)] text-2xl font-bold tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-4xl lg:text-5xl">
             Hi, I&apos;m Matthew Miceli
           </h1>
           <p className="text-sm text-gray-100 drop-shadow-md sm:text-base md:text-lg">

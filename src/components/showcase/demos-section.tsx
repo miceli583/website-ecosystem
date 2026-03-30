@@ -1,108 +1,50 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import dynamic from "next/dynamic";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
-import { BarChart3, Map, LayoutDashboard, Kanban, Users } from "lucide-react";
-import { SAMPLE_PROJECTS, SAMPLE_CONTACTS } from "./sample-data";
-import type { ProjectWithMeta } from "~/components/projects/types";
-import type { ContactRow } from "~/components/crm/types";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import {
+  LayoutDashboard,
+  DollarSign,
+  Users,
+  Kanban,
+  ArrowUpRight,
+  ShieldCheck,
+} from "lucide-react";
 
-// Lazy-load heavy demo components
-const CargoWatchDashboard = dynamic(
-  () =>
-    import("~/components/demos/cargowatch-dashboard").then((m) => ({
-      default: m.CargoWatchDashboard,
-    })),
-  { ssr: false, loading: () => <DemoSkeleton /> }
-);
-
-const CargoWatchMap = dynamic(
-  () =>
-    import("~/components/demos/cargowatch-map").then((m) => ({
-      default: m.CargoWatchMap,
-    })),
-  { ssr: false, loading: () => <DemoSkeleton /> }
-);
-
-const CHW360AdminDemo = dynamic(
-  () =>
-    import("~/components/demos/chw360-admin").then((m) => ({
-      default: m.CHW360AdminDemo,
-    })),
-  { ssr: false, loading: () => <DemoSkeleton /> }
-);
-
-const ProjectKanban = dynamic(
-  () =>
-    import("~/components/projects/project-kanban").then((m) => ({
-      default: m.ProjectKanban,
-    })),
-  { ssr: false, loading: () => <DemoSkeleton /> }
-);
-
-const ContactKanban = dynamic(
-  () =>
-    import("~/components/crm/contact-kanban").then((m) => ({
-      default: m.ContactKanban,
-    })),
-  { ssr: false, loading: () => <DemoSkeleton /> }
-);
-
-function DemoSkeleton() {
-  return (
-    <div className="flex h-[500px] items-center justify-center">
-      <div className="animate-pulse text-sm text-white/30">Loading demo...</div>
-    </div>
-  );
-}
-
-const TABS = [
+const DEMOS = [
   {
-    id: "dashboard",
-    label: "Operations Dashboard",
-    icon: <BarChart3 className="h-4 w-4" />,
+    title: "Interactive Map",
     description:
-      "Real-time monitoring -- the kind of system I build for tracking field operations, incidents, and regional hotspots.",
+      "Geographic data visualization with incident markers, severity filtering, and route overlays.",
+    icon: <LayoutDashboard className="h-6 w-6" />,
+    href: "/showcase/map",
   },
   {
-    id: "map",
-    label: "Interactive Map",
-    icon: <Map className="h-4 w-4" />,
+    title: "Financial Dashboard",
     description:
-      "Geographic data visualization with incident markers, severity filtering, and cargo route overlays.",
+      "Revenue tracking, bank integrations, and infrastructure cost management.",
+    icon: <DollarSign className="h-6 w-6" />,
+    href: "/showcase/finance",
   },
   {
-    id: "admin",
-    label: "Admin Dashboard",
-    icon: <LayoutDashboard className="h-4 w-4" />,
+    title: "Project Management",
     description:
-      "Full admin interface with analytics, user management tables, and reporting -- the backbone of any business platform.",
+      "Drag-and-drop project boards for managing multi-phase initiatives.",
+    icon: <Kanban className="h-6 w-6" />,
+    href: "/showcase/projects",
   },
   {
-    id: "projects",
-    label: "Project Management",
-    icon: <Kanban className="h-4 w-4" />,
+    title: "CRM Pipeline",
     description:
-      "Drag-and-drop project boards for managing multi-phase initiatives. Try dragging a card between columns.",
-  },
-  {
-    id: "crm",
-    label: "CRM Pipeline",
-    icon: <Users className="h-4 w-4" />,
-    description:
-      "Sales pipeline from lead to client. Drag contacts between stages to see how pipeline management works.",
+      "Sales pipeline from lead to client. Drag contacts between stages.",
+    icon: <Users className="h-6 w-6" />,
+    href: "/showcase/crm",
   },
 ];
 
 export function DemosSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard");
-
-  // Local state for interactive demos
-  const [projects, setProjects] = useState<ProjectWithMeta[]>(SAMPLE_PROJECTS);
-  const [contacts, setContacts] = useState<ContactRow[]>(SAMPLE_CONTACTS);
 
   useEffect(() => {
     const el = ref.current;
@@ -120,119 +62,74 @@ export function DemosSection() {
     return () => obs.disconnect();
   }, []);
 
-  const handleProjectMove = useCallback((id: number, newStatus: string) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, status: newStatus, updatedAt: new Date() } : p
-      )
-    );
-  }, []);
-
-  const handleContactStatusChange = useCallback(
-    (contactId: string, newStatus: string) => {
-      setContacts((prev) =>
-        prev.map((c) => (c.id === contactId ? { ...c, status: newStatus } : c))
-      );
-    },
-    []
-  );
-
-  const activeTabData = TABS.find((t) => t.id === activeTab);
-
   return (
-    <section className="relative px-6 py-20 sm:py-28">
-      <div ref={ref} className="mx-auto max-w-6xl">
+    <section className="relative px-6 py-10 sm:py-16">
+      <div ref={ref} className="mx-auto max-w-4xl">
         <h3
-          className={`mb-4 text-center font-[family-name:var(--font-quattrocento-sans)] text-sm font-semibold tracking-[0.15em] text-[#D4AF37]/70 transition-all duration-700 ${
+          className={`mb-2 text-center font-[family-name:var(--font-quattrocento-sans)] text-sm font-semibold tracking-[0.15em] text-[#D4AF37]/70 transition-all duration-700 ${
             visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
           LIVE DEMOS
         </h3>
         <p
-          className={`mx-auto mb-10 max-w-xl text-center text-base text-white/50 transition-all duration-700 ${
+          className={`mx-auto mb-4 max-w-xl text-center text-base text-white/50 transition-all duration-700 ${
             visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
           style={{ transitionDelay: "100ms" }}
         >
-          Real, working components from systems I&apos;ve built -- not mockups.
-          Click through the tabs to explore.
+          Real components from systems I&apos;ve built. Click a card to explore.
         </p>
 
-        <div
-          className={`transition-all duration-700 ${
-            visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+        {/* Data Disclaimer */}
+        <p
+          className={`mb-8 text-center text-[10px] text-white/25 transition-all duration-700 ${
+            visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
-          style={{ transitionDelay: "200ms" }}
+          style={{ transitionDelay: "150ms" }}
         >
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            {/* Tab triggers */}
-            <TabsList className="mb-4 flex h-auto w-full flex-wrap justify-center gap-1 border border-[rgba(212,175,55,0.1)] bg-white/[0.02] p-1.5">
-              {TABS.map((tab) => (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-xs text-white/50 transition-all data-[state=active]:bg-[rgba(212,175,55,0.1)] data-[state=active]:text-[#D4AF37] sm:text-sm"
-                >
-                  {tab.icon}
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <ShieldCheck className="mr-1 inline h-3 w-3 text-[#D4AF37]/40" />
+          All demos use fabricated data to protect client privacy.
+        </p>
 
-            {/* Description */}
-            {activeTabData && (
-              <p className="mb-4 text-center text-sm text-white/40">
-                {activeTabData.description}
-              </p>
-            )}
-
-            {/* Demo container */}
-            <div
-              className="overflow-hidden rounded-xl border"
-              style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+        {/* Demo Cards Grid */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {DEMOS.map((demo, i) => (
+            <Link
+              key={demo.href}
+              href={demo.href}
+              target="_blank"
+              className={`group rounded-xl border p-6 transition-all duration-700 hover:border-[rgba(212,175,55,0.3)] hover:bg-white/[0.04] ${
+                visible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+              style={{
+                background: "rgba(255, 255, 255, 0.02)",
+                borderColor: "rgba(212, 175, 55, 0.1)",
+                transitionDelay: `${(i + 1) * 100}ms`,
+              }}
             >
-              <TabsContent
-                value="dashboard"
-                className="mt-0 max-h-[650px] overflow-y-auto"
-              >
-                <CargoWatchDashboard baseUrl="/showcase" />
-              </TabsContent>
-
-              <TabsContent value="map" className="mt-0 h-[600px]">
-                <CargoWatchMap baseUrl="/showcase" />
-              </TabsContent>
-
-              <TabsContent
-                value="admin"
-                className="mt-0 max-h-[650px] overflow-y-auto"
-              >
-                <CHW360AdminDemo backHref="/showcase" />
-              </TabsContent>
-
-              <TabsContent
-                value="projects"
-                className="mt-0 max-h-[650px] overflow-x-auto overflow-y-auto bg-gray-950 p-4"
-              >
-                <ProjectKanban
-                  projects={projects}
-                  mode="admin"
-                  onMoveStatus={handleProjectMove}
-                  onViewDetail={() => {}}
-                />
-              </TabsContent>
-
-              <TabsContent
-                value="crm"
-                className="mt-0 max-h-[650px] overflow-x-auto overflow-y-auto bg-gray-950 p-4"
-              >
-                <ContactKanban
-                  contacts={contacts}
-                  onStatusChange={handleContactStatusChange}
-                />
-              </TabsContent>
-            </div>
-          </Tabs>
+              <div className="mb-4 flex items-center justify-between">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-lg"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                  }}
+                >
+                  <span className="text-[#D4AF37]">{demo.icon}</span>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-white/20 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#D4AF37]" />
+              </div>
+              <h4 className="mb-2 text-base font-semibold text-white">
+                {demo.title}
+              </h4>
+              <p className="text-sm leading-relaxed text-white/45">
+                {demo.description}
+              </p>
+            </Link>
+          ))}
         </div>
       </div>
     </section>

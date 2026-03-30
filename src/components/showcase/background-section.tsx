@@ -16,7 +16,9 @@ interface TimelineEntry {
   secondTitle?: { icon: React.ReactNode; title: string };
   organization: string;
   years: string;
-  description: string;
+  description: React.ReactNode;
+  /** Negative margin to visually overlap with the previous card (e.g. "md:-mt-40") */
+  overlapClass?: string;
 }
 
 const TIMELINE: TimelineEntry[] = [
@@ -30,53 +32,142 @@ const TIMELINE: TimelineEntry[] = [
     },
     organization: "Louisiana State University",
     years: "2016 — 2020",
-    description:
-      "Dual-enrolled across both disciplines simultaneously — an unusual path that shaped how I think about building. On the mechanical side: thermodynamics, control systems, materials science, and physical design. On the software side: data structures, algorithms, operating systems, and software architecture. The combination taught me to see problems as systems — interconnected, layered, and solvable when you understand the pieces. This is where I learned to bridge the physical and digital, and fell in love with building things people actually use.",
-  },
-  {
-    type: "education",
-    icon: <GraduationCap className="h-5 w-5" />,
-    title: "MS, Robotics & Autonomous Systems",
-    organization: "Boston University",
-    years: "2019 -- 2022",
-    description:
-      "Graduate research in perception, control systems, and human-robot interaction. Worked on autonomous navigation, sensor fusion, and real-time decision-making — systems where latency and precision matter. Reinforced my ability to work at the intersection of hardware and software, and deepened my instinct for thinking in systems rather than silos.",
+    description: (
+      <>
+        I completed dual degrees in <u>Mechanical Engineering</u> and{" "}
+        <u>Computer Science</u> — building a foundation that bridges the
+        physical and digital sides of engineering. Coursework spanned{" "}
+        <u>System Dynamics & Modeling</u>, <u>Machine Design</u>,{" "}
+        <u>Physical Simulations</u>, <u>Programming Languages</u>,{" "}
+        <u>Optimization</u>, and <u>Data Structures & Algorithm Analysis</u>.
+        <br />
+        <br />I also served as a <u>Teaching Assistant for Machine Design</u>,
+        mentoring 150+ students — developing curriculum, delivering lectures,
+        and working one-on-one on problem-solving and design optimization.
+        <br />
+        <br />
+        For my capstone, I designed and built a{" "}
+        <u>3D-printed aerial survey drone</u> that could identify structural
+        defects and record their geolocation and dimensions — with{" "}
+        <u>20-minute flight time</u>, <u>1-mile range</u>, and{" "}
+        <u>image recognition AI</u> trained on a custom dataset.
+      </>
+    ),
   },
   {
     type: "work",
     icon: <Satellite className="h-5 w-5" />,
     title: "Associate Test Engineer",
     organization: "Globalstar",
-    years: "2020 -- 2021",
-    description:
-      "Tested satellite communication systems at the hardware-software boundary — signal verification, integration testing, and building automated test frameworks for mission-critical infrastructure. Learned the discipline of building for environments where failure isn't an option, and the importance of rigorous validation before anything goes live.",
+    years: "2020 — 2021",
+    overlapClass: "md:-mt-64",
+    description: (
+      <>
+        My first industry role put me at the <u>hardware-software boundary</u>{" "}
+        of satellite communication systems — designing and executing{" "}
+        <u>comprehensive test frameworks</u> for IoT devices, building{" "}
+        <u>automated test pipelines</u>, and interfacing directly with{" "}
+        <u>embedded systems</u> during device validation. This is where I first
+        learned the discipline of building for environments where failure
+        isn&apos;t an option.
+        <br />
+        <br />I led <u>cross-functional test plan reviews</u> across
+        engineering, operations, and QA, and authored{" "}
+        <u>technical specifications</u> and <u>QA documentation</u> for hardware
+        validation.
+        <br />
+        <br />I also ran <u>performance analysis</u> to catch system issues
+        early and built <u>troubleshooting workflows</u> for recurring problems
+        — habits of rigorous validation I carry into everything I build.
+      </>
+    ),
+  },
+  {
+    type: "education",
+    icon: <GraduationCap className="h-5 w-5" />,
+    title: "MS, Robotics & Autonomous Systems",
+    organization: "Boston University",
+    years: "2021 — 2022",
+    overlapClass: "md:-mt-24",
+    description: (
+      <>
+        I went deeper into <u>perception</u>, <u>control systems</u>, and{" "}
+        <u>human-robot interaction</u>. Coursework spanned{" "}
+        <u>Robotic Motion Planning</u>, <u>Machine Learning</u>,{" "}
+        <u>Cyber-Physical Systems</u>, and <u>Soft Robotics</u> — reinforcing my
+        ability to work at the intersection of hardware and software, and
+        deepening my instinct for thinking in systems.
+        <br />
+        <br />
+        In one of my favorite projects, I built a{" "}
+        <u>drone control application</u> — a mobile web app hosted on a Flask
+        server that allowed remote control of an aerial drone. The system
+        included a <u>live video feed</u> and control link using Python socket
+        programming, custom <u>control algorithms</u>, and an{" "}
+        <u>autonomous face tracker</u> built with OpenCV.
+      </>
+    ),
   },
   {
     type: "work",
     icon: <Code2 className="h-5 w-5" />,
     title: "Application Support Engineer",
     organization: "MathWorks",
-    years: "2021 -- 2023",
-    description:
-      "Technical support for MATLAB and Simulink — debugging customer workflows across signal processing, control systems, and simulation toolboxes. Diagnosed complex, cross-domain issues daily and translated deep technical problems into clear, actionable solutions. Sharpened my ability to understand someone else's system fast and communicate across expertise levels.",
+    years: "2021 — 2023",
+    overlapClass: "md:-mt-56",
+    description: (
+      <>
+        I provided real-time <u>technical support</u> for clients across{" "}
+        <u>Control Design</u>, <u>Signal Processing</u>, and <u>Robotics</u> —
+        diagnosing complex, cross-domain issues daily and translating deep
+        technical problems into clear, actionable solutions. This role sharpened
+        my ability to understand someone else&apos;s system fast and communicate
+        across expertise levels.
+        <br />
+        <br />
+        On the R&amp;D side, I trained an <u>AI-driven quadcopter</u> to perform
+        acrobatics in simulation using the <u>DAgger</u> iterative policy
+        algorithm, a <u>visual-inertial state estimator</u> for camera and IMU
+        data, <u>minimum-jerk trajectory generation</u>, and{" "}
+        <u>3D occupancy mapping</u>. I also built a{" "}
+        <u>collision-aware robotic arm controller</u> integrating MATLAB with
+        third-party mapping tools for real-time{" "}
+        <u>cross-platform coordination</u>.
+      </>
+    ),
   },
   {
     type: "work",
     icon: <HandshakeIcon className="h-5 w-5" />,
     title: "Sales Associate",
     organization: "Kelly Services",
-    years: "2023",
-    description:
-      "High-ticket B2B sales and staffing solutions. Sounds different from engineering, but it taught me how businesses actually operate — budgets, decision-makers, timelines, and the gap between what teams need and what they have. Understanding the business side of technology is what lets me build systems that actually get adopted, not just deployed.",
+    years: "2024 — 2025",
+    overlapClass: "md:-mt-32",
+    description: (
+      <>
+        A sharp pivot — I moved into high-ticket <u>B2C sales</u> as part of a
+        nationwide roadshow program. Consistently <u>top-ranked nationally</u>,
+        averaging <u>$20,000+</u> in sales per 10-day roadshow and closing over{" "}
+        <u>$120,000</u> in five months using <u>values-based selling</u>.
+        <br />
+        <br />I delivered product demonstrations to hundreds of prospects daily,
+        building trust through genuine connection. Sharpened my skills in{" "}
+        <u>deep listening</u>, <u>identifying real needs</u>, and{" "}
+        <u>delivering solutions that actually fit</u> — selling through
+        understanding, not pressure.
+      </>
+    ),
   },
 ];
 
 function TimelineCard({
   entry,
   index,
+  isFirst,
 }: {
   entry: TimelineEntry;
   index: number;
+  isFirst?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -102,9 +193,11 @@ function TimelineCard({
   return (
     <div
       ref={ref}
-      className={`relative flex w-full items-start gap-6 transition-all duration-700 ${
+      id={`timeline-card-${index}`}
+      data-scroll-stop
+      className={`relative flex w-full items-start gap-0 transition-all duration-700 md:gap-6 ${
         visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-      } ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}
+      } ${isEven ? "md:flex-row" : "md:flex-row-reverse"} ${entry.overlapClass ?? ""}`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
       {/* Card */}
@@ -168,9 +261,9 @@ function TimelineCard({
           <p className="mb-2 text-xs tracking-wider text-[#D4AF37]/70">
             {entry.years}
           </p>
-          <p className="text-sm leading-relaxed text-white/70">
+          <div className="text-sm leading-relaxed text-white/70 [&_u]:decoration-[rgba(212,175,55,0.4)] [&_u]:underline-offset-2">
             {entry.description}
-          </p>
+          </div>
         </div>
       </div>
 
@@ -204,7 +297,8 @@ export function BackgroundSection() {
             <span style={{ fontWeight: 700 }}>MIND</span>
           </span>
           , I spent years across engineering, software, and business — learning
-          how systems work so I could build ones worth owning.
+          how systems work so I could build ones designed around people, not the
+          other way around.
         </p>
 
         {/* Timeline */}
@@ -220,7 +314,7 @@ export function BackgroundSection() {
 
           <div className="space-y-8 md:space-y-12">
             {TIMELINE.map((entry, i) => (
-              <TimelineCard key={i} entry={entry} index={i} />
+              <TimelineCard key={i} entry={entry} index={i} isFirst={i === 0} />
             ))}
           </div>
         </div>

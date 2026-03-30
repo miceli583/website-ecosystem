@@ -16,49 +16,49 @@ import {
 const HIGHLIGHTS = [
   {
     title: "Orbit Star",
-    href: "/shaders/orbit-star",
+    href: "/showcase/creative/orbit-star",
     icon: <Star className="h-4 w-4" />,
     type: "shader",
   },
   {
     title: "Flower of Life",
-    href: "/shaders/flower-of-life",
+    href: "/showcase/creative/flower-of-life",
     icon: <Hexagon className="h-4 w-4" />,
     type: "shader",
   },
   {
     title: "Neural Network",
-    href: "/shaders/neural-net",
+    href: "/showcase/creative/neural-net",
     icon: <Atom className="h-4 w-4" />,
     type: "shader",
   },
   {
-    title: "Fractal Pyramid",
-    href: "/shaders/fractal-pyramid",
+    title: "North Star",
+    href: "/showcase/creative/north-star",
     icon: <Triangle className="h-4 w-4" />,
     type: "shader",
   },
   {
     title: "Particle Field",
-    href: "/playground/particle-field",
+    href: "/showcase/creative/particle-field",
     icon: <Sparkles className="h-4 w-4" />,
     type: "animation",
   },
   {
     title: "Gradient Orbs",
-    href: "/playground/gradient-waves",
+    href: "/showcase/creative/gradient-waves",
     icon: <Circle className="h-4 w-4" />,
     type: "animation",
   },
   {
     title: "Liquid Morph",
-    href: "/playground/liquid-morph",
+    href: "/showcase/creative/liquid-morph",
     icon: <Waves className="h-4 w-4" />,
     type: "animation",
   },
   {
     title: "Quantum Orbital",
-    href: "/playground/quantum-orbital",
+    href: "/showcase/creative/quantum-orbital",
     icon: <Zap className="h-4 w-4" />,
     type: "animation",
   },
@@ -101,8 +101,7 @@ export function CreativeSection() {
           style={{ transitionDelay: "100ms" }}
         >
           Beyond backend systems, I explore visual programming -- GLSL shaders,
-          particle systems, and interactive animations. These inform how I think
-          about real-time data visualization and user experience.
+          particle systems, and interactive animations.
         </p>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -128,7 +127,7 @@ export function CreativeSection() {
               <p className="text-xs font-medium text-white/60 group-hover:text-white/80">
                 {item.title}
               </p>
-              <p className="mt-1 text-[10px] text-white/25">
+              <p className="mt-1 text-xs text-white/25">
                 {item.type === "shader" ? "GLSL" : "CSS/Canvas"}
               </p>
             </Link>

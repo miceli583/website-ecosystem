@@ -45,7 +45,7 @@ export function TransitionSection() {
             visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
           }`}
         >
-          Then I asked a different question.
+          Then I chose a different direction.
         </p>
 
         {/* Gold expanding line */}
@@ -83,13 +83,31 @@ export function TransitionSection() {
             visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
           }`}
           style={{
-            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
             transitionDelay: "800ms",
           }}
         >
-          In 2025, I founded Miracle Mind.
+          <span
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            In 2025, I founded
+          </span>
+          <br />
+          <span
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            <span style={{ fontWeight: 300 }}>MIRACLE</span>{" "}
+            <span style={{ fontWeight: 700 }}>MIND</span>.
+          </span>
         </h2>
 
         {/* Narrative */}
@@ -99,9 +117,10 @@ export function TransitionSection() {
           }`}
           style={{ transitionDelay: "1000ms" }}
         >
-          Not to build another agency -- but to build technology that gives
-          people real ownership over their systems. Custom infrastructure that
-          teams can actually understand, operate, and grow on their own terms.
+          I wanted to steward technology with intention — to choose the clients
+          I work with and the projects I take on, so that I could build in
+          alignment with more sovereign, regenerative, and coherent ways of
+          being.
         </p>
       </div>
     </section>
