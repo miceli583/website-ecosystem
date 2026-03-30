@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { SortOrder, ViewMode } from "./search-filter-bar";
+import type { SortLevel } from "~/components/crm/sort-header";
 
 export interface TabFilterState {
   searchQuery: string;
@@ -16,6 +17,7 @@ export interface TabFilterState {
   viewMode: ViewMode;
   collapsedGroups: string[];
   activeTab?: "active" | "archived";
+  sorts?: SortLevel[];
 }
 
 const DEFAULT_STATE: TabFilterState = {

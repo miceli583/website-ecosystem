@@ -23,7 +23,7 @@ export const PORTAL_NAV: PortalNavItem[] = [
   { title: "Proposals", path: "proposals", icon: FileText },
   { title: "Tooling", path: "tooling", icon: Wrench },
   { title: "Notes", path: "notes", icon: StickyNote },
-  { title: "Billing", path: "billing", icon: CreditCard },
   { title: "Projects", path: "projects", icon: FolderKanban },
+  { title: "Billing", path: "billing", icon: CreditCard },
   { title: "Profile", path: "profile", icon: UserCircle },
 ];

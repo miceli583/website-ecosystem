@@ -15,25 +15,19 @@ type Resource = RouterOutputs["portal"]["getResources"][number];
 
 import {
   SearchFilterBar,
-  ListItem,
-  ListContainer,
   StatusTabs,
   AdminActionMenu,
-  ProjectGroupHeader,
   ProjectAssignDialog,
   ConfirmDialog,
-  ListItemSkeletonGroup,
-  type SortOrder,
-  type ViewMode,
   type FilterOption,
   type AdminAction,
   useTabFilters,
 } from "~/components/portal";
+import { SortHeader, type SortLevel } from "~/components/crm/sort-header";
 import {
   Monitor,
   Loader2,
   AlertCircle,
-  Search,
   Archive,
   ArchiveRestore,
   FolderOpen,
@@ -47,6 +41,8 @@ import {
   ExternalLink,
   Pencil,
 } from "lucide-react";
+
+const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
 
 interface NormalizedDemo {
   id: string;
@@ -128,7 +124,6 @@ function SlugEditDialog({
                 !isValid && slugInput
                   ? "rgba(239, 68, 68, 0.5)"
                   : "rgba(212, 175, 55, 0.2)",
-              ...(isValid || !slugInput ? {} : {}),
             }}
             onFocus={(e) => {
               e.target.style.borderColor = "rgba(212, 175, 55, 0.5)";
@@ -230,7 +225,7 @@ export default function PortalDemosPage({
   });
   const isAdmin = profile?.role === "admin";
 
-  // Admin sees all resources (no isActive filter); clients see only active
+  // Admin sees all resources; clients see only active
   const { data: resources, isLoading: resourcesLoading } =
     api.portal.getResources.useQuery(
       { slug, section: "demos", ...(isAdmin ? {} : { isActive: true }) },
@@ -310,40 +305,18 @@ export default function PortalDemosPage({
   const [selectedProject, setSelectedProject] = useState<
     number | "all" | "unassigned"
   >(saved.selectedProject as number | "all" | "unassigned");
-  const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
-  const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
-
-  // Collapsed project groups
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups)
+  const [sorts, setSorts] = useState<SortLevel[]>(
+    saved.sorts ?? [{ field: "title", order: "asc" }]
   );
 
   useEffect(() => {
     persistState({
       searchQuery,
-      sortOrder,
       selectedProject,
-      viewMode,
-      collapsedGroups: Array.from(collapsedGroups),
       activeTab,
+      sorts,
     });
-  }, [
-    searchQuery,
-    sortOrder,
-    selectedProject,
-    viewMode,
-    collapsedGroups,
-    activeTab,
-    persistState,
-  ]);
-  const toggleGroup = useCallback((groupName: string) => {
-    setCollapsedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(groupName)) next.delete(groupName);
-      else next.add(groupName);
-      return next;
-    });
-  }, []);
+  }, [searchQuery, selectedProject, activeTab, sorts, persistState]);
 
   // Dialog state
   const [assignDialog, setAssignDialog] = useState<{
@@ -439,7 +412,7 @@ export default function PortalDemosPage({
   );
   const currentDemos = activeTab === "active" ? activeDemos : archivedDemos;
 
-  // Project filters — include "Unassigned" when there are unassigned items
+  // Project filters
   const hasUnassigned = currentDemos.some((d) => d.projectId === null);
   const projectFilters: FilterOption[] = useMemo(() => {
     if (!client) return [];
@@ -464,7 +437,7 @@ export default function PortalDemosPage({
     return filters;
   }, [client, resources, projects, hasUnassigned]);
 
-  // Filter demos
+  // Filter
   const filteredDemos = useMemo(() => {
     return currentDemos.filter((demo) => {
       if (searchQuery) {
@@ -481,44 +454,44 @@ export default function PortalDemosPage({
     });
   }, [currentDemos, searchQuery, selectedProject]);
 
-  // Sort demos
+  // Multi-column sort
+  const handleSort = (field: string) => {
+    setSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
+
   const sortedDemos = useMemo(() => {
+    if (!sorts.length) return filteredDemos;
     return [...filteredDemos].sort((a, b) => {
-      if (sortOrder === "name") return a.title.localeCompare(b.title);
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+      for (const { field, order } of sorts) {
+        let cmp = 0;
+        const dir = order === "asc" ? 1 : -1;
+        switch (field) {
+          case "title":
+            cmp = a.title.localeCompare(b.title);
+            break;
+          case "project":
+            cmp = (a.projectName || "zzz").localeCompare(
+              b.projectName || "zzz"
+            );
+            break;
+          case "createdAt":
+            cmp =
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            break;
+        }
+        if (cmp !== 0) return cmp * dir;
+      }
+      return 0;
     });
-  }, [filteredDemos, sortOrder]);
-
-  // Group by project
-  const groupedDemos = useMemo(() => {
-    const groups = new Map<string, NormalizedDemo[]>();
-    for (const demo of sortedDemos) {
-      const key = demo.projectName || "Unassigned";
-      const group = groups.get(key) ?? [];
-      group.push(demo);
-      groups.set(key, group);
-    }
-    return Array.from(groups.entries()).sort(([a], [b]) => {
-      if (a === "Unassigned") return 1;
-      if (b === "Unassigned") return -1;
-      return a.localeCompare(b);
-    });
-  }, [sortedDemos]);
-
-  // Show grouping: grouped mode + "all" filter + multiple groups (or single named group)
-  const showGrouping =
-    viewMode === "grouped" &&
-    selectedProject === "all" &&
-    (groupedDemos.length > 1 ||
-      (groupedDemos.length === 1 && groupedDemos[0]![0] !== "Unassigned"));
-
-  // Expand/collapse all
-  const handleExpandAll = useCallback(() => setCollapsedGroups(new Set()), []);
-  const handleCollapseAll = useCallback(() => {
-    setCollapsedGroups(new Set(groupedDemos.map(([name]) => name)));
-  }, [groupedDemos]);
+  }, [filteredDemos, sorts]);
 
   // Admin actions
   const handleArchive = useCallback(
@@ -650,47 +623,15 @@ export default function PortalDemosPage({
     [handleArchive, handleToggleUnderDevelopment, isAdmin, togglePublic]
   );
 
-  const renderDemoActions = useCallback(
-    (demo: NormalizedDemo) => {
-      if (demo.isLegacy) return undefined;
-      return (
-        <div className="flex items-center gap-2">
-          {demo.isPublic && demo.publicToken && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const shareUrl = `${window.location.origin}/s/${demo.publicSlug ?? demo.publicToken}`;
-                void navigator.clipboard.writeText(shareUrl);
-                toast.success("Share link copied!");
-              }}
-              className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-white/10"
-              style={{
-                borderColor: "rgba(212, 175, 55, 0.3)",
-                color: "#D4AF37",
-              }}
-            >
-              <Share2 className="h-3.5 w-3.5" />
-              Share
-            </button>
-          )}
-          <AdminActionMenu actions={getDemoActions(demo)} />
-        </div>
-      );
-    },
-    [getDemoActions]
-  );
-
-  // Clear all filters
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedProject("all");
-    setSortOrder("newest");
-  };
-
   const hasContent = allDemos.length > 0;
-  const hasActiveFilters =
-    Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
+  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all";
+
+  const formatDate = (date: Date | string) =>
+    new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
   if (isLoading) {
     return (
@@ -740,117 +681,147 @@ export default function PortalDemosPage({
         />
       )}
 
-      {/* Search/Filter Bar */}
+      {/* Search/Filter Bar — no sort dropdown, columns handle sorting */}
       <SearchFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder="Search demos..."
-        sortOrder={sortOrder}
-        onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
         onFilterChange={(id) =>
           setSelectedProject(id as number | "all" | "unassigned")
         }
         filterLabel="Project"
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        onExpandAll={handleExpandAll}
-        onCollapseAll={handleCollapseAll}
-        collapseState={
-          collapsedGroups.size === 0
-            ? "all-expanded"
-            : collapsedGroups.size >= groupedDemos.length
-              ? "all-collapsed"
-              : "mixed"
-        }
       />
 
       {resourcesLoading ? (
-        <ListItemSkeletonGroup count={5} />
+        <div className="overflow-x-auto rounded-lg border" style={borderStyle}>
+          <div className="space-y-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-4 border-b px-4 py-4"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
+                <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
+                <div className="h-4 flex-1 animate-pulse rounded bg-white/5" />
+                <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
+              </div>
+            ))}
+          </div>
+        </div>
       ) : !hasContent ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Monitor className="mb-4 h-12 w-12 text-gray-600" />
           <p className="text-gray-500">No demos yet. Check back soon!</p>
         </div>
-      ) : (
-        <ListContainer
-          emptyIcon={<Search className="h-12 w-12" />}
-          emptyMessage={
-            activeTab === "archived"
+      ) : !sortedDemos.length ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Monitor className="mb-3 h-10 w-10 text-gray-600" />
+          <p className="text-gray-500">
+            {activeTab === "archived"
               ? "No archived demos."
-              : "No demos match your search."
-          }
-          onClearFilters={clearFilters}
-          showClearFilters={hasActiveFilters}
+              : "No demos match your search."}
+          </p>
+          {hasActiveFilters && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedProject("all");
+              }}
+              className="mt-3 text-sm text-[#D4AF37] hover:underline"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <div
+          className="overflow-x-auto rounded-lg border bg-white/5"
+          style={borderStyle}
         >
-          {showGrouping
-            ? groupedDemos.map(([groupName, demos]) => (
-                <div key={groupName}>
-                  <ProjectGroupHeader
-                    projectName={groupName}
-                    itemCount={demos.length}
-                    collapsed={collapsedGroups.has(groupName)}
-                    onToggle={() => toggleGroup(groupName)}
-                  />
-                  {!collapsedGroups.has(groupName) &&
-                    demos.map((demo) => (
-                      <div key={demo.id} className="mb-3">
-                        <ListItem
-                          icon={<Monitor className="h-5 w-5" />}
-                          title={demo.title}
-                          description={demo.description}
-                          date={demo.createdAt}
-                          secondaryText={demo.projectName || "Unassigned"}
-                          href={demo.url}
-                          badge={
-                            <>
-                              {isAdmin && demo.underDevelopment && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
-                                  <Construction className="h-3 w-3" />
-                                  WIP
-                                </span>
-                              )}
-                              {demo.isPublic && (
-                                <span
-                                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
-                                  style={{
-                                    backgroundColor: "rgba(212, 175, 55, 0.15)",
-                                    color: "#D4AF37",
-                                  }}
-                                >
-                                  <Globe className="h-3 w-3" />
-                                  Public
-                                </span>
-                              )}
-                            </>
-                          }
-                          actions={renderDemoActions(demo)}
-                        />
-                      </div>
-                    ))}
-                </div>
-              ))
-            : sortedDemos.map((demo) => (
-                <ListItem
+          <table className="w-full text-left text-sm text-gray-400">
+            <thead>
+              <tr
+                className="border-b text-xs font-medium tracking-wider text-gray-500 uppercase"
+                style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+              >
+                <SortHeader
+                  field="title"
+                  label="Title"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <SortHeader
+                  field="project"
+                  label="Project"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-gray-500">
+                  Badges
+                </th>
+                <th className="px-4 py-3 text-xs font-medium tracking-wider text-gray-500">
+                  Share
+                </th>
+                <SortHeader
+                  field="createdAt"
+                  label="Created"
+                  sorts={sorts}
+                  onSort={handleSort}
+                />
+                <th className="w-12 px-2 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {sortedDemos.map((demo) => (
+                <tr
                   key={demo.id}
-                  icon={<Monitor className="h-5 w-5" />}
-                  title={demo.title}
-                  description={demo.description}
-                  date={demo.createdAt}
-                  secondaryText={demo.projectName || "Unassigned"}
-                  href={demo.url}
-                  badge={
-                    <>
+                  className="cursor-pointer border-b transition-colors hover:bg-white/5"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+                  onClick={() => {
+                    if (demo.url) {
+                      window.open(demo.url, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                >
+                  {/* Title + description */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Monitor
+                        className="h-4 w-4 flex-shrink-0"
+                        style={{ color: "#D4AF37" }}
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium text-white">{demo.title}</p>
+                        {demo.description && (
+                          <p className="mt-0.5 truncate text-xs text-gray-500">
+                            {demo.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Project */}
+                  <td className="hidden px-4 py-3 sm:table-cell">
+                    <span className="text-xs text-gray-500">
+                      {demo.projectName || "Unassigned"}
+                    </span>
+                  </td>
+
+                  {/* Badges */}
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1.5">
                       {isAdmin && demo.underDevelopment && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-400">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-400">
                           <Construction className="h-3 w-3" />
                           WIP
                         </span>
                       )}
                       {demo.isPublic && (
                         <span
-                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
                           style={{
                             backgroundColor: "rgba(212, 175, 55, 0.15)",
                             color: "#D4AF37",
@@ -860,12 +831,67 @@ export default function PortalDemosPage({
                           Public
                         </span>
                       )}
-                    </>
-                  }
-                  actions={renderDemoActions(demo)}
-                />
+                      {demo.isLegacy && (
+                        <span className="inline-flex rounded-full bg-gray-500/20 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+                          Legacy
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Share */}
+                  <td
+                    className="px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {demo.isPublic && demo.publicToken && (
+                      <button
+                        onClick={() => {
+                          const shareUrl = `${window.location.origin}/s/${demo.publicSlug ?? demo.publicToken}`;
+                          void navigator.clipboard.writeText(shareUrl);
+                          toast.success("Share link copied!");
+                        }}
+                        className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors hover:bg-white/10"
+                        style={{
+                          borderColor: "rgba(212, 175, 55, 0.3)",
+                          color: "#D4AF37",
+                        }}
+                      >
+                        <Share2 className="h-3 w-3" />
+                        Copy
+                      </button>
+                    )}
+                  </td>
+
+                  {/* Created */}
+                  <td className="hidden px-4 py-3 sm:table-cell">
+                    <span className="text-xs text-gray-500">
+                      {formatDate(demo.createdAt)}
+                    </span>
+                  </td>
+
+                  {/* Actions */}
+                  <td
+                    className="px-2 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {!demo.isLegacy && (
+                      <AdminActionMenu actions={getDemoActions(demo)} />
+                    )}
+                  </td>
+                </tr>
               ))}
-        </ListContainer>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* URL hint */}
+      {sortedDemos.length > 0 && (
+        <p className="mt-2 flex items-center gap-1 text-xs text-gray-600">
+          <ExternalLink className="h-3 w-3" />
+          Click a row to open the demo
+        </p>
       )}
 
       {/* Project Assignment Dialog */}

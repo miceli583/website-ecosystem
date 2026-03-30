@@ -15,27 +15,21 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import {
   SearchFilterBar,
-  ListItem,
-  ListContainer,
   StatusTabs,
   AdminActionMenu,
-  ProjectGroupHeader,
   ProjectAssignDialog,
   ConfirmDialog,
   ProposalModal,
-  ListItemSkeletonGroup,
-  type SortOrder,
-  type ViewMode,
   type FilterOption,
   type AdminAction,
   type ProposalMetadata,
   useTabFilters,
 } from "~/components/portal";
+import { SortHeader, type SortLevel } from "~/components/crm/sort-header";
 import {
   FileText,
   Loader2,
   AlertCircle,
-  Search,
   Check,
   Clock,
   X,
@@ -45,21 +39,22 @@ import {
   Trash2,
   Construction,
   Eye,
-  EyeOff,
   Lock,
   Unlock,
 } from "lucide-react";
 
+const borderStyle = { borderColor: "rgba(212, 175, 55, 0.2)" };
+
 function getStatusIcon(status: string) {
   switch (status) {
     case "accepted":
-      return <Check className="h-4 w-4 text-green-400" />;
+      return <Check className="h-3.5 w-3.5 text-green-400" />;
     case "sent":
-      return <Clock className="h-4 w-4" style={{ color: "#D4AF37" }} />;
+      return <Clock className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />;
     case "declined":
-      return <X className="h-4 w-4 text-red-400" />;
+      return <X className="h-3.5 w-3.5 text-red-400" />;
     default:
-      return <FileText className="h-4 w-4 text-gray-400" />;
+      return <FileText className="h-3.5 w-3.5 text-gray-400" />;
   }
 }
 
@@ -73,6 +68,32 @@ function getStatusLabel(status: string) {
       return "Declined";
     default:
       return "Draft";
+  }
+}
+
+function getStatusBgColor(status: string) {
+  switch (status) {
+    case "accepted":
+      return "rgba(74, 222, 128, 0.15)";
+    case "sent":
+      return "rgba(212, 175, 55, 0.15)";
+    case "declined":
+      return "rgba(248, 113, 113, 0.15)";
+    default:
+      return "rgba(255, 255, 255, 0.08)";
+  }
+}
+
+function getStatusTextColor(status: string) {
+  switch (status) {
+    case "accepted":
+      return "#4ade80";
+    case "sent":
+      return "#D4AF37";
+    case "declined":
+      return "#f87171";
+    default:
+      return "#9ca3af";
   }
 }
 
@@ -175,43 +196,21 @@ export default function PortalProposalsPage({
   const [selectedProject, setSelectedProject] = useState<
     number | "all" | "unassigned"
   >(saved.selectedProject as number | "all" | "unassigned");
-  const [sortOrder, setSortOrder] = useState<SortOrder>(saved.sortOrder);
-  const [viewMode, setViewMode] = useState<ViewMode>(saved.viewMode);
+  const [sorts, setSorts] = useState<SortLevel[]>(
+    saved.sorts ?? [{ field: "createdAt", order: "desc" }]
+  );
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
     null
-  );
-
-  // Collapsed project groups
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-    new Set(saved.collapsedGroups)
   );
 
   useEffect(() => {
     persistState({
       searchQuery,
-      sortOrder,
       selectedProject,
-      viewMode,
-      collapsedGroups: Array.from(collapsedGroups),
       activeTab,
+      sorts,
     });
-  }, [
-    searchQuery,
-    sortOrder,
-    selectedProject,
-    viewMode,
-    collapsedGroups,
-    activeTab,
-    persistState,
-  ]);
-  const toggleGroup = useCallback((groupName: string) => {
-    setCollapsedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(groupName)) next.delete(groupName);
-      else next.add(groupName);
-      return next;
-    });
-  }, []);
+  }, [searchQuery, selectedProject, activeTab, sorts, persistState]);
 
   // Dialog state
   const [assignDialog, setAssignDialog] = useState<{
@@ -354,34 +353,47 @@ export default function PortalProposalsPage({
     });
   }, [currentProposals, searchQuery, selectedProject]);
 
-  // Sort
-  const sortedProposals = useMemo(() => {
-    return [...filteredProposals].sort((a, b) => {
-      if (sortOrder === "name") {
-        return a.title.localeCompare(b.title);
-      }
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+  // Multi-column sort
+  const handleSort = (field: string) => {
+    setSorts((prev) => {
+      const idx = prev.findIndex((s) => s.field === field);
+      if (idx === -1) return [...prev, { field, order: "asc" as const }];
+      if (prev[idx]!.order === "asc")
+        return prev.map((s, i) =>
+          i === idx ? { ...s, order: "desc" as const } : s
+        );
+      return prev.filter((_, i) => i !== idx);
     });
-  }, [filteredProposals, sortOrder]);
+  };
 
-  // Group by project
-  const groupedProposals = useMemo(() => {
-    const groups = new Map<string, NormalizedProposal[]>();
-    for (const proposal of sortedProposals) {
-      const key = proposal.projectName || "Unassigned";
-      const group = groups.get(key) ?? [];
-      group.push(proposal);
-      groups.set(key, group);
-    }
-    const sorted = Array.from(groups.entries()).sort(([a], [b]) => {
-      if (a === "Unassigned") return 1;
-      if (b === "Unassigned") return -1;
-      return a.localeCompare(b);
+  const sortedProposals = useMemo(() => {
+    if (!sorts.length) return filteredProposals;
+    return [...filteredProposals].sort((a, b) => {
+      for (const { field, order } of sorts) {
+        let cmp = 0;
+        const dir = order === "asc" ? 1 : -1;
+        switch (field) {
+          case "title":
+            cmp = a.title.localeCompare(b.title);
+            break;
+          case "project":
+            cmp = (a.projectName || "zzz").localeCompare(
+              b.projectName || "zzz"
+            );
+            break;
+          case "status":
+            cmp = a.status.localeCompare(b.status);
+            break;
+          case "createdAt":
+            cmp =
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            break;
+        }
+        if (cmp !== 0) return cmp * dir;
+      }
+      return 0;
     });
-    return sorted;
-  }, [sortedProposals]);
+  }, [filteredProposals, sorts]);
 
   // Admin actions
   const handleArchive = useCallback(
@@ -505,18 +517,12 @@ export default function PortalProposalsPage({
     [proposals]
   );
 
-  // Expand/collapse all
-  const handleExpandAll = useCallback(() => setCollapsedGroups(new Set()), []);
-  const handleCollapseAll = useCallback(() => {
-    setCollapsedGroups(new Set(groupedProposals.map(([name]) => name)));
-  }, [groupedProposals]);
-
-  // Clear filters
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedProject("all");
-    setSortOrder("newest");
-  };
+  const formatDate = (date: Date | string) =>
+    new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
   if (isLoading) {
     return (
@@ -549,59 +555,7 @@ export default function PortalProposalsPage({
 
   const hasContent = allProposals.length > 0;
   const hasAgreements = client.agreements.length > 0;
-  const hasActiveFilters =
-    Boolean(searchQuery) || selectedProject !== "all" || sortOrder !== "newest";
-  const showGrouping =
-    viewMode === "grouped" &&
-    selectedProject === "all" &&
-    (groupedProposals.length > 1 ||
-      (groupedProposals.length === 1 &&
-        groupedProposals[0]![0] !== "Unassigned"));
-
-  // Render a proposal row
-  const renderProposal = (proposal: NormalizedProposal) => (
-    <div
-      key={proposal.id}
-      onClick={() => handleProposalClick(proposal)}
-      className={!proposal.isLegacy ? "cursor-pointer" : ""}
-    >
-      <ListItem
-        icon={<FileText className="h-5 w-5" />}
-        title={proposal.title}
-        description={proposal.projectName || "Unassigned"}
-        date={proposal.createdAt}
-        badge={
-          <span className="flex items-center gap-2 text-xs">
-            {isAdmin && proposal.underDevelopment && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 font-medium text-amber-400">
-                <Construction className="h-3 w-3" />
-                WIP
-              </span>
-            )}
-            {isAdmin && proposal.isPrivate && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 font-medium text-gray-400">
-                <Lock className="h-3 w-3" />
-                Private
-              </span>
-            )}
-            <span className="flex items-center gap-1">
-              {getStatusIcon(proposal.status)}
-              <span className="text-gray-500">
-                {getStatusLabel(proposal.status)}
-              </span>
-            </span>
-          </span>
-        }
-        actions={
-          isAdmin && !proposal.isLegacy ? (
-            <div onClick={(e) => e.stopPropagation()}>
-              <AdminActionMenu actions={getAdminActions(proposal)} />
-            </div>
-          ) : undefined
-        }
-      />
-    </div>
-  );
+  const hasActiveFilters = Boolean(searchQuery) || selectedProject !== "all";
 
   return (
     <>
@@ -651,34 +605,35 @@ export default function PortalProposalsPage({
         />
       )}
 
-      {/* Search/Filter Bar */}
+      {/* Search/Filter Bar — no sort dropdown, columns handle sorting */}
       <SearchFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder="Search proposals..."
-        sortOrder={sortOrder}
-        onSortChange={setSortOrder}
         filterOptions={projectFilters}
         selectedFilter={selectedProject}
         onFilterChange={(id) =>
           setSelectedProject(id as number | "all" | "unassigned")
         }
         filterLabel="Project"
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        onExpandAll={handleExpandAll}
-        onCollapseAll={handleCollapseAll}
-        collapseState={
-          collapsedGroups.size === 0
-            ? "all-expanded"
-            : collapsedGroups.size >= groupedProposals.length
-              ? "all-collapsed"
-              : "mixed"
-        }
       />
 
       {resourcesLoading ? (
-        <ListItemSkeletonGroup count={5} />
+        <div className="overflow-x-auto rounded-lg border" style={borderStyle}>
+          <div className="space-y-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-4 border-b px-4 py-4"
+                style={{ borderColor: "rgba(212, 175, 55, 0.05)" }}
+              >
+                <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
+                <div className="h-4 flex-1 animate-pulse rounded bg-white/5" />
+                <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
+              </div>
+            ))}
+          </div>
+        </div>
       ) : !hasContent && !hasAgreements ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <FileText className="mb-4 h-12 w-12 text-gray-600" />
@@ -689,7 +644,7 @@ export default function PortalProposalsPage({
         </div>
       ) : (
         <div className="space-y-8">
-          {/* Proposals section */}
+          {/* Proposals table */}
           {hasContent && (
             <div>
               {hasAgreements && (
@@ -698,39 +653,167 @@ export default function PortalProposalsPage({
                 </h2>
               )}
 
-              <ListContainer
-                emptyIcon={<Search className="h-12 w-12" />}
-                emptyMessage={
-                  activeTab === "archived"
-                    ? "No archived proposals."
-                    : "No proposals match your search."
-                }
-                onClearFilters={clearFilters}
-                showClearFilters={hasActiveFilters}
-              >
-                {showGrouping
-                  ? groupedProposals.map(([groupName, proposalGroup]) => (
-                      <div key={groupName}>
-                        <ProjectGroupHeader
-                          projectName={groupName}
-                          itemCount={proposalGroup.length}
-                          collapsed={collapsedGroups.has(groupName)}
-                          onToggle={() => toggleGroup(groupName)}
+              {!sortedProposals.length ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <FileText className="mb-3 h-10 w-10 text-gray-600" />
+                  <p className="text-gray-500">
+                    {activeTab === "archived"
+                      ? "No archived proposals."
+                      : "No proposals match your search."}
+                  </p>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedProject("all");
+                      }}
+                      className="mt-3 text-sm text-[#D4AF37] hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="overflow-x-auto rounded-lg border bg-white/5"
+                  style={borderStyle}
+                >
+                  <table className="w-full text-left text-sm text-gray-400">
+                    <thead>
+                      <tr
+                        className="border-b text-xs font-medium tracking-wider text-gray-500 uppercase"
+                        style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
+                      >
+                        <SortHeader
+                          field="title"
+                          label="Title"
+                          sorts={sorts}
+                          onSort={handleSort}
                         />
-                        {!collapsedGroups.has(groupName) &&
-                          proposalGroup.map((proposal) => (
-                            <div key={proposal.id} className="mb-3">
-                              {renderProposal(proposal)}
+                        <SortHeader
+                          field="project"
+                          label="Project"
+                          sorts={sorts}
+                          onSort={handleSort}
+                        />
+                        <SortHeader
+                          field="status"
+                          label="Status"
+                          sorts={sorts}
+                          onSort={handleSort}
+                        />
+                        {isAdmin && (
+                          <th className="px-4 py-3 text-xs font-medium tracking-wider text-gray-500">
+                            Flags
+                          </th>
+                        )}
+                        <SortHeader
+                          field="createdAt"
+                          label="Created"
+                          sorts={sorts}
+                          onSort={handleSort}
+                        />
+                        {isAdmin && <th className="w-12 px-2 py-3" />}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedProposals.map((proposal) => (
+                        <tr
+                          key={proposal.id}
+                          className={`border-b transition-colors hover:bg-white/5 ${
+                            !proposal.isLegacy ? "cursor-pointer" : ""
+                          }`}
+                          style={{
+                            borderColor: "rgba(212, 175, 55, 0.05)",
+                          }}
+                          onClick={() => handleProposalClick(proposal)}
+                        >
+                          {/* Title */}
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <FileText
+                                className="h-4 w-4 flex-shrink-0"
+                                style={{ color: "#D4AF37" }}
+                              />
+                              <p className="font-medium text-white">
+                                {proposal.title}
+                              </p>
                             </div>
-                          ))}
-                      </div>
-                    ))
-                  : sortedProposals.map((proposal) => renderProposal(proposal))}
-              </ListContainer>
+                          </td>
+
+                          {/* Project */}
+                          <td className="hidden px-4 py-3 sm:table-cell">
+                            <span className="text-xs text-gray-500">
+                              {proposal.projectName || "Unassigned"}
+                            </span>
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-4 py-3">
+                            <span
+                              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                              style={{
+                                backgroundColor: getStatusBgColor(
+                                  proposal.status
+                                ),
+                                color: getStatusTextColor(proposal.status),
+                              }}
+                            >
+                              {getStatusIcon(proposal.status)}
+                              {getStatusLabel(proposal.status)}
+                            </span>
+                          </td>
+
+                          {/* Flags (admin only) */}
+                          {isAdmin && (
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1.5">
+                                {proposal.underDevelopment && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                                    <Construction className="h-3 w-3" />
+                                    WIP
+                                  </span>
+                                )}
+                                {proposal.isPrivate && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+                                    <Lock className="h-3 w-3" />
+                                    Private
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                          )}
+
+                          {/* Created */}
+                          <td className="hidden px-4 py-3 sm:table-cell">
+                            <span className="text-xs text-gray-500">
+                              {formatDate(proposal.createdAt)}
+                            </span>
+                          </td>
+
+                          {/* Actions (admin only) */}
+                          {isAdmin && (
+                            <td
+                              className="px-2 py-3"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {!proposal.isLegacy && (
+                                <AdminActionMenu
+                                  actions={getAdminActions(proposal)}
+                                />
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Agreements section */}
+          {/* Agreements section (unchanged) */}
           {client.agreements.length > 0 && (
             <div>
               <h2 className="mb-4 text-lg font-semibold text-gray-300">
