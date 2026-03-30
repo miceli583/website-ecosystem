@@ -53,7 +53,7 @@
 
 | Date   | Commit  | Description                                                                          | Author         |
 | ------ | ------- | ------------------------------------------------------------------------------------ | -------------- |
-| Mar 30 | pending | Project cleanup: dead deps, security hardening, DB fixes, portal lifecycle bug fixes | Matthew Miceli |
+| Mar 30 | 41ae7bd | Project cleanup: dead deps, security hardening, DB fixes, portal lifecycle bug fixes | Matthew Miceli |
 | Mar 30 | 3a7c5d9 | Showcase → live demos only, CV markdown created, /resume redirects to /showcase      | Matthew Miceli |
 | Mar 29 | 68cc000 | Showcase demo pages, creative replicas, mobile responsive fixes                      | Matthew Miceli |
 | Mar 29 | e6ce8cc | Showcase refinements: sovereignty messaging, about section, nav arrows, hero photo   | Matthew Miceli |
