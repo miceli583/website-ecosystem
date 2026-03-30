@@ -100,11 +100,11 @@ export const crmRouter = createTRPCRouter({
   getContacts: adminProcedure
     .input(
       z.object({
-        search: z.string().optional(),
-        status: z.string().optional(),
-        source: z.string().optional(),
-        createdBy: z.string().optional(),
-        tag: z.string().optional(),
+        search: z.string().max(500).optional(),
+        status: z.string().max(100).optional(),
+        source: z.string().max(100).optional(),
+        createdBy: z.string().max(500).optional(),
+        tag: z.string().max(100).optional(),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
       })
@@ -481,15 +481,15 @@ export const crmRouter = createTRPCRouter({
       z.object({
         contacts: z.array(
           z.object({
-            name: z.string().min(1),
-            email: z.string().email(),
-            phone: z.string().nullable().optional(),
-            company: z.string().nullable().optional(),
+            name: z.string().min(1).max(500),
+            email: z.string().email().max(255),
+            phone: z.string().max(100).nullable().optional(),
+            company: z.string().max(500).nullable().optional(),
           })
         ),
-        status: z.string().default("lead"),
-        source: z.string().default("internal"),
-        tags: z.array(z.string()).optional(),
+        status: z.string().max(100).default("lead"),
+        source: z.string().max(100).default("internal"),
+        tags: z.array(z.string().max(100)).optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
       })
     )
@@ -534,19 +534,19 @@ export const crmRouter = createTRPCRouter({
   createContact: adminProcedure
     .input(
       z.object({
-        name: z.string().min(1),
-        email: z.string().email().optional(),
-        phone: z.string().nullable().optional(),
-        company: z.string().nullable().optional(),
+        name: z.string().min(1).max(500),
+        email: z.string().email().max(255).optional(),
+        phone: z.string().max(100).nullable().optional(),
+        company: z.string().max(500).nullable().optional(),
         status: z
           .enum(["lead", "prospect", "client", "inactive", "churned"])
           .default("lead"),
-        source: z.string().default("referral"),
+        source: z.string().max(100).default("referral"),
         referredBy: z.string().uuid().nullable().optional(),
-        referredByExternal: z.string().nullable().optional(),
+        referredByExternal: z.string().max(500).nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
-        tags: z.array(z.string()).optional(),
-        notes: z.string().nullable().optional(),
+        tags: z.array(z.string().max(100)).optional(),
+        notes: z.string().max(5000).nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -571,18 +571,18 @@ export const crmRouter = createTRPCRouter({
         status: z
           .enum(["lead", "prospect", "client", "inactive", "churned"])
           .optional(),
-        name: z.string().min(1).optional(),
-        email: z.string().email().optional(),
-        phone: z.string().nullable().optional(),
-        company: z.string().nullable().optional(),
-        source: z.string().optional(),
+        name: z.string().min(1).max(500).optional(),
+        email: z.string().email().max(255).optional(),
+        phone: z.string().max(100).nullable().optional(),
+        company: z.string().max(500).nullable().optional(),
+        source: z.string().max(100).optional(),
         referredBy: z.string().uuid().nullable().optional(),
-        referredByExternal: z.string().nullable().optional(),
+        referredByExternal: z.string().max(500).nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
         connectorId: z.string().uuid().nullable().optional(),
         assignedDeveloperId: z.string().uuid().nullable().optional(),
-        createdBy: z.string().nullable().optional(),
-        tags: z.array(z.string()).optional(),
+        createdBy: z.string().max(500).nullable().optional(),
+        tags: z.array(z.string().max(100)).optional(),
         communicationPreferences: z
           .object({
             email: z.boolean().optional(),
@@ -590,7 +590,7 @@ export const crmRouter = createTRPCRouter({
             phone: z.boolean().optional(),
           })
           .optional(),
-        notes: z.string().nullable().optional(),
+        notes: z.string().max(5000).nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -804,8 +804,8 @@ export const crmRouter = createTRPCRouter({
           "status_change",
           "assignment",
         ]),
-        title: z.string().min(1),
-        description: z.string().optional(),
+        title: z.string().min(1).max(500),
+        description: z.string().max(5000).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -903,8 +903,8 @@ export const crmRouter = createTRPCRouter({
   getTeamMembers: adminProcedure
     .input(
       z.object({
-        search: z.string().optional(),
-        role: z.string().optional(),
+        search: z.string().max(500).optional(),
+        role: z.string().max(100).optional(),
         status: z.enum(["active", "inactive"]).optional(),
         sortBy: z.enum(["name", "newest", "oldest"]).default("name"),
         limit: z.number().min(1).max(100).default(50),
@@ -966,11 +966,11 @@ export const crmRouter = createTRPCRouter({
   createTeamMember: fullAccessProcedure
     .input(
       z.object({
-        name: z.string().min(1),
-        email: z.string().email(),
-        phone: z.string().nullable().optional(),
-        companyRoles: z.array(z.string()).optional(),
-        clientSlug: z.string().nullable().optional(),
+        name: z.string().min(1).max(500),
+        email: z.string().email().max(255),
+        phone: z.string().max(100).nullable().optional(),
+        companyRoles: z.array(z.string().max(100)).optional(),
+        clientSlug: z.string().max(100).nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -996,11 +996,11 @@ export const crmRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().uuid(),
-        name: z.string().min(1).optional(),
-        email: z.string().email().optional(),
-        phone: z.string().nullable().optional(),
-        companyRoles: z.array(z.string()).optional(),
-        clientSlug: z.string().nullable().optional(),
+        name: z.string().min(1).max(500).optional(),
+        email: z.string().email().max(255).optional(),
+        phone: z.string().max(100).nullable().optional(),
+        companyRoles: z.array(z.string().max(100)).optional(),
+        clientSlug: z.string().max(100).nullable().optional(),
         isActive: z.boolean().optional(),
       })
     )
@@ -1022,8 +1022,8 @@ export const crmRouter = createTRPCRouter({
     .input(
       z.object({
         memberId: z.string().uuid(),
-        slug: z.string().min(1),
-        company: z.string().optional(),
+        slug: z.string().min(1).max(100),
+        company: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -1207,11 +1207,16 @@ export const crmRouter = createTRPCRouter({
         throw new Error("CRM contact not found");
       }
 
+      const contactEmail = contact[0].email;
+      if (!contactEmail) {
+        throw new Error("CRM contact has no email — cannot create client");
+      }
+
       // Guard against duplicate client by email
       const existingClient = await db
         .select({ id: clients.id })
         .from(clients)
-        .where(eq(clients.email, contact[0].email))
+        .where(eq(clients.email, contactEmail))
         .limit(1);
 
       if (existingClient[0]) {
@@ -1224,7 +1229,7 @@ export const crmRouter = createTRPCRouter({
         .values({
           crmId: input.crmId,
           name: contact[0].name,
-          email: contact[0].email,
+          email: contactEmail,
           slug: input.slug,
           company: input.company ?? contact[0].company ?? undefined,
           accountManagerId:
@@ -1233,6 +1238,22 @@ export const crmRouter = createTRPCRouter({
           connectorId: contact[0].connectorId ?? undefined,
         })
         .returning();
+
+      // Create portal_users record so the client can claim their account
+      const existingPortalUser = await db
+        .select({ id: portalUsers.id })
+        .from(portalUsers)
+        .where(eq(portalUsers.email, contactEmail.toLowerCase()))
+        .limit(1);
+
+      if (!existingPortalUser[0]) {
+        await db.insert(portalUsers).values({
+          email: contactEmail.toLowerCase(),
+          name: contact[0].name,
+          role: "client",
+          clientSlug: input.slug,
+        });
+      }
 
       // Set CRM status to client (unless preserveStatus is set)
       if (!input.preserveStatus) {
@@ -1279,13 +1300,28 @@ export const crmRouter = createTRPCRouter({
         .limit(1);
 
       if (linkedClient[0]) {
+        // Get the client slug before modifying
+        const clientRecord = await db
+          .select({ slug: clients.slug })
+          .from(clients)
+          .where(eq(clients.id, linkedClient[0].id))
+          .limit(1);
+
         if (input.portalAction === "archive") {
           await db
             .update(clients)
-            .set({ status: "inactive", updatedAt: new Date() })
+            .set({ updatedAt: new Date() })
             .where(eq(clients.id, linkedClient[0].id));
         } else {
           await db.delete(clients).where(eq(clients.id, linkedClient[0].id));
+        }
+
+        // Clean up portal_users: null out clientSlug (don't delete — they may be a team member)
+        if (clientRecord[0]?.slug) {
+          await db
+            .update(portalUsers)
+            .set({ clientSlug: null, updatedAt: new Date() })
+            .where(eq(portalUsers.clientSlug, clientRecord[0].slug));
         }
       }
 

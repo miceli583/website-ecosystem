@@ -545,10 +545,10 @@ export const portalRouter = createTRPCRouter({
   createPortalUser: protectedProcedure
     .input(
       z.object({
-        email: z.string().email(),
-        name: z.string().min(1),
+        email: z.string().email().max(255),
+        name: z.string().min(1).max(500),
         role: z.enum(["admin", "client"]).default("client"),
-        clientSlug: z.string().optional(),
+        clientSlug: z.string().max(100).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -606,8 +606,8 @@ export const portalRouter = createTRPCRouter({
   getResources: protectedProcedure
     .input(
       z.object({
-        slug: z.string(),
-        section: z.string().optional(), // filter by section (demos, tooling, etc.)
+        slug: z.string().max(100),
+        section: z.string().max(100).optional(), // filter by section (demos, tooling, etc.)
         isActive: z.boolean().optional(), // undefined = admin sees all, true/false = filter
       })
     )
@@ -726,9 +726,9 @@ export const portalRouter = createTRPCRouter({
   updateMyProfile: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1).optional(),
-        phone: z.string().optional(),
-        company: z.string().optional(),
+        name: z.string().min(1).max(500).optional(),
+        phone: z.string().max(100).optional(),
+        company: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -771,18 +771,18 @@ export const portalRouter = createTRPCRouter({
   createResource: protectedProcedure
     .input(
       z.object({
-        clientSlug: z.string(),
+        clientSlug: z.string().max(100),
         projectId: z.number().optional(),
-        section: z.string().default("tooling"),
-        type: z.string().default("link"),
-        title: z.string().min(1),
-        description: z.string().optional(),
-        icon: z.string().optional(),
+        section: z.string().max(100).default("tooling"),
+        type: z.string().max(100).default("link"),
+        title: z.string().min(1).max(500),
+        description: z.string().max(5000).optional(),
+        icon: z.string().max(100).optional(),
         sortOrder: z.number().optional(),
         isFeatured: z.boolean().optional(),
-        url: z.string().optional(),
-        embedCode: z.string().optional(),
-        content: z.string().optional(),
+        url: z.string().max(2000).optional(),
+        embedCode: z.string().max(50000).optional(),
+        content: z.string().max(50000).optional(),
         metadata: z.record(z.unknown()).optional(),
       })
     )
@@ -1212,20 +1212,20 @@ export const portalRouter = createTRPCRouter({
   createProposal: protectedProcedure
     .input(
       z.object({
-        clientSlug: z.string(),
+        clientSlug: z.string().max(100),
         projectId: z.number().optional(),
-        title: z.string().min(1),
-        description: z.string().optional(),
+        title: z.string().min(1).max(500),
+        description: z.string().max(5000).optional(),
         lineItems: z.array(
           z.object({
-            name: z.string(),
-            description: z.string().optional(),
+            name: z.string().max(500),
+            description: z.string().max(5000).optional(),
             unitPrice: z.number(),
             quantity: z.number().default(1),
             type: z.enum(["one-time", "subscription"]).default("one-time"),
           })
         ),
-        currency: z.string().default("usd"),
+        currency: z.string().max(10).default("usd"),
         paymentType: z
           .enum(["one-time", "subscription", "payment-plan"])
           .default("one-time"),
@@ -1552,7 +1552,7 @@ export const portalRouter = createTRPCRouter({
 
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
-        customer: customerId,
+        customer: customerId!,
         mode: checkoutMode,
         line_items: stripeLineItems,
         success_url: input.successUrl,
@@ -1859,14 +1859,14 @@ export const portalRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         projectId: z.number().nullable().optional(),
-        title: z.string().min(1).optional(),
-        description: z.string().nullable().optional(),
+        title: z.string().min(1).max(500).optional(),
+        description: z.string().max(5000).nullable().optional(),
         isActive: z.boolean().optional(),
         isPrivate: z.boolean().optional(), // Hidden from clients entirely
         underDevelopment: z.boolean().optional(), // WIP badge for admin
         sortOrder: z.number().optional(),
         isFeatured: z.boolean().optional(),
-        url: z.string().nullable().optional(),
+        url: z.string().max(2000).nullable().optional(),
         metadata: z.record(z.unknown()).optional(),
       })
     )
@@ -1988,9 +1988,9 @@ export const portalRouter = createTRPCRouter({
   createProject: protectedProcedure
     .input(
       z.object({
-        slug: z.string(),
-        name: z.string().min(1),
-        description: z.string().optional(),
+        slug: z.string().max(100),
+        name: z.string().min(1).max(500),
+        description: z.string().max(5000).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

@@ -208,7 +208,7 @@ export default function ContactDetailPage({
   const [promoteError, setPromoteError] = useState("");
   const [demotionInfo, setDemotionInfo] = useState<{
     newStatus: string;
-    client: { id: number; slug: string; name: string; status: string };
+    client: { id: number; slug: string; name: string; status?: string };
   } | null>(null);
 
   const [showLogCall, setShowLogCall] = useState(false);
@@ -428,7 +428,7 @@ export default function ContactDetailPage({
             ) : (
               <span
                 className="group flex cursor-pointer items-center gap-1"
-                onClick={() => startEdit("email", contact.email)}
+                onClick={() => startEdit("email", contact.email ?? "")}
                 title="Click to edit"
               >
                 <Mail className="h-3.5 w-3.5" />
@@ -738,7 +738,7 @@ export default function ContactDetailPage({
             <div className="space-y-3">
               {activities.map(
                 (activity: {
-                  id: string;
+                  id: number;
                   type: string;
                   title: string;
                   description: string | null;
@@ -1057,7 +1057,7 @@ export default function ContactDetailPage({
                       (rc: {
                         id: string;
                         name: string;
-                        email: string;
+                        email: string | null;
                         status: string;
                       }) => {
                         const rcStatus =
@@ -1489,7 +1489,7 @@ export default function ContactDetailPage({
                   <input
                     className={inputClass + " cursor-not-allowed opacity-60"}
                     style={borderStyle}
-                    value={contact.email}
+                    value={contact.email ?? ""}
                     readOnly
                   />
                 </div>

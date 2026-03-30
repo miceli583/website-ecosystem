@@ -389,7 +389,7 @@ export function AdminOverview() {
                 (contact: {
                   id: string;
                   name: string;
-                  email: string;
+                  email: string | null;
                   source: string;
                   status: string;
                   lastContactAt: Date;

@@ -49,9 +49,10 @@ export function ReferralPicker({
 
   const q = search.toLowerCase();
   const filteredContacts = contacts.filter(
-    (c: { id: string; name: string; email: string }) =>
+    (c: { id: string; name: string; email: string | null }) =>
       c.id !== contactId &&
-      (c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q))
+      (c.name.toLowerCase().includes(q) ||
+        (c.email ?? "").toLowerCase().includes(q))
   );
   const filteredTeam = teamMembers.filter(
     (m: { name: string; email: string }) =>
@@ -144,7 +145,11 @@ export function ReferralPicker({
                       Contacts
                     </p>
                     {filteredContacts.map(
-                      (c: { id: string; name: string; email: string }) => (
+                      (c: {
+                        id: string;
+                        name: string;
+                        email: string | null;
+                      }) => (
                         <button
                           key={`contact-${c.id}`}
                           onClick={() => {

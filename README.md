@@ -26,7 +26,7 @@ Access locally:
 
 ## Tech Stack
 
-Next.js 15 | React 19 | TypeScript | Tailwind CSS 4 | tRPC | Drizzle ORM | Supabase
+Next.js 16 | React 19 | TypeScript | Tailwind CSS 4 | tRPC | Drizzle ORM | Supabase
 
 ## Scripts
 
@@ -42,8 +42,7 @@ npm run db:studio        # Database GUI
 See [`docs/`](./docs/) for detailed guides:
 
 - [README](./docs/README.md) - Project overview
-- [ARCHITECTURE](./docs/ARCHITECTURE.md) - Architecture patterns
 - [SETUP](./docs/SETUP.md) - Environment, database, auth
-- [DEVELOPMENT](./docs/DEVELOPMENT.md) - Development workflow
 - [INFRASTRUCTURE](./docs/INFRASTRUCTURE.md) - Domains, email, CI/CD
-- [AUTOMATION](./docs/AUTOMATION.md) - Instagram automation, cron jobs
+- [CONTRIBUTING](./docs/CONTRIBUTING.md) - Contribution guidelines
+- [GIT_WORKFLOW_GUIDE](./docs/GIT_WORKFLOW_GUIDE.md) - Git workflow

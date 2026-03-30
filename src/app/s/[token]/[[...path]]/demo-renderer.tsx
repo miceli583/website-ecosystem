@@ -1,8 +1,73 @@
 "use client";
 
 import { lazy, Suspense, type ComponentType } from "react";
+import DOMPurify from "dompurify";
 import { DEMO_REGISTRY } from "~/components/demos/registry";
 import { ExternalLink } from "lucide-react";
+
+/** Sanitize HTML for embed content — allows iframes for third-party embeds */
+function sanitizeEmbed(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: [
+      "allow",
+      "allowfullscreen",
+      "frameborder",
+      "scrolling",
+      "src",
+      "title",
+      "width",
+      "height",
+      "style",
+    ],
+  });
+}
+
+/** Sanitize HTML for richtext content — standard formatting only */
+function sanitizeRichText(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      "p",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "ul",
+      "ol",
+      "li",
+      "strong",
+      "em",
+      "a",
+      "blockquote",
+      "code",
+      "pre",
+      "br",
+      "div",
+      "span",
+      "img",
+      "hr",
+      "table",
+      "thead",
+      "tbody",
+      "tr",
+      "th",
+      "td",
+    ],
+    ALLOWED_ATTR: [
+      "href",
+      "target",
+      "rel",
+      "src",
+      "alt",
+      "class",
+      "style",
+      "width",
+      "height",
+    ],
+  });
+}
 
 interface DemoRendererProps {
   demo: {
@@ -110,7 +175,7 @@ export function DemoRenderer({
         <div
           className="overflow-hidden rounded-xl border"
           style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-          dangerouslySetInnerHTML={{ __html: demo.embedCode }}
+          dangerouslySetInnerHTML={{ __html: sanitizeEmbed(demo.embedCode) }}
         />
       </div>
     );
@@ -135,7 +200,7 @@ export function DemoRenderer({
         </h1>
         <div
           className="prose prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: demo.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeRichText(demo.content) }}
         />
       </div>
     );

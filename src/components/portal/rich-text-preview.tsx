@@ -1,5 +1,7 @@
 "use client";
 
+import DOMPurify from "dompurify";
+
 interface RichTextPreviewProps {
   html: string;
   /** Truncate to N lines (uses CSS line-clamp) */
@@ -26,7 +28,7 @@ export function RichTextPreview({
   return (
     <div
       className={`tiptap-content text-sm ${lineClamp ? `line-clamp-${lineClamp}` : ""} ${className}`}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
     />
   );
 }

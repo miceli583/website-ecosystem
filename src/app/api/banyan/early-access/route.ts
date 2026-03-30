@@ -12,6 +12,21 @@ import { AdminNotificationEmail } from "~/lib/email-templates/admin-notification
  * Submit early access request for Banyan LifeOS
  */
 export async function POST(request: NextRequest) {
+  // Origin check — only allow requests from our own domains
+  const origin = request.headers.get("origin") ?? "";
+  const allowedOrigins = [
+    "https://miraclemind.dev",
+    "https://www.miraclemind.dev",
+    "https://matthewmiceli.com",
+    "https://www.matthewmiceli.com",
+  ];
+  if (
+    process.env.NODE_ENV === "production" &&
+    !allowedOrigins.some((o) => origin.startsWith(o))
+  ) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   // Rate limit: 5 requests per 15 minutes per IP
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";

@@ -253,7 +253,7 @@ export default function AdminClientDetailPage({
     for (const a of activities) {
       items.push({
         kind: "activity",
-        id: `act-${(a as { id: string }).id}`,
+        id: `act-${(a as { id: number }).id}`,
         type: (a as { type: string }).type,
         title: (a as { title: string }).title,
         description: (a as { description: string | null }).description,
@@ -1133,7 +1133,7 @@ export default function AdminClientDetailPage({
                           (rc: {
                             id: string;
                             name: string;
-                            email: string;
+                            email: string | null;
                             status: string;
                           }) => {
                             const rcStatus =

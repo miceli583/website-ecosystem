@@ -6,8 +6,11 @@ _None currently_
 
 ## Bugs & Tech Debt
 
-- [x] ~~**Extract shared dialogs**: PromoteToClientModal + DemotionDialog extracted to `src/components/crm/`~~
 - [ ] **Analytics/Overview loading**: Supabase pooler intermittently slow — retry + staleTime mitigates but root cause is connection pool pressure
+- [ ] **Notion edge function token**: Hardcoded API token needs migration to Supabase secret + redeploy 3 edge functions
+- [ ] **Instagram post automation**: Posts generated + sent to Zapier but not appearing on IG — check Zapier zap status / Instagram token
+- [ ] **Console.log cleanup**: ~77 console.log/error statements in production code — gate behind NODE_ENV or remove
+- [ ] **daily-values router**: Many `publicProcedure` endpoints should be `protectedProcedure` (admin-only, cron uses direct DB)
 
 ## Client Work (prioritized)
 
@@ -20,7 +23,6 @@ _None currently_
 ### Shechem Sauls
 
 - [ ] Resolve DNS error for chw360.com
-- [x] ~~Build demo for Karla Frazier~~ — Frazier Dentistry demo built (28 pages), project created under Shechem
 - [ ] Duplicate Frazier Dentistry demo under Karla Frazier's account when ready
 - [ ] Refine project management for various projects
 - [ ] Create Gamma alternative for slide builder
@@ -66,13 +68,13 @@ _None currently_
 
 ### High Priority — Financial Systems
 
-- [ ] **Payment method separation**: Stripe one-time → default checking, subscriptions → recurring checking. Set up second Mercury account for recurring payments.
+- [ ] **Payment method separation**: Stripe one-time → default checking, subscriptions → recurring checking
 - [ ] **Mercury invoice creation via API**: Investigate if AMs can create Mercury invoices through the app
-- [ ] **Proposal Builder: Stripe vs Mercury option**: When creating new proposals, choose payment method (Stripe invoice or Mercury invoice) — currently Stripe-only. Depends on Mercury API investigation.
-- [ ] **Stripe sub-accounts for hosted clients**: Learn how to set up Stripe billing in apps hosted for clients (payment middleman model)
+- [ ] **Proposal Builder: Stripe vs Mercury option**: Choose payment method when creating proposals
+- [ ] **Stripe sub-accounts for hosted clients**: Learn how to set up Stripe billing in apps hosted for clients
 - [ ] **Team direct deposit**: Team members set up direct deposit in their profile
 - [ ] **Profit-sharing payouts**: Mercury API to pay team based on percentage of client payments per project
-- [ ] **Smart monthly COGS calculator**: Claude sub + Vercel sub + Supabase ($25 + $10/additional DB) + Resend usage (scales with emails sent across hosted sites)
+- [ ] **Smart monthly COGS calculator**: Claude + Vercel + Supabase + Resend usage
 - [ ] **Purchase accounts**: Apple Developer, Vercel Pro, Supabase Pro
 
 ### High Priority — Platform
