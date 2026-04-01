@@ -206,6 +206,11 @@ export default function PortalBillingPage({
     { staleTime: 5 * 60 * 1000 }
   );
 
+  const { data: profile } = api.portal.getMyProfile.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const isAdmin = profile?.role === "admin";
+
   // Persisted filter state
   const { getState, setState: persistState } = useTabFilters("billing");
   const saved = getState();
@@ -1107,6 +1112,9 @@ export default function PortalBillingPage({
         </div>
       )}
 
+      {/* Mercury / Proposal Checkout Payments */}
+      {isAdmin && <MercuryCheckoutsSection slug={slug} />}
+
       {/* Cancel Subscription Dialog */}
       <ConfirmDialog
         open={cancelDialog.open}
@@ -1147,5 +1155,128 @@ export default function PortalBillingPage({
         />
       )}
     </>
+  );
+}
+
+// ============================================================================
+// MERCURY CHECKOUTS SECTION (Admin Only)
+// ============================================================================
+
+function MercuryCheckoutsSection({ slug }: { slug: string }) {
+  const { data: duplicates } = api.proposals.detectDuplicates.useQuery(
+    { clientSlug: slug, lookbackDays: 90 },
+    { staleTime: 5 * 60 * 1000 }
+  );
+
+  const resolveDuplicate = api.proposals.resolveDuplicate.useMutation({
+    onSuccess: () => toast.success("Duplicate resolved"),
+    onError: () => toast.error("Failed to resolve"),
+  });
+
+  const hasDuplicates =
+    duplicates?.duplicates && duplicates.duplicates.length > 0;
+
+  if (!hasDuplicates) return null;
+
+  return (
+    <div className="mt-8">
+      <h2 className="mb-4 text-lg font-semibold text-white">
+        <AlertTriangle
+          className="mr-2 inline h-5 w-5"
+          style={{ color: "#D4AF37" }}
+        />
+        Potential Duplicate Payments
+      </h2>
+      <p className="mb-4 text-sm text-gray-400">
+        These payments may be duplicates — same amount within 3 days across
+        Stripe and Mercury. Mercury used Stripe for credit processing, so a
+        single payment may appear in both systems.
+      </p>
+      <div className="space-y-3">
+        {duplicates.duplicates.map((dup, i) => (
+          <div
+            key={i}
+            className="rounded-lg border p-4"
+            style={{
+              borderColor:
+                dup.confidence === "high"
+                  ? "rgba(248, 113, 113, 0.3)"
+                  : "rgba(212, 175, 55, 0.2)",
+              backgroundColor: "rgba(255, 255, 255, 0.02)",
+            }}
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                  dup.confidence === "high"
+                    ? "bg-red-500/10 text-red-400"
+                    : dup.confidence === "medium"
+                      ? "bg-[#D4AF37]/10 text-[#D4AF37]"
+                      : "bg-white/10 text-gray-400"
+                }`}
+              >
+                {dup.confidence} confidence
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    resolveDuplicate.mutate({
+                      checkoutId: dup.mercuryCheckout.id,
+                      resolution: "duplicate",
+                    })
+                  }
+                  className="rounded border px-2 py-1 text-xs text-red-400 hover:bg-red-500/10"
+                  style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}
+                >
+                  Mark Duplicate
+                </button>
+                <button
+                  onClick={() =>
+                    resolveDuplicate.mutate({
+                      checkoutId: dup.mercuryCheckout.id,
+                      resolution: "separate",
+                    })
+                  }
+                  className="rounded border px-2 py-1 text-xs text-gray-400 hover:bg-white/5"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                >
+                  Keep Both
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-xs text-gray-500">Stripe Payment</p>
+                <p className="text-white">
+                  ${(dup.stripeCheckout.amount / 100).toFixed(2)}
+                </p>
+                {dup.stripeCheckout.paidAt && (
+                  <p className="text-xs text-gray-500">
+                    {new Date(dup.stripeCheckout.paidAt).toLocaleDateString()}
+                  </p>
+                )}
+                {dup.stripeCheckout.stripeFeeAmount && (
+                  <p className="text-xs text-gray-600">
+                    Fee: $
+                    {(dup.stripeCheckout.stripeFeeAmount / 100).toFixed(2)}
+                  </p>
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Mercury Payment</p>
+                <p className="text-white">
+                  ${(dup.mercuryCheckout.amount / 100).toFixed(2)}
+                </p>
+                {dup.mercuryCheckout.paidAt && (
+                  <p className="text-xs text-gray-500">
+                    {new Date(dup.mercuryCheckout.paidAt).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

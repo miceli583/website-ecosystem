@@ -39,15 +39,17 @@ export function StatusTabs({
         >
           <span className="flex items-center gap-2">
             {tab.label}
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-xs ${
-                activeTab === tab.id
-                  ? "bg-[#D4AF37]/15 text-[#D4AF37]"
-                  : "bg-white/5 text-gray-500"
-              }`}
-            >
-              {tab.count}
-            </span>
+            {tab.count >= 0 && (
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-xs ${
+                  activeTab === tab.id
+                    ? "bg-[#D4AF37]/15 text-[#D4AF37]"
+                    : "bg-white/5 text-gray-500"
+                }`}
+              >
+                {tab.count}
+              </span>
+            )}
           </span>
           {activeTab === tab.id && (
             <div

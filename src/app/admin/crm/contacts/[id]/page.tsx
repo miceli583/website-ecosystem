@@ -29,6 +29,7 @@ import {
   Building2,
   Users,
   Link as LinkIcon,
+  Briefcase,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
@@ -149,6 +150,10 @@ export default function ContactDetailPage({
     { crmId: contact?.id ?? "" },
     { enabled: !!contact }
   );
+  const { data: clientDetail } = api.clients.getBySlugAdmin.useQuery(
+    { slug: contact?.portalClient?.slug ?? "" },
+    { enabled: !!contact?.portalClient }
+  );
 
   // ── Mutations ──────────────────────────────────────────────────
   const updateContact = api.crm.updateContact.useMutation({
@@ -157,9 +162,9 @@ export default function ContactDetailPage({
   const createActivity = api.crm.createActivity.useMutation({
     onSuccess: () => {
       void utils.crm.getActivities.invalidate({ crmId: contact?.id ?? "" });
-      setShowLogCall(false);
-      setLogCallTitle("");
-      setLogCallDesc("");
+      setLogActivityType(null);
+      setLogActivityTitle("");
+      setLogActivityDesc("");
     },
   });
   const promote = api.crm.promoteToClient.useMutation({
@@ -208,14 +213,17 @@ export default function ContactDetailPage({
   const [promoteError, setPromoteError] = useState("");
   const [demotionInfo, setDemotionInfo] = useState<{
     newStatus: string;
-    client: { id: number; slug: string; name: string; status: string };
+    client: { id: number; slug: string; name: string; status?: string };
   } | null>(null);
 
-  const [showLogCall, setShowLogCall] = useState(false);
-  const [logCallTitle, setLogCallTitle] = useState("");
-  const [logCallDesc, setLogCallDesc] = useState("");
+  const [logActivityType, setLogActivityType] = useState<
+    "call" | "email" | null
+  >(null);
+  const [logActivityTitle, setLogActivityTitle] = useState("");
+  const [logActivityDesc, setLogActivityDesc] = useState("");
 
   const notesRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState("activity");
 
   const canAssign = myRoles?.isFullAccess ?? false;
 
@@ -428,7 +436,7 @@ export default function ContactDetailPage({
             ) : (
               <span
                 className="group flex cursor-pointer items-center gap-1"
-                onClick={() => startEdit("email", contact.email)}
+                onClick={() => startEdit("email", contact.email ?? "")}
                 title="Click to edit"
               >
                 <Mail className="h-3.5 w-3.5" />
@@ -575,26 +583,34 @@ export default function ContactDetailPage({
       {/* ── 3. Quick Actions Bar ─────────────────────────────────── */}
       <div className="flex flex-wrap gap-2">
         <button
-          onClick={() => setShowLogCall(true)}
+          onClick={() => {
+            setActiveTab("activity");
+            setLogActivityType("call");
+            setShowNoteEditor(false);
+          }}
           className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
           style={borderStyle}
         >
           <PhoneCall className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
           Log Call
         </button>
-        <a
-          href={`mailto:${contact.email}`}
+        <button
+          onClick={() => {
+            setActiveTab("activity");
+            setLogActivityType("email");
+            setShowNoteEditor(false);
+          }}
           className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
           style={borderStyle}
         >
           <Mail className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
-          Send Email
-        </a>
+          Log Email
+        </button>
         <button
           onClick={() => {
-            notesRef.current?.scrollIntoView({ behavior: "smooth" });
-            setEditingField("notes");
-            setEditNotes(contact.notes ?? "");
+            setActiveTab("notes");
+            setShowNoteEditor(true);
+            setLogActivityType(null);
           }}
           className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
           style={borderStyle}
@@ -640,23 +656,29 @@ export default function ContactDetailPage({
         )}
       </div>
 
-      {/* Log Call inline form */}
-      {showLogCall && (
+      {/* Log Activity inline form (call or email) */}
+      {logActivityType && (
         <div
           className="rounded-lg border bg-white/5 p-4"
           style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
         >
-          <h4 className="mb-3 text-sm font-medium text-white">Log a Call</h4>
+          <h4 className="mb-3 text-sm font-medium text-white">
+            Log {logActivityType === "call" ? "a Call" : "an Email"}
+          </h4>
           <div className="space-y-2">
             <input
               className={inputClass}
               style={borderStyle}
-              placeholder="Call title (e.g. 'Follow-up call')"
-              value={logCallTitle}
-              onChange={(e) => setLogCallTitle(e.target.value)}
+              placeholder={
+                logActivityType === "call"
+                  ? "Call title (e.g. 'Follow-up call')"
+                  : "Email subject (e.g. 'Sent proposal')"
+              }
+              value={logActivityTitle}
+              onChange={(e) => setLogActivityTitle(e.target.value)}
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Escape") setShowLogCall(false);
+                if (e.key === "Escape") setLogActivityType(null);
               }}
             />
             <textarea
@@ -664,21 +686,21 @@ export default function ContactDetailPage({
               style={borderStyle}
               placeholder="Description (optional)"
               rows={2}
-              value={logCallDesc}
-              onChange={(e) => setLogCallDesc(e.target.value)}
+              value={logActivityDesc}
+              onChange={(e) => setLogActivityDesc(e.target.value)}
             />
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  if (!logCallTitle.trim()) return;
+                  if (!logActivityTitle.trim()) return;
                   createActivity.mutate({
                     crmId: contact.id,
-                    type: "call",
-                    title: logCallTitle.trim(),
-                    description: logCallDesc.trim() || undefined,
+                    type: logActivityType,
+                    title: logActivityTitle.trim(),
+                    description: logActivityDesc.trim() || undefined,
                   });
                 }}
-                disabled={createActivity.isPending || !logCallTitle.trim()}
+                disabled={createActivity.isPending || !logActivityTitle.trim()}
                 className="flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium text-black transition-opacity disabled:opacity-50"
                 style={{
                   background:
@@ -689,7 +711,7 @@ export default function ContactDetailPage({
                 {createActivity.isPending ? "Saving..." : "Save"}
               </button>
               <button
-                onClick={() => setShowLogCall(false)}
+                onClick={() => setLogActivityType(null)}
                 className="rounded px-3 py-1.5 text-xs text-gray-500 hover:text-white"
               >
                 Cancel
@@ -700,8 +722,16 @@ export default function ContactDetailPage({
       )}
 
       {/* ── 4. Three-tab layout ──────────────────────────────────── */}
-      <Tabs defaultValue="activity">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4 bg-white/5">
+          {contact.portalClient && clientDetail && (
+            <TabsTrigger
+              value="projects"
+              className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
+            >
+              Projects ({clientDetail.projects.length})
+            </TabsTrigger>
+          )}
           <TabsTrigger
             value="activity"
             className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
@@ -722,94 +752,206 @@ export default function ContactDetailPage({
           </TabsTrigger>
         </TabsList>
 
+        {/* ── Projects tab ─────────────────────────────────── */}
+        {contact.portalClient && clientDetail && (
+          <TabsContent value="projects">
+            <div>
+              <h3 className="mb-3 text-sm font-medium text-gray-400">
+                Projects ({clientDetail.projects.length})
+              </h3>
+              {clientDetail.projects.length === 0 ? (
+                <div
+                  className="rounded-lg border bg-white/5 p-8 text-center"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                >
+                  <Briefcase className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+                  <p className="text-sm text-gray-500">
+                    No projects yet. Create one from the portal.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {clientDetail.projects.map(
+                    (project: {
+                      id: number;
+                      name: string;
+                      description: string | null;
+                      status: string;
+                    }) => {
+                      const projStatus =
+                        project.status === "active"
+                          ? "bg-green-900/50 text-green-400"
+                          : project.status === "completed"
+                            ? "bg-[rgba(212,175,55,0.15)] text-[#D4AF37]"
+                            : "bg-white/10 text-gray-400";
+                      return (
+                        <Link
+                          key={project.id}
+                          href={`/admin/projects/${project.id}`}
+                          className="block rounded-lg border bg-white/5 p-4 transition-colors hover:bg-white/10"
+                          style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-white">
+                                {project.name}
+                              </p>
+                              {project.description && (
+                                <p className="mt-0.5 truncate text-xs text-gray-500">
+                                  {project.description}
+                                </p>
+                              )}
+                            </div>
+                            <span
+                              className={`ml-3 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${projStatus}`}
+                            >
+                              {project.status}
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        )}
+
         {/* ── Activity tab ──────────────────────────────────── */}
         <TabsContent value="activity">
-          {activities.length === 0 ? (
-            <div
-              className="rounded-lg border bg-white/5 p-8 text-center"
-              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-            >
-              <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
-              <p className="text-sm text-gray-500">
-                No activity yet. Log a call or add a note to get started.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {activities.map(
-                (activity: {
+          {(() => {
+            // Merge activities and submissions into one timeline
+            type MergedItem =
+              | {
+                  kind: "activity";
                   id: string;
                   type: string;
                   title: string;
                   description: string | null;
                   createdAt: Date;
                   creator: { id: string; name: string } | null;
-                }) => {
-                  const Icon = ACTIVITY_ICONS[activity.type] ?? FileText;
-                  return (
-                    <div
-                      key={activity.id}
-                      className="rounded-lg border bg-white/5 p-4"
-                      style={{
-                        borderColor: "rgba(212, 175, 55, 0.15)",
-                      }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-                          style={{
-                            background:
-                              "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
-                          }}
-                        >
-                          <Icon
-                            className="h-3.5 w-3.5"
-                            style={{ color: "#D4AF37" }}
-                          />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-white">
-                            {activity.title}
-                          </p>
-                          {activity.description && (
-                            <p className="mt-0.5 text-sm text-gray-400">
-                              {activity.description}
-                            </p>
-                          )}
-                          <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                            {activity.creator && (
-                              <span>by {activity.creator.name}</span>
+                }
+              | {
+                  kind: "submission";
+                  id: string;
+                  source: string;
+                  message: string;
+                  read: boolean;
+                  createdAt: Date;
+                  extra?: Record<string, string | string[] | boolean | null>;
+                };
+
+            const merged: MergedItem[] = [
+              ...activities.map(
+                (a: {
+                  id: number;
+                  type: string;
+                  title: string;
+                  description: string | null;
+                  createdAt: Date;
+                  creator: { id: string; name: string } | null;
+                }) => ({
+                  kind: "activity" as const,
+                  id: `a-${a.id}`,
+                  type: a.type,
+                  title: a.title,
+                  description: a.description,
+                  createdAt: a.createdAt,
+                  creator: a.creator,
+                })
+              ),
+              ...timeline.map((t) => ({
+                kind: "submission" as const,
+                id: t.id,
+                source: t.source,
+                message: t.message,
+                read: t.read,
+                createdAt: t.createdAt,
+                extra: t.extra,
+              })),
+            ].sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+
+            if (merged.length === 0) {
+              return (
+                <div
+                  className="rounded-lg border bg-white/5 p-8 text-center"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                >
+                  <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+                  <p className="text-sm text-gray-500">
+                    No activity yet. Log a call or add a note to get started.
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div className="space-y-3">
+                {merged.map((item) => {
+                  if (item.kind === "activity") {
+                    const Icon = ACTIVITY_ICONS[item.type] ?? FileText;
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-lg border bg-white/5 p-4"
+                        style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                            style={{
+                              background:
+                                "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                            }}
+                          >
+                            <Icon
+                              className="h-3.5 w-3.5"
+                              style={{ color: "#D4AF37" }}
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium text-white">
+                                {item.title}
+                              </p>
+                              <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-gray-500">
+                                {item.type}
+                              </span>
+                            </div>
+                            {item.description && (
+                              <p className="mt-0.5 text-sm text-gray-400">
+                                {item.description}
+                              </p>
                             )}
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {new Date(activity.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }
+                            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                              {item.creator && (
+                                <span>by {item.creator.name}</span>
                               )}
-                            </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {new Date(item.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  }
+                                )}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                }
-              )}
-            </div>
-          )}
+                    );
+                  }
 
-          {/* ── Submissions section ─────────────────────────────── */}
-          {timeline.length > 0 && (
-            <>
-              <h3 className="mt-6 mb-3 text-sm font-medium tracking-wider text-gray-400 uppercase">
-                Form Submissions
-              </h3>
-              <div className="space-y-3">
-                {timeline.map((item) => {
-                  const src = SOURCE_COLORS[item.source]!;
+                  // Submission
+                  const src = SOURCE_COLORS[item.source];
                   return (
                     <div
                       key={item.id}
@@ -818,15 +960,17 @@ export default function ContactDetailPage({
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span
-                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                            style={{
-                              backgroundColor: src.bg,
-                              color: src.color,
-                            }}
-                          >
-                            {src.label}
-                          </span>
+                          {src && (
+                            <span
+                              className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                              style={{
+                                backgroundColor: src.bg,
+                                color: src.color,
+                              }}
+                            >
+                              {src.label}
+                            </span>
+                          )}
                           {!item.read && (
                             <span
                               className="h-2 w-2 rounded-full"
@@ -869,246 +1013,293 @@ export default function ContactDetailPage({
                   );
                 })}
               </div>
-            </>
-          )}
+            );
+          })()}
         </TabsContent>
 
         {/* ── Details & Tags tab ─────────────────────────────────── */}
         <TabsContent value="details">
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Left column */}
-            <div className="space-y-4">
-              <SidebarCard title="Source">
-                <select
-                  value={contact.source}
-                  onChange={(e) =>
-                    updateContact.mutate({ id, source: e.target.value })
-                  }
-                  className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
-                  style={borderStyle}
-                >
-                  {SOURCE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </SidebarCard>
+          <div className="space-y-6">
+            {/* Team Assignments — horizontal grid */}
+            <div>
+              <h3 className="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
+                Team
+              </h3>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <SidebarCard title="Account Manager">
+                  {canAssign ? (
+                    <TeamMemberPicker
+                      value={contact.accountManagerId}
+                      placeholder="Select account manager..."
+                      onChange={(accountManagerId) =>
+                        updateContact.mutate({ id, accountManagerId })
+                      }
+                    />
+                  ) : (
+                    <p className="text-sm text-white">
+                      {contact.accountManager?.name ?? (
+                        <span className="text-gray-600">Unassigned</span>
+                      )}
+                    </p>
+                  )}
+                </SidebarCard>
 
-              <SidebarCard title="Referred By">
-                <ReferralPicker
-                  contactId={contact.id}
-                  referredBy={contact.referredBy}
-                  referredByExternal={contact.referredByExternal}
-                  onChange={(referredBy, referredByExternal) =>
-                    updateContact.mutate({ id, referredBy, referredByExternal })
-                  }
-                />
-              </SidebarCard>
-
-              <SidebarCard title="Created By">
-                <TeamMemberPicker
-                  value={null}
-                  placeholder={contact.createdBy ?? "Select creator..."}
-                  onChange={(memberId) => {
-                    if (!memberId) {
-                      updateContact.mutate({ id, createdBy: null });
-                      return;
-                    }
-                    const teamQuery = utils.crm.getCompanyTeam.getData();
-                    const member = (
-                      teamQuery as { id: string; name: string }[] | undefined
-                    )?.find((m) => m.id === memberId);
-                    updateContact.mutate({
-                      id,
-                      createdBy: member?.name ?? memberId,
-                    });
-                  }}
-                />
-              </SidebarCard>
-
-              <SidebarCard title="Connector">
-                <TeamMemberPicker
-                  value={contact.connectorId}
-                  placeholder="Select connector..."
-                  onChange={(connectorId) =>
-                    updateContact.mutate({ id, connectorId })
-                  }
-                />
-              </SidebarCard>
-
-              <SidebarCard title="Account Manager">
-                {canAssign ? (
+                <SidebarCard title="Assigned Developer">
                   <TeamMemberPicker
-                    value={contact.accountManagerId}
-                    placeholder="Select account manager..."
-                    onChange={(accountManagerId) =>
-                      updateContact.mutate({ id, accountManagerId })
+                    value={contact.assignedDeveloperId}
+                    placeholder="Select developer..."
+                    onChange={(assignedDeveloperId) =>
+                      updateContact.mutate({ id, assignedDeveloperId })
                     }
                   />
-                ) : (
-                  <p className="text-sm text-white">
-                    {contact.accountManager?.name ?? (
-                      <span className="text-gray-600">Unassigned</span>
-                    )}
-                  </p>
-                )}
-              </SidebarCard>
+                </SidebarCard>
 
-              <SidebarCard title="Assigned Developer">
-                <TeamMemberPicker
-                  value={contact.assignedDeveloperId}
-                  placeholder="Select developer..."
-                  onChange={(assignedDeveloperId) =>
-                    updateContact.mutate({ id, assignedDeveloperId })
-                  }
-                />
-              </SidebarCard>
-
-              <SidebarCard title="Communication Preferences">
-                <div className="space-y-2">
-                  {(["email", "sms", "phone"] as const).map((channel) => (
-                    <label
-                      key={channel}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="text-sm text-gray-300 capitalize">
-                        {channel === "sms"
-                          ? "SMS"
-                          : channel.charAt(0).toUpperCase() + channel.slice(1)}
-                      </span>
-                      <button
-                        role="switch"
-                        aria-checked={commPrefs[channel] ?? false}
-                        onClick={() => {
-                          const updated = {
-                            ...commPrefs,
-                            [channel]: !(commPrefs[channel] ?? false),
-                          };
-                          updateContact.mutate({
-                            id,
-                            communicationPreferences: updated,
-                          });
-                        }}
-                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-                          commPrefs[channel] ? "bg-[#D4AF37]" : "bg-white/10"
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-                            commPrefs[channel]
-                              ? "translate-x-[18px]"
-                              : "translate-x-[3px]"
-                          }`}
-                        />
-                      </button>
-                    </label>
-                  ))}
-                </div>
-              </SidebarCard>
+                <SidebarCard title="Connector">
+                  <TeamMemberPicker
+                    value={contact.connectorId}
+                    placeholder="Select connector..."
+                    onChange={(connectorId) =>
+                      updateContact.mutate({ id, connectorId })
+                    }
+                  />
+                </SidebarCard>
+              </div>
             </div>
 
-            {/* Right column */}
-            <div className="space-y-4">
-              <SidebarCard title="Tags">
-                <TagPicker
-                  selected={contact.tags ?? []}
-                  onChange={(tags) => updateContact.mutate({ id, tags })}
-                />
-              </SidebarCard>
+            {/* Details grid */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Left column — Source & Comms */}
+              <div className="space-y-4">
+                <SidebarCard title="Source">
+                  <select
+                    value={contact.source}
+                    onChange={(e) =>
+                      updateContact.mutate({ id, source: e.target.value })
+                    }
+                    className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
+                    style={borderStyle}
+                  >
+                    {SOURCE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </SidebarCard>
 
-              <SidebarCard title="Dates">
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">First contact</span>
-                    <span className="text-gray-300">
-                      {new Date(contact.firstContactAt).toLocaleDateString(
-                        "en-US",
-                        { month: "short", day: "numeric", year: "numeric" }
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Last contact</span>
-                    <span className="text-gray-300">
-                      {new Date(contact.lastContactAt).toLocaleDateString(
-                        "en-US",
-                        { month: "short", day: "numeric", year: "numeric" }
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Created</span>
-                    <span className="text-gray-300">
-                      {new Date(contact.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </SidebarCard>
+                <SidebarCard title="Referred By">
+                  <ReferralPicker
+                    contactId={contact.id}
+                    referredBy={contact.referredBy}
+                    referredByExternal={contact.referredByExternal}
+                    onChange={(referredBy, referredByExternal) =>
+                      updateContact.mutate({
+                        id,
+                        referredBy,
+                        referredByExternal,
+                      })
+                    }
+                  />
+                </SidebarCard>
 
-              {relatedContacts.length > 0 && (
-                <SidebarCard title="Related Contacts">
-                  <div className="space-y-1.5">
-                    {relatedContacts.map(
-                      (rc: {
-                        id: string;
-                        name: string;
-                        email: string;
-                        status: string;
-                      }) => {
-                        const rcStatus =
-                          STATUS_CONFIG[rc.status] ?? STATUS_CONFIG.lead!;
-                        return (
-                          <Link
-                            key={rc.id}
-                            href={`/admin/crm/contacts/${rc.id}`}
-                            className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-white/5"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Users className="h-3.5 w-3.5 text-gray-500" />
-                              <span className="text-gray-300">{rc.name}</span>
-                            </div>
-                            <span
-                              className="rounded-full px-1.5 py-0.5 text-[10px]"
-                              style={{
-                                backgroundColor: rcStatus.bg,
-                                color: rcStatus.color,
-                              }}
-                            >
-                              {rcStatus.label}
-                            </span>
-                          </Link>
-                        );
+                <SidebarCard title="Created By">
+                  <TeamMemberPicker
+                    value={null}
+                    placeholder={contact.createdBy ?? "Select creator..."}
+                    onChange={(memberId) => {
+                      if (!memberId) {
+                        updateContact.mutate({ id, createdBy: null });
+                        return;
                       }
+                      const teamQuery = utils.crm.getCompanyTeam.getData();
+                      const member = (
+                        teamQuery as { id: string; name: string }[] | undefined
+                      )?.find((m) => m.id === memberId);
+                      updateContact.mutate({
+                        id,
+                        createdBy: member?.name ?? memberId,
+                      });
+                    }}
+                  />
+                </SidebarCard>
+
+                <SidebarCard title="Communication Preferences">
+                  <div className="space-y-2">
+                    {(["email", "sms", "phone"] as const).map((channel) => (
+                      <label
+                        key={channel}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="text-sm text-gray-300 capitalize">
+                          {channel === "sms"
+                            ? "SMS"
+                            : channel.charAt(0).toUpperCase() +
+                              channel.slice(1)}
+                        </span>
+                        <button
+                          role="switch"
+                          aria-checked={commPrefs[channel] ?? false}
+                          onClick={() => {
+                            const updated = {
+                              ...commPrefs,
+                              [channel]: !(commPrefs[channel] ?? false),
+                            };
+                            updateContact.mutate({
+                              id,
+                              communicationPreferences: updated,
+                            });
+                          }}
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                            commPrefs[channel] ? "bg-[#D4AF37]" : "bg-white/10"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                              commPrefs[channel]
+                                ? "translate-x-[18px]"
+                                : "translate-x-[3px]"
+                            }`}
+                          />
+                        </button>
+                      </label>
+                    ))}
+                  </div>
+                </SidebarCard>
+              </div>
+
+              {/* Right column — Portal, Stripe, Tags, Dates */}
+              <div className="space-y-4">
+                {contact.portalClient && (
+                  <SidebarCard title="Portal">
+                    <Link
+                      href={`/portal/${contact.portalClient.slug}`}
+                      className="flex items-center gap-2 text-sm transition-colors hover:text-white"
+                      style={{ color: "#D4AF37" }}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      /portal/{contact.portalClient.slug}
+                    </Link>
+                  </SidebarCard>
+                )}
+
+                {contact.stripeLifetimeSpend && (
+                  <SidebarCard title="Stripe Lifetime Spend">
+                    <p className="flex items-center gap-2 text-2xl font-bold text-white">
+                      <DollarSign
+                        className="h-5 w-5"
+                        style={{ color: "#D4AF37" }}
+                      />
+                      {(
+                        contact.stripeLifetimeSpend.totalCents / 100
+                      ).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {contact.stripeLifetimeSpend.chargeCount} successful
+                      charge
+                      {contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
+                    </p>
+                  </SidebarCard>
+                )}
+
+                <SidebarCard title="Tags">
+                  <TagPicker
+                    selected={contact.tags ?? []}
+                    onChange={(tags) => updateContact.mutate({ id, tags })}
+                  />
+                </SidebarCard>
+
+                <SidebarCard title="Dates">
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">First contact</span>
+                      <span className="text-gray-300">
+                        {new Date(contact.firstContactAt).toLocaleDateString(
+                          "en-US",
+                          { month: "short", day: "numeric", year: "numeric" }
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Last contact</span>
+                      <span className="text-gray-300">
+                        {new Date(contact.lastContactAt).toLocaleDateString(
+                          "en-US",
+                          { month: "short", day: "numeric", year: "numeric" }
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Created</span>
+                      <span className="text-gray-300">
+                        {new Date(contact.createdAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                    {contact.portalClient && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Client since</span>
+                        <span className="text-gray-300">
+                          {new Date(
+                            contact.portalClient.createdAt ?? contact.createdAt
+                          ).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
                     )}
                   </div>
                 </SidebarCard>
-              )}
 
-              {contact.stripeLifetimeSpend && (
-                <SidebarCard title="Stripe Lifetime Spend">
-                  <p className="flex items-center gap-2 text-2xl font-bold text-white">
-                    <DollarSign
-                      className="h-5 w-5"
-                      style={{ color: "#D4AF37" }}
-                    />
-                    {(
-                      contact.stripeLifetimeSpend.totalCents / 100
-                    ).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {contact.stripeLifetimeSpend.chargeCount} successful charge
-                    {contact.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
-                  </p>
-                </SidebarCard>
-              )}
+                {relatedContacts.length > 0 && (
+                  <SidebarCard title="Related Contacts">
+                    <div className="space-y-1.5">
+                      {relatedContacts.map(
+                        (rc: {
+                          id: string;
+                          name: string;
+                          email: string | null;
+                          status: string;
+                        }) => {
+                          const rcStatus =
+                            STATUS_CONFIG[rc.status] ?? STATUS_CONFIG.lead!;
+                          return (
+                            <Link
+                              key={rc.id}
+                              href={`/admin/crm/contacts/${rc.id}`}
+                              className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-white/5"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Users className="h-3.5 w-3.5 text-gray-500" />
+                                <span className="text-gray-300">{rc.name}</span>
+                              </div>
+                              <span
+                                className="rounded-full px-1.5 py-0.5 text-[10px]"
+                                style={{
+                                  backgroundColor: rcStatus.bg,
+                                  color: rcStatus.color,
+                                }}
+                              >
+                                {rcStatus.label}
+                              </span>
+                            </Link>
+                          );
+                        }
+                      )}
+                    </div>
+                  </SidebarCard>
+                )}
+              </div>
             </div>
           </div>
         </TabsContent>
@@ -1489,7 +1680,7 @@ export default function ContactDetailPage({
                   <input
                     className={inputClass + " cursor-not-allowed opacity-60"}
                     style={borderStyle}
-                    value={contact.email}
+                    value={contact.email ?? ""}
                     readOnly
                   />
                 </div>

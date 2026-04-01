@@ -736,11 +736,8 @@ export default function PortalDemosPage({
           )}
         </div>
       ) : (
-        <div
-          className="overflow-x-auto rounded-lg border bg-white/5"
-          style={borderStyle}
-        >
-          <table className="w-full text-left text-sm text-gray-400">
+        <div className="rounded-lg border bg-white/5" style={borderStyle}>
+          <table className="w-full table-fixed text-left text-sm text-gray-400">
             <thead>
               <tr
                 className="border-b text-xs font-medium tracking-wider text-gray-500 uppercase"
@@ -751,6 +748,7 @@ export default function PortalDemosPage({
                   label="Title"
                   sorts={sorts}
                   onSort={handleSort}
+                  className="w-[40%]"
                 />
                 <SortHeader
                   field="project"
@@ -795,7 +793,7 @@ export default function PortalDemosPage({
                       <div className="min-w-0">
                         <p className="font-medium text-white">{demo.title}</p>
                         {demo.description && (
-                          <p className="mt-0.5 truncate text-xs text-gray-500">
+                          <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-gray-500">
                             {demo.description}
                           </p>
                         )}

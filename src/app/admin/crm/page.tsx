@@ -383,7 +383,7 @@ export default function CrmPage() {
                 {contactsData.contacts.map(
                   (contact: {
                     id: string;
-                    email: string;
+                    email: string | null;
                     name: string;
                     phone: string | null;
                     status: string;

@@ -510,7 +510,7 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
   const [selectedContact, setSelectedContact] = useState<{
     id: string;
     name: string;
-    email: string;
+    email: string | null;
   } | null>(null);
   const [form, setForm] = useState({
     slug: "",
@@ -535,18 +535,18 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
       []
   );
   const available = contacts.filter(
-    (c: { id: string; name: string; email: string }) =>
-      !existingEmails.has(c.email.toLowerCase()) &&
+    (c: { id: string; name: string; email: string | null }) =>
+      !existingEmails.has((c.email ?? "").toLowerCase()) &&
       (search
         ? c.name.toLowerCase().includes(search.toLowerCase()) ||
-          c.email.toLowerCase().includes(search.toLowerCase())
+          (c.email ?? "").toLowerCase().includes(search.toLowerCase())
         : true)
   );
 
   const handleSelect = (contact: {
     id: string;
     name: string;
-    email: string;
+    email: string | null;
   }) => {
     setSelectedContact(contact);
     setForm({
@@ -636,7 +636,7 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
                 </div>
               ) : (
                 available.map(
-                  (c: { id: string; name: string; email: string }) => (
+                  (c: { id: string; name: string; email: string | null }) => (
                     <button
                       key={c.id}
                       onClick={() => handleSelect(c)}
@@ -694,7 +694,7 @@ function AddFromContactModal({ onClose }: { onClose: () => void }) {
                   <input
                     className={inputClass + " cursor-not-allowed opacity-60"}
                     style={borderStyle}
-                    value={selectedContact.email}
+                    value={selectedContact.email ?? ""}
                     readOnly
                   />
                 </div>

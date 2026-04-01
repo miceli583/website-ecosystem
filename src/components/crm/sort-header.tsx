@@ -9,11 +9,13 @@ export function SortHeader({
   label,
   sorts,
   onSort,
+  className,
 }: {
   field: string;
   label: string;
   sorts: SortLevel[];
   onSort: (field: string) => void;
+  className?: string;
 }) {
   const idx = sorts.findIndex((s) => s.field === field);
   const isActive = idx !== -1;
@@ -21,7 +23,7 @@ export function SortHeader({
   const priority = isActive && sorts.length > 1 ? idx + 1 : null;
 
   return (
-    <th className="px-4 py-3">
+    <th className={`px-4 py-3 ${className ?? ""}`}>
       <button
         onClick={() => onSort(field)}
         className="flex items-center gap-1 transition-colors hover:text-white"

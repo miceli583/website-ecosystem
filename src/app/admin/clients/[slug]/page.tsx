@@ -168,9 +168,9 @@ export default function AdminClientDetailPage({
       if (client?.crmId) {
         void utils.crm.getActivities.invalidate({ crmId: client.crmId });
       }
-      setShowLogCall(false);
-      setLogCallTitle("");
-      setLogCallDesc("");
+      setLogActivityType(null);
+      setLogActivityTitle("");
+      setLogActivityDesc("");
     },
   });
 
@@ -199,13 +199,16 @@ export default function AdminClientDetailPage({
   // ── Local state ──────────────────────────────────────────────────
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [showLogCall, setShowLogCall] = useState(false);
-  const [logCallTitle, setLogCallTitle] = useState("");
-  const [logCallDesc, setLogCallDesc] = useState("");
+  const [logActivityType, setLogActivityType] = useState<
+    "call" | "email" | null
+  >(null);
+  const [logActivityTitle, setLogActivityTitle] = useState("");
+  const [logActivityDesc, setLogActivityDesc] = useState("");
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
   const [showDeletePortal, setShowDeletePortal] = useState(false);
+  const [activeTab, setActiveTab] = useState("projects");
 
   const canAssign = myRoles?.isFullAccess ?? false;
 
@@ -253,7 +256,7 @@ export default function AdminClientDetailPage({
     for (const a of activities) {
       items.push({
         kind: "activity",
-        id: `act-${(a as { id: string }).id}`,
+        id: `act-${(a as { id: number }).id}`,
         type: (a as { type: string }).type,
         title: (a as { title: string }).title,
         description: (a as { description: string | null }).description,
@@ -521,7 +524,11 @@ export default function AdminClientDetailPage({
       <div className="flex flex-wrap gap-2">
         {crmId && (
           <button
-            onClick={() => setShowLogCall(true)}
+            onClick={() => {
+              setActiveTab("activity");
+              setLogActivityType("call");
+              setShowNoteEditor(false);
+            }}
             className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
             style={borderStyle}
           >
@@ -529,6 +536,32 @@ export default function AdminClientDetailPage({
             Log Call
           </button>
         )}
+        {crmId && (
+          <button
+            onClick={() => {
+              setActiveTab("activity");
+              setLogActivityType("email");
+              setShowNoteEditor(false);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
+            style={borderStyle}
+          >
+            <Mail className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
+            Log Email
+          </button>
+        )}
+        <button
+          onClick={() => {
+            setActiveTab("notes");
+            setShowNoteEditor(true);
+            setLogActivityType(null);
+          }}
+          className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
+          style={borderStyle}
+        >
+          <StickyNote className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
+          Add Note
+        </button>
         <Link
           href={`/portal/${client.slug}`}
           className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
@@ -537,51 +570,39 @@ export default function AdminClientDetailPage({
           <ExternalLink className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
           Open Portal
         </Link>
-        {crmId && (
-          <Link
-            href={`/admin/crm/contacts/${crmId}`}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
-            style={borderStyle}
-          >
-            <Users className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />
-            CRM Contact
-          </Link>
-        )}
-        <button
-          onClick={() => setShowDeletePortal(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-red-400 transition-colors hover:bg-red-500/10"
-          style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete Portal
-        </button>
       </div>
 
-      {/* Log Call inline form */}
-      {showLogCall && crmId && (
+      {/* Log Activity inline form (call or email) */}
+      {logActivityType && crmId && (
         <div
           className="rounded-lg border bg-white/5 p-4"
           style={{ borderColor: "rgba(212, 175, 55, 0.3)" }}
         >
-          <h4 className="mb-3 text-sm font-medium text-white">Log a Call</h4>
+          <h4 className="mb-3 text-sm font-medium text-white">
+            Log {logActivityType === "call" ? "a Call" : "an Email"}
+          </h4>
           <div className="space-y-2">
             <input
               className={inputClass}
               style={borderStyle}
-              placeholder="Call title (e.g. 'Follow-up call')"
-              value={logCallTitle}
-              onChange={(e) => setLogCallTitle(e.target.value)}
+              placeholder={
+                logActivityType === "call"
+                  ? "Call title (e.g. 'Follow-up call')"
+                  : "Email subject (e.g. 'Sent proposal')"
+              }
+              value={logActivityTitle}
+              onChange={(e) => setLogActivityTitle(e.target.value)}
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Enter" && logCallTitle.trim()) {
+                if (e.key === "Enter" && logActivityTitle.trim()) {
                   createActivity.mutate({
                     crmId,
-                    type: "call",
-                    title: logCallTitle.trim(),
-                    description: logCallDesc.trim() || undefined,
+                    type: logActivityType,
+                    title: logActivityTitle.trim(),
+                    description: logActivityDesc.trim() || undefined,
                   });
                 }
-                if (e.key === "Escape") setShowLogCall(false);
+                if (e.key === "Escape") setLogActivityType(null);
               }}
             />
             <textarea
@@ -589,21 +610,21 @@ export default function AdminClientDetailPage({
               style={borderStyle}
               placeholder="Description (optional)"
               rows={2}
-              value={logCallDesc}
-              onChange={(e) => setLogCallDesc(e.target.value)}
+              value={logActivityDesc}
+              onChange={(e) => setLogActivityDesc(e.target.value)}
             />
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  if (!logCallTitle.trim()) return;
+                  if (!logActivityTitle.trim()) return;
                   createActivity.mutate({
                     crmId,
-                    type: "call",
-                    title: logCallTitle.trim(),
-                    description: logCallDesc.trim() || undefined,
+                    type: logActivityType,
+                    title: logActivityTitle.trim(),
+                    description: logActivityDesc.trim() || undefined,
                   });
                 }}
-                disabled={createActivity.isPending || !logCallTitle.trim()}
+                disabled={createActivity.isPending || !logActivityTitle.trim()}
                 className="flex items-center gap-1 rounded px-3 py-1.5 text-xs font-medium text-black transition-opacity disabled:opacity-50"
                 style={{
                   background:
@@ -614,7 +635,7 @@ export default function AdminClientDetailPage({
                 {createActivity.isPending ? "Saving..." : "Save"}
               </button>
               <button
-                onClick={() => setShowLogCall(false)}
+                onClick={() => setLogActivityType(null)}
                 className="rounded px-3 py-1.5 text-xs text-gray-500 hover:text-white"
               >
                 Cancel
@@ -625,19 +646,25 @@ export default function AdminClientDetailPage({
       )}
 
       {/* ── 4. Full-width Tabs ──────────────────────────────────── */}
-      <Tabs defaultValue="projects">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4 bg-white/5">
           <TabsTrigger
             value="projects"
             className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
           >
-            Projects & Activity
+            Projects ({client.projects.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="activity"
+            className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
+          >
+            Activity ({timeline.length})
           </TabsTrigger>
           <TabsTrigger
             value="details"
             className="text-gray-400 data-[state=active]:bg-white/10 data-[state=active]:text-white"
           >
-            Details & Tags
+            Details &amp; Tags
           </TabsTrigger>
           <TabsTrigger
             value="notes"
@@ -647,261 +674,213 @@ export default function AdminClientDetailPage({
           </TabsTrigger>
         </TabsList>
 
-        {/* ── Tab 1: Projects & Activity ──────────────────────── */}
+        {/* ── Tab 1: Projects ────────────────────────────────── */}
         <TabsContent value="projects">
-          <div className="space-y-6">
-            {/* Projects */}
-            <div>
-              <h3 className="mb-3 text-sm font-medium text-gray-400">
-                Projects ({client.projects.length})
-              </h3>
-              {client.projects.length === 0 ? (
-                <div
-                  className="rounded-lg border bg-white/5 p-8 text-center"
-                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-                >
-                  <Briefcase className="mx-auto mb-2 h-8 w-8 text-gray-600" />
-                  <p className="text-sm text-gray-500">
-                    No projects yet. Create one from the portal.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {client.projects.map(
-                    (project: ClientDetail["projects"][number]) => {
-                      const projStatus =
-                        project.status === "active"
-                          ? "bg-green-900/50 text-green-400"
-                          : project.status === "completed"
-                            ? "bg-[rgba(212,175,55,0.15)] text-[#D4AF37]"
-                            : "bg-white/10 text-gray-400";
-                      return (
-                        <Link
-                          key={project.id}
-                          href={`/admin/projects/${project.id}`}
-                          className="block rounded-lg border bg-white/5 p-4 transition-colors hover:bg-white/10"
-                          style={{
-                            borderColor: "rgba(212, 175, 55, 0.15)",
-                          }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-white">
-                                {project.name}
-                              </p>
-                              {project.description && (
-                                <p className="mt-0.5 truncate text-xs text-gray-500">
-                                  {project.description}
-                                </p>
-                              )}
-                            </div>
-                            <span
-                              className={`ml-3 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${projStatus}`}
-                            >
-                              {project.status}
-                            </span>
-                          </div>
-                        </Link>
-                      );
-                    }
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Merged Activity & Submissions Timeline */}
-            <div>
-              <h3 className="mb-3 text-sm font-medium text-gray-400">
-                Activity & Submissions ({timeline.length})
-              </h3>
-              {!crmId ? (
-                <div
-                  className="rounded-lg border bg-white/5 p-8 text-center"
-                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-                >
-                  <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
-                  <p className="text-sm text-gray-500">
-                    No linked CRM contact. Activity tracking requires a CRM
-                    link.
-                  </p>
-                </div>
-              ) : timeline.length === 0 ? (
-                <div
-                  className="rounded-lg border bg-white/5 p-8 text-center"
-                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
-                >
-                  <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
-                  <p className="text-sm text-gray-500">
-                    No activity yet. Log a call or add a note to get started.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {timeline.map((item) => {
-                    if (item.kind === "activity") {
-                      const Icon = ACTIVITY_ICONS[item.type] ?? FileText;
-                      return (
-                        <div
-                          key={item.id}
-                          className="rounded-lg border bg-white/5 p-4"
-                          style={{
-                            borderColor: "rgba(212, 175, 55, 0.15)",
-                          }}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div
-                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-                              style={{
-                                background:
-                                  "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
-                              }}
-                            >
-                              <Icon
-                                className="h-3.5 w-3.5"
-                                style={{ color: "#D4AF37" }}
-                              />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium text-white">
-                                  {item.title}
-                                </p>
-                                <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-gray-500">
-                                  {item.type}
-                                </span>
-                              </div>
-                              {item.description && (
-                                <p className="mt-0.5 text-sm text-gray-400">
-                                  {item.description}
-                                </p>
-                              )}
-                              <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                                {item.creator && (
-                                  <span>by {item.creator.name}</span>
-                                )}
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {new Date(item.createdAt).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    }
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    // Submission
-                    const src = SOURCE_COLORS[item.source];
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-gray-400">
+              Projects ({client.projects.length})
+            </h3>
+            {client.projects.length === 0 ? (
+              <div
+                className="rounded-lg border bg-white/5 p-8 text-center"
+                style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+              >
+                <Briefcase className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+                <p className="text-sm text-gray-500">
+                  No projects yet. Create one from the portal.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {client.projects.map(
+                  (project: ClientDetail["projects"][number]) => {
+                    const projStatus =
+                      project.status === "active"
+                        ? "bg-green-900/50 text-green-400"
+                        : project.status === "completed"
+                          ? "bg-[rgba(212,175,55,0.15)] text-[#D4AF37]"
+                          : "bg-white/10 text-gray-400";
                     return (
-                      <div
-                        key={item.id}
-                        className="rounded-lg border bg-white/5 p-4"
+                      <Link
+                        key={project.id}
+                        href={`/admin/projects/${project.id}`}
+                        className="block rounded-lg border bg-white/5 p-4 transition-colors hover:bg-white/10"
                         style={{
                           borderColor: "rgba(212, 175, 55, 0.15)",
                         }}
                       >
-                        <div className="mb-2 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {src && (
-                              <span
-                                className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                                style={{
-                                  backgroundColor: src.bg,
-                                  color: src.color,
-                                }}
-                              >
-                                {src.label}
-                              </span>
-                            )}
-                            {!item.read && (
-                              <span
-                                className="h-2 w-2 rounded-full"
-                                style={{ backgroundColor: "#D4AF37" }}
-                                title="Unread"
-                              />
+                        <div className="flex items-center justify-between">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-white">
+                              {project.name}
+                            </p>
+                            {project.description && (
+                              <p className="mt-0.5 truncate text-xs text-gray-500">
+                                {project.description}
+                              </p>
                             )}
                           </div>
-                          <span className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {new Date(item.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )}
+                          <span
+                            className={`ml-3 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${projStatus}`}
+                          >
+                            {project.status}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-300">{item.message}</p>
-                        {item.extra?.services && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {(item.extra.services as string[]).map((svc) => (
-                              <span
-                                key={svc}
-                                className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400"
-                              >
-                                {svc}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {item.extra?.role && (
-                          <p className="mt-1 text-xs text-gray-500">
-                            Role: {item.extra.role as string}
-                          </p>
-                        )}
-                      </div>
+                      </Link>
                     );
-                  })}
-                </div>
-              )}
-            </div>
+                  }
+                )}
+              </div>
+            )}
           </div>
         </TabsContent>
 
-        {/* ── Tab 2: Details & Tags ───────────────────────────── */}
+        {/* ── Tab 2: Activity ────────────────────────────────── */}
+        <TabsContent value="activity">
+          {timeline.length === 0 ? (
+            <div
+              className="rounded-lg border bg-white/5 p-8 text-center"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              <FileText className="mx-auto mb-2 h-8 w-8 text-gray-600" />
+              <p className="text-sm text-gray-500">
+                No activity yet. Log a call or add a note to get started.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {timeline.map((item) => {
+                if (item.kind === "activity") {
+                  const Icon = ACTIVITY_ICONS[item.type] ?? FileText;
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border bg-white/5 p-4"
+                      style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, rgba(246,230,193,0.1) 0%, rgba(212,175,55,0.15) 100%)",
+                          }}
+                        >
+                          <Icon
+                            className="h-3.5 w-3.5"
+                            style={{ color: "#D4AF37" }}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-white">
+                              {item.title}
+                            </p>
+                            <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-gray-500">
+                              {item.type}
+                            </span>
+                          </div>
+                          {item.description && (
+                            <p className="mt-0.5 text-sm text-gray-400">
+                              {item.description}
+                            </p>
+                          )}
+                          <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                            {item.creator && (
+                              <span>by {item.creator.name}</span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {new Date(item.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                const src = SOURCE_COLORS[item.source];
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-lg border bg-white/5 p-4"
+                    style={{ borderColor: "rgba(212, 175, 55, 0.15)" }}
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {src && (
+                          <span
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: src.bg,
+                              color: src.color,
+                            }}
+                          >
+                            {src.label}
+                          </span>
+                        )}
+                        {!item.read && (
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: "#D4AF37" }}
+                            title="Unread"
+                          />
+                        )}
+                      </div>
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="h-3 w-3" />
+                        {new Date(item.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-300">{item.message}</p>
+                    {item.extra?.services && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {(item.extra.services as string[]).map((svc) => (
+                          <span
+                            key={svc}
+                            className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400"
+                          >
+                            {svc}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {item.extra?.role && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        Role: {item.extra.role as string}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* ── Tab 3: Details & Tags ───────────────────────────── */}
         <TabsContent value="details">
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Left column */}
-            <div className="space-y-4">
-              {/* Assigned Developer */}
-              <DetailCard title="Assigned Developer">
-                <TeamMemberPicker
-                  value={client.assignedDeveloperId}
-                  placeholder="Select developer..."
-                  onChange={(assignedDeveloperId) =>
-                    updateClient.mutate({
-                      id: client.id,
-                      assignedDeveloperId,
-                    })
-                  }
-                />
-              </DetailCard>
-
-              {crmId && crmContact && (
-                <>
-                  {/* Connector */}
-                  <DetailCard title="Connector">
-                    <TeamMemberPicker
-                      value={crmContact.connectorId}
-                      placeholder="Select connector..."
-                      onChange={(connectorId) =>
-                        updateCrmContact.mutate({ id: crmId, connectorId })
-                      }
-                    />
-                  </DetailCard>
-
-                  {/* Account Manager */}
-                  <DetailCard title="Account Manager">
-                    {canAssign ? (
+          <div className="space-y-6">
+            {/* Team Assignments — horizontal grid */}
+            <div>
+              <h3 className="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
+                Team
+              </h3>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <DetailCard title="Account Manager">
+                  {crmId && crmContact ? (
+                    canAssign ? (
                       <TeamMemberPicker
                         value={crmContact.accountManagerId}
                         placeholder="Select account manager..."
@@ -918,256 +897,313 @@ export default function AdminClientDetailPage({
                           <span className="text-gray-600">Unassigned</span>
                         )}
                       </p>
-                    )}
-                  </DetailCard>
+                    )
+                  ) : (
+                    <p className="text-sm text-gray-600">No CRM link</p>
+                  )}
+                </DetailCard>
 
-                  {/* Source */}
-                  <DetailCard title="Source">
-                    <select
-                      value={crmContact.source}
-                      onChange={(e) =>
-                        updateCrmContact.mutate({
-                          id: crmId,
-                          source: e.target.value,
-                        })
-                      }
-                      className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
-                      style={borderStyle}
-                    >
-                      {SOURCE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </DetailCard>
+                <DetailCard title="Assigned Developer">
+                  <TeamMemberPicker
+                    value={client.assignedDeveloperId}
+                    placeholder="Select developer..."
+                    onChange={(assignedDeveloperId) =>
+                      updateClient.mutate({
+                        id: client.id,
+                        assignedDeveloperId,
+                      })
+                    }
+                  />
+                </DetailCard>
 
-                  {/* Referred By */}
-                  <DetailCard title="Referred By">
-                    <ReferralPicker
-                      contactId={crmContact.id}
-                      referredBy={crmContact.referredBy}
-                      referredByExternal={crmContact.referredByExternal}
-                      onChange={(referredBy, referredByExternal) =>
-                        updateCrmContact.mutate({
-                          id: crmId,
-                          referredBy,
-                          referredByExternal,
-                        })
-                      }
-                    />
-                  </DetailCard>
-
-                  {/* Created By */}
-                  <DetailCard title="Created By">
+                <DetailCard title="Connector">
+                  {crmId && crmContact ? (
                     <TeamMemberPicker
-                      value={null}
-                      placeholder={crmContact.createdBy ?? "Select creator..."}
-                      onChange={(memberId) => {
-                        if (!memberId) {
-                          updateCrmContact.mutate({
-                            id: crmId,
-                            createdBy: null,
-                          });
-                          return;
-                        }
-                        const teamQuery = utils.crm.getCompanyTeam.getData();
-                        const member = (
-                          teamQuery as
-                            | { id: string; name: string }[]
-                            | undefined
-                        )?.find((m) => m.id === memberId);
-                        updateCrmContact.mutate({
-                          id: crmId,
-                          createdBy: member?.name ?? memberId,
-                        });
-                      }}
+                      value={crmContact.connectorId}
+                      placeholder="Select connector..."
+                      onChange={(connectorId) =>
+                        updateCrmContact.mutate({ id: crmId, connectorId })
+                      }
                     />
-                  </DetailCard>
-
-                  {/* Communication Preferences */}
-                  <DetailCard title="Communication Preferences">
-                    <div className="space-y-2">
-                      {(["email", "sms", "phone"] as const).map((channel) => (
-                        <label
-                          key={channel}
-                          className="flex items-center justify-between"
-                        >
-                          <span className="text-sm text-gray-300 capitalize">
-                            {channel === "sms"
-                              ? "SMS"
-                              : channel.charAt(0).toUpperCase() +
-                                channel.slice(1)}
-                          </span>
-                          <button
-                            role="switch"
-                            aria-checked={commPrefs[channel] ?? false}
-                            onClick={() => {
-                              const updated = {
-                                ...commPrefs,
-                                [channel]: !(commPrefs[channel] ?? false),
-                              };
-                              updateCrmContact.mutate({
-                                id: crmId,
-                                communicationPreferences: updated,
-                              });
-                            }}
-                            className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-                              commPrefs[channel]
-                                ? "bg-[#D4AF37]"
-                                : "bg-white/10"
-                            }`}
-                          >
-                            <span
-                              className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-                                commPrefs[channel]
-                                  ? "translate-x-[18px]"
-                                  : "translate-x-[3px]"
-                              }`}
-                            />
-                          </button>
-                        </label>
-                      ))}
-                    </div>
-                  </DetailCard>
-                </>
-              )}
+                  ) : (
+                    <p className="text-sm text-gray-600">No CRM link</p>
+                  )}
+                </DetailCard>
+              </div>
             </div>
 
-            {/* Right column */}
-            <div className="space-y-4">
-              {/* Portal */}
-              <DetailCard title="Portal">
-                <Link
-                  href={`/portal/${client.slug}`}
-                  className="flex items-center gap-2 text-sm transition-colors hover:text-white"
-                  style={{ color: "#D4AF37" }}
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  /portal/{client.slug}
-                </Link>
-              </DetailCard>
+            {/* Details grid */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Left column — Source & Comms */}
+              <div className="space-y-4">
+                {crmId && crmContact && (
+                  <>
+                    <DetailCard title="Source">
+                      <select
+                        value={crmContact.source}
+                        onChange={(e) =>
+                          updateCrmContact.mutate({
+                            id: crmId,
+                            source: e.target.value,
+                          })
+                        }
+                        className="w-full appearance-none rounded-lg border bg-white/5 px-3 py-2 pr-9 text-sm text-white focus:border-[#D4AF37]/50 focus:outline-none"
+                        style={borderStyle}
+                      >
+                        {SOURCE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </DetailCard>
 
-              {/* Stripe Lifetime Spend */}
-              {client.stripeLifetimeSpend && (
-                <DetailCard title="Stripe Lifetime Spend">
-                  <p className="flex items-center gap-2 text-2xl font-bold text-white">
-                    <DollarSign
-                      className="h-5 w-5"
-                      style={{ color: "#D4AF37" }}
-                    />
-                    {(
-                      client.stripeLifetimeSpend.totalCents / 100
-                    ).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {client.stripeLifetimeSpend.chargeCount} successful charge
-                    {client.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
-                  </p>
+                    <DetailCard title="Referred By">
+                      <ReferralPicker
+                        contactId={crmContact.id}
+                        referredBy={crmContact.referredBy}
+                        referredByExternal={crmContact.referredByExternal}
+                        onChange={(referredBy, referredByExternal) =>
+                          updateCrmContact.mutate({
+                            id: crmId,
+                            referredBy,
+                            referredByExternal,
+                          })
+                        }
+                      />
+                    </DetailCard>
+
+                    <DetailCard title="Created By">
+                      <TeamMemberPicker
+                        value={null}
+                        placeholder={
+                          crmContact.createdBy ?? "Select creator..."
+                        }
+                        onChange={(memberId) => {
+                          if (!memberId) {
+                            updateCrmContact.mutate({
+                              id: crmId,
+                              createdBy: null,
+                            });
+                            return;
+                          }
+                          const teamQuery = utils.crm.getCompanyTeam.getData();
+                          const member = (
+                            teamQuery as
+                              | { id: string; name: string }[]
+                              | undefined
+                          )?.find((m) => m.id === memberId);
+                          updateCrmContact.mutate({
+                            id: crmId,
+                            createdBy: member?.name ?? memberId,
+                          });
+                        }}
+                      />
+                    </DetailCard>
+
+                    <DetailCard title="Communication Preferences">
+                      <div className="space-y-2">
+                        {(["email", "sms", "phone"] as const).map((channel) => (
+                          <label
+                            key={channel}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-sm text-gray-300 capitalize">
+                              {channel === "sms"
+                                ? "SMS"
+                                : channel.charAt(0).toUpperCase() +
+                                  channel.slice(1)}
+                            </span>
+                            <button
+                              role="switch"
+                              aria-checked={commPrefs[channel] ?? false}
+                              onClick={() => {
+                                const updated = {
+                                  ...commPrefs,
+                                  [channel]: !(commPrefs[channel] ?? false),
+                                };
+                                updateCrmContact.mutate({
+                                  id: crmId,
+                                  communicationPreferences: updated,
+                                });
+                              }}
+                              className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                                commPrefs[channel]
+                                  ? "bg-[#D4AF37]"
+                                  : "bg-white/10"
+                              }`}
+                            >
+                              <span
+                                className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                                  commPrefs[channel]
+                                    ? "translate-x-[18px]"
+                                    : "translate-x-[3px]"
+                                }`}
+                              />
+                            </button>
+                          </label>
+                        ))}
+                      </div>
+                    </DetailCard>
+                  </>
+                )}
+              </div>
+
+              {/* Right column — Portal, Stripe, Tags, Dates */}
+              <div className="space-y-4">
+                <DetailCard title="Portal">
+                  <Link
+                    href={`/portal/${client.slug}`}
+                    className="flex items-center gap-2 text-sm transition-colors hover:text-white"
+                    style={{ color: "#D4AF37" }}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    /portal/{client.slug}
+                  </Link>
                 </DetailCard>
-              )}
 
-              {crmId && crmContact && (
-                <>
-                  {/* Tags */}
-                  <DetailCard title="Tags">
-                    <TagPicker
-                      selected={crmContact.tags ?? []}
-                      onChange={(tags) =>
-                        updateCrmContact.mutate({ id: crmId, tags })
-                      }
-                    />
+                {client.stripeLifetimeSpend && (
+                  <DetailCard title="Stripe Lifetime Spend">
+                    <p className="flex items-center gap-2 text-2xl font-bold text-white">
+                      <DollarSign
+                        className="h-5 w-5"
+                        style={{ color: "#D4AF37" }}
+                      />
+                      {(
+                        client.stripeLifetimeSpend.totalCents / 100
+                      ).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {client.stripeLifetimeSpend.chargeCount} successful charge
+                      {client.stripeLifetimeSpend.chargeCount !== 1 ? "s" : ""}
+                    </p>
                   </DetailCard>
+                )}
 
-                  {/* Dates */}
-                  <DetailCard title="Dates">
-                    <div className="space-y-1.5 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">First contact</span>
-                        <span className="text-gray-300">
-                          {new Date(
-                            crmContact.firstContactAt
-                          ).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Last contact</span>
-                        <span className="text-gray-300">
-                          {new Date(
-                            crmContact.lastContactAt
-                          ).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Client since</span>
-                        <span className="text-gray-300">
-                          {new Date(client.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
+                {crmId && crmContact && (
+                  <>
+                    <DetailCard title="Tags">
+                      <TagPicker
+                        selected={crmContact.tags ?? []}
+                        onChange={(tags) =>
+                          updateCrmContact.mutate({ id: crmId, tags })
+                        }
+                      />
+                    </DetailCard>
+
+                    <DetailCard title="Dates">
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">First contact</span>
+                          <span className="text-gray-300">
+                            {new Date(
+                              crmContact.firstContactAt
+                            ).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
-                            }
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </DetailCard>
-
-                  {/* Related Contacts */}
-                  {relatedContacts.length > 0 && (
-                    <DetailCard title="Related Contacts">
-                      <div className="space-y-1.5">
-                        {relatedContacts.map(
-                          (rc: {
-                            id: string;
-                            name: string;
-                            email: string;
-                            status: string;
-                          }) => {
-                            const rcStatus =
-                              STATUS_CONFIG[rc.status] ?? STATUS_CONFIG.lead!;
-                            return (
-                              <Link
-                                key={rc.id}
-                                href={`/admin/crm/contacts/${rc.id}`}
-                                className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-white/5"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <Users className="h-3.5 w-3.5 text-gray-500" />
-                                  <span className="text-gray-300">
-                                    {rc.name}
-                                  </span>
-                                </div>
-                                <span
-                                  className="rounded-full px-1.5 py-0.5 text-[10px]"
-                                  style={{
-                                    backgroundColor: rcStatus.bg,
-                                    color: rcStatus.color,
-                                  }}
-                                >
-                                  {rcStatus.label}
-                                </span>
-                              </Link>
-                            );
-                          }
-                        )}
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Last contact</span>
+                          <span className="text-gray-300">
+                            {new Date(
+                              crmContact.lastContactAt
+                            ).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Client since</span>
+                          <span className="text-gray-300">
+                            {new Date(client.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </DetailCard>
+
+                    {relatedContacts.length > 0 && (
+                      <DetailCard title="Related Contacts">
+                        <div className="space-y-1.5">
+                          {relatedContacts.map(
+                            (rc: {
+                              id: string;
+                              name: string;
+                              email: string | null;
+                              status: string;
+                            }) => {
+                              const rcStatus =
+                                STATUS_CONFIG[rc.status] ?? STATUS_CONFIG.lead!;
+                              return (
+                                <Link
+                                  key={rc.id}
+                                  href={`/admin/crm/contacts/${rc.id}`}
+                                  className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-white/5"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Users className="h-3.5 w-3.5 text-gray-500" />
+                                    <span className="text-gray-300">
+                                      {rc.name}
+                                    </span>
+                                  </div>
+                                  <span
+                                    className="rounded-full px-1.5 py-0.5 text-[10px]"
+                                    style={{
+                                      backgroundColor: rcStatus.bg,
+                                      color: rcStatus.color,
+                                    }}
+                                  >
+                                    {rcStatus.label}
+                                  </span>
+                                </Link>
+                              );
+                            }
+                          )}
+                        </div>
+                      </DetailCard>
+                    )}
+                  </>
+                )}
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {crmId && (
+                    <Link
+                      href={`/admin/crm/contacts/${crmId}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
+                      style={borderStyle}
+                    >
+                      <Users
+                        className="h-3.5 w-3.5"
+                        style={{ color: "#D4AF37" }}
+                      />
+                      CRM Contact
+                    </Link>
                   )}
-                </>
-              )}
+                  <button
+                    onClick={() => setShowDeletePortal(true)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-red-400 transition-colors hover:bg-red-500/10"
+                    style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete Portal
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </TabsContent>

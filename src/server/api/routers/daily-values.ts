@@ -163,7 +163,7 @@ export const dailyValuesRouter = createTRPCRouter({
         // Return info about the core value so frontend can show warning
         return {
           requiresConfirmation: true,
-          coreValueId: coreValueExists[0].id,
+          coreValueId: coreValueExists[0]!.id,
           message: `This value is currently used as a Core Value. Deleting it will also delete the Core Value and all associated quotes and posts. Are you sure?`,
         };
       }

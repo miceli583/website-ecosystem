@@ -18,12 +18,15 @@ export const contactRouter = createTRPCRouter({
   submit: publicProcedure
     .input(
       z.object({
-        name: z.string().min(1, "Name is required"),
-        email: z.string().email("Valid email is required"),
-        phone: z.string().optional(),
-        message: z.string().min(10, "Message must be at least 10 characters"),
-        services: z.array(z.string()).optional(),
-        role: z.string().optional(),
+        name: z.string().min(1, "Name is required").max(500),
+        email: z.string().email("Valid email is required").max(255),
+        phone: z.string().max(100).optional(),
+        message: z
+          .string()
+          .min(10, "Message must be at least 10 characters")
+          .max(5000),
+        services: z.array(z.string().max(100)).optional(),
+        role: z.string().max(100).optional(),
         stewardshipInterest: z.boolean().optional(),
       })
     )
@@ -106,10 +109,13 @@ export const contactRouter = createTRPCRouter({
   submitPersonal: publicProcedure
     .input(
       z.object({
-        name: z.string().min(1, "Name is required"),
-        email: z.string().email("Valid email is required"),
-        phone: z.string().optional(),
-        message: z.string().min(10, "Message must be at least 10 characters"),
+        name: z.string().min(1, "Name is required").max(500),
+        email: z.string().email("Valid email is required").max(255),
+        phone: z.string().max(100).optional(),
+        message: z
+          .string()
+          .min(10, "Message must be at least 10 characters")
+          .max(5000),
       })
     )
     .mutation(async ({ ctx, input }) => {

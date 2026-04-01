@@ -69,9 +69,21 @@ _Client onboarding will happen individually as calls are scheduled._
 - [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals)
 - [ ] Projects tab: internal notes section + task management UI (linked to admin hub task system)
 
-## Phase 8 — Admin Portal Expansion
+## Phase 8a — Proposal & Billing Completion (NEXT)
+
+- [ ] Test proposal creation UI end-to-end (build from scratch → view → checkout)
+- [ ] Recurring billing tracking: handle `invoice.payment_succeeded` webhook, log each subscription payment to billing tab
+- [x] Proposal Builder UI for non-dev Account Managers (create/edit proposals)
+- [x] Proposal system v2: checkout groups, per-package payments, required/optional toggle
+- [x] Mercury AR invoice creation via API (auto-create customer, return payment link)
+- [x] Payment linking: search Stripe/Mercury, link to specific packages
+- [x] Stripe checkout with webhook fee capture and proposal status recalculation
+- [x] CRM contact/client detail unification (same tabs, bidirectional sync, expanded portal view)
+
+## Phase 8b — Admin Portal Expansion
 
 - [ ] Project management / task management UI in admin portal
+- [ ] CRM contact/client detail: robust project filtering (status, search, assignee, date range) matching portal project page capabilities
 - [ ] Bug & ticketing system: clients submit via portal, team manages in admin (Open → In Progress → Resolved → Closed)
 - [ ] SOP tab: checklist-driven client onboarding workflow (create portal → magic link → assign AM → first project), reusable process templates
 - [x] Activity log / audit trail: crm_activities table with auto-logging on status/assignment changes
@@ -80,8 +92,6 @@ _Client onboarding will happen individually as calls are scheduled._
 - [ ] Profile view tab: role, contracts, legal, financial data, 1099/profit sharing payouts
 - [ ] Legal agreements for portal onboarding (bundled with profile/contracts)
 - [ ] Privacy policies and ToS improvements
-- [ ] Proposal Builder UI for non-dev Account Managers (create/edit proposals from admin)
-- [ ] Proposals modal UI polish — better readability, package comparison
 
 ## Phase 9 — Team Scorecard & Accountability
 
@@ -174,3 +184,4 @@ _Client onboarding will happen individually as calls are scheduled._
 
 - [ ] Blog automation system
 - [ ] CMS email/text sequence builder
+- [ ] Mercury webhooks: replace cron polling with real-time invoice status updates (register account-level webhook, build handler, remove polling endpoint)

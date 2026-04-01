@@ -7,7 +7,9 @@ interface ProjectAssignDialogProps {
   currentProjectId: number | null;
   projects: Array<{ id: number; name: string }>;
   onAssign: (projectId: number | null) => void;
-  onCreateProject: (name: string) => Promise<{ id: number }> | void;
+  onCreateProject: (
+    name: string
+  ) => Promise<{ id: number; [key: string]: unknown } | undefined> | void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isLoading?: boolean;

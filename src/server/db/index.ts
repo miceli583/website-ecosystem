@@ -1,58 +1,26 @@
-// PostgreSQL imports
-import { drizzle as drizzlePg } from "drizzle-orm/postgres-js";
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-
-// SQLite imports
-import { drizzle as drizzleSqlite } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client";
 
 import { env } from "~/env";
 import * as schema from "./schema";
 
 /**
  * Database client configuration
- *
- * Automatically detects and uses the appropriate database driver based on DATABASE_URL:
- * - PostgreSQL/Supabase: URLs starting with "postgresql://"
- * - SQLite/LibSQL: URLs starting with "file:" or "libsql://"
+ * PostgreSQL/Supabase via postgres.js driver
  */
 
-// Detect database type from URL
-const isPostgres = env.DATABASE_URL.startsWith("postgresql://");
+const globalForDb = globalThis as unknown as {
+  conn: ReturnType<typeof postgres> | undefined;
+};
 
-function createDatabase() {
-  if (isPostgres) {
-    // PostgreSQL/Supabase configuration
-    const globalForDb = globalThis as unknown as {
-      conn: ReturnType<typeof postgres> | undefined;
-    };
+const conn =
+  globalForDb.conn ??
+  postgres(env.DATABASE_URL, {
+    prepare: false,
+    max: 20,
+    idle_timeout: 20,
+    connect_timeout: 10,
+  });
+if (env.NODE_ENV !== "production") globalForDb.conn = conn;
 
-    const conn =
-      globalForDb.conn ??
-      postgres(env.DATABASE_URL, {
-        prepare: false,
-        max: 20, // Explicit pool limit (default was 10)
-        idle_timeout: 20, // Close idle connections after 20s
-        connect_timeout: 10, // Fail fast on connection issues
-      });
-    if (env.NODE_ENV !== "production") globalForDb.conn = conn;
-
-    return drizzlePg(conn, { schema });
-  } else {
-    // SQLite/LibSQL configuration
-    const globalForDb = globalThis as unknown as {
-      conn: ReturnType<typeof createClient> | undefined;
-    };
-
-    const conn =
-      globalForDb.conn ??
-      createClient({
-        url: env.DATABASE_URL,
-      });
-    if (env.NODE_ENV !== "production") globalForDb.conn = conn;
-
-    return drizzleSqlite(conn, { schema });
-  }
-}
-
-export const db = createDatabase() as any;
+export const db = drizzle(conn, { schema });

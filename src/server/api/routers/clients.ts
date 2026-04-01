@@ -3,7 +3,6 @@ import {
   createTRPCRouter,
   protectedProcedure,
   adminProcedure,
-  publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import {
@@ -43,9 +42,9 @@ export const clientsRouter = createTRPCRouter({
   list: adminProcedure
     .input(
       z.object({
-        search: z.string().optional(),
-        pipelineStatus: z.string().optional(),
-        tag: z.string().optional(),
+        search: z.string().max(500).optional(),
+        pipelineStatus: z.string().max(100).optional(),
+        tag: z.string().max(100).optional(),
         accountManagerId: z.string().uuid().optional(),
         assignedDeveloperId: z.string().uuid().optional(),
         connectorId: z.string().uuid().optional(),
@@ -317,36 +316,15 @@ export const clientsRouter = createTRPCRouter({
       };
     }),
 
-  // Get client by slug (used for client portal)
-  getBySlug: publicProcedure
-    .input(z.object({ slug: z.string() }))
-    .query(async ({ input }) => {
-      return db.query.clients.findFirst({
-        where: eq(clients.slug, input.slug),
-        with: {
-          projects: {
-            with: {
-              updates: {
-                orderBy: [desc(clientUpdates.createdAt)],
-              },
-            },
-          },
-          agreements: {
-            orderBy: [desc(clientAgreements.createdAt)],
-          },
-        },
-      });
-    }),
-
   // Create client (auto-links to master CRM)
   create: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1),
-        email: z.string().email(),
-        slug: z.string().min(1),
-        company: z.string().optional(),
-        notes: z.string().optional(),
+        name: z.string().min(1).max(500),
+        email: z.string().email().max(255),
+        slug: z.string().min(1).max(100),
+        company: z.string().max(500).optional(),
+        notes: z.string().max(5000).optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
       })
     )
@@ -391,6 +369,29 @@ export const clientsRouter = createTRPCRouter({
           accountManagerId: input.accountManagerId ?? null,
         })
         .returning();
+
+      // Create portal_users record so the client can claim their account
+      const existingPortalUser = await db
+        .select({ id: portalUsers.id })
+        .from(portalUsers)
+        .where(eq(portalUsers.email, input.email.toLowerCase()))
+        .limit(1);
+
+      if (!existingPortalUser[0]) {
+        await db.insert(portalUsers).values({
+          email: input.email.toLowerCase(),
+          name: input.name,
+          role: "client",
+          clientSlug: input.slug,
+        });
+      } else {
+        // Team member or existing user — link to client portal
+        await db
+          .update(portalUsers)
+          .set({ clientSlug: input.slug, updatedAt: new Date() })
+          .where(eq(portalUsers.id, existingPortalUser[0].id));
+      }
+
       return client;
     }),
 
@@ -399,14 +400,14 @@ export const clientsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        name: z.string().min(1).optional(),
-        email: z.string().email().optional(),
-        company: z.string().nullable().optional(),
-        notes: z.string().nullable().optional(),
+        name: z.string().min(1).max(500).optional(),
+        email: z.string().email().max(255).optional(),
+        company: z.string().max(500).nullable().optional(),
+        notes: z.string().max(5000).nullable().optional(),
         accountManagerId: z.string().uuid().nullable().optional(),
         assignedDeveloperId: z.string().uuid().nullable().optional(),
         connectorId: z.string().uuid().nullable().optional(),
-        slug: z.string().min(1).optional(),
+        slug: z.string().min(1).max(100).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -441,6 +442,7 @@ export const clientsRouter = createTRPCRouter({
           "company",
           "accountManagerId",
           "connectorId",
+          "assignedDeveloperId",
         ] as const;
         for (const f of syncFields) {
           if (f in data) crmUpdate[f] = data[f as keyof typeof data];
@@ -509,7 +511,23 @@ export const clientsRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
+      // Get slug before deleting so we can clean up portal_users
+      const clientRecord = await db
+        .select({ slug: clients.slug })
+        .from(clients)
+        .where(eq(clients.id, input.id))
+        .limit(1);
+
       await db.delete(clients).where(eq(clients.id, input.id));
+
+      // Null out clientSlug on portal_users (don't delete — may be a team member)
+      if (clientRecord[0]?.slug) {
+        await db
+          .update(portalUsers)
+          .set({ clientSlug: null, updatedAt: new Date() })
+          .where(eq(portalUsers.clientSlug, clientRecord[0].slug));
+      }
+
       return { success: true };
     }),
 
@@ -518,8 +536,8 @@ export const clientsRouter = createTRPCRouter({
     .input(
       z.object({
         projectId: z.number(),
-        title: z.string().min(1),
-        content: z.string().min(1),
+        title: z.string().min(1).max(500),
+        content: z.string().min(1).max(5000),
         type: z
           .enum(["demo", "proposal", "update", "invoice"])
           .default("update"),
@@ -580,8 +598,8 @@ export const clientsRouter = createTRPCRouter({
       z.object({
         clientId: z.number(),
         projectId: z.number().optional(),
-        title: z.string().min(1),
-        content: z.string().min(1),
+        title: z.string().min(1).max(500),
+        content: z.string().min(1).max(50000),
       })
     )
     .mutation(async ({ input }) => {

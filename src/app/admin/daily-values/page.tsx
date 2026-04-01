@@ -777,7 +777,7 @@ function DailyValuesContent() {
         const newAuthor = await createAuthor.mutateAsync({
           name: quoteForm.newAuthorName,
         });
-        finalAuthorId = newAuthor.id;
+        finalAuthorId = newAuthor!.id;
       } catch (error) {
         alert("Failed to create new author. Please try again.");
         return;
@@ -925,9 +925,9 @@ function DailyValuesContent() {
 
   const handleRandomize = async () => {
     const result = await fetchRandomCombination();
-    if (result.data) {
+    if (result.data?.coreValue && result.data.quote) {
       setSelectedCoreValueId(result.data.coreValue.id);
-      setSelectedQuoteId(result.data.quote!.id);
+      setSelectedQuoteId(result.data.quote.id);
     }
   };
 
@@ -1585,9 +1585,9 @@ Living with an embodied value system means letting principles like ${valueName} 
     const currentPost = postQueue?.find((p: PostQueueItem) => p.id === postId);
 
     const result = await fetchRandomCombination();
-    if (result.data && currentPost) {
+    if (result.data?.coreValue && result.data.quote && currentPost) {
       const newCoreValueId = result.data.coreValue.id;
-      const newQuoteId = result.data.quote!.id;
+      const newQuoteId = result.data.quote.id;
 
       // Update the database
       updateQueueItem.mutate({

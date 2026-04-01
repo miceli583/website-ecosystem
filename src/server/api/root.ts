@@ -10,6 +10,7 @@ import { crmRouter } from "~/server/api/routers/crm";
 import { ecosystemRouter } from "~/server/api/routers/ecosystem";
 import { notificationsRouter } from "~/server/api/routers/notifications";
 import { projectsRouter } from "~/server/api/routers/projects";
+import { proposalsRouter } from "~/server/api/routers/proposals";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -30,6 +31,7 @@ export const appRouter = createTRPCRouter({
   ecosystem: ecosystemRouter,
   notifications: notificationsRouter,
   projects: projectsRouter,
+  proposals: proposalsRouter,
 });
 
 // export type definition of API
