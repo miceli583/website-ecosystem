@@ -620,6 +620,7 @@ export const projectsRouter = createTRPCRouter({
         slug: z.string(),
         status: projectStatusEnum.optional(),
         search: z.string().optional(),
+        includeArchived: z.boolean().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -645,6 +646,11 @@ export const projectsRouter = createTRPCRouter({
       }
 
       const conditions = [eq(clientProjects.clientId, client.id)];
+      if (input.includeArchived) {
+        conditions.push(eq(clientProjects.isArchived, true));
+      } else {
+        conditions.push(eq(clientProjects.isArchived, false));
+      }
       if (input.status) {
         conditions.push(eq(clientProjects.status, input.status));
       }

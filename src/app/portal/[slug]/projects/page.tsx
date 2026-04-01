@@ -14,6 +14,7 @@ import {
   FilterBar,
   ViewToggle,
 } from "~/components/projects";
+import { StatusTabs } from "~/components/portal";
 import type {
   FilterState,
   ProjectWithMeta,
@@ -53,6 +54,7 @@ export default function PortalProjectsPage({
   const [taskView, setTaskView] = useState<"list" | "kanban">("list");
   const [projectFilters, setProjectFilters] = useState<FilterState>({});
   const [taskFilters, setTaskFilters] = useState<FilterState>({});
+  const [archiveTab, setArchiveTab] = useState<"active" | "archived">("active");
   const [projectSorts, setProjectSorts] = useState<SortLevel[]>([
     { field: "createdAt", order: "desc" },
   ]);
@@ -80,6 +82,7 @@ export default function PortalProjectsPage({
           | "paused"
           | undefined,
         search: projectFilters.search,
+        includeArchived: archiveTab === "archived",
       },
       { enabled: !!client }
     );
@@ -153,9 +156,39 @@ export default function PortalProjectsPage({
       void utils.projects.portalTasks.invalidate({ slug });
     },
   });
+  const toggleArchive = api.projects.toggleArchive.useMutation({
+    onSuccess: () => void utils.projects.portalProjects.invalidate({ slug }),
+  });
 
   const moveProjectStatus = api.projects.update.useMutation({
-    onSuccess: () => void utils.projects.portalProjects.invalidate({ slug }),
+    onMutate: async ({ id, status }) => {
+      await utils.projects.portalProjects.cancel();
+      const queryKey = {
+        slug,
+        status: projectFilters.status as
+          | "active"
+          | "completed"
+          | "on-hold"
+          | "paused"
+          | undefined,
+        search: projectFilters.search,
+        includeArchived: archiveTab === "archived",
+      };
+      const prev = utils.projects.portalProjects.getData(queryKey);
+      if (prev && status) {
+        utils.projects.portalProjects.setData(
+          queryKey,
+          prev.map((p) => (p.id === id ? { ...p, status } : p))
+        );
+      }
+      return { prev, queryKey };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) {
+        utils.projects.portalProjects.setData(ctx.queryKey, ctx.prev);
+      }
+    },
+    onSettled: () => void utils.projects.portalProjects.invalidate({ slug }),
   });
 
   const createTask = api.projects.createTask.useMutation({
@@ -183,7 +216,38 @@ export default function PortalProjectsPage({
   });
 
   const moveTaskStatus = api.projects.portalUpdateTaskStatus.useMutation({
-    onSuccess: () => {
+    onMutate: async ({ taskId, status }) => {
+      await utils.projects.portalTasks.cancel();
+      const taskQueryKey = {
+        slug,
+        status: taskFilters.status as
+          | "todo"
+          | "in-progress"
+          | "done"
+          | undefined,
+        priority: taskFilters.priority as
+          | "low"
+          | "medium"
+          | "high"
+          | "urgent"
+          | undefined,
+        search: taskFilters.search,
+      };
+      const prev = utils.projects.portalTasks.getData(taskQueryKey);
+      if (prev && status) {
+        utils.projects.portalTasks.setData(
+          taskQueryKey,
+          prev.map((t) => (t.id === taskId ? { ...t, status } : t))
+        );
+      }
+      return { prev, taskQueryKey };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) {
+        utils.projects.portalTasks.setData(ctx.taskQueryKey, ctx.prev);
+      }
+    },
+    onSettled: () => {
       void utils.projects.portalTasks.invalidate({ slug });
       void utils.projects.portalProjects.invalidate({ slug });
     },
@@ -328,6 +392,14 @@ export default function PortalProjectsPage({
         {/* Projects Tab */}
         <TabsContent value="projects">
           <div className="space-y-4">
+            {isAdmin && (
+              <StatusTabs
+                activeTab={archiveTab}
+                onTabChange={setArchiveTab}
+                activeCount={-1}
+                archivedCount={-1}
+              />
+            )}
             <FilterBar
               filters={projectFilters}
               onFiltersChange={setProjectFilters}
@@ -339,7 +411,7 @@ export default function PortalProjectsPage({
             ) : projectView === "list" ? (
               <ProjectList
                 projects={(projects ?? []) as ProjectWithMeta[]}
-                mode="portal"
+                mode={isAdmin ? "admin" : "portal"}
                 sorts={projectSorts}
                 onSort={handleProjectSort}
                 onViewDetail={(id) =>
@@ -359,6 +431,13 @@ export default function PortalProjectsPage({
                         if (confirm("Delete this project and all its tasks?")) {
                           deleteProject.mutate({ id });
                         }
+                      }
+                    : undefined
+                }
+                onToggleArchive={
+                  isAdmin
+                    ? (id, isArchived) => {
+                        toggleArchive.mutate({ id, isArchived });
                       }
                     : undefined
                 }

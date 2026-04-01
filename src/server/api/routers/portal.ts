@@ -12,7 +12,9 @@ import {
   clientUpdates,
   clientAgreements,
   clientResources,
+  proposalCheckouts,
 } from "~/server/db/schema";
+import { inArray } from "drizzle-orm";
 import { eq, desc, isNull, and, asc, or, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
@@ -950,12 +952,38 @@ export const portalRouter = createTRPCRouter({
             projectId: p.project?.id ?? null,
             projectName: p.project?.name ?? null,
           };
+          // V1 metadata links
           const piId = meta?.stripePaymentIntentId as string | undefined;
           if (piId) piToProposal.set(piId, link);
           const subId = meta?.stripeSubscriptionId as string | undefined;
           if (subId) subToProposal.set(subId, link);
           const invId = meta?.stripeInvoiceId as string | undefined;
           if (invId) invToProposal.set(invId, link);
+        }
+
+        // V2 proposal checkout links (from proposalCheckouts table)
+        const proposalIds = proposals.map((p) => p.id);
+        if (proposalIds.length > 0) {
+          const v2Checkouts = await db.query.proposalCheckouts.findMany({
+            where: and(
+              inArray(proposalCheckouts.proposalId, proposalIds),
+              eq(proposalCheckouts.status, "paid")
+            ),
+          });
+          for (const co of v2Checkouts) {
+            const proposal = proposals.find((p) => p.id === co.proposalId);
+            if (!proposal) continue;
+            const link: ProposalLink = {
+              proposalId: proposal.id,
+              proposalTitle: proposal.title,
+              projectId: proposal.project?.id ?? null,
+              projectName: proposal.project?.name ?? null,
+            };
+            if (co.stripePaymentIntentId)
+              piToProposal.set(co.stripePaymentIntentId, link);
+            if (co.stripeSubscriptionId)
+              subToProposal.set(co.stripeSubscriptionId, link);
+          }
         }
 
         // Collect unique product IDs from subscriptions to fetch names
@@ -1064,6 +1092,9 @@ export const portalRouter = createTRPCRouter({
             const filteredPayments = paymentIntents.data
               .filter((pi) => pi.status === "succeeded")
               .filter((pi) => {
+                // Always show proposal-linked payments regardless of description
+                if (piToProposal.has(pi.id)) return true;
+                // Otherwise exclude subscription/invoice payments (shown in their own sections)
                 const desc = pi.description?.toLowerCase() ?? "";
                 return (
                   !desc.includes("subscription") && !desc.includes("invoice")

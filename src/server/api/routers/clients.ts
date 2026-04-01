@@ -442,6 +442,7 @@ export const clientsRouter = createTRPCRouter({
           "company",
           "accountManagerId",
           "connectorId",
+          "assignedDeveloperId",
         ] as const;
         for (const f of syncFields) {
           if (f in data) crmUpdate[f] = data[f as keyof typeof data];

@@ -1,14 +1,13 @@
 "use client";
 
 import { use, useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api, type RouterOutputs } from "~/trpc/react";
 
 type ClientBySlug = NonNullable<RouterOutputs["portal"]["getClientBySlug"]>;
-type ClientProject = ClientBySlug["projects"][number];
-type ClientUpdate = ClientProject["updates"][number];
 type ClientAgreement = ClientBySlug["agreements"][number];
-type Proposal = RouterOutputs["portal"]["getProposals"][number];
 type Resource = RouterOutputs["portal"]["getResources"][number];
 
 import { Card, CardContent } from "~/components/ui/card";
@@ -19,7 +18,6 @@ import {
   AdminActionMenu,
   ProjectAssignDialog,
   ConfirmDialog,
-  ProposalModal,
   type FilterOption,
   type AdminAction,
   type ProposalMetadata,
@@ -50,6 +48,7 @@ function getStatusIcon(status: string) {
     case "accepted":
       return <Check className="h-3.5 w-3.5 text-green-400" />;
     case "sent":
+    case "partial":
       return <Clock className="h-3.5 w-3.5" style={{ color: "#D4AF37" }} />;
     case "declined":
       return <X className="h-3.5 w-3.5 text-red-400" />;
@@ -64,6 +63,8 @@ function getStatusLabel(status: string) {
       return "Accepted";
     case "sent":
       return "Pending";
+    case "partial":
+      return "Partial";
     case "declined":
       return "Declined";
     default:
@@ -76,6 +77,7 @@ function getStatusBgColor(status: string) {
     case "accepted":
       return "rgba(74, 222, 128, 0.15)";
     case "sent":
+    case "partial":
       return "rgba(212, 175, 55, 0.15)";
     case "declined":
       return "rgba(248, 113, 113, 0.15)";
@@ -89,6 +91,7 @@ function getStatusTextColor(status: string) {
     case "accepted":
       return "#4ade80";
     case "sent":
+    case "partial":
       return "#D4AF37";
     case "declined":
       return "#f87171";
@@ -99,7 +102,7 @@ function getStatusTextColor(status: string) {
 
 interface NormalizedProposal {
   id: string;
-  resourceId: number | null;
+  resourceId: number;
   title: string;
   description: string | null;
   status: string;
@@ -109,9 +112,8 @@ interface NormalizedProposal {
   isActive: boolean;
   isPrivate: boolean;
   underDevelopment: boolean;
-  isLegacy: boolean;
   metadata: ProposalMetadata | null;
-  originalId: number; // for modal lookup
+  originalId: number;
 }
 
 export default function PortalProposalsPage({
@@ -142,10 +144,6 @@ export default function PortalProposalsPage({
       { slug, section: "proposals", ...(isAdmin ? {} : { isActive: true }) },
       { staleTime: 5 * 60 * 1000 }
     );
-  const { data: proposals } = api.portal.getProposals.useQuery(
-    { slug },
-    { staleTime: 5 * 60 * 1000 }
-  );
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
     { enabled: isAdmin, staleTime: 5 * 60 * 1000 }
@@ -199,10 +197,6 @@ export default function PortalProposalsPage({
   const [sorts, setSorts] = useState<SortLevel[]>(
     saved.sorts ?? [{ field: "createdAt", order: "desc" }]
   );
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
-    null
-  );
-
   useEffect(() => {
     persistState({
       searchQuery,
@@ -236,27 +230,12 @@ export default function PortalProposalsPage({
   const checkoutSuccess = searchParams?.get("success") === "true";
   const checkoutCanceled = searchParams?.get("canceled") === "true";
 
-  // Legacy proposals
-  const legacyProposals = useMemo(() => {
-    if (!client) return [];
-    return client.projects.flatMap((p: ClientProject) =>
-      p.updates
-        .filter((u: ClientUpdate) => u.type === "proposal")
-        .map((u: ClientUpdate) => ({
-          ...u,
-          projectName: p.name,
-          projectId: p.id,
-        }))
-    );
-  }, [client]);
-
-  // Combine and normalize all proposals
+  // Normalize all proposals from resources
   const allProposals: NormalizedProposal[] = useMemo(() => {
-    const items: NormalizedProposal[] = [];
-
-    resources?.forEach((r: Resource) => {
+    if (!resources) return [];
+    return resources.map((r: Resource) => {
       const metadata = r.metadata as ProposalMetadata | null;
-      items.push({
+      return {
         id: `r-${r.id}`,
         resourceId: r.id,
         title: r.title,
@@ -268,35 +247,11 @@ export default function PortalProposalsPage({
         isActive: r.isActive ?? true,
         isPrivate: (r as any).isPrivate ?? false,
         underDevelopment: r.underDevelopment ?? false,
-        isLegacy: false,
         metadata,
         originalId: r.id,
-      });
+      };
     });
-
-    legacyProposals.forEach(
-      (d: ClientUpdate & { projectName: string; projectId: number }) => {
-        items.push({
-          id: `d-${d.id}`,
-          resourceId: null,
-          title: d.title,
-          description: d.content,
-          status: "sent",
-          projectId: d.projectId,
-          projectName: d.projectName,
-          createdAt: d.createdAt,
-          isActive: true,
-          isPrivate: false,
-          underDevelopment: false,
-          isLegacy: true,
-          metadata: null,
-          originalId: d.id,
-        });
-      }
-    );
-
-    return items;
-  }, [resources, legacyProposals]);
+  }, [resources]);
 
   // Get project filters
   const projectFilters: FilterOption[] = useMemo(() => {
@@ -306,7 +261,7 @@ export default function PortalProposalsPage({
     resources?.forEach((r: Resource) => {
       if (r.project) projectMap.set(r.project.id, r.project.name);
     });
-    client.projects.forEach((p: ClientProject) => {
+    client.projects.forEach((p: { id: number; name: string }) => {
       projectMap.set(p.id, p.name);
     });
     projects?.forEach((p: { id: number; name: string }) => {
@@ -458,7 +413,6 @@ export default function PortalProposalsPage({
 
   const getAdminActions = useCallback(
     (proposal: NormalizedProposal): AdminAction[] => {
-      if (proposal.isLegacy) return [];
       return [
         {
           label: proposal.underDevelopment
@@ -505,16 +459,13 @@ export default function PortalProposalsPage({
     [handleArchive, handleToggleUnderDevelopment]
   );
 
-  // Handle proposal click for modal
+  const router = useRouter();
+
   const handleProposalClick = useCallback(
     (proposal: NormalizedProposal) => {
-      if (proposal.isLegacy) return;
-      const found = proposals?.find(
-        (p: Proposal) => p.id === proposal.originalId
-      );
-      if (found) setSelectedProposal(found);
+      router.push(`/portal/${slug}/proposals/${proposal.originalId}`);
     },
-    [proposals]
+    [router, slug]
   );
 
   const formatDate = (date: Date | string) =>
@@ -559,11 +510,25 @@ export default function PortalProposalsPage({
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="mb-2 text-3xl font-bold">Proposals & Agreements</h1>
-        <p className="text-gray-400">
-          Project proposals, scope documents, and agreements.
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="mb-2 text-3xl font-bold">Proposals & Agreements</h1>
+          <p className="text-gray-400">
+            Project proposals, scope documents, and agreements.
+          </p>
+        </div>
+        {isAdmin && (
+          <Link
+            href={`/portal/${slug}/proposals/new`}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-black"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            <FileText className="h-4 w-4" />
+            New Proposal
+          </Link>
+        )}
       </div>
 
       {/* Checkout status messages */}
@@ -720,9 +685,7 @@ export default function PortalProposalsPage({
                       {sortedProposals.map((proposal) => (
                         <tr
                           key={proposal.id}
-                          className={`border-b transition-colors hover:bg-white/5 ${
-                            !proposal.isLegacy ? "cursor-pointer" : ""
-                          }`}
+                          className="cursor-pointer border-b transition-colors hover:bg-white/5"
                           style={{
                             borderColor: "rgba(212, 175, 55, 0.05)",
                           }}
@@ -797,11 +760,9 @@ export default function PortalProposalsPage({
                               className="px-2 py-3"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              {!proposal.isLegacy && (
-                                <AdminActionMenu
-                                  actions={getAdminActions(proposal)}
-                                />
-                              )}
+                              <AdminActionMenu
+                                actions={getAdminActions(proposal)}
+                              />
                             </td>
                           )}
                         </tr>
@@ -866,24 +827,6 @@ export default function PortalProposalsPage({
             </div>
           )}
         </div>
-      )}
-
-      {/* Proposal Modal */}
-      {selectedProposal && (
-        <ProposalModal
-          isOpen={!!selectedProposal}
-          onClose={() => setSelectedProposal(null)}
-          proposal={{
-            id: selectedProposal.id,
-            title: selectedProposal.title,
-            description: selectedProposal.description,
-            createdAt: selectedProposal.createdAt,
-            metadata: selectedProposal.metadata as ProposalMetadata | null,
-            project: selectedProposal.project,
-          }}
-          slug={slug}
-          isAdmin={isAdmin}
-        />
       )}
 
       {/* Project Assignment Dialog */}

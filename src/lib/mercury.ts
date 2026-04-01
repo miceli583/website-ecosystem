@@ -12,12 +12,14 @@ const MERCURY_BASE_URL = "https://api.mercury.com/api/v1";
 interface MercuryAccount {
   id: string;
   name: string;
-  type: "checking" | "savings";
+  type: string; // Mercury returns "mercury" for all accounts
+  kind: "checking" | "savings";
   status: "active" | "closed";
   availableBalance: number;
   currentBalance: number;
   accountNumber: string;
   routingNumber: string;
+  nickname?: string;
   createdAt: string;
 }
 
@@ -48,9 +50,11 @@ interface MercuryTransactionsResponse {
   transactions: MercuryTransaction[];
 }
 
+const isDev = process.env.NODE_ENV === "development";
+
 async function mercuryFetch<T>(endpoint: string): Promise<T | null> {
   if (!env.MERCURY_API_KEY) {
-    console.warn("Mercury API key not configured");
+    if (isDev) console.warn("[Mercury] API key not configured");
     return null;
   }
 
@@ -63,15 +67,52 @@ async function mercuryFetch<T>(endpoint: string): Promise<T | null> {
     });
 
     if (!response.ok) {
-      console.error(
-        `Mercury API error: ${response.status} ${response.statusText}`
-      );
+      if (isDev)
+        console.error(
+          `[Mercury] GET error: ${response.status} ${response.statusText}`
+        );
       return null;
     }
 
     return response.json() as Promise<T>;
   } catch (error) {
-    console.error("Mercury API fetch error:", error);
+    if (isDev) console.error("[Mercury] GET fetch error:", error);
+    return null;
+  }
+}
+
+async function mercuryPost<T>(
+  endpoint: string,
+  body: Record<string, unknown>
+): Promise<T | null> {
+  if (!env.MERCURY_API_KEY) {
+    if (isDev) console.warn("[Mercury] API key not configured");
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${MERCURY_BASE_URL}${endpoint}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.MERCURY_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (isDev)
+        console.error(
+          `[Mercury] POST error: ${response.status} ${response.statusText}`,
+          errorText
+        );
+      return null;
+    }
+
+    return response.json() as Promise<T>;
+  } catch (error) {
+    if (isDev) console.error("[Mercury] POST error:", error);
     return null;
   }
 }
@@ -154,4 +195,127 @@ export async function getMercuryTotalBalance(): Promise<{
   };
 }
 
-export type { MercuryAccount, MercuryTransaction };
+// ============================================================================
+// MERCURY ACCOUNTS RECEIVABLE (INVOICING) API
+// Docs: https://docs.mercury.com/reference/createinvoice
+// ============================================================================
+
+interface MercuryInvoiceLineItem {
+  name: string;
+  unitPrice: number; // dollars
+  quantity: number;
+  salesTaxRate?: number;
+}
+
+interface MercuryInvoiceCreateParams {
+  recipientEmail: string;
+  recipientName: string;
+  description: string;
+  lineItems: MercuryInvoiceLineItem[];
+  dueDate: string; // YYYY-MM-DD
+  accountId: string; // Mercury checking account to receive payment
+}
+
+interface MercuryCustomer {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface MercuryInvoice {
+  id: string;
+  invoiceNumber?: string;
+  slug?: string;
+  status: "Unpaid" | "Paid" | "Cancelled" | "Processing";
+  amount?: number;
+  dueDate: string;
+  paidAt?: string | null;
+  link?: string; // computed from slug: https://app.mercury.com/pay/{slug}
+  createdAt?: string;
+}
+
+/**
+ * Find or create a Mercury AR customer by email.
+ * Mercury requires a customerId for invoice creation.
+ */
+async function findOrCreateMercuryCustomer(
+  name: string,
+  email: string
+): Promise<MercuryCustomer | null> {
+  // Search existing customers
+  const customers = await mercuryFetch<{ customers: MercuryCustomer[] }>(
+    "/ar/customers"
+  );
+  const existing = customers?.customers?.find(
+    (c) => c.email.toLowerCase() === email.toLowerCase()
+  );
+  if (existing) return existing;
+
+  // Create new customer
+  return mercuryPost<MercuryCustomer>("/ar/customers", { name, email });
+}
+
+/**
+ * Create a Mercury invoice via the Accounts Receivable API.
+ * Automatically finds or creates the customer first.
+ * Returns the invoice with a shareable payment link.
+ */
+export async function createMercuryInvoice(
+  params: MercuryInvoiceCreateParams
+): Promise<MercuryInvoice | null> {
+  // Step 1: Find or create customer
+  const customer = await findOrCreateMercuryCustomer(
+    params.recipientName,
+    params.recipientEmail
+  );
+  if (!customer) {
+    if (isDev) console.error("[Mercury] Failed to find or create customer");
+    return null;
+  }
+
+  // Step 2: Create invoice
+  const today = new Date().toISOString().split("T")[0]!;
+  const invoice = await mercuryPost<MercuryInvoice>("/ar/invoices", {
+    customerId: customer.id,
+    destinationAccountId: params.accountId,
+    invoiceDate: today,
+    dueDate: params.dueDate,
+    lineItems: params.lineItems.map((item) => ({
+      name: item.name,
+      unitPrice: item.unitPrice,
+      quantity: item.quantity,
+    })),
+    ccEmails: [],
+    creditCardEnabled: false,
+    achDebitEnabled: true,
+    useRealAccountNumber: false,
+    payerMemo: params.description,
+    sendEmailOption: "SendNow",
+  });
+
+  if (!invoice) return null;
+
+  // Build payment link from slug
+  if (invoice.slug) {
+    invoice.link = `https://app.mercury.com/pay/${invoice.slug}`;
+  }
+
+  return invoice;
+}
+
+/**
+ * Get a Mercury invoice by ID (for polling payment status)
+ */
+export async function getMercuryInvoice(
+  invoiceId: string
+): Promise<MercuryInvoice | null> {
+  return mercuryFetch<MercuryInvoice>(`/ar/invoices/${invoiceId}`);
+}
+
+export type {
+  MercuryAccount,
+  MercuryTransaction,
+  MercuryInvoice,
+  MercuryInvoiceCreateParams,
+  MercuryInvoiceLineItem,
+};

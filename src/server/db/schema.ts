@@ -540,6 +540,69 @@ export const crmNotes = pgTable("crm_notes", {
 });
 
 // ============================================================================
+// PROPOSAL SYSTEM V2
+// ============================================================================
+
+/**
+ * Proposal Agreement Templates - Reusable terms/agreements for proposals
+ * Admin-editable via UI, attached to proposals by ID reference
+ */
+export const proposalAgreementTemplates = pgTable(
+  "proposal_agreement_templates",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(), // e.g. "Standard SaaS Terms", "Web Dev Agreement"
+    content: text("content").notNull(), // Markdown content
+    isActive: boolean("is_active").notNull().default(true),
+    createdByAuthId: uuid("created_by_auth_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  }
+);
+
+/**
+ * Proposal Checkouts - Tracks each independent checkout per proposal
+ * A single proposal can have multiple checkout groups, each producing
+ * a separate checkout (Stripe session or Mercury invoice).
+ * Stripe = credit card payments. Mercury = ACH/debit/wire.
+ */
+export const proposalCheckouts = pgTable("proposal_checkouts", {
+  id: serial("id").primaryKey(),
+  proposalId: integer("proposal_id")
+    .notNull()
+    .references(() => clientResources.id, { onDelete: "cascade" }),
+  checkoutGroupId: text("checkout_group_id").notNull(), // matches group ID in proposal metadata
+  optionId: text("option_id").notNull(), // which option within the group was selected
+  paymentMethod: text("payment_method").notNull(), // "stripe_credit" | "mercury_ach" | "mercury_wire"
+  status: text("status").notNull().default("pending"), // "pending" | "paid" | "failed" | "canceled"
+  amount: integer("amount").notNull(), // cents
+  currency: text("currency").notNull().default("usd"),
+
+  // Stripe fields (populated when paymentMethod = "stripe_credit")
+  stripeSessionId: text("stripe_session_id"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  stripeFeeAmount: integer("stripe_fee_amount"), // Stripe processing fee in cents
+
+  // Mercury fields (populated when paymentMethod starts with "mercury_")
+  mercuryInvoiceId: text("mercury_invoice_id"),
+  mercuryInvoiceLink: text("mercury_invoice_link"),
+  mercuryTransactionId: text("mercury_transaction_id"),
+
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ============================================================================
 // CONTACT SUBMISSIONS (Legacy - miraclemind.dev contact form)
 // ============================================================================
 
@@ -800,7 +863,7 @@ export const clientsRelations = relations(clients, ({ many, one }) => ({
 
 export const clientResourcesRelations = relations(
   clientResources,
-  ({ one }) => ({
+  ({ one, many }) => ({
     client: one(clients, {
       fields: [clientResources.clientId],
       references: [clients.id],
@@ -809,6 +872,7 @@ export const clientResourcesRelations = relations(
       fields: [clientResources.projectId],
       references: [clientProjects.id],
     }),
+    checkouts: many(proposalCheckouts),
   })
 );
 
@@ -993,6 +1057,23 @@ export const mercuryTransactionCategoriesRelations = relations(
   })
 );
 
+export const proposalCheckoutsRelations = relations(
+  proposalCheckouts,
+  ({ one }) => ({
+    proposal: one(clientResources, {
+      fields: [proposalCheckouts.proposalId],
+      references: [clientResources.id],
+    }),
+  })
+);
+
+export const proposalAgreementTemplatesRelations = relations(
+  proposalAgreementTemplates,
+  () => ({
+    // Standalone — linked to proposals via metadata.agreementTemplateIds
+  })
+);
+
 // ============================================================================
 // TYPE EXPORTS
 // ============================================================================
@@ -1066,3 +1147,11 @@ export type MercuryTransactionCategory =
   typeof mercuryTransactionCategories.$inferSelect;
 export type NewMercuryTransactionCategory =
   typeof mercuryTransactionCategories.$inferInsert;
+
+export type ProposalAgreementTemplate =
+  typeof proposalAgreementTemplates.$inferSelect;
+export type NewProposalAgreementTemplate =
+  typeof proposalAgreementTemplates.$inferInsert;
+
+export type ProposalCheckout = typeof proposalCheckouts.$inferSelect;
+export type NewProposalCheckout = typeof proposalCheckouts.$inferInsert;
