@@ -139,6 +139,7 @@ export const proposalsRouter = createTRPCRouter({
             company: z.string().optional(),
           })
           .optional(),
+        isPrivate: z.boolean().default(false),
       })
     )
     .mutation(async ({ input }) => {
@@ -179,6 +180,7 @@ export const proposalsRouter = createTRPCRouter({
           title: input.title,
           description: input.description ?? null,
           metadata: metadata as unknown as Record<string, unknown>,
+          isPrivate: input.isPrivate,
         })
         .returning();
 

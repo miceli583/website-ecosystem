@@ -111,6 +111,12 @@ export function ProposalBuilder({
     { enabled: !!editProposalId, staleTime: 30 * 1000 }
   );
 
+  // Fetch client info for autofill (creation only)
+  const { data: clientData } = api.portal.getClientBySlug.useQuery(
+    { slug },
+    { enabled: !editProposalId, staleTime: 5 * 60 * 1000 }
+  );
+
   // Fetch projects for assignment
   const { data: projects } = api.portal.getProjects.useQuery(
     { slug },
@@ -156,6 +162,16 @@ export function ProposalBuilder({
   const [customerCompany, setCustomerCompany] = useState(
     existingMeta?.customerInfo?.company ?? ""
   );
+
+  // Autofill customer info from client data (creation only)
+  const [clientSynced, setClientSynced] = useState(false);
+  if (!editProposalId && clientData && !clientSynced) {
+    if (!customerName && clientData.name) setCustomerName(clientData.name);
+    if (!customerEmail && clientData.email) setCustomerEmail(clientData.email);
+    if (!customerCompany && clientData.company)
+      setCustomerCompany(clientData.company);
+    setClientSynced(true);
+  }
 
   // Sync existing proposal data when it loads
   const [synced, setSynced] = useState(false);
@@ -274,97 +290,100 @@ export function ProposalBuilder({
   // Save
   // --------------------------------------------------------------------------
 
-  const handleSave = useCallback(() => {
-    if (!title.trim()) {
-      toast.error("Title is required");
-      return;
-    }
-
-    if (checkoutGroups.length === 0) {
-      toast.error("At least one checkout group is required");
-      return;
-    }
-
-    // Validate all groups have names and options with names + line items
-    for (const group of checkoutGroups) {
-      if (!group.name.trim()) {
-        toast.error("All checkout groups need a name");
+  const handleSave = useCallback(
+    (isPrivate: boolean) => {
+      if (!title.trim()) {
+        toast.error("Title is required");
         return;
       }
-      for (const opt of group.options) {
-        if (!opt.name.trim()) {
-          toast.error(`Option in "${group.name}" needs a name`);
+
+      if (checkoutGroups.length === 0) {
+        toast.error("At least one checkout group is required");
+        return;
+      }
+
+      // Validate all groups have names and options with names + line items
+      for (const group of checkoutGroups) {
+        if (!group.name.trim()) {
+          toast.error("All checkout groups need a name");
           return;
         }
-        if (opt.lineItems.length === 0) {
-          toast.error(`Option "${opt.name}" needs at least one line item`);
-          return;
-        }
-        for (const item of opt.lineItems) {
-          if (!item.name.trim()) {
-            toast.error(`Line item in "${opt.name}" needs a name`);
+        for (const opt of group.options) {
+          if (!opt.name.trim()) {
+            toast.error(`Option in "${group.name}" needs a name`);
             return;
+          }
+          if (opt.lineItems.length === 0) {
+            toast.error(`Option "${opt.name}" needs at least one line item`);
+            return;
+          }
+          for (const item of opt.lineItems) {
+            if (!item.name.trim()) {
+              toast.error(`Line item in "${opt.name}" needs a name`);
+              return;
+            }
           }
         }
       }
-    }
 
-    // Compute totals for each option
-    const groupsWithTotals = checkoutGroups.map((g) => ({
-      ...g,
-      options: g.options.map((o) => ({
-        ...o,
-        totalPrice: computeTotal(o.lineItems),
-      })),
-    }));
+      // Compute totals for each option
+      const groupsWithTotals = checkoutGroups.map((g) => ({
+        ...g,
+        options: g.options.map((o) => ({
+          ...o,
+          totalPrice: computeTotal(o.lineItems),
+        })),
+      }));
 
-    const richContent = editorRef.current?.getHTML() ?? undefined;
+      const richContent = editorRef.current?.getHTML() ?? undefined;
 
-    const common = {
-      title: title.trim(),
-      description: description.trim() || undefined,
+      const common = {
+        title: title.trim(),
+        description: description.trim() || undefined,
+        projectId,
+        checkoutGroups: groupsWithTotals,
+        richContent:
+          richContent && richContent !== "<p></p>" ? richContent : undefined,
+        agreementTemplateIds:
+          selectedTemplateIds.length > 0 ? selectedTemplateIds : undefined,
+        customTerms: customTerms.trim() || undefined,
+        currency,
+        validUntil: validUntil || undefined,
+        status: "draft" as const,
+        customerInfo:
+          customerName || customerEmail || customerCompany
+            ? {
+                name: customerName || undefined,
+                email: customerEmail || undefined,
+                company: customerCompany || undefined,
+              }
+            : undefined,
+      };
+
+      if (editProposalId) {
+        updateProposal.mutate({ proposalId: editProposalId, ...common });
+      } else {
+        createProposal.mutate({ clientSlug: slug, isPrivate, ...common });
+      }
+    },
+    [
+      title,
+      description,
       projectId,
-      checkoutGroups: groupsWithTotals,
-      richContent:
-        richContent && richContent !== "<p></p>" ? richContent : undefined,
-      agreementTemplateIds:
-        selectedTemplateIds.length > 0 ? selectedTemplateIds : undefined,
-      customTerms: customTerms.trim() || undefined,
+      checkoutGroups,
+      selectedTemplateIds,
+      customTerms,
       currency,
-      validUntil: validUntil || undefined,
-      status: "draft" as const,
-      customerInfo:
-        customerName || customerEmail || customerCompany
-          ? {
-              name: customerName || undefined,
-              email: customerEmail || undefined,
-              company: customerCompany || undefined,
-            }
-          : undefined,
-    };
-
-    if (editProposalId) {
-      updateProposal.mutate({ proposalId: editProposalId, ...common });
-    } else {
-      createProposal.mutate({ clientSlug: slug, ...common });
-    }
-  }, [
-    title,
-    description,
-    projectId,
-    checkoutGroups,
-    selectedTemplateIds,
-    customTerms,
-    currency,
-    validUntil,
-    customerName,
-    customerEmail,
-    customerCompany,
-    editProposalId,
-    slug,
-    createProposal,
-    updateProposal,
-  ]);
+      validUntil,
+      customerName,
+      customerEmail,
+      customerCompany,
+      editProposalId,
+      slug,
+      createProposal,
+      updateProposal,
+    ]
+  );
 
   // --------------------------------------------------------------------------
   // Render
@@ -643,22 +662,47 @@ export function ProposalBuilder({
         </div>
       </section>
 
-      {/* Save button */}
+      {/* Save buttons */}
       <div
         className="flex items-center gap-3 border-t pt-6"
         style={{ borderColor: "rgba(212,175,55,0.2)" }}
       >
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-black"
-          style={{
-            background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
-          }}
-        >
-          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          {editProposalId ? "Update Proposal" : "Save Proposal"}
-        </button>
+        {editProposalId ? (
+          <button
+            onClick={() => handleSave(false)}
+            disabled={isSaving}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-black"
+            style={{
+              background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+            }}
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Update Proposal
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => handleSave(true)}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
+              style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Save Draft
+            </button>
+            <button
+              onClick={() => handleSave(false)}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-black"
+              style={{
+                background: "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+              }}
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Save & Publish
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
