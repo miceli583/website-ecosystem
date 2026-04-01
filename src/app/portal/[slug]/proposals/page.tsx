@@ -35,8 +35,6 @@ import {
   ArchiveRestore,
   FolderOpen,
   Trash2,
-  Construction,
-  Eye,
   Lock,
   Unlock,
 } from "lucide-react";
@@ -389,17 +387,6 @@ export default function PortalProposalsPage({
     [createProject, slug]
   );
 
-  const handleToggleUnderDevelopment = useCallback(
-    (proposal: NormalizedProposal) => {
-      if (!proposal.resourceId) return;
-      updateResource.mutate({
-        id: proposal.resourceId,
-        underDevelopment: !proposal.underDevelopment,
-      });
-    },
-    [updateResource]
-  );
-
   const handleTogglePrivate = useCallback(
     (proposal: NormalizedProposal) => {
       if (!proposal.resourceId) return;
@@ -414,17 +401,6 @@ export default function PortalProposalsPage({
   const getAdminActions = useCallback(
     (proposal: NormalizedProposal): AdminAction[] => {
       return [
-        {
-          label: proposal.underDevelopment
-            ? "Remove Under Development"
-            : "Mark Under Development",
-          icon: proposal.underDevelopment ? (
-            <Eye className="h-4 w-4" />
-          ) : (
-            <Construction className="h-4 w-4" />
-          ),
-          onClick: () => handleToggleUnderDevelopment(proposal),
-        },
         {
           label: proposal.isPrivate ? "Make Public" : "Make Private",
           icon: proposal.isPrivate ? (
@@ -456,7 +432,7 @@ export default function PortalProposalsPage({
         },
       ];
     },
-    [handleArchive, handleToggleUnderDevelopment]
+    [handleArchive, handleTogglePrivate]
   );
 
   const router = useRouter();
@@ -731,12 +707,6 @@ export default function PortalProposalsPage({
                           {isAdmin && (
                             <td className="px-4 py-3">
                               <div className="flex gap-1.5">
-                                {proposal.underDevelopment && (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-400">
-                                    <Construction className="h-3 w-3" />
-                                    WIP
-                                  </span>
-                                )}
                                 {proposal.isPrivate && (
                                   <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-gray-400">
                                     <Lock className="h-3 w-3" />
