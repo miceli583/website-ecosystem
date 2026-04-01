@@ -2,7 +2,8 @@
 
 ## Critical (blocks production)
 
-_None currently_
+- [ ] **Test proposal creation UI**: Build a proposal from scratch via the builder and verify full flow (create → view → checkout)
+- [ ] **Recurring billing tracking**: Handle `invoice.payment_succeeded` webhook for subscriptions — log each monthly payment to billing tab
 
 ## Bugs & Tech Debt
 
@@ -11,6 +12,8 @@ _None currently_
 - [ ] **Instagram post automation**: Posts generated + sent to Zapier but not appearing on IG — check Zapier zap status / Instagram token
 - [ ] **Console.log cleanup**: ~77 console.log/error statements in production code — gate behind NODE_ENV or remove
 - [ ] **daily-values router**: Many `publicProcedure` endpoints should be `protectedProcedure` (admin-only, cron uses direct DB)
+- [ ] **Mercury cron (Vercel)**: `vercel.json` cron configured but untested in production — verify `/api/mercury-invoice-poll` runs and updates pending Mercury checkouts. Fallback: manual DB update or Link Payment until confirmed working
+- [ ] **CRM project filtering**: Contact/client detail project lists need robust filtering (status, search, assignee, date range)
 
 ## Client Work (prioritized)
 
@@ -27,14 +30,12 @@ _None currently_
 - [ ] Refine project management for various projects
 - [ ] Create Gamma alternative for slide builder
 - [ ] Build LMS prototype demo
-- [ ] Log single invoice for TapCHW website build (blocked by: One-time invoice logging)
 - [ ] Tell Shechem: host TapCHW in personal Vercel + Supabase
 
 ### Karla Alvarado
 
 - [ ] Duplicate TapCHW demo from Shechem's portal, create copy under Karla
 - [ ] Set up project management for TapCHW website + CRM build
-- [ ] Log invoice payment under billing (blocked by: One-time invoice logging)
 
 ### Zoey Wind
 
@@ -61,16 +62,15 @@ _None currently_
 
 ### High Priority — Unblocks Client Work
 
+- [x] ~~**Proposal Builder UI**: Non-dev AMs can create/edit proposals~~ — DONE
+- [x] ~~**Invoice payment logging**: AMs can log already-paid invoices~~ — DONE (Link Payment)
+- [x] ~~**Mercury invoice creation via API**~~ — DONE (AR API integration)
+- [x] ~~**Proposal Builder: Stripe vs Mercury option**~~ — DONE (credit/bank toggle)
 - [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs) — unblocks Marissa NDA upload
-- [ ] **Invoice payment logging**: AMs can log already-paid invoices by searching Mercury/Stripe by customer name, ID, or invoice ID (retroactive record-keeping) — unblocks Shechem + Karla invoicing
-- [ ] **Proposal Builder UI**: Non-dev AMs can create/edit proposals — unblocks Austin proposal
-- [ ] **Proposals modal UI refresh**: Friendlier, easier to read
 
 ### High Priority — Financial Systems
 
 - [ ] **Payment method separation**: Stripe one-time → default checking, subscriptions → recurring checking
-- [ ] **Mercury invoice creation via API**: Investigate if AMs can create Mercury invoices through the app
-- [ ] **Proposal Builder: Stripe vs Mercury option**: Choose payment method when creating proposals
 - [ ] **Stripe sub-accounts for hosted clients**: Learn how to set up Stripe billing in apps hosted for clients
 - [ ] **Team direct deposit**: Team members set up direct deposit in their profile
 - [ ] **Profit-sharing payouts**: Mercury API to pay team based on percentage of client payments per project
