@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Calendar,
 } from "lucide-react";
+import { formatCents, formatUnixDate } from "~/lib/format";
 
 // ============================================================================
 // TYPES
@@ -26,21 +27,6 @@ interface PaymentLinkModalProps {
   clientSlug: string;
   checkoutGroupId: string;
   optionId: string;
-}
-
-function formatCents(cents: number, currency = "usd"): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(cents / 100);
-}
-
-function formatUnixDate(ts: number): string {
-  return new Date(ts * 1000).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }
 
 // ============================================================================
