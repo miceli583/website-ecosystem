@@ -3,6 +3,7 @@
 import { use, useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatDate } from "~/lib/format";
 import { toast } from "sonner";
 import { api, type RouterOutputs } from "~/trpc/react";
 
@@ -243,7 +244,7 @@ export default function PortalProposalsPage({
         projectName: r.project?.name ?? "",
         createdAt: r.createdAt,
         isActive: r.isActive ?? true,
-        isPrivate: (r as any).isPrivate ?? false,
+        isPrivate: r.isPrivate ?? false,
         underDevelopment: r.underDevelopment ?? false,
         metadata,
         originalId: r.id,
@@ -443,13 +444,6 @@ export default function PortalProposalsPage({
     },
     [router, slug]
   );
-
-  const formatDate = (date: Date | string) =>
-    new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
 
   if (isLoading) {
     return (
@@ -661,11 +655,19 @@ export default function PortalProposalsPage({
                       {sortedProposals.map((proposal) => (
                         <tr
                           key={proposal.id}
-                          className="cursor-pointer border-b transition-colors hover:bg-white/5"
+                          className="cursor-pointer border-b transition-colors focus-within:bg-white/5 hover:bg-white/5"
                           style={{
                             borderColor: "rgba(212, 175, 55, 0.05)",
                           }}
+                          tabIndex={0}
+                          role="link"
                           onClick={() => handleProposalClick(proposal)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleProposalClick(proposal);
+                            }
+                          }}
                         >
                           {/* Title */}
                           <td className="px-4 py-3">

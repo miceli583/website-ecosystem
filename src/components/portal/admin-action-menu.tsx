@@ -34,11 +34,22 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
   const updatePosition = useCallback(() => {
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
-    setPos({
-      top: rect.bottom + 4,
-      left: rect.right,
-    });
-  }, []);
+    const menuWidth = 160;
+    const menuHeight = actions.length * 40;
+
+    let top = rect.bottom + 4;
+    let left = rect.right;
+
+    // Clamp to viewport boundaries
+    if (top + menuHeight > window.innerHeight) {
+      top = rect.top - menuHeight - 4;
+    }
+    if (left - menuWidth < 0) {
+      left = menuWidth;
+    }
+
+    setPos({ top, left });
+  }, [actions.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -59,10 +70,16 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
       setOpen(false);
     }
 
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("scroll", handleScroll, true);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("scroll", handleScroll, true);
     };
   }, [open, updatePosition]);
@@ -77,6 +94,7 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
           setOpen(!open);
         }}
         aria-label="Open actions menu"
+        aria-haspopup="true"
         aria-expanded={open}
         className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-white/10 hover:text-white"
       >
@@ -86,6 +104,7 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
         createPortal(
           <div
             ref={menuRef}
+            role="menu"
             className="fixed z-[9999] min-w-[160px] overflow-hidden rounded-lg border py-1 shadow-xl backdrop-blur-md"
             style={{
               top: pos.top,
@@ -98,6 +117,7 @@ export function AdminActionMenu({ actions }: AdminActionMenuProps) {
             {actions.map((action, i) => (
               <button
                 key={i}
+                role="menuitem"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();

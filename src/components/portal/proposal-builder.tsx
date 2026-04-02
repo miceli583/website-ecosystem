@@ -15,10 +15,10 @@ import {
   ChevronUp,
   CreditCard,
   Landmark,
-  GripVertical,
   Loader2,
   FileText,
 } from "lucide-react";
+import { formatCents } from "~/lib/format";
 
 import type { ProposalMetadataV2 } from "~/server/api/routers/proposals";
 
@@ -63,10 +63,6 @@ interface ProposalBuilderProps {
 
 function computeTotal(lineItems: LineItem[]): number {
   return lineItems.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
-}
-
-function formatCents(cents: number): string {
-  return (cents / 100).toFixed(2);
 }
 
 function newLineItem(): LineItem {
@@ -666,7 +662,7 @@ export function ProposalBuilder({
 
       {/* Save buttons */}
       <div
-        className="flex items-center gap-3 border-t pt-6"
+        className="flex flex-wrap items-center gap-3 border-t pt-6"
         style={{ borderColor: "rgba(212,175,55,0.2)" }}
       >
         {editProposalId ? (
@@ -749,7 +745,6 @@ function CheckoutGroupEditor({
     >
       {/* Group header */}
       <div className="flex items-center gap-3 px-4 py-3">
-        <GripVertical className="h-4 w-4 flex-shrink-0 text-gray-600" />
         <input
           type="text"
           value={group.name}

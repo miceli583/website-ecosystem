@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { RichTextPreview } from "~/components/portal/rich-text-preview";
 import { PaymentLinkModal } from "~/components/portal/payment-link-modal";
 import ReactMarkdown from "react-markdown";
 import type { ProposalMetadataV2 } from "~/server/api/routers/proposals";
+import { formatCents, formatDate } from "~/lib/format";
 import {
   ArrowLeft,
   FileText,
@@ -23,7 +24,6 @@ import {
   CheckCircle2,
   RefreshCw,
   Clock,
-  XCircle,
   ChevronDown,
   ChevronUp,
   ExternalLink,
@@ -33,21 +33,6 @@ import {
 // ============================================================================
 // HELPERS
 // ============================================================================
-
-function formatCents(cents: number, currency = "usd"): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(cents / 100);
-}
-
-function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 const statusConfig = {
   draft: { label: "Draft", color: "text-gray-400", bg: "bg-gray-500/10" },
@@ -112,14 +97,6 @@ export default function ProposalDetailPage({
     { staleTime: 30 * 1000 }
   );
 
-  const updateStatus = api.proposals.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Status updated");
-      void utils.proposals.getById.invalidate({ proposalId });
-    },
-    onError: () => toast.error("Failed to update status"),
-  });
-
   const deleteProposal = api.portal.deleteResource.useMutation({
     onSuccess: () => {
       toast.success("Proposal deleted");
@@ -136,17 +113,21 @@ export default function ProposalDetailPage({
     onError: () => toast.error("Failed to update"),
   });
 
+  const setPublished = api.proposals.setPublished.useMutation({
+    onSuccess: () => {
+      toast.success("Proposal updated");
+      void utils.proposals.getById.invalidate({ proposalId });
+    },
+    onError: () => toast.error("Failed to update proposal"),
+  });
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const publishProposal = () => {
-    updateStatus.mutate({ proposalId, status: "sent" });
-    archiveProposal.mutate({ id: proposalId, isPrivate: false });
-  };
+  const publishProposal = () =>
+    setPublished.mutate({ proposalId, published: true });
 
-  const unpublishProposal = () => {
-    updateStatus.mutate({ proposalId, status: "draft" });
-    archiveProposal.mutate({ id: proposalId, isPrivate: true });
-  };
+  const unpublishProposal = () =>
+    setPublished.mutate({ proposalId, published: false });
 
   if (isLoading) {
     return (
@@ -264,11 +245,11 @@ export default function ProposalDetailPage({
 
           {/* Admin actions */}
           {isAdmin && (
-            <div className="flex flex-shrink-0 items-center gap-2">
+            <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
               {status === "draft" ? (
                 <button
                   onClick={publishProposal}
-                  disabled={updateStatus.isPending || archiveProposal.isPending}
+                  disabled={setPublished.isPending}
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black"
                   style={{
                     background:
@@ -281,7 +262,7 @@ export default function ProposalDetailPage({
               ) : (
                 <button
                   onClick={unpublishProposal}
-                  disabled={updateStatus.isPending || archiveProposal.isPending}
+                  disabled={setPublished.isPending}
                   className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
                   style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
                 >
@@ -411,15 +392,28 @@ export default function ProposalDetailPage({
 
       {/* Delete confirmation */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-dialog-title"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setShowDeleteConfirm(false);
+          }}
+          onClick={() => setShowDeleteConfirm(false)}
+        >
           <div
-            className="w-full max-w-sm rounded-lg border p-6"
+            className="mx-4 w-full max-w-sm rounded-lg border p-6"
             style={{
               borderColor: "rgba(212, 175, 55, 0.2)",
               backgroundColor: "#111",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="mb-2 text-lg font-bold text-white">
+            <h3
+              id="delete-dialog-title"
+              className="mb-2 text-lg font-bold text-white"
+            >
               Delete Proposal
             </h3>
             <p className="mb-4 text-sm text-gray-400">
@@ -501,6 +495,8 @@ function CheckoutGroupCard({
         toast("Payment not yet received. Try again after completing payment.");
       } else if (data.status === "error") {
         toast.error("Could not check invoice status.");
+      } else if (data.status === "no_pending") {
+        toast("No pending invoice found for this package.");
       }
     },
     onError: () => toast.error("Failed to check payment status."),
@@ -656,6 +652,12 @@ function CheckoutGroupCard({
                           setExpandedOption(isExpanded ? null : option.id)
                         }
                         className="text-gray-500 hover:text-white"
+                        aria-label={
+                          isExpanded
+                            ? "Collapse line items"
+                            : "Expand line items"
+                        }
+                        aria-expanded={isExpanded}
                       >
                         {isExpanded ? (
                           <ChevronUp className="h-4 w-4" />
@@ -669,7 +671,7 @@ function CheckoutGroupCard({
 
                 {/* Line items expansion */}
                 {isExpanded && (
-                  <div className="mt-3 border-t border-white/5 pt-3">
+                  <div className="mt-3 overflow-x-auto border-t border-white/5 pt-3">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-gray-500">

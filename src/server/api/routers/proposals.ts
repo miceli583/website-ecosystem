@@ -419,6 +419,50 @@ export const proposalsRouter = createTRPCRouter({
       return { success: true };
     }),
 
+  /**
+   * Publish or unpublish a proposal atomically.
+   * Publish: sets status to "sent" + isPrivate to false
+   * Unpublish: sets status to "draft" + isPrivate to true
+   */
+  setPublished: accountManagerProcedure
+    .input(
+      z.object({
+        proposalId: z.number(),
+        published: z.boolean(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const proposal = await db.query.clientResources.findFirst({
+        where: and(
+          eq(clientResources.id, input.proposalId),
+          eq(clientResources.section, "proposals")
+        ),
+      });
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      const existingMeta = proposal.metadata as Record<string, unknown>;
+
+      await db
+        .update(clientResources)
+        .set({
+          metadata: {
+            ...existingMeta,
+            status: input.published ? "sent" : "draft",
+          },
+          isPrivate: !input.published,
+          updatedAt: new Date(),
+        })
+        .where(eq(clientResources.id, input.proposalId));
+
+      return { success: true };
+    }),
+
   // --------------------------------------------------------------------------
   // AGREEMENT TEMPLATES
   // --------------------------------------------------------------------------
@@ -794,6 +838,20 @@ export const proposalsRouter = createTRPCRouter({
           code: "FORBIDDEN",
           message: "Portal access denied",
         });
+      }
+
+      // Client-scoped authorization
+      if (profile.role === "client") {
+        const proposal = await db.query.clientResources.findFirst({
+          where: and(
+            eq(clientResources.id, input.proposalId),
+            eq(clientResources.section, "proposals")
+          ),
+          with: { client: { columns: { slug: true } } },
+        });
+        if (!proposal || profile.clientSlug !== proposal.client.slug) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
       }
 
       const allCheckouts = await db.query.proposalCheckouts.findMany({
@@ -1293,7 +1351,30 @@ export const proposalsRouter = createTRPCRouter({
    */
   checkMercuryPayment: protectedProcedure
     .input(z.object({ proposalId: z.number(), checkoutGroupId: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Client-scoped authorization
+      const profile = await db.query.portalUsers.findFirst({
+        where: eq(portalUsers.authUserId, ctx.user.id),
+      });
+      if (!profile || !profile.isActive) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Portal access denied",
+        });
+      }
+      if (profile.role === "client") {
+        const proposal = await db.query.clientResources.findFirst({
+          where: and(
+            eq(clientResources.id, input.proposalId),
+            eq(clientResources.section, "proposals")
+          ),
+          with: { client: { columns: { slug: true } } },
+        });
+        if (!proposal || profile.clientSlug !== proposal.client.slug) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+      }
+
       const checkout = await db.query.proposalCheckouts.findFirst({
         where: and(
           eq(proposalCheckouts.proposalId, input.proposalId),
