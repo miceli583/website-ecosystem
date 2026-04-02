@@ -21,10 +21,6 @@ import {
   Handshake,
   Globe,
   CheckCircle2,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
   Play,
   Star,
   Quote,
@@ -34,6 +30,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Instagram } from "~/components/icons/brand-icons";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";

@@ -18,11 +18,8 @@ import {
   Globe,
   ExternalLink,
   Mail,
-  Instagram,
-  Twitter,
-  Youtube,
-  Facebook,
 } from "lucide-react";
+import { Instagram, Twitter, Youtube, Facebook } from "~/components/icons/brand-icons";
 
 /* ── Data ──────────────────────────────────────────────────────── */
 

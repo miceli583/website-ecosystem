@@ -3,10 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { Github, Twitter, Linkedin } from "~/components/icons/brand-icons";
 import {
-  Github,
-  Twitter,
-  Linkedin,
   Mail,
   ExternalLink,
   Code,

@@ -14,12 +14,10 @@ import {
   ArrowLeft,
   Menu,
   X,
-  Facebook,
-  Linkedin,
-  Twitter,
   Mail,
   Phone,
 } from "lucide-react";
+import { Facebook, Linkedin, Twitter } from "~/components/icons/brand-icons";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
