@@ -42,8 +42,8 @@
 | Public share OG branding       | Working   | Universal Miracle Mind OG images (4 variants), branded link previews for all share links                |
 | CRM shared components          | Working   | PromoteToClientModal, DemotionDialog, ContactRow type extracted to `src/components/crm/`                |
 | Showcase page                  | Working   | Live demos only (demos + creative); full CV content in docs/cv-matthew-miceli.md                        |
-| CRM ↔ Client sync             | **Fixed** | Bidirectional sync for all 6 shared fields including assignedDeveloperId                                |
-| Portal lifecycle               | **Fixed** | promote/create/demote/delete all sync clients ↔ portal_users correctly                                 |
+| CRM ↔ Client sync              | **Fixed** | Bidirectional sync for all 6 shared fields including assignedDeveloperId                                |
+| Portal lifecycle               | **Fixed** | promote/create/demote/delete all sync clients ↔ portal_users correctly                                  |
 | Database config                | **Fixed** | Drizzle tablesFilter removed (was matching nothing), SQLite dead path removed, db typed properly        |
 | Security hardening             | Working   | XSS sanitization, input length limits, RLS on all tables, dead public endpoint removed                  |
 
