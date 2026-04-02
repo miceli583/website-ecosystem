@@ -2,7 +2,7 @@
 
 ## Critical (blocks production)
 
-- [ ] **Test proposal creation UI**: Build a proposal from scratch via the builder and verify full flow (create → view → checkout)
+- [ ] **Test proposal checkout flow**: Verify full flow (create → view → publish → checkout → payment confirmation)
 - [ ] **Recurring billing tracking**: Handle `invoice.payment_succeeded` webhook for subscriptions — log each monthly payment to billing tab
 
 ## Bugs & Tech Debt
@@ -14,6 +14,9 @@
 - [ ] **daily-values router**: Many `publicProcedure` endpoints should be `protectedProcedure` (admin-only, cron uses direct DB)
 - [ ] **Mercury cron (Vercel)**: `vercel.json` cron configured but untested in production — verify `/api/mercury-invoice-poll` runs and updates pending Mercury checkouts. Fallback: manual DB update or Link Payment until confirmed working
 - [ ] **CRM project filtering**: Contact/client detail project lists need robust filtering (status, search, assignee, date range)
+- [ ] **Split proposals.ts**: 1,397 lines — extract checkout, payments, templates into sub-modules
+- [ ] **Migrate V1 proposal-modal to V2**: Used in billing/page.tsx — update to V2 types/checkout, then remove V1 types
+- [ ] **Dependabot PRs**: Merge #22 (minor/patch) → #24 (lucide-react) → #25 (Stripe 21) → #26 (TS 6) → #23 (eslint-config)
 
 ## Client Work (prioritized)
 
@@ -62,11 +65,11 @@
 
 ### High Priority — Unblocks Client Work
 
-- [x] ~~**Proposal Builder UI**: Non-dev AMs can create/edit proposals~~ — DONE
-- [x] ~~**Invoice payment logging**: AMs can log already-paid invoices~~ — DONE (Link Payment)
-- [x] ~~**Mercury invoice creation via API**~~ — DONE (AR API integration)
-- [x] ~~**Proposal Builder: Stripe vs Mercury option**~~ — DONE (credit/bank toggle)
-- [ ] **Contracts section**: Client portal + admin CRM view (files, agreements, legal docs) — unblocks Marissa NDA upload
+- [ ] **Contracts section**: Client portal + admin CRM view — accepted proposals stored as contracts, document uploads — unblocks Marissa NDA
+- [ ] **Tickets/change request tab**: Client-facing form for submitting change requests under retainer
+- [ ] **Stripe expense tracking**: Retroactive fee logging in admin finance hub (not per-client billing)
+- [ ] **Client tagging on finance line items**: Tag client name/portal to Stripe/Mercury transactions in finance hub
+- [ ] **Recurring invoice tracking**: Log subsequent subscription payments to client billing tab
 
 ### High Priority — Financial Systems
 

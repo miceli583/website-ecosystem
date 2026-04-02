@@ -192,6 +192,7 @@ export default function RevenuePage() {
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Description</th>
+                  <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3 text-right">Amount</th>
                 </tr>
@@ -205,6 +206,21 @@ export default function RevenuePage() {
                   >
                     <td className="px-4 py-2.5 text-gray-300">
                       {payment.description ?? "Payment"}
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-400">
+                      {payment.clientName ? (
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: "rgba(212, 175, 55, 0.1)",
+                            color: "#D4AF37",
+                          }}
+                        >
+                          {payment.clientName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-600">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-2.5 text-gray-400">
                       <span className="inline-flex items-center gap-1">
@@ -247,6 +263,7 @@ export default function RevenuePage() {
                   style={{ borderColor: "rgba(212, 175, 55, 0.1)" }}
                 >
                   <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Product</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Amount</th>
@@ -262,6 +279,21 @@ export default function RevenuePage() {
                   >
                     <td className="px-4 py-2.5 text-gray-300">
                       {sub.customer?.email ?? "Unknown"}
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-400">
+                      {sub.clientName ? (
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: "rgba(212, 175, 55, 0.1)",
+                            color: "#D4AF37",
+                          }}
+                        >
+                          {sub.clientName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-600">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-2.5 text-gray-400">
                       {sub.items[0]?.productName ?? "—"}

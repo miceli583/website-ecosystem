@@ -19,9 +19,12 @@ import {
   type MercuryTransaction,
 } from "~/lib/mercury";
 import {
+  clients,
+  clientResources,
   expenseCategories,
   expenses,
   mercuryTransactionCategories,
+  proposalCheckouts,
 } from "~/server/db/schema";
 
 const IRS_CATEGORIES = [
@@ -421,7 +424,7 @@ export const financeRouter = createTRPCRouter({
    * Get Stripe revenue overview
    * MRR, total revenue, subscription counts
    */
-  getStripeOverview: adminProcedure.query(async () => {
+  getStripeOverview: adminProcedure.query(async ({ ctx }) => {
     if (!stripeLive) {
       return {
         connected: false,
@@ -473,14 +476,47 @@ export const financeRouter = createTRPCRouter({
       );
 
       // Recent payments (last 10)
-      const recentPayments = successfulCharges.slice(0, 10).map((c) => ({
-        id: c.id,
-        amount: c.amount,
-        currency: c.currency,
-        description: c.description,
-        created: c.created,
-        customer: typeof c.customer === "string" ? c.customer : c.customer?.id,
-      }));
+      const recentCharges = successfulCharges.slice(0, 10);
+      const customerIds = [
+        ...new Set(
+          recentCharges
+            .map((c) =>
+              typeof c.customer === "string" ? c.customer : c.customer?.id
+            )
+            .filter(Boolean) as string[]
+        ),
+      ];
+
+      // Batch lookup client names by Stripe customer ID
+      const clientNameMap = new Map<string, string>();
+      if (customerIds.length > 0) {
+        const matchedClients = await ctx.db
+          .select({
+            stripeCustomerId: clients.stripeCustomerId,
+            name: clients.name,
+          })
+          .from(clients)
+          .where(inArray(clients.stripeCustomerId, customerIds));
+        for (const c of matchedClients) {
+          if (c.stripeCustomerId) {
+            clientNameMap.set(c.stripeCustomerId, c.name);
+          }
+        }
+      }
+
+      const recentPayments = recentCharges.map((c) => {
+        const custId =
+          typeof c.customer === "string" ? c.customer : c.customer?.id;
+        return {
+          id: c.id,
+          amount: c.amount,
+          currency: c.currency,
+          description: c.description,
+          created: c.created,
+          customer: custId,
+          clientName: custId ? (clientNameMap.get(custId) ?? null) : null,
+        };
+      });
 
       return {
         connected: true,
@@ -505,7 +541,7 @@ export const financeRouter = createTRPCRouter({
   /**
    * Get Stripe subscriptions breakdown
    */
-  getSubscriptions: adminProcedure.query(async () => {
+  getSubscriptions: adminProcedure.query(async ({ ctx }) => {
     if (!stripeLive) {
       return { connected: false, subscriptions: [] };
     }
@@ -556,7 +592,36 @@ export const financeRouter = createTRPCRouter({
         })
       );
 
-      return { connected: true, subscriptions: formatted };
+      // Batch lookup client names by Stripe customer ID
+      const subCustomerIds = [
+        ...new Set(
+          formatted.map((s) => s.customer?.id).filter(Boolean) as string[]
+        ),
+      ];
+      const subClientNameMap = new Map<string, string>();
+      if (subCustomerIds.length > 0) {
+        const matchedClients = await ctx.db
+          .select({
+            stripeCustomerId: clients.stripeCustomerId,
+            name: clients.name,
+          })
+          .from(clients)
+          .where(inArray(clients.stripeCustomerId, subCustomerIds));
+        for (const c of matchedClients) {
+          if (c.stripeCustomerId) {
+            subClientNameMap.set(c.stripeCustomerId, c.name);
+          }
+        }
+      }
+
+      const withClientNames = formatted.map((s) => ({
+        ...s,
+        clientName: s.customer?.id
+          ? (subClientNameMap.get(s.customer.id) ?? null)
+          : null,
+      }));
+
+      return { connected: true, subscriptions: withClientNames };
     } catch (error) {
       console.error("Stripe subscriptions error:", error);
       return {
@@ -616,7 +681,7 @@ export const financeRouter = createTRPCRouter({
         end: z.string().optional(), // YYYY-MM-DD
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       try {
         const accounts = await getMercuryAccounts();
 
@@ -645,6 +710,29 @@ export const financeRouter = createTRPCRouter({
           ? filtered.slice(0, input.limit)
           : filtered;
 
+        // Batch lookup client names via proposal_checkouts → client_resources → clients
+        const txIds = transactions.map((t: MercuryTransaction) => t.id);
+        const mercuryClientMap = new Map<string, string>();
+        if (txIds.length > 0) {
+          const checkoutMatches = await ctx.db
+            .select({
+              mercuryTransactionId: proposalCheckouts.mercuryTransactionId,
+              clientName: clients.name,
+            })
+            .from(proposalCheckouts)
+            .innerJoin(
+              clientResources,
+              eq(proposalCheckouts.proposalId, clientResources.id)
+            )
+            .innerJoin(clients, eq(clientResources.clientId, clients.id))
+            .where(inArray(proposalCheckouts.mercuryTransactionId, txIds));
+          for (const row of checkoutMatches) {
+            if (row.mercuryTransactionId) {
+              mercuryClientMap.set(row.mercuryTransactionId, row.clientName);
+            }
+          }
+        }
+
         const formatted = transactions.map((t: MercuryTransaction) => ({
           id: t.id,
           amount: t.amount,
@@ -654,6 +742,7 @@ export const financeRouter = createTRPCRouter({
           postedAt: t.postedAt,
           createdAt: t.createdAt,
           kind: t.kind,
+          clientName: mercuryClientMap.get(t.id) ?? null,
         }));
 
         return { connected: true, transactions: formatted, hasMore };

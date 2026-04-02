@@ -15,7 +15,7 @@ import {
   proposalCheckouts,
 } from "~/server/db/schema";
 import { inArray } from "drizzle-orm";
-import { eq, desc, isNull, and, asc, or, sql } from "drizzle-orm";
+import { eq, desc, isNull, and, asc, or, sql, like } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { stripe } from "~/lib/stripe";
 import { nanoid } from "nanoid";
@@ -874,14 +874,54 @@ export const portalRouter = createTRPCRouter({
         });
       }
 
-      // If no Stripe customer or Stripe not configured, return empty
+      // Helper: fetch Mercury-paid checkouts for this client
+      async function fetchMercuryPayments(clientId: number) {
+        const proposals = await db.query.clientResources.findMany({
+          where: and(
+            eq(clientResources.clientId, clientId),
+            eq(clientResources.section, "proposals")
+          ),
+          with: { project: true },
+        });
+        const proposalIds = proposals.map((p) => p.id);
+        if (proposalIds.length === 0) return [];
+
+        const mercuryCheckouts = await db.query.proposalCheckouts.findMany({
+          where: and(
+            inArray(proposalCheckouts.proposalId, proposalIds),
+            like(proposalCheckouts.paymentMethod, "mercury_%"),
+            eq(proposalCheckouts.status, "paid")
+          ),
+        });
+
+        return mercuryCheckouts.map((co) => {
+          const proposal = proposals.find((p) => p.id === co.proposalId);
+          return {
+            id: co.id,
+            amount: co.amount,
+            currency: co.currency,
+            paidAt: co.paidAt ? Math.floor(co.paidAt.getTime() / 1000) : null,
+            createdAt: Math.floor(co.createdAt.getTime() / 1000),
+            proposalId: co.proposalId,
+            proposalTitle: proposal?.title ?? "Payment",
+            projectId: proposal?.project?.id ?? null,
+            projectName: proposal?.project?.name ?? null,
+            checkoutGroupId: co.checkoutGroupId,
+            paymentMethod: co.paymentMethod,
+          };
+        });
+      }
+
+      // If no Stripe customer or Stripe not configured, still return Mercury payments
       if (!stripe || !client.stripeCustomerId) {
+        const mercuryPayments = await fetchMercuryPayments(client.id);
         return {
           hasStripeCustomer: false,
           invoices: [],
           payments: [],
           subscriptions: [],
           balance: null,
+          mercuryPayments,
         };
       }
 
@@ -1026,6 +1066,9 @@ export const portalRouter = createTRPCRouter({
         // Build a set of subscription IDs that are linked to proposals
         const linkedSubIds = new Set(subToProposal.keys());
 
+        // Fetch Mercury-paid checkouts for this client
+        const mercuryPayments = await fetchMercuryPayments(client.id);
+
         return {
           hasStripeCustomer: true,
           invoices: invoices.data
@@ -1162,15 +1205,18 @@ export const portalRouter = createTRPCRouter({
               };
             }),
           balance,
+          mercuryPayments,
         };
       } catch (error) {
         console.error("Stripe billing error for client:", client.slug, error);
+        const mercuryPayments = await fetchMercuryPayments(client.id);
         return {
           hasStripeCustomer: true,
           invoices: [],
           payments: [],
           subscriptions: [],
           balance: null,
+          mercuryPayments,
         };
       }
     }),

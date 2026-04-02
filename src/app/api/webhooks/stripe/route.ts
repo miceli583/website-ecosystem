@@ -250,7 +250,115 @@ export async function POST(request: NextRequest) {
       break;
     }
 
-    case "invoice.payment_succeeded":
+    case "invoice.payment_succeeded": {
+      const invoice = event.data.object as Stripe.Invoice;
+
+      // Only process subscription renewal payments (not the initial checkout)
+      if (invoice.billing_reason !== "subscription_cycle") break;
+
+      // Extract subscription ID from the parent object (Stripe SDK v2025+)
+      const subDetails = invoice.parent?.subscription_details;
+      const subscriptionId =
+        typeof subDetails?.subscription === "string"
+          ? subDetails.subscription
+          : (subDetails?.subscription?.id ?? null);
+
+      if (!subscriptionId) break;
+
+      // Find the original checkout row for this subscription
+      const [originalCheckout] = await db
+        .select()
+        .from(proposalCheckouts)
+        .where(eq(proposalCheckouts.stripeSubscriptionId, subscriptionId))
+        .limit(1);
+
+      if (!originalCheckout) {
+        console.warn(
+          `[Stripe Webhook] invoice.payment_succeeded: no checkout found for subscription ${subscriptionId}`
+        );
+        break;
+      }
+
+      // Extract payment intent ID from the invoice's payments list
+      let renewalFeeAmount: number | null = null;
+      const firstPayment = invoice.payments?.data?.[0];
+      const piRef = firstPayment?.payment?.payment_intent;
+      const renewalPaymentIntentId: string | null = piRef
+        ? typeof piRef === "string"
+          ? piRef
+          : piRef.id
+        : null;
+
+      if (renewalPaymentIntentId && stripe) {
+        try {
+          const pi = await stripe.paymentIntents.retrieve(
+            renewalPaymentIntentId
+          );
+          const chargeId =
+            typeof pi.latest_charge === "string"
+              ? pi.latest_charge
+              : pi.latest_charge?.id;
+          if (chargeId) {
+            const charge = await stripe.charges.retrieve(chargeId, {
+              expand: ["balance_transaction"],
+            });
+            const bt = charge.balance_transaction;
+            if (bt && typeof bt !== "string") {
+              renewalFeeAmount = bt.fee;
+            }
+          }
+        } catch {
+          // Fee tracking is best-effort
+        }
+      }
+
+      // Create a new checkout row for this renewal payment
+      const [renewalCheckout] = await db
+        .insert(proposalCheckouts)
+        .values({
+          proposalId: originalCheckout.proposalId,
+          checkoutGroupId: originalCheckout.checkoutGroupId,
+          optionId: originalCheckout.optionId,
+          paymentMethod: "stripe_credit",
+          status: "paid",
+          amount: invoice.amount_paid,
+          currency: invoice.currency,
+          stripePaymentIntentId: renewalPaymentIntentId,
+          stripeSubscriptionId: subscriptionId,
+          stripeFeeAmount: renewalFeeAmount,
+          paidAt: new Date(),
+        })
+        .returning({ id: proposalCheckouts.id });
+
+      // Log Stripe fee as an expense
+      if (renewalFeeAmount && renewalFeeAmount > 0) {
+        try {
+          const feeCategory = await db.query.expenseCategories.findFirst({
+            where: eq(expenseCategories.name, "Commissions & Fees"),
+          });
+          if (feeCategory) {
+            await db.insert(expenses).values({
+              categoryId: feeCategory.id,
+              amount: renewalFeeAmount, // already in cents
+              vendor: "Stripe",
+              description: `Processing fee — subscription renewal checkout #${renewalCheckout?.id ?? "unknown"}`,
+              date: new Date().toISOString().split("T")[0]!,
+              type: "expense",
+              isTaxDeductible: true,
+              createdByAuthId: "00000000-0000-0000-0000-000000000000", // system-generated
+            });
+          }
+        } catch {
+          // Expense logging is best-effort — don't fail the webhook
+        }
+      }
+
+      // Recalculate proposal-level status
+      await recalculateProposalStatus(originalCheckout.proposalId);
+
+      break;
+    }
+
     case "customer.subscription.updated":
       break;
 

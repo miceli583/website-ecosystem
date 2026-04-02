@@ -293,11 +293,11 @@ export default function PortalBillingPage({
   // ---------------------------------------------------------------------------
 
   const allItems = useMemo<NormalizedBillingItem[]>(() => {
-    if (!billing?.hasStripeCustomer) return [];
+    if (!billing) return [];
 
     const items: NormalizedBillingItem[] = [];
 
-    // Subscriptions
+    // Subscriptions (Stripe only)
     for (const sub of billing.subscriptions) {
       const name = sub.items
         .map((i) => i.productName ?? i.nickname ?? "Subscription")
@@ -380,6 +380,26 @@ export default function PortalBillingPage({
         projectName: pay.projectName ?? "Unassigned",
         paymentData: {
           receiptUrl: pay.receiptUrl,
+        },
+      });
+    }
+
+    // Mercury payments (bank transfers paid outside Stripe)
+    for (const mp of billing.mercuryPayments ?? []) {
+      items.push({
+        id: `mercury-${mp.id}`,
+        kind: "payment",
+        title: `Bank Transfer — ${mp.proposalTitle}`,
+        amount: mp.amount,
+        currency: mp.currency,
+        status: "succeeded",
+        date: mp.paidAt ?? mp.createdAt,
+        proposalId: mp.proposalId,
+        proposalName: mp.proposalTitle,
+        projectId: mp.projectId,
+        projectName: mp.projectName ?? "Unassigned",
+        paymentData: {
+          receiptUrl: null,
         },
       });
     }

@@ -581,6 +581,7 @@ interface MercuryTx {
   postedAt: string | null;
   createdAt: string | null;
   kind: string;
+  clientName: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -1515,6 +1516,7 @@ export default function ExpensesPage() {
                   >
                     <th className="px-4 py-3">Description</th>
                     <th className="px-4 py-3">Counterparty</th>
+                    <th className="px-4 py-3">Client</th>
                     <th className="px-4 py-3">Date</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Category</th>
@@ -1540,6 +1542,21 @@ export default function ExpensesPage() {
                       </td>
                       <td className="px-4 py-2.5 text-gray-400">
                         {tx.counterparty ?? "—"}
+                      </td>
+                      <td className="px-4 py-2.5 text-gray-400">
+                        {tx.clientName ? (
+                          <span
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: "rgba(212, 175, 55, 0.1)",
+                              color: "#D4AF37",
+                            }}
+                          >
+                            {tx.clientName}
+                          </span>
+                        ) : (
+                          <span className="text-gray-600">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-2.5 text-gray-400">
                         <span className="inline-flex items-center gap-1">

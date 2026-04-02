@@ -1,7 +1,7 @@
 # Project Status
 
 **Version:** 0.10.0
-**Last Updated:** 2026-03-31
+**Last Updated:** 2026-04-01
 **Last Updated By:** Matthew Miceli
 **Commits:** 260+
 
@@ -45,7 +45,9 @@
 | CRM ↔ Client sync              | **Fixed** | Bidirectional sync for all 6 shared fields including assignedDeveloperId                                |
 | Portal lifecycle               | **Fixed** | promote/create/demote/delete all sync clients ↔ portal_users correctly                                  |
 | Database config                | **Fixed** | Drizzle tablesFilter removed (was matching nothing), SQLite dead path removed, db typed properly        |
-| Security hardening             | Working   | XSS sanitization, input length limits, RLS on all tables, dead public endpoint removed                  |
+| Security hardening             | Working   | XSS sanitization, input length limits, RLS on all tables, client-scoped auth on checkout procedures     |
+| Proposal UX improvements       | **New**   | Customer info autopopulate, Save Draft / Save & Publish, Publish/Unpublish, consolidated privacy toggle |
+| Quality sweep (proposals)      | **New**   | Auth fixes, atomic mutations, shared formatters, a11y (dialog/keyboard), responsive fixes               |
 
 ## Known Limitations
 
@@ -61,10 +63,10 @@
 
 | Date   | Commit  | Description                                                                          | Author         |
 | ------ | ------- | ------------------------------------------------------------------------------------ | -------------- |
-| Mar 31 | pending | Proposal system v2, CRM/client unification, Mercury invoicing, payment linking       | Matthew Miceli |
+| Apr 01 | 6cefd70 | Quality sweep: security auth, a11y, responsive, shared formatters, atomic mutations  | Matthew Miceli |
+| Apr 01 | 2015bb9 | Proposal UX: autopopulate, table overflow fix, privacy consolidation, draft/publish  | Matthew Miceli |
+| Mar 31 | 368f949 | Proposal system v2, CRM/client unification, Mercury invoicing, payment linking       | Matthew Miceli |
 | Mar 30 | 41ae7bd | Project cleanup: dead deps, security hardening, DB fixes, portal lifecycle bug fixes | Matthew Miceli |
 | Mar 30 | 3a7c5d9 | Showcase → live demos only, CV markdown created, /resume redirects to /showcase      | Matthew Miceli |
-| Mar 29 | 68cc000 | Showcase demo pages, creative replicas, mobile responsive fixes                      | Matthew Miceli |
-| Mar 29 | e6ce8cc | Showcase refinements: sovereignty messaging, about section, nav arrows, hero photo   | Matthew Miceli |
 
 _Older changes: `git log --oneline`_
