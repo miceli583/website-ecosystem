@@ -27,6 +27,7 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Send,
 } from "lucide-react";
 
 // ============================================================================
@@ -136,6 +137,16 @@ export default function ProposalDetailPage({
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const publishProposal = () => {
+    updateStatus.mutate({ proposalId, status: "sent" });
+    archiveProposal.mutate({ id: proposalId, isPrivate: false });
+  };
+
+  const unpublishProposal = () => {
+    updateStatus.mutate({ proposalId, status: "draft" });
+    archiveProposal.mutate({ id: proposalId, isPrivate: true });
+  };
 
   if (isLoading) {
     return (
@@ -254,6 +265,29 @@ export default function ProposalDetailPage({
           {/* Admin actions */}
           {isAdmin && (
             <div className="flex flex-shrink-0 items-center gap-2">
+              {status === "draft" ? (
+                <button
+                  onClick={publishProposal}
+                  disabled={updateStatus.isPending || archiveProposal.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-black"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #F6E6C1 0%, #D4AF37 100%)",
+                  }}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Publish
+                </button>
+              ) : (
+                <button
+                  onClick={unpublishProposal}
+                  disabled={updateStatus.isPending || archiveProposal.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+                  style={{ borderColor: "rgba(212, 175, 55, 0.2)" }}
+                >
+                  Unpublish
+                </button>
+              )}
               <Link
                 href={`/portal/${slug}/proposals/new?edit=${proposalId}`}
                 className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"

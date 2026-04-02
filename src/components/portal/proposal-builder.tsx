@@ -349,7 +349,9 @@ export function ProposalBuilder({
         customTerms: customTerms.trim() || undefined,
         currency,
         validUntil: validUntil || undefined,
-        status: "draft" as const,
+        status: (editProposalId
+          ? (existingMeta?.status ?? "draft")
+          : "draft") as "draft" | "sent",
         customerInfo:
           customerName || customerEmail || customerCompany
             ? {
